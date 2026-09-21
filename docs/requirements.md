@@ -1,6 +1,6 @@
 # Sarah Beauty Desktop Requirements
 
-Status: Planning baseline. Application implementation and acceptance testing are pending.
+Status: Requirements baseline. A basic welcome screen runs; business features and their acceptance testing remain pending.
 
 This document records the agreed scope. Detailed fields are in the [data model](data-model.md), calculations in [business rules](business-rules.md), and unresolved choices in the [implementation plan](implementation-plan.md). Open choices must not be silently replaced with invented business facts.
 
@@ -159,4 +159,4 @@ Real customer information, attachments, financial records, account identifiers, 
 
 ## Acceptance criteria
 
-The original AC-001 through AC-006 and the remaining scenarios are maintained in [acceptance criteria](acceptance-criteria.md). They define required behavior; none is claimed to have passed in the unimplemented desktop application.
+The original AC-001 through AC-006 and the remaining scenarios are maintained in [acceptance criteria](acceptance-criteria.md). They define required business behavior; the welcome-screen check does not mark any of those scenarios passed.

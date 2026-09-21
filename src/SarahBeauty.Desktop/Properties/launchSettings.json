@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "SarahBeauty.Desktop (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "SarahBeauty.Desktop (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
