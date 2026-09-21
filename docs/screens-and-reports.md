@@ -1,6 +1,6 @@
 # Screens, Forms, Dashboard, and Reports
 
-Status: Planned interface. No screens or generated documents have been implemented.
+Status: A basic welcome screen is implemented. The business screens, forms, reports, and generated documents described below remain planned.
 
 ## Navigation and common behavior
 

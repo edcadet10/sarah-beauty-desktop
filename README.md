@@ -16,19 +16,31 @@ Google Sheets and Google Drive backups will require an internet connection.
 - A business dashboard with charts and links to supporting records
 - Google Sheets exports and complete Google Drive backups
 
-## Planned technology
+## Technology
 
-- C# and .NET
+- C# and .NET 10
 - WinUI 3 for the Windows interface
-- SQLite for local data storage
+- SQLite for local data storage (planned)
 
 ## Project status
 
-Planning documentation is prepared. The application has not been implemented yet, and there is no installer to download.
+The initial Windows application builds and launches on the development computer. It displays a Sarah Beauty welcome screen. Customer records, bookings, bookkeeping, local storage, and backups are still planned. There is no published installer yet.
 
 The first target is a Surface Pro 7. Everyday work will happen locally on Windows. Google Sheets will hold a readable export, and private Google Drive storage will hold recovery backups. These are backups of the desktop records, not a second place to edit the books.
 
 The project targets $0 in required recurring software subscriptions. Available storage, API limits, and dependency licenses will be checked before integration; no paid plan is assumed.
+
+## Run the development preview
+
+The current development setup uses Windows, the .NET 10 SDK, and Windows Developer Mode. The first build needs internet access to restore the project's packages.
+
+From the repository root, run:
+
+```powershell
+dotnet run --project .\src\SarahBeauty.Desktop\SarahBeauty.Desktop.csproj
+```
+
+The welcome screen has been manually checked on the development computer. Surface Pro 7 compatibility and touch behavior remain to be tested. The preview does not store business records.
 
 ## Project documentation
 

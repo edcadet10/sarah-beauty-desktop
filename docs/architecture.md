@@ -1,6 +1,20 @@
 # Application Architecture
 
-Status: Planned design. Libraries, package versions, authentication, and deployment choices require the checks listed in the [implementation plan](implementation-plan.md).
+Status: The desktop shell and welcome screen are implemented. The business architecture below remains planned. Surface compatibility, dependency licenses, authentication, and deployment choices require the checks listed in the [implementation plan](implementation-plan.md).
+
+## Current project
+
+The [desktop project](../src/SarahBeauty.Desktop/SarahBeauty.Desktop.csproj) is the only application project currently present. `App.xaml.cs` starts the application, `MainWindow.xaml` provides the window and page frame, and `MainPage.xaml` contains the welcome screen. No database or cloud integration is connected.
+
+The generated project targets `net10.0-windows10.0.26100.0` and declares these package versions:
+
+| Package | Version |
+|---|---|
+| Microsoft.WindowsAppSDK | 2.5.1 |
+| Microsoft.Windows.SDK.BuildTools | 10.0.28000.2705 |
+| Microsoft.Windows.SDK.BuildTools.WinApp | 0.6.1 |
+
+These values record the current project configuration; they do not establish compatibility with the untested Surface. Update this table when dependency versions change.
 
 ## Platform and boundaries
 
