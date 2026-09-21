@@ -3,7 +3,7 @@
 Status: Draft
 
 ## Application scope
-Sarah Beauty Desktop will be a Windows application intended fo use on a Surface Pro.
+Sarah Beauty Desktop will be a Windows application intended for use on a Surface Pro.
 
 The application must:
 - Support everyday business operations without internet access.
