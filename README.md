@@ -40,9 +40,9 @@ From the repository root, run:
 dotnet run --project .\src\SarahBeauty.Desktop\SarahBeauty.Desktop.csproj
 ```
 
-Development runs unpackaged by default, with the project directory as its working directory so the app can find its icon. On startup it creates or opens `%LOCALAPPDATA%\SarahBeautyDesktop\Test\sarahbeauty.db`, outside the repository. The preview shows the database path and its saved Store ID. Storage initialization failures appear on the preview screen.
+Development runs unpackaged by default, with the project directory as its working directory so the app can find its icon. On startup it creates or opens `%LOCALAPPDATA%\SarahBeautyDesktop\Test\sarahbeauty.db`, outside the repository. The preview shows the database path, its saved Store ID, and its application schema version. Storage initialization failures appear on the preview screen.
 
-The database currently contains only `AppMetadata`, with a generated UUID under `StoreId`. Closing and reopening the app was manually checked on the development computer, and the ID remained unchanged. This is a first persistence milestone: business tables, schema migrations, stored TEST/LIVE mode checks, authentication, and recovery are not implemented yet. Do not enter live business records into this preview.
+The database currently contains only `AppMetadata`, with a generated UUID under `StoreId`. Its application schema version is read from SQLite's `user_version` value. The app currently accepts version `0` and rejects negative or newer versions before creating tables or inserting metadata. Closing and reopening the app was manually checked on the development computer, and the ID remained unchanged. Isolated database checks also confirmed that rejecting versions `1` and `-1` left the files unchanged. Business tables, schema migrations, stored TEST/LIVE mode checks, authentication, and recovery are not implemented yet. Do not enter live business records into this preview.
 
 The earlier published preview launched on a Surface Pro 7 running Windows 11 Pro 25H2, OS build 26200.9457. The current storage additions, touch interaction, and offline behavior still need explicit Surface checks.
 

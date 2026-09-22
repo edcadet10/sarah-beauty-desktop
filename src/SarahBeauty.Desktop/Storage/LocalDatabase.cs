@@ -6,7 +6,8 @@ namespace SarahBeauty_Desktop.Storage;
 
 public static class LocalDatabase
 {
-    public static (string DatabasePath, string StoreId) InitializeTestDatabase()
+    public static (string DatabasePath, string StoreId, int SchemaVersion)
+        InitializeTestDatabase()
     {
         string folderPath = AppDataPaths.EnsureTestFolderExists();
         string databasePath = Path.Combine(folderPath, "sarahbeauty.db");
@@ -24,6 +25,22 @@ public static class LocalDatabase
         using var transaction = connection.BeginTransaction();
         using var command = connection.CreateCommand();
         command.Transaction = transaction;
+
+        command.CommandText = "PRAGMA user_version;";
+
+        const int supportedSchemaVersion = 0;
+
+        int schemaVersion = Convert.ToInt32(
+            command.ExecuteScalar()
+            ?? throw new InvalidOperationException(
+                "The database did not return a schema version."));
+
+        if (schemaVersion < 0 || schemaVersion > supportedSchemaVersion)
+        {
+            throw new InvalidOperationException(
+                $"Database schema version {schemaVersion} is unsupported. " +
+                $"The latest version this app supports is {supportedSchemaVersion}.");
+        }
 
         command.CommandText = """
               CREATE TABLE IF NOT EXISTS AppMetadata (
@@ -56,6 +73,6 @@ public static class LocalDatabase
 
         transaction.Commit();
 
-        return (databasePath, storeId);
+        return (databasePath, storeId, schemaVersion);
     }
 }
