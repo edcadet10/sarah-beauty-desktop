@@ -1,6 +1,6 @@
 # Application Architecture
 
-Status: The desktop shell and welcome screen are implemented. The business architecture below remains planned. Surface compatibility, dependency licenses, authentication, and deployment choices require the checks listed in the [implementation plan](implementation-plan.md).
+Status: The desktop shell and welcome screen are implemented, and the published preview has launched on the Surface Pro 7. The business architecture below remains planned. Further Surface testing, dependency licenses, authentication, and deployment choices require the checks listed in the [implementation plan](implementation-plan.md).
 
 ## Current project
 
@@ -14,11 +14,11 @@ The generated project targets `net10.0-windows10.0.26100.0` and declares these p
 | Microsoft.Windows.SDK.BuildTools | 10.0.28000.2705 |
 | Microsoft.Windows.SDK.BuildTools.WinApp | 0.6.1 |
 
-These values record the current project configuration; they do not establish compatibility with the untested Surface. Update this table when dependency versions change.
+These values record the current project configuration. The unpackaged, self-contained `win-x64` preview has been manually launched on the Surface Pro 7 with Windows 11 Pro 25H2, build 26200.9457. This checks startup; broader device and business behavior remain to be tested. Update this table when dependency versions change.
 
 ## Platform and boundaries
 
-Use C#/.NET with WinUI 3 for the Windows interface and SQLite for the local database. WinUI 3 supports Windows 10 version 1809 and later, including Windows 11, but the chosen .NET/Windows App SDK versions may add requirements. Verify the actual Surface before selecting the target. See [Microsoft's WinUI 3 documentation](https://learn.microsoft.com/en-us/windows/apps/winui/winui3/).
+Use C#/.NET with WinUI 3 for the Windows interface and SQLite for the local database. WinUI 3 supports Windows 10 version 1809 and later, including Windows 11, but the chosen .NET/Windows App SDK versions may add requirements. The current preview has launched on the actual Surface; support for other Windows versions is not established. See [Microsoft's WinUI 3 documentation](https://learn.microsoft.com/en-us/windows/apps/winui/winui3/).
 
 The desktop database is authoritative. Google integrations export snapshots; they do not post transactions or synchronize competing edits. There is no public web server, phone app, or network listener for business records in this release.
 
