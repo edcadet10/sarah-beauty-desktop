@@ -1,20 +1,25 @@
 # Application Architecture
 
-Status: The desktop shell and welcome screen are implemented, and the published preview has launched on the Surface Pro 7. The business architecture below remains planned. Further Surface testing, dependency licenses, authentication, and deployment choices require the checks listed in the [implementation plan](implementation-plan.md).
+Status: The desktop shell, welcome screen, and first TEST database initialization are implemented. A saved Store ID survives closing and reopening the app on the development computer. An earlier welcome-screen preview launched on the Surface Pro 7; the storage additions still need Surface testing. The business architecture below remains planned. Dependency licenses, authentication, recovery, and deployment choices require the checks listed in the [implementation plan](implementation-plan.md).
 
 ## Current project
 
-The [desktop project](../src/SarahBeauty.Desktop/SarahBeauty.Desktop.csproj) is the only application project currently present. `App.xaml.cs` starts the application, `MainWindow.xaml` provides the window and page frame, and `MainPage.xaml` contains the welcome screen. No database or cloud integration is connected.
+The [desktop project](../src/SarahBeauty.Desktop/SarahBeauty.Desktop.csproj) is the only application project currently present. `App.xaml.cs` starts the application, `MainWindow.xaml` provides the window and page frame, and `MainPage.xaml` contains the welcome screen. Its code-behind calls `Storage/LocalDatabase.cs` to initialize the TEST database and display its path and Store ID. Cloud integration and business workflows are not connected.
+
+`Storage/AppDataPaths.cs` resolves the current Windows user's local application data directory and creates `SarahBeautyDesktop/Test` beneath it. `LocalDatabase` opens `sarahbeauty.db` with `ReadWriteCreate` and requests foreign-key enforcement on that connection. In one transaction it creates `AppMetadata` if missing, inserts a generated Store ID only if that key is absent, and reads the saved value. SQL parameters carry the candidate ID; restarting the app preserves an existing ID. `MainPage` catches initialization errors and displays them in the development preview.
+
+The development launch profile uses `commandName: Project`, and the project sets `WindowsPackageType` to `None`. `RunWorkingDirectory` points to the project directory for the relative icon path. This uses an unpackaged development launch, consistent with the folder-based Surface preview. The generated MSIX tooling remains in the project; a packaged release and its data location are not established by this milestone.
 
 The generated project targets `net10.0-windows10.0.26100.0` and declares these package versions:
 
 | Package | Version |
 |---|---|
+| Microsoft.Data.Sqlite | 10.0.12 |
 | Microsoft.WindowsAppSDK | 2.5.1 |
 | Microsoft.Windows.SDK.BuildTools | 10.0.28000.2705 |
 | Microsoft.Windows.SDK.BuildTools.WinApp | 0.6.1 |
 
-These values record the current project configuration. The unpackaged, self-contained `win-x64` preview has been manually launched on the Surface Pro 7 with Windows 11 Pro 25H2, build 26200.9457. This checks startup; broader device and business behavior remain to be tested. Update this table when dependency versions change.
+These values record the current project configuration. The earlier unpackaged, self-contained `win-x64` welcome-screen preview was manually launched on the Surface Pro 7 with Windows 11 Pro 25H2, build 26200.9457. That test predates the SQLite addition; it does not establish current storage behavior on the Surface. Update this table when dependency versions change.
 
 ## Platform and boundaries
 
@@ -48,8 +53,10 @@ Screens call commands rather than writing journal rows directly. Core calculatio
 
 ## Local storage
 
+The current implementation is TEST-only and has one technical table, `AppMetadata`. SQLite's `user_version` is still `0`; schema migrations, stored mode validation, business identity, managed attachments, and local recovery snapshots remain planned. The saved Store ID identifies this database and is separate from the future business record. The following requirements govern the remaining implementation.
+
 - Keep source code and business data in separate directories. A database must never default to the repository root or a cloud-synchronized live folder.
-- Single-Windows-profile storage can use the application data directory. Sharing records across separate Windows accounts needs a deliberately configured shared data directory and permissions; decide that before implementing sign-in.
+- Both owners will use one Windows profile on the Surface. Resolve the current user's local application data directory at runtime; the current test store is `SarahBeautyDesktop/Test` beneath it. The effective development path and Store ID persistence have been checked. Verify storage in the published Surface build before enabling live records.
 - Separate TEST and LIVE stores, managed attachment directories, and local backup staging. Store schema version and business identity in each database.
 - Enable and verify SQLite foreign-key enforcement on every connection. Use transactions, bounded busy handling, parameterized SQL, and database uniqueness/check constraints.
 - Use schema migrations with a verified recovery snapshot before an upgrade. Reject unsupported newer schemas without modifying them.
@@ -80,7 +87,7 @@ Background jobs persist their queue state. Run one writer per business store ini
 
 ## Privacy and owner identity
 
-The device is shared by two trusted owners, but each approval needs an authenticated local owner context. The precise mechanism is unresolved: separate Windows identities with a shared data location, or app-level local authentication with secure credential storage. Test offline identity switching and recovery before live financial approval.
+The device and Windows login are shared by two trusted owners, but each approval needs an authenticated local owner context inside the app. The app-level authentication and credential recovery mechanisms remain unresolved. Use secure credential storage and test offline identity switching and recovery before live financial approval.
 
 Windows file permissions and available device encryption protect local storage. Plain SQLite is not automatically encrypted. Confirm the Surface's disk protection and the selected database/attachment protection before using live records. Do not describe a display-name selector or audit table as tamper-proof security.
 

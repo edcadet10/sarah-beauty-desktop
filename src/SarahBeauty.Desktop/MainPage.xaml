@@ -28,6 +28,16 @@
             <TextBlock
                 Text="Development preview - no business records yet."
                 TextWrapping="Wrap" />
+
+            <TextBlock
+                Text="TEST database"
+                FontWeight="SemiBold" />
+
+            <TextBlock
+                x:Name="StoragePathText"
+                TextWrapping="Wrap"
+                IsTextSelectionEnabled="True" />
+
         </StackPanel>
     </Grid>
 </Page>

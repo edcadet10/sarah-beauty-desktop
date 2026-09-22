@@ -1,4 +1,6 @@
+using System;
 using Microsoft.UI.Xaml.Controls;
+using SarahBeauty_Desktop.Storage;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -15,6 +17,17 @@ public sealed partial class MainPage : Page
     {
         InitializeComponent();
 
-        // TODO: Add your initialization logic here.
+        try
+        {
+            var database = LocalDatabase.InitializeTestDatabase();
+
+            StoragePathText.Text =
+                $"{database.DatabasePath}\nStore ID: {database.StoreId}";
+        }
+        catch (Exception error)
+        {
+            StoragePathText.Text = $"Could not prepare TEST storage:{error.Message}";
+        }
+
     }
 }
