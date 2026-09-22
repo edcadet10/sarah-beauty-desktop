@@ -20,11 +20,11 @@ Google Sheets and Google Drive backups will require an internet connection.
 
 - C# and .NET 10
 - WinUI 3 for the Windows interface
-- SQLite for local data storage (planned)
+- SQLite through Microsoft.Data.Sqlite for local data storage
 
 ## Project status
 
-The initial Windows application builds on the development computer, and its published preview has been manually launched on both that computer and the Surface Pro 7. It displays a Sarah Beauty welcome screen. Customer records, bookings, bookkeeping, local storage, and backups are still planned. There is no published installer yet.
+The Windows application builds and runs on the development computer. It displays a welcome screen and initializes a local TEST SQLite database with a Store ID that remains unchanged after closing and reopening the app. An earlier welcome-screen preview was manually launched on the Surface Pro 7; the storage additions have not yet been tested there. Customer records, bookings, bookkeeping, owner login, and backups are still planned. There is no published installer yet.
 
 The first target is a Surface Pro 7. Everyday work will happen locally on Windows. Google Sheets will hold a readable export, and private Google Drive storage will hold recovery backups. These are backups of the desktop records, not a second place to edit the books.
 
@@ -40,7 +40,11 @@ From the repository root, run:
 dotnet run --project .\src\SarahBeauty.Desktop\SarahBeauty.Desktop.csproj
 ```
 
-The welcome screen has been manually checked on the development computer. The published preview also launched on a Surface Pro 7 running Windows 11 Pro 25H2, OS build 26200.9457. Touch interaction and offline behavior still need explicit checks. The preview does not store business records.
+Development runs unpackaged by default, with the project directory as its working directory so the app can find its icon. On startup it creates or opens `%LOCALAPPDATA%\SarahBeautyDesktop\Test\sarahbeauty.db`, outside the repository. The preview shows the database path and its saved Store ID. Storage initialization failures appear on the preview screen.
+
+The database currently contains only `AppMetadata`, with a generated UUID under `StoreId`. Closing and reopening the app was manually checked on the development computer, and the ID remained unchanged. This is a first persistence milestone: business tables, schema migrations, stored TEST/LIVE mode checks, authentication, and recovery are not implemented yet. Do not enter live business records into this preview.
+
+The earlier published preview launched on a Surface Pro 7 running Windows 11 Pro 25H2, OS build 26200.9457. The current storage additions, touch interaction, and offline behavior still need explicit Surface checks.
 
 ## Publish a Surface test copy
 

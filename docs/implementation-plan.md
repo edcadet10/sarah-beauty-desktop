@@ -1,15 +1,18 @@
 # Implementation Plan
 
-Status: Development started. The initial WinUI welcome screen runs on the development computer, and the published preview has launched on the Surface Pro 7. Business features and further device testing remain pending.
+Status: Development started. The WinUI preview initializes a local TEST database and preserves its Store ID after restarting on the development computer. An earlier welcome-screen preview launched on the Surface Pro 7. Business features, the remaining local foundation, and further device testing remain pending.
 
 ## Current progress
 
 - Development uses the Lenovo computer with VS Code, the .NET 10 SDK, C# tooling, and Windows Developer Mode.
 - The [desktop project](../src/SarahBeauty.Desktop/SarahBeauty.Desktop.csproj) has been created and launched with `dotnet run`.
 - The welcome screen has been manually checked after its first XAML change.
-- The unpackaged, self-contained `win-x64` publish includes all nine image/icon assets, verified against the source files. The published copy has been manually launched on the development computer and the target Surface.
+- The earlier unpackaged, self-contained `win-x64` publish includes all nine image/icon assets, verified against the source files. That welcome-screen copy was manually launched on the development computer and the target Surface; the SQLite additions have not yet been published and tested on the Surface.
 - The Surface runs Windows 11 Pro 25H2, OS build 26200.9457. Successful launch was reported by the tester; touch interaction and offline behavior have not been separately confirmed.
-- Local storage, authenticated approvals, business workflows, and backups have not been implemented.
+- Development now launches unpackaged by default. `AppDataPaths` creates the TEST data directory beneath the current user's local application data directory, outside the repository.
+- `Microsoft.Data.Sqlite` 10.0.12 opens `sarahbeauty.db`. Initialization creates `AppMetadata`, preserves an existing `StoreId`, and reads it within a transaction. The preview displays the database path and saved ID, or an initialization error.
+- On September 22, 2026, the tester confirmed that closing and reopening the application preserved the Store ID. A read-only database inspection also found `AppMetadata` and the saved ID. This validates the first persistence exercise; it does not complete phase 2 or establish offline, recovery, migration, or Surface storage behavior.
+- Schema versioning, stored TEST/LIVE mode validation, owner login, business tables, managed attachments, authenticated approvals, and backups remain unimplemented.
 - Phase 1 remains in progress: document the remaining device details and review dependency licenses before closing that phase.
 
 ## Agreed decisions
@@ -20,7 +23,7 @@ Status: Development started. The initial WinUI welcome screen runs on the develo
 | Main records | Local database and managed local attachments |
 | Backup | One-way readable Google Sheets export plus complete private Google Drive recovery archive |
 | Cost | $0 required recurring software subscriptions; no billing enrollment assumed |
-| Users | Two owners; both can approve, including their own entries, offline |
+| Users | Two owners sharing one Windows login on the Surface; separate authenticated owner identities inside the app; both can approve, including their own entries, offline |
 | Customers | Name-only records permitted; nonblocking contact warning |
 | Wedding party | Quantities/placeholders before names; recipients separate from payers |
 | Pricing | Bridal $300 including $150 trial; non-bride $120; wedding-only $1 per round-trip mile |
@@ -58,7 +61,7 @@ These do not prevent documenting or coding independent features. Resolve each be
 | ID | Missing decision/input | Required before |
 |---|---|---|
 | OPEN-01 | Lenovo development setup and published preview launch on the Surface are confirmed. Surface Windows 11 Pro 25H2, build 26200.9457, is recorded; RAM/storage, display scaling, touch, and offline checks remain | Completing the device baseline for phase 1 and relevant device acceptance checks |
-| OPEN-02 | Local owner authentication and whether the owners share a Windows profile; credential recovery and data-directory permissions | Approval/security implementation and live local access |
+| OPEN-02 | One shared Windows profile is confirmed. Choose the app-level owner authentication mechanism, credential recovery, and data-directory protection | Approval/security implementation and live local access |
 | OPEN-03 | Any reusable deposit/final due-date defaults, non-bridal payment plans, and override behavior | Applying automatic defaults; otherwise choose explicitly per booking |
 | OPEN-04 | Travel payer and unpaid-share responsibility; cancellation/refund/transfer decisions and actual accepted terms | Issuing affected documents or approving each case |
 | OPEN-05 | Formation/start evidence, EIN, private business details, own bank/payment accounts and provider setup | Appropriate live setup; not routine development |

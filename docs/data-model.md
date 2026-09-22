@@ -4,7 +4,7 @@ Status: Logical design for implementation. These are records and relationships, 
 
 ## Conventions
 
-- Every table has a generated, permanent `id` (UUID), `businessId`, `createdAtUtc`, and `createdByOwnerId`. The root Business uses its own ID as `businessId`.
+- Every business-record table has a generated, permanent `id` (UUID), `businessId`, `createdAtUtc`, and `createdByOwnerId`. The root Business uses its own ID as `businessId`.
 - Editable records also have `updatedAtUtc`, `updatedByOwnerId`, and an integer `revision` for stale-edit detection. Financial/document history uses append-only versions and linked reversals instead.
 - Imported historical records can have an unknown original actor, but must retain their source and the owner who imported/reviewed them. Never invent an actor.
 - `?` means optional/unknown. Other fields are required for a completed record; an incomplete draft may defer them only where its next state explicitly validates them.
@@ -12,6 +12,12 @@ Status: Logical design for implementation. These are records and relationships, 
 - `Cents` fields are integer money; `Date` fields are calendar dates; `AtUtc` fields are UTC instants. Quantity, miles, percentage, and rate fields use fixed decimal precision, not floating-point storage. A fraction such as 0.075 means 7.5%; label percentage inputs clearly.
 - Structured address means street lines, city, state/region, postal code, and country. A snapshot is a versioned structured copy, not a live foreign-key lookup.
 - Computed balances, overdue flags, named counts, and dashboard totals are views, not manually editable inputs. Cache only with a committed-data watermark.
+
+## Technical store metadata
+
+`AppMetadata` is a technical table with non-null text columns `Key` (primary key) and `Value`. The first persistence exercise saves a generated UUID under `StoreId` and reads that same value after reopening the database. Initialization must preserve an existing ID. This identifies the local store, separately from the future Business record.
+
+Technical metadata can be initialized before owner sign-in, so it does not invent a business or approving owner. Schema migrations, stored TEST/LIVE mode validation, and business setup remain separate requirements before live records are enabled. This table is not a credential store.
 
 ## Business, owners, and reference records
 
