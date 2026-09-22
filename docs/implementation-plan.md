@@ -1,14 +1,16 @@
 # Implementation Plan
 
-Status: Development started. The initial WinUI welcome screen runs on the development computer; business features and Surface testing remain pending.
+Status: Development started. The initial WinUI welcome screen runs on the development computer, and the published preview has launched on the Surface Pro 7. Business features and further device testing remain pending.
 
 ## Current progress
 
 - Development uses the Lenovo computer with VS Code, the .NET 10 SDK, C# tooling, and Windows Developer Mode.
 - The [desktop project](../src/SarahBeauty.Desktop/SarahBeauty.Desktop.csproj) has been created and launched with `dotnet run`.
 - The welcome screen has been manually checked after its first XAML change.
+- The unpackaged, self-contained `win-x64` publish includes all nine image/icon assets, verified against the source files. The published copy has been manually launched on the development computer and the target Surface.
+- The Surface runs Windows 11 Pro 25H2, OS build 26200.9457. Successful launch was reported by the tester; touch interaction and offline behavior have not been separately confirmed.
 - Local storage, authenticated approvals, business workflows, and backups have not been implemented.
-- Phase 1 remains in progress: verify the Surface's Windows version, run the app there, and review dependency licenses before closing that phase.
+- Phase 1 remains in progress: document the remaining device details and review dependency licenses before closing that phase.
 
 ## Agreed decisions
 
@@ -55,7 +57,7 @@ These do not prevent documenting or coding independent features. Resolve each be
 
 | ID | Missing decision/input | Required before |
 |---|---|---|
-| OPEN-01 | Lenovo development setup is working with .NET 10; still confirm Surface Windows version, RAM/storage, display scaling, and compatibility with the generated project's dependencies | Finalizing the supported Windows target and completing phase 1 |
+| OPEN-01 | Lenovo development setup and published preview launch on the Surface are confirmed. Surface Windows 11 Pro 25H2, build 26200.9457, is recorded; RAM/storage, display scaling, touch, and offline checks remain | Completing the device baseline for phase 1 and relevant device acceptance checks |
 | OPEN-02 | Local owner authentication and whether the owners share a Windows profile; credential recovery and data-directory permissions | Approval/security implementation and live local access |
 | OPEN-03 | Any reusable deposit/final due-date defaults, non-bridal payment plans, and override behavior | Applying automatic defaults; otherwise choose explicitly per booking |
 | OPEN-04 | Travel payer and unpaid-share responsibility; cancellation/refund/transfer decisions and actual accepted terms | Issuing affected documents or approving each case |

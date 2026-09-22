@@ -24,7 +24,7 @@ Google Sheets and Google Drive backups will require an internet connection.
 
 ## Project status
 
-The initial Windows application builds and launches on the development computer. It displays a Sarah Beauty welcome screen. Customer records, bookings, bookkeeping, local storage, and backups are still planned. There is no published installer yet.
+The initial Windows application builds on the development computer, and its published preview has been manually launched on both that computer and the Surface Pro 7. It displays a Sarah Beauty welcome screen. Customer records, bookings, bookkeeping, local storage, and backups are still planned. There is no published installer yet.
 
 The first target is a Surface Pro 7. Everyday work will happen locally on Windows. Google Sheets will hold a readable export, and private Google Drive storage will hold recovery backups. These are backups of the desktop records, not a second place to edit the books.
 
@@ -40,7 +40,24 @@ From the repository root, run:
 dotnet run --project .\src\SarahBeauty.Desktop\SarahBeauty.Desktop.csproj
 ```
 
-The welcome screen has been manually checked on the development computer. Surface Pro 7 compatibility and touch behavior remain to be tested. The preview does not store business records.
+The welcome screen has been manually checked on the development computer. The published preview also launched on a Surface Pro 7 running Windows 11 Pro 25H2, OS build 26200.9457. Touch interaction and offline behavior still need explicit checks. The preview does not store business records.
+
+## Publish a Surface test copy
+
+From the repository root, run:
+
+```powershell
+dotnet publish .\src\SarahBeauty.Desktop\SarahBeauty.Desktop.csproj `
+  -c Release -r win-x64 --self-contained true `
+  -p:WindowsAppSDKSelfContained=true `
+  -p:WindowsPackageType=None `
+  -p:PublishTrimmed=false `
+  -o .\src\SarahBeauty.Desktop\publish\surface-preview
+```
+
+This creates an unpackaged folder containing the app, its .NET and Windows App SDK runtimes, and its image/icon assets. Copy the entire `surface-preview` folder onto the target computer, then open `SarahBeauty.Desktop.exe` from that folder. Extract a ZIP before launching if one is used for transfer.
+
+The project's asset copy settings include all nine image/icon files in build and publish output. The `publish/` output is ignored by Git; commit the project settings and documentation rather than the generated distribution files. This folder is a development preview; installation and update behavior remain to be designed.
 
 ## Project documentation
 
