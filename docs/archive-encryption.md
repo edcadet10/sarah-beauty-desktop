@@ -1,6 +1,6 @@
 # Encrypt portable recovery data
 
-Status: The encryption helper, desktop process bridge, and reference interoperability checks are implemented. Consistent archive assembly, manifest/restore validation, and the desktop recovery interface follow separately.
+Status: The encryption helper, desktop process bridge, reference interoperability checks, and [complete local archive creation](archive-package.md) are implemented. Staged restore validation and the desktop recovery interface follow separately.
 
 The selected format is [age v1](https://c2sp.org/age), using the maintained [age 1.3.2 Go library](https://pkg.go.dev/filippo.io/age@v1.3.2). New business recovery keys use its native hybrid ML-KEM-768/X25519 identity. The app uses the library's encryption functions and format directly.
 
@@ -46,4 +46,4 @@ Pop-Location
 
 Four test groups cover protected recovery, empty/exact-chunk/multiple-chunk streams, independent output hashes, wrong passphrase/identity, changed/truncated ciphertext with incomplete-output cleanup, existing-destination preservation, reference CLI interoperability in both directions, bounded protocol inputs, fixed safe errors, and excessive recovery work. CI runs them as a separate Windows job. Tests use temporary fictional data and never use an owner's real recovery material.
 
-Five .NET cases also run the real helper through its local pipe. They cover generated/inspected recovery material, multiple-chunk encryption/decryption and independent hashes, wrong passphrase/truncation without plaintext publication or private-input errors, cancellation/timeouts with cleanup, a destination created by another operation, wrong output hashes, oversized recovery input, and a missing-helper action. The full .NET suite has 527 passing cases.
+Five .NET cases also run the real helper through its local pipe. They cover generated/inspected recovery material, multiple-chunk encryption/decryption and independent hashes, wrong passphrase/truncation without plaintext publication or private-input errors, cancellation/timeouts with cleanup, a destination created by another operation, wrong output hashes, oversized recovery input, and a missing-helper action. Archive creation has separate end-to-end and failure checks.

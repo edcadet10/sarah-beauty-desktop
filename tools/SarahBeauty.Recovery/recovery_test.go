@@ -55,6 +55,13 @@ func TestProtectedRecoveryAndStreamingRoundTrip(t *testing.T) {
 	if inspected.Recipient != bundle.Recipient {
 		t.Fatal("Protected recovery does not retain its recipient")
 	}
+	public := call(t, request{Version: 1, Operation: "inspect-recipient", Recipient: bundle.Recipient})
+	if public.Recipient != bundle.Recipient {
+		t.Fatal("Public recipient inspection changed the encryption destination")
+	}
+	if _, err := serve(strings.NewReader(`{"version":1,"operation":"inspect-recipient","recipient":"invalid"}`)); !errors.Is(err, errRecipient) {
+		t.Fatal("Invalid public recipient was accepted")
+	}
 	for _, size := range []int{0, 65536, 150000} {
 		plain := bytes.Repeat([]byte{31}, size)
 		input := sourceFile(t, "fictional.bin", plain)

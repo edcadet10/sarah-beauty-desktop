@@ -6,6 +6,12 @@ public sealed class RecoveryCipher
     public RecoveryCipher():this(Path.Combine(AppContext.BaseDirectory,"SarahBeauty.Recovery.exe"),TimeSpan.FromMinutes(30)){}
     internal RecoveryCipher(string executable,TimeSpan timeout)=>_worker=new(executable,timeout);
 
+    public async Task<string> InspectRecipientAsync(string recipient,CancellationToken cancellation=default)
+    {
+        var result=await _worker.Run(new(){Operation="inspect-recipient",Recipient=recipient},cancellation);
+        return !string.IsNullOrWhiteSpace(result.Recipient)&&result.Recipient.Length<=8192?result.Recipient:throw new RecoveryFailure("InvalidResponse","The recovery recipient was missing.");
+    }
+
     public async Task<RecoveryMaterial> CreateAsync(string passphrase,CancellationToken cancellation=default)
     {
         var result=await _worker.Run(new(){Operation="create-recovery",Passphrase=passphrase},cancellation);

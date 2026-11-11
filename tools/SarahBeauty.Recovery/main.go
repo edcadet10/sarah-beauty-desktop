@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"filippo.io/age"
 	"io"
 	"os"
 )
@@ -58,6 +59,12 @@ func serve(input io.Reader) (response, error) {
 		return response{}, errRequest
 	}
 	switch command.Operation {
+	case "inspect-recipient":
+		recipient, err := age.ParseHybridRecipient(command.Recipient)
+		if err != nil {
+			return response{}, errRecipient
+		}
+		return response{OK: true, Recipient: recipient.String()}, nil
 	case "create-recovery":
 		return createRecovery(command.Passphrase)
 	case "inspect-recovery":

@@ -16,6 +16,7 @@ internal sealed class ArchiveWorkspace:IDisposable
         while(directory is not null && directory!=Root){_directories.Add(directory);directory=Path.GetDirectoryName(directory);}
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);_files.Add(path);return path;
     }
+    internal string PackagePath(){string path=Path.Combine(Root,"payload.zip");_files.Add(path);return path;}
     public void Dispose()
     {
         foreach(string file in _files)try{File.Delete(file);}catch(IOException){}catch(UnauthorizedAccessException){}
