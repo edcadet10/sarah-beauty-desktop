@@ -81,20 +81,15 @@ internal sealed partial class BookingView
         var reason = Form.Input("Reason for status change");
         var status = Form.Text();
         if(booking.Status=="Awaiting deposit")panel.Add(Reservation(booking));
-        if(booking.Status=="Confirmed")panel.Add(Form.Action("Mark booking completed",status,async()=>
+        if(booking.Status=="Confirmed")panel.Add(reason,Form.Action("Mark booking completed",status,async()=>
         {
             string explanation=reason.Text;
             var changed=await Task.Run(()=>_book.ChangeStatus(_owner,booking,"Completed",explanation));
             _list.ItemsSource=_book.List(_owner);
             Edit(changed);
         }));
-        panel.Add(reason, Form.Action("Cancel booking", status, async () =>
-        {
-            string explanation = reason.Text;
-            var changed = await Task.Run(() => _book.ChangeStatus(_owner, booking, "Cancelled", explanation));
-            _list.ItemsSource = _book.List(_owner);
-            Edit(changed);
-        }), Form.Text(string.Join("\n", booking.History.Select(h => $"{h.AtUtc} • {h.From} → {h.To} • {h.Reason}"))), status);
+        panel.Add(Form.Text("Use Cancellation cases to review the actual agreement, application reversals, charge reductions, and payment outcomes before cancelling booked work."),
+            Form.Text(string.Join("\n", booking.History.Select(h => $"{h.AtUtc} • {h.From} → {h.To} • {h.Reason}"))), status);
         return panel;
     }
 

@@ -26,11 +26,11 @@ Google Sheets and Google Drive backups will require an internet connection.
 
 The full build is in progress in small GitHub pull requests. The app remains in TEST mode. See [Build progress](docs/build-progress.md) for current coverage and dated verification evidence.
 
-The implemented local core includes two-owner sign-in and approvals, customers, service prices, bookings and recipient places, appointment planning and calendar review, versioned client documents and PDFs, bookkeeping, payment applications and funded credits, resource registers, supplier bills and refunds, statements, bank matching, reconciliation, and retained period close/reopen reports. Combined cancellation preview and approval are implemented in the business layer; their desktop controls are still being connected.
+The implemented local core includes two-owner sign-in and approvals, customers, service prices, bookings and recipient places, appointment planning and calendar review, combined cancellation decisions and history, versioned client documents and PDFs, bookkeeping, payment applications and funded credits, resource registers, supplier bills and refunds, statements, bank matching, reconciliation, and retained period close/reopen reports.
 
 The latest complete automated suite has 397 passing cases, and the Windows Debug build succeeds with no warnings or errors. Fictional desktop walkthroughs cover selected workflows and restart persistence. These checks do not establish full release acceptance or current Surface compatibility.
 
-Remaining work includes combined cancellation controls, trip reimbursement links, additional schedules and dashboard, managed attachments, portable encrypted backup/restore, the app's own Google authorization and exports, separate LIVE setup, owner-access and unsaved-work hardening, an installer, and full release/device checks. There is no published installer yet.
+Remaining work includes trip reimbursement links, additional schedules and dashboard, managed attachments, portable encrypted backup/restore, the app's own Google authorization and exports, separate LIVE setup, owner-access and unsaved-work hardening, an installer, and full release/device checks. There is no published installer yet.
 
 The first target is a Surface Pro 7. Everyday work will happen locally on Windows. Google Sheets will hold a readable export, and private Google Drive storage will hold recovery backups. These are backups of the desktop records, not a second place to edit the books.
 

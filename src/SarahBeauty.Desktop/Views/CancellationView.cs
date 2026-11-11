@@ -12,6 +12,7 @@ internal sealed class CancellationView(BusinessStore store,OwnerSession owner)
     private readonly CancellationCases _book=new(store);
     private readonly StackPanel _detail=Form.Panel();
     private readonly ListView _drafts=new(){MaxHeight=200};
+    private readonly ListView _history=new(){MaxHeight=220};
     private readonly TextBlock _status=Form.Text();
     private CancellationFields? _fields;
     private CancellationDraft? _editing;
@@ -32,7 +33,7 @@ internal sealed class CancellationView(BusinessStore store,OwnerSession owner)
                 var current=new BookingBook(store).List(owner).Single(b=>b.Id==id);
                 var at=SarahBeauty.Business.Rules.Input.Date(date.Text)??throw new ArgumentException("Enter the new cancellation decision date.");
                 await Edit(new(){BookingId=id,RequestedDate=at,Date=at,TermsVersionId=current.AcceptedQuoteVersionId});
-            }),_status,Form.Text("Saved cancellation drafts"),_drafts,_detail);
+            }),_status,Form.Text("Saved cancellation drafts"),_drafts,Form.Text("Approved cancellation history"),_history,_detail);
         _drafts.SelectionChanged+=async(_,_)=>
         {
             try
@@ -43,13 +44,29 @@ internal sealed class CancellationView(BusinessStore store,OwnerSession owner)
             }
             catch(Exception error){_status.Text=error.Message;}
         };
+        _history.SelectionChanged+=async(_,_)=>
+        {
+            try
+            {
+                if(_refreshing || _history.SelectedItem is not HistoryItem item)return;
+                if(!await Replace()){_refreshing=true;_history.SelectedItem=null;_refreshing=false;return;}
+                int version=++_version;
+                var saved=await Task.Run(()=>_book.Open(owner,item.Value.Id));
+                if(version==_version)ShowSaved(saved);
+            }
+            catch(Exception error){_status.Text=error.Message;}
+        };
         Refresh();return panel;
     }
 
     private void Refresh()
     {
         _refreshing=true;
-        try{_drafts.ItemsSource=_book.Drafts(owner).Where(d=>d.Status=="Draft").Select(d=>new DraftItem(d)).ToArray();}
+        try
+        {
+            _drafts.ItemsSource=_book.Drafts(owner).Where(d=>d.Status=="Draft").Select(d=>new DraftItem(d)).ToArray();
+            _history.ItemsSource=_book.History(owner).OrderByDescending(c=>c.AtUtc).Select(c=>new HistoryItem(c)).ToArray();
+        }
         finally{_refreshing=false;}
     }
 
@@ -77,9 +94,25 @@ internal sealed class CancellationView(BusinessStore store,OwnerSession owner)
             var preview=await Task.Run(()=>_book.Preview(owner,draft));
             if(version!=_version)return;
             _detail.Add(Form.Title("Proposed combined cancellation"),CancellationReviewView.Build(preview,new ChartOfAccounts(store).List(owner)),
-                Form.Text("Preview only. This review has not cancelled the booking or posted these actions."));
+                Form.Text("Preview only. This review has not cancelled the booking or posted these actions."),
+                CancellationApprovalView.Build(_book,owner,preview,saved=>
+                {
+                    Refresh();if(version==_version)ShowSaved(saved);
+                    else _status.Text="Cancellation approved. Open its retained record in Approved cancellation history.";
+                }));
         }
         catch(Exception error){if(version==_version)status.Text=error.Message;}
+    }
+
+    private void ShowSaved(ApprovedCancellation saved)
+    {
+        ++_version;_fields=null;_editing=null;_detail.Children.Clear();
+        string actor=new OwnerAccess(store).Owners().FirstOrDefault(o=>o.Id==saved.ApprovedBy).Name??saved.ApprovedBy;
+        _detail.Add(Form.Title("Approved cancellation decision"),Form.Text($"Approved by {actor} at {saved.AtUtc}\nDecision code: {saved.Id}\nThis retained record keeps its original agreement and source balances."),
+            CancellationReviewView.Build(saved.Snapshot,new ChartOfAccounts(store).List(owner)));
+        foreach(var action in saved.Snapshot.Actions.Where(a=>a.Kind=="Credit note"))
+            _detail.Add(new Expander{Header="Cancellation credit note "+saved.Snapshot.After.Documents.Single(d=>d.Id==action.ResultId).Snapshot.Number,
+                Content=PdfArtifactView.Build(store,owner,action.ResultId),HorizontalAlignment=HorizontalAlignment.Stretch});
     }
 
     private async Task<bool> Replace()
@@ -90,4 +123,5 @@ internal sealed class CancellationView(BusinessStore store,OwnerSession owner)
         return await dialog.ShowAsync()==ContentDialogResult.Primary;
     }
     private sealed record DraftItem(CancellationDraft Value){public override string ToString()=>$"{Value.Date:yyyy-MM-dd} • {Value.Name} • {Value.Id[..8]}";}
+    private sealed record HistoryItem(CancellationSummary Value){public override string ToString()=>$"{Value.DecisionDate:yyyy-MM-dd} • {Value.Reason} • {Value.Id[..8]}";}
 }
