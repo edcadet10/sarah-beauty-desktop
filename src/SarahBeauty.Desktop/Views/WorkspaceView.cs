@@ -18,6 +18,7 @@ internal sealed class WorkspaceView(BusinessStore store, OwnerSession session, A
         nav.Add(Link("Dashboard", Dashboard, status), Link("Customers", () => new CustomerView(store, session).Build(), status),
             Link("Bookings", () => new BookingView(store, session).Build(), status),
             Link("Money", () => new MoneyView(store, session).Build(), status),
+            Link("Quotes", () => new QuoteView(store, session).Build(), status),
             Form.Action("Lock / switch owner", status, () => { locked(); return Task.CompletedTask; }));
         panel.Add(Form.Title(store.BusinessName(session)), Form.Text($"TEST • Signed in as {session.OwnerName}"),
             nav, status, _content);

@@ -13,6 +13,7 @@ public sealed record Booking : BusinessRecord
     public string Status { get; init; } = "Inquiry";
     public string PayerMode { get; init; } = "Undecided";
     public string UnpaidResponsibility { get; init; } = "";
+    public string AcceptedQuoteVersionId { get; init; } = "";
     public bool HasTrial { get; init; } = true;
     public long TrialCents { get; init; } = 15000;
     public long? CustomDepositCents { get; init; }
