@@ -1,6 +1,6 @@
 # Review the business dashboard
 
-Status: The desktop dashboard, source review, and consistent datasets are implemented. Charts follow separately.
+Status: The desktop dashboard, six charts, source review, and consistent datasets are implemented. Full release/device acceptance remains in progress.
 
 Open **Dashboard** after signing in. It captures local records automatically. Expand **Dashboard dates** to choose the financial period, planning business date, and upcoming event window, then select **Refresh dashboard**. The captured dates, mode, and watermark identify the displayed result. Invalid dates or dates changed during loading do not replace the previous capture.
 
@@ -9,6 +9,23 @@ Cards show posted income, expenses, result, cash by account, customer/supplier b
 Expand the source lists below the cards to review supporting balances, aging milestones, upcoming agreements/artists/payers, pending work, supplies, and debt/tax/owner schedules. Select a supporting account to see its captured entries: cash accounts use all entries through the financial as-of date; other accounts use the selected financial period. Section buttons update the navigation selection and preserve cached section editors. They open the relevant section; use the displayed name/identity to select its record there.
 
 Backup health currently states that Sheets export, full recovery archives, and restore tests have never completed. Local database upgrade snapshots do not establish portable recovery.
+
+## Read the charts
+
+Expand a chart below the cards. Every plot includes an exact value table; use horizontal scrolling for wide datasets. Approximate drawing scales do not replace the integer-cent figures.
+
+| Chart | Meaning |
+|---|---|
+| Monthly income and expenses | Separate clustered columns using approved financial classifications |
+| Monthly result | Income less expenses; missing monthly context breaks the line |
+| Customer aging | Remaining invoice/milestone value, including a separate unknown-due-date band |
+| Upcoming confirmed weddings | Known tax-inclusive agreement value; event counts and values needing review remain labeled |
+| Expense categories | Net approved expenses by account, including depreciation and negative corrections |
+| Owner movements | Separate contributions, draws, owner-loan proceeds, and principal payments; closing attributed debt appears in the table |
+
+The financial charts share the selected financial window and snapshot. Aging uses its ending date. The upcoming chart uses the separate planning/event window. Expense and owner movements never turn principal, funding, or draws into service income. See the captured supporting records below the charts for source identities and attribution limits.
+
+The native drawing code follows [Microsoft's WinUI shapes documentation](https://learn.microsoft.com/en-us/windows/apps/develop/ui/controls/shapes). It adds no chart package. Tables expose the exact information alongside the visual shapes.
 
 Financial datasets use one captured database snapshot and the same business/mode, dates, and committed-data watermark as the underlying reports. The financial window supports up to 120 calendar months. Partial months use only the selected transaction dates.
 
