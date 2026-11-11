@@ -12,11 +12,16 @@ internal static class InvoiceCoverage
         "SELECT Generation FROM BillingState WHERE BookingId=$id;",("$id",bookingId))??0L);
 
     internal static List<CoveredPortion> Existing(DbWork db,string bookingId,string chargeId)=>db.Read("""
-        SELECT C.Quantity,C.NetCents,C.TaxCents,C.DiscountCents,C.SourceSignature FROM InvoiceCoverage C
+        SELECT C.Quantity,C.NetCents,C.TaxCents,C.DiscountCents,C.SourceSignature,C.InvoiceVersionId FROM InvoiceCoverage C
         JOIN DocumentVersions V ON V.Id=C.InvoiceVersionId
         WHERE C.BookingId=$booking AND C.ChargeId=$charge AND V.Status<>'Void';
-        """,r=>new CoveredPortion(decimal.Parse(r.GetString(0),CultureInfo.InvariantCulture),r.GetInt64(1),r.GetInt64(2),r.GetInt64(3),r.GetString(4)),
-        ("$booking",bookingId),("$charge",chargeId));
+        """,r=>(Portion:new CoveredPortion(decimal.Parse(r.GetString(0),CultureInfo.InvariantCulture),r.GetInt64(1),r.GetInt64(2),r.GetInt64(3),r.GetString(4)),Invoice:r.GetString(5)),
+        ("$booking",bookingId),("$charge",chargeId)).Select(row=>
+        {
+            var credits=CreditNoteReductions.Lines(db,row.Invoice,chargeId);
+            return row.Portion with{Quantity=row.Portion.Quantity-credits.Sum(c=>c.Quantity),NetCents=row.Portion.NetCents-credits.Sum(c=>c.NetCents),
+                TaxCents=row.Portion.TaxCents-credits.Sum(c=>c.TaxCents),DiscountCents=row.Portion.DiscountCents-credits.Sum(c=>c.DiscountCents)};
+        }).Where(p=>p.Quantity>0 || p.NetCents>0 || p.TaxCents>0).ToList();
 
     internal static ClientLine Portion(DbWork db,string bookingId,ClientLine source,decimal quantity)
     {
@@ -52,11 +57,12 @@ internal static class InvoiceCoverage
         foreach(string id in ids)
         {
             var source=quote.Snapshot.Lines.SingleOrDefault(l=>l.ChargeId==id);
-            if(source is null || Existing(db,quote.BookingId,id).Any(c=>c.Signature!=Signature(source)))
+            var remaining=Existing(db,quote.BookingId,id);
+            if(remaining.Count>0 && (source is null || remaining.Any(c=>c.Signature!=Signature(source))))
                 throw new ArgumentException("Credit previously billed charges before removing or changing them. Add a new source charge for additional services.");
         }
         var prior=DocumentVersions.List(db,owner).Where(v=>v.BookingId==quote.BookingId && v.Snapshot.Kind==DocumentKind.Invoice && v.Status!="Void");
-        foreach(var group in prior.SelectMany(v=>v.Snapshot.Milestones).GroupBy(m=>m.Kind))
+        foreach(var group in prior.SelectMany(v=>CreditNoteReductions.EffectiveMilestones(db,v)).GroupBy(m=>m.Kind))
             if(group.Sum(m=>m.Cents)>quote.Snapshot.Milestones.Where(m=>m.Kind==group.Key).Sum(m=>m.Cents))
                 throw new ArgumentException("The amended plan cannot reduce an already issued milestone share without a credit adjustment.");
     }
@@ -64,7 +70,8 @@ internal static class InvoiceCoverage
     internal static ClientMilestone[] Milestones(DbWork db,OwnerSession owner,DocumentVersion quote,long invoiceTotal)
     {
         var previous=DocumentVersions.List(db,owner).Where(v=>v.BookingId==quote.BookingId && v.Snapshot.Kind==DocumentKind.Invoice && v.Status!="Void").ToList();
-        long[] available=quote.Snapshot.Milestones.Select(m=>checked(m.Cents-previous.SelectMany(v=>v.Snapshot.Milestones).Where(p=>p.Kind==m.Kind).Sum(p=>p.Cents))).ToArray();
+        var effective=previous.SelectMany(v=>CreditNoteReductions.EffectiveMilestones(db,v)).ToList();
+        long[] available=quote.Snapshot.Milestones.Select(m=>checked(m.Cents-effective.Where(p=>p.Kind==m.Kind).Sum(p=>p.Cents))).ToArray();
         if(available.Any(a=>a<0) || invoiceTotal>available.Sum())throw new ArgumentException("Invoice shares exceed the accepted booking payment plan.");
         if(invoiceTotal==0)return [];
         var shares=PaymentPlan.Allocate(invoiceTotal,available);

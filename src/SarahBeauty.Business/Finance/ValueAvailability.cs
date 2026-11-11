@@ -53,8 +53,9 @@ internal static class ValueAvailability
         return milestones.Select((m,i)=>
         {
             var applied=ApplicationSum(db,"MilestoneId",m.Id,date);
+            var reduced=CreditNoteReductions.Milestone(db,m.Id,date);
             return new InvoiceDue(invoice.Id,invoice.Snapshot.Number,payer,invoice.Snapshot.Client.Name,m.Id,m.Kind,m.Due,
-                checked(m.Cents-applied.Cents),checked(taxes[i]-applied.TaxCents));
+                checked(m.Cents-applied.Cents-reduced.Cents),checked(taxes[i]-applied.TaxCents-reduced.TaxCents));
         }).ToList();
     }
 
@@ -70,7 +71,8 @@ internal static class ValueAvailability
 
     internal static void ValidateInvoiceHistory(DbWork db,OwnerSession owner,string invoiceId)
     {
-        var dates=db.Read("SELECT DISTINCT Date FROM PaymentApplications WHERE InvoiceVersionId=$id ORDER BY Date;",r=>DateOnly.Parse(r.GetString(0)),("$id",invoiceId));
+        var dates=db.Read("SELECT Date FROM PaymentApplications WHERE InvoiceVersionId=$id UNION SELECT Date FROM CreditNoteHeaders WHERE InvoiceVersionId=$id ORDER BY Date;",
+            r=>DateOnly.Parse(r.GetString(0)),("$id",invoiceId));
         foreach(var date in dates)
             foreach(var due in Invoice(db,owner,invoiceId,date))Validate(new(due.Cents,due.TaxCents),"Invoice/milestone balance",date);
     }

@@ -8,7 +8,7 @@ This file tracks the full application build requested on November 10, 2026. A co
 | Owner setup and sign-in | Implemented | Two owners, salted PBKDF2-SHA256 hashes, short lockout after failed attempts, expiring store-bound sessions, transaction audit |
 | Customers | Implemented | Name-only save, contact warning, validated optional contact fields, search/edit/archive, permission history, stale-edit guard |
 | Bookings | In progress | Charges, places, recipient links, exact plans, appointments, and explicit paid reservation implemented; full cancellation workflow and calendar refinements pending |
-| Client documents | In progress | Quote versions, bounded payer invoices, and saved PDF artifacts implemented; receipts and credit notes pending |
+| Client documents | In progress | Quote versions, bounded payer invoices, dated credit notes, and saved PDF artifacts implemented; payment receipts pending |
 | Books and approvals | In progress | Core posting/reports, receipt/credit applications, funded credits, cash refunds and dated reversals implemented; period-close UI and remaining workflows pending |
 | Resources | Pending | Supplies, suppliers, assets, loans, owner movements, mileage |
 | Reconciliation and reports | Pending | Statements, bounded matches, reports, dashboard |
@@ -94,3 +94,9 @@ Six new integration cases cover repeated approval, a one-cent excess after parti
 The booking screen now offers an explicit owner-confirmed reservation action. It checks the exact accepted event and charges, resolved contact/payer decisions, a dated artist appointment and venue, ready-by conflicts, and approved trial/deposit allocations as of the reservation date. Applied funded credits count toward the same milestones without another income entry. Confirmation saves its accepted quote, required amounts, date, evidence, and actor; retrying the same request does not create another reservation.
 
 Seven integration cases cover trial-only rejection followed by a valid deposit, funded credit, historical date boundaries, unresolved/changed event details, rollback/retry, an explicit no-trial plan, and a ready-by conflict with a recorded override. Reservation history cannot be replaced by editing the booking. This establishes the reservation command; the full cancellation workflow, scheduling interface, and actual Surface checks remain pending.
+
+## Invoice credit note checks
+
+Schema 10 adds immutable, dated invoice reductions. Credit notes retain their original invoice and client snapshot, release bounded source coverage, and reduce unpaid milestone gross/tax balances. Paid amounts must be unapplied before a reduction can consume them. A reduction of an unpaid charge creates no cash, income entry, or funded customer credit. Fully credited charges can be amended and invoiced under a newly accepted quote. Original invoices and PDFs stay unchanged.
+
+Eight new cases cover partial/final-cent reductions, retry, paid-invoice protection and unapplication, later application dependencies, corrected reissuance, stale competing drafts, and rollback at two write stages without consuming a number. Actual PDF extraction verifies the invoice reference, reduction labels, and exclusion of private markers. All 119 automated cases pass, and the Windows Debug build passes. The credit-note screen supports prepare, review, owner-confirmed issue, and PDF creation/reprint.

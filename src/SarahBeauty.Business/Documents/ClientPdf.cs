@@ -55,7 +55,9 @@ internal static class ClientPdf
         brand.Format.Font.Size=24;
         brand.Format.Font.Bold=true;
         brand.Format.Font.Color=Color.FromRgb(97,55,76);
-        section.AddParagraph($"{s.Kind} {s.Number} — version {s.Version}");
+        string kind=s.Kind==DocumentKind.CreditNote?"Credit note":s.Kind.ToString();
+        section.AddParagraph($"{kind} {s.Number} — version {s.Version}");
+        if(s.RelatedDocument.Length>0)section.AddParagraph("Related document: "+s.RelatedDocument);
         section.AddParagraph($"Issued {s.IssueDate:yyyy-MM-dd}"+(s.DueDate.HasValue?$" • {(s.Kind==DocumentKind.Quote?"Valid until":"Due")} {s.DueDate:yyyy-MM-dd}":""));
         section.AddParagraph("Prepared for "+s.Client.Name).Format.Font.Bold=true;
         string billing=s.Client.BillingName==s.Client.Name?"":s.Client.BillingName;
@@ -99,13 +101,14 @@ internal static class ClientPdf
 
     private static void Totals(Section section,ClientSnapshot snapshot)
     {
-        section.AddParagraph("Net charges: "+Money.Display(snapshot.NetCents)).Format.Alignment=ParagraphAlignment.Right;
+        section.AddParagraph((snapshot.Kind==DocumentKind.CreditNote?"Net reduction: ":"Net charges: ")+Money.Display(snapshot.NetCents)).Format.Alignment=ParagraphAlignment.Right;
         section.AddParagraph("Tax: "+Money.Display(snapshot.TaxCents)).Format.Alignment=ParagraphAlignment.Right;
-        var total=section.AddParagraph("Total: "+Money.Display(snapshot.TotalCents));
+        var total=section.AddParagraph((snapshot.Kind==DocumentKind.CreditNote?"Total reduction: ":"Total: ")+Money.Display(snapshot.TotalCents));
         total.Format.Alignment=ParagraphAlignment.Right;
         total.Format.Font.Bold=true;
         foreach(var milestone in snapshot.Milestones)
-            section.AddParagraph($"{milestone.Kind}: {Money.Display(milestone.Cents)} • Due {milestone.DueDate?.ToString("yyyy-MM-dd")??"Undecided"}");
+            section.AddParagraph(snapshot.Kind==DocumentKind.CreditNote?$"{milestone.Kind} reduction: {Money.Display(milestone.Cents)}":
+                $"{milestone.Kind}: {Money.Display(milestone.Cents)} • Due {milestone.DueDate?.ToString("yyyy-MM-dd")??"Undecided"}");
         if(snapshot.Terms.Length>0)
         {
             section.AddParagraph("Terms").Format.Font.Bold=true;
