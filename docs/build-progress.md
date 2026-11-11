@@ -10,7 +10,7 @@ This file tracks the full application build requested on November 10, 2026. A co
 | Bookings | In progress | Charges, places, recipient links, exact plans, appointments, and explicit paid reservation implemented; full cancellation workflow and calendar refinements pending |
 | Client documents | Implemented core | Quote versions, bounded payer invoices, dated credit notes, approved-payment receipts, and saved PDFs; full release walkthrough pending |
 | Books and approvals | In progress | Core posting/reports, receipt/credit applications, funded credits, cash refunds and dated reversals implemented; period-close UI and remaining workflows pending |
-| Resources | In progress | Supplier/asset/loan registers and core postings implemented; purchases, supplies, mileage, full opening/disposal workflows pending |
+| Resources | In progress | Supplier/asset/loan registers, supply status/expiry, actual trip logs, and evidenced openings implemented; purchases and full disposal/reimbursement workflows pending |
 | Reconciliation and reports | Pending | Statements, bounded matches, reports, dashboard |
 | Recovery and Google | Pending | Attachments, portable encrypted archive, Sheets export, Drive authorization/readback |
 | Release | Pending | Installer, full fictional walkthrough, actual Surface and second-device checks |
@@ -118,3 +118,9 @@ Four integration cases verify unknown-value preservation, absence of automatic l
 Schema 12 records evidenced opening decisions by account and individual loan/asset/owner. Nonzero openings post through the reviewed Money workflow. A separate Opening balances screen confirms or revokes zero cash openings without creating a financial movement. Unknown stays distinct from zero; register metadata alone cannot satisfy a nonzero loan opening. The account form cannot set the confirmation flag directly.
 
 Six integration cases cover zero/revocation history, duplicate cash openings and reversal, matching loan principal/date before repayment, asset book value without invented tax basis, transactional failure/retry, missing evidence, invalid dimensions/classifications, and dates after the first ordinary movement. All 134 cases and the Windows Debug build pass. These decisions retain source evidence and actors; they do not automatically import an earlier business.
+
+## Supplies and actual trip checks
+
+Resources now includes supplies with Available/Low/Finished status, opened/expiry dates, location, and retained status/date history. Expiry and low/finished alerts are available independently of accounting. Actual trip records identify exactly one real owner or artist driver, route, purpose, distance, parking/tolls, booking, evidence, and reimbursement review status. Neither a supply status change nor a trip log invents a financial transaction or a mileage deduction. Reimbursement payment integration remains pending.
+
+Three new integration cases cover status/date history, inclusive expiry alerts, archives, invalid and stale edits, exactly one scoped driver, and unchanged booking travel/no automatic money posting. All 137 cases and the Windows Debug build pass. One initial test incorrectly compared deserialized arrays by record identity; it now checks the booking revision and charge contents, and the corrected case passes.
