@@ -42,6 +42,7 @@ public sealed class OperationalResources(BusinessStore store)
         {
             var previous=value.Revision==0?null:_trips.Get(db,owner,value.Id);
             if(!value.History.SequenceEqual(previous?.History??[]))throw new ArgumentException("Trip review history cannot be overwritten.");
+            if(previous is not null)TripPaymentRules.ValidateTripEdit(db,owner,previous,value);
             if(value.DriverOwnerId.Length>0 && db.Scalar("SELECT Id FROM Owners WHERE Id=$id AND BusinessId=$business AND (Active=1 OR $retained=1);",
                 ("$id",value.DriverOwnerId),("$business",owner.BusinessId),("$retained",previous?.DriverOwnerId==value.DriverOwnerId?1:0)) is null)throw new ArgumentException("Choose an owner driver from this business.");
             if(value.DriverArtistId.Length>0 && !new RecordStore<Artist>(store,"Artist").List(db,owner).Any(a=>a.Id==value.DriverArtistId && (!a.Archived || previous?.DriverArtistId==a.Id)))

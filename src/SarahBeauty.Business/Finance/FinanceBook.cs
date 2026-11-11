@@ -1,6 +1,7 @@
 using System.Text.Json;
 using SarahBeauty.Business.Banking;
 using SarahBeauty.Business.Purchasing;
+using SarahBeauty.Business.Resources;
 using SarahBeauty.Business.Security;
 using SarahBeauty.Business.Storage;
 
@@ -33,6 +34,7 @@ public sealed class FinanceBook(BusinessStore store)
         CreditRefundRules.Validate(db,owner,draft);
         var lines=BuildLines(db,owner,draft,accounts);
         ReconciliationLocks.Posting(db,owner,draft.Date!.Value,lines,accounts);
+        TripPaymentRules.PreviewMovement(db,owner,draft);
         return lines;
     });
 
@@ -106,6 +108,7 @@ public sealed class FinanceBook(BusinessStore store)
         TaxRecoveries.AfterPosting(db,owner,draft,posted.Id);
         if(draft.Kind==FinancialKind.TaxRecovery || draft.TaxRefundAllocation is not null)FailurePoint?.Invoke("tax-recovery");
         BalanceGuards.Validate(db, owner, draft);
+        TripPaymentRules.ValidateMovement(db,owner,draft);
         _drafts.Save(db, owner, draft with { Status = "Posted", PostedBatchId = posted.Id });
         BusinessStore.Audit(db, owner, "Approve financial draft", draft.Id);
         FailurePoint?.Invoke("audit");
