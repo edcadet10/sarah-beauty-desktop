@@ -1,5 +1,6 @@
 using SarahBeauty.Business.Bookings;
 using SarahBeauty.Business.Customers;
+using SarahBeauty.Business.Finance;
 using SarahBeauty.Business.Security;
 using SarahBeauty.Business.Storage;
 
@@ -16,6 +17,7 @@ internal static class InvoiceSnapshot
             throw new ArgumentException("Choose the booking's current accepted quote version.");
         if(draft.CoverageGeneration!=InvoiceCoverage.Generation(db,booking.Id))throw new ArgumentException("Another invoice changed the unbilled amounts. Refresh and save this draft before issuing.");
         if(draft.IssueDate is null || draft.DueDate<draft.IssueDate)throw new ArgumentException("Choose valid invoice issue and due dates.");
+        PostingValidation.CheckClosedPeriod(db,owner,draft.IssueDate.Value);
         ValidatePayers(booking,draft);
         var payer=CustomerBook.Find(db,owner,draft.PayerCustomerId)??throw new ArgumentException("Choose the invoice payer.");
         if(draft.Portions.Length==0 || draft.Portions.Select(p=>p.ChargeId).Distinct().Count()!=draft.Portions.Length)

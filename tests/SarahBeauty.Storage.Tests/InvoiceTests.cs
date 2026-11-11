@@ -6,6 +6,22 @@ namespace SarahBeauty.Storage.Tests;
 
 public sealed class InvoiceTests
 {
+    [Fact]
+    public void ClosedDatesBlockInvoicePreviewAndIssuanceWhilePreservingRetries()
+    {
+        using var f=new BusinessFixture();var quote=Quote(f);var book=new InvoiceBook(f.Store);
+        var draft=book.SaveDraft(f.Owner,Draft(f,quote));
+        new SarahBeauty.Business.Finance.ChartOfAccounts(f.Store).Initialize(f.Owner);
+        f.Files.Execute($"UPDATE BookSettings SET ClosedThrough='{draft.IssueDate:yyyy-MM-dd}';");
+        Assert.Throws<ArgumentException>(()=>book.Preview(f.Owner,draft));
+        Assert.Throws<ArgumentException>(()=>book.Issue(f.Owner,draft.Id,draft.Revision,BusinessFixture.Phrase));
+        Assert.Equal("Draft",book.Drafts(f.Owner).Single().Status);
+        f.Files.Execute("UPDATE BookSettings SET ClosedThrough=NULL;");
+        var issued=book.Issue(f.Owner,draft.Id,draft.Revision,BusinessFixture.Phrase);
+        f.Files.Execute($"UPDATE BookSettings SET ClosedThrough='{draft.IssueDate:yyyy-MM-dd}';");
+        Assert.Equal(issued.Id,book.Issue(f.Owner,draft.Id,draft.Revision,BusinessFixture.Phrase).Id);
+    }
+
     private static DocumentVersion Quote(BusinessFixture f,Booking? custom=null)
     {
         var book=new BookingBook(f.Store);
