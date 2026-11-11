@@ -1,6 +1,6 @@
 # Backup and Recovery
 
-Status: Verified local database upgrade snapshots and the [versioned managed-file service](managed-evidence.md) are implemented. Automated fictional fixtures cover committed WAL data, invalid sources, failed verification, migration rollback, and managed-file versions/integrity. Attachment links and desktop import, complete archives, cloud backups, and a restore interface remain in progress. The procedure below is the contract for those future features.
+Status: Verified local database upgrade snapshots and the [managed evidence workspace](managed-evidence.md) are implemented. Automated fictional fixtures cover committed WAL data, invalid sources, failed verification, migration rollback, managed-file versions/integrity, and pinned record links. Complete archives, cloud backups, and a restore interface remain in progress. The procedure below is the contract for those future features.
 
 ## Local upgrade snapshots
 
