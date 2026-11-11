@@ -45,7 +45,10 @@ public sealed record BookingCharge(string Id, string Description, string Unit, d
 public sealed record BookingPlace(string Id, string ChargeId, int Ordinal, string CustomerId = "", bool Active = true);
 public sealed record Artist : BusinessRecord { public string Notes { get; init; } = ""; }
 public sealed record Appointment(string Id, string Kind, string ArtistId, DateTimeOffset? Start, DateTimeOffset? End,
-    string Location, string Status = "Planned", string OverrideReason = "", string ProductsAndShades = "", string PrivateNotes = "");
+    string Location, string Status = "Planned", string OverrideReason = "", string ProductsAndShades = "", string PrivateNotes = "")
+{
+    public string[] PlaceIds {get;init;}=[];
+}
 public sealed record BookingStatusChange(string From, string To, string Reason, string OwnerId, string AtUtc);
 public sealed record BookingReservation(string RequestId,string QuoteVersionId,DateOnly Date,long TrialCents,long DepositCents,
     string Reason,string OwnerId,string AtUtc);
