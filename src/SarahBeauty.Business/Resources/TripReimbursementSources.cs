@@ -6,7 +6,9 @@ namespace SarahBeauty.Business.Resources;
 public sealed class TripReimbursementSources(BusinessStore store)
 {
     internal Action? AfterTripRead {get;set;}
-    public TripReimbursementReview Load(OwnerSession owner,string tripId,DateOnly asOf)=>store.ReadSnapshot(db=>
+    public TripReimbursementReview Load(OwnerSession owner,string tripId,DateOnly asOf)=>store.ReadSnapshot(db=>Load(db,owner,tripId,asOf));
+
+    internal TripReimbursementReview Load(DbWork db,OwnerSession owner,string tripId,DateOnly asOf)
     {
         store.RequireSession(db,owner);var trip=new RecordStore<MileageTrip>(store,"MileageTrip").Get(db,owner,tripId);AfterTripRead?.Invoke();
         var links=TripPaymentQueries.Links(db,owner,trip:trip.Id);var releases=TripPaymentQueries.Releases(db,owner,trip:trip.Id).ToArray();
@@ -21,5 +23,5 @@ public sealed class TripReimbursementSources(BusinessStore store)
         return new TripReimbursementReview((string)db.Scalar("SELECT DisplayName FROM Business WHERE Id=$business;",("$business",owner.BusinessId))!,
             (string)db.Scalar("SELECT Value FROM AppMetadata WHERE Key='StoreMode';")!,TripPaymentQueries.Watermark(db,owner),DateTimeOffset.UtcNow.ToString("O"),asOf,trip,
             rows.Where(r=>r.CurrentBasis).Sum(r=>r.RemainingCents),rows.Where(r=>!r.CurrentBasis).Sum(r=>r.RemainingCents),rows,releases);
-    });
+    }
 }

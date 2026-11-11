@@ -27,7 +27,7 @@ public sealed class DashboardUpcomingSources(BusinessStore store)
             dated,rows.Where(b=>b.EventDate is null).ToArray(),months);
     }
 
-    private static DashboardUpcomingBooking Position(DbWork db,OwnerSession owner,Booking booking,List<DocumentVersion> documents,IReadOnlyDictionary<string,Artist> artists,
+    internal static DashboardUpcomingBooking Position(DbWork db,OwnerSession owner,Booking booking,List<DocumentVersion> documents,IReadOnlyDictionary<string,Artist> artists,
         BookingBillingSnapshot billing,DateOnly asOf)
     {
         var quote=documents.SingleOrDefault(d=>d.Id==booking.AcceptedQuoteVersionId && d.Snapshot.Kind==DocumentKind.Quote);
