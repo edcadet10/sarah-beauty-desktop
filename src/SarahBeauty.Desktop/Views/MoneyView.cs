@@ -84,6 +84,7 @@ internal sealed class MoneyView
             var lines=draft.Status=="Posted"?_book.Journal(_owner,draft.PostedBatchId):_book.Preview(_owner,draft);
             if(lines.Count==0)_detail.Add(Form.Text("No amounts change in the books. The approval and linked record history are retained."));
             _detail.Add(Form.Text(string.Join("\n",lines.Select(l=>$"{_accounts.Single(a=>a.Id==l.AccountId).Name} • Debit {Money.Display(l.DebitCents)} • Credit {Money.Display(l.CreditCents)}"))));
+            if(draft.Status=="Draft")_detail.Add(ReceiptSimilarityView.Build(new ReceiptSimilarities(_store).Find(_owner,draft)));
         }
         catch(Exception error){status.Text=error.Message;}
         _detail.Add(status);
