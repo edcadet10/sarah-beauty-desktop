@@ -37,7 +37,7 @@ public sealed class CreditBook(BusinessStore store)
             throw new ArgumentException("Available value changed. Save and review the credit draft again.");
         var source=CorrectionRules.Original(db,owner,draft.PaymentId);
         string? accountType=db.Scalar("SELECT Type FROM Accounts WHERE Id=$id;",("$id",source.CounterAccountId)) as string;
-        if(source.Kind!=FinancialKind.Receipt || source.Date>draft.Date
+        if(source.Kind is not (FinancialKind.Receipt or FinancialKind.ReceiptClassification) || source.Date>draft.Date
             || accountType!="Income")
             throw new ArgumentException("Choose an approved income receipt dated on or before this credit action.");
         var receipt=ValueAvailability.Payment(db,owner,draft.PaymentId,draft.Date.Value);

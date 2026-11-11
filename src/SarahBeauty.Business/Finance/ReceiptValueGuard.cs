@@ -9,7 +9,7 @@ internal static class ReceiptValueGuard
     {
         string? payment=draft.Kind switch
         {
-            FinancialKind.Receipt=>movementId,
+            FinancialKind.Receipt or FinancialKind.UnclassifiedReceipt or FinancialKind.ReceiptClassification=>movementId,
             FinancialKind.Refund=>draft.OriginalId,
             FinancialKind.Reversal=>RootForReversal(db,owner,draft.OriginalId),
             _=>null
@@ -22,6 +22,7 @@ internal static class ReceiptValueGuard
     private static string? RootForReversal(DbWork db,OwnerSession owner,string originalId)
     {
         var original=CorrectionRules.Original(db,owner,originalId);
-        return original.Kind==FinancialKind.Receipt?originalId:original.Kind==FinancialKind.Refund?original.OriginalId:null;
+        return original.Kind is FinancialKind.Receipt or FinancialKind.UnclassifiedReceipt or FinancialKind.ReceiptClassification?originalId:
+            original.Kind==FinancialKind.Refund?original.OriginalId:null;
     }
 }

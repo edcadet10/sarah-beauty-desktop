@@ -52,7 +52,7 @@ public sealed class FinancialReports(BusinessStore store)
             """,r=>r.GetInt64(0),("$business",owner.BusinessId),("$from",from.ToString("yyyy-MM-dd")),("$through",through.ToString("yyyy-MM-dd")));
         var recovery=TaxRecoveryActivity(db,owner,from,through);
         return new(documents.Where(v=>v.Snapshot.Kind==DocumentKind.Invoice && v.Status!="Void").Sum(v=>v.Snapshot.TaxCents),
-            documents.Where(v=>v.Snapshot.Kind==DocumentKind.CreditNote).Sum(v=>v.Snapshot.TaxCents),tax.Where(t=>t.Kind is "Receipt" or "AssetDisposal").Sum(t=>t.Cents),
+            documents.Where(v=>v.Snapshot.Kind==DocumentKind.CreditNote).Sum(v=>v.Snapshot.TaxCents),tax.Where(t=>t.Kind is "Receipt" or "AssetDisposal" or "ReceiptClassification").Sum(t=>t.Cents),
             refunds.Sum(),-tax.Where(t=>t.Kind=="TaxRemittance").Sum(t=>t.Cents),
             -trial.Where(r=>r.Account.Code=="2000").Sum(r=>r.Ending))
         {

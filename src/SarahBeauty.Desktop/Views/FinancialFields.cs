@@ -31,6 +31,7 @@ internal sealed class FinancialFields
             FinancialKind.AssetDisposal=>"Gross disposal proceeds in USD (zero for a documented write-off)",
             FinancialKind.PurchasePayment or FinancialKind.PurchaseRefund or FinancialKind.SupplierCreditUse=>"Total supplier amount in USD (including any personal share)",
             FinancialKind.TaxRecovery=>"Tax recovery amount in USD",
+            FinancialKind.ReceiptClassification=>"Received value to classify in USD (including tax)",
             _=>"Business amount in USD (gross for a receipt)"
         };
         _amount=Form.Input(amountLabel,Money.Input(d.AmountCents));
@@ -48,7 +49,10 @@ internal sealed class FinancialFields
         var movements=new FinanceBook(store).Posted(owner).Where(p=>d.Kind is not (FinancialKind.PurchaseRefund or FinancialKind.SupplierCreditUse)
             || p.Source.Kind is FinancialKind.PurchasePayment or FinancialKind.SupplierCreditUse);
         if(d.Kind==FinancialKind.TaxRecovery)movements=movements.Where(p=>p.Source.Kind==FinancialKind.Refund && p.Source.TaxRefundAllocation?.RecoverableCents>0);
+        if(d.Kind==FinancialKind.ReceiptClassification)movements=movements.Where(p=>p.Source.Kind==FinancialKind.UnclassifiedReceipt
+            || p.Source.Kind==FinancialKind.Receipt && accounts.Any(a=>a.Id==p.Source.CounterAccountId && a.Code=="2200"));
         _original=Form.Records(d.Kind==FinancialKind.TaxRecovery?"Customer refund with reviewed recoverable tax":
+            d.Kind==FinancialKind.ReceiptClassification?"Original held deposit or unclassified receipt":
             d.Kind is FinancialKind.PurchaseRefund or FinancialKind.SupplierCreditUse?"Source supplier payment or prior credit use":"Original posted movement",
             movements.Select(p=>(p.Id,$"{p.Source} • {p.Id[..8]}")),d.OriginalId);
         _credit=Form.Records("Linked funded credit (for a refund from reserved value)",new CreditBook(store).Credits(owner).Select(c=>(c.Id,$"{c.CustomerName} • {c.Id[..8]}")),d.CreditId);
@@ -73,25 +77,28 @@ internal sealed class FinancialFields
     {
         var panel=Form.Panel();
         panel.Add(_memo,_date,_amount);
-        if(_kind!=FinancialKind.Opening)panel.Add(_cash);
+        if(_kind is not (FinancialKind.Opening or FinancialKind.ReceiptClassification))panel.Add(_cash);
         if(_kind is not (FinancialKind.AssetDisposal or FinancialKind.PurchasePayment or FinancialKind.PurchaseRefund or FinancialKind.SupplierCreditUse or FinancialKind.TaxRecovery))panel.Add(_counter);
         if(_kind is FinancialKind.PurchasePayment or FinancialKind.PurchaseRefund or FinancialKind.SupplierCreditUse)panel.Add(_supplierPayment.Build());
         if(_kind==FinancialKind.Transfer)panel.Add(_to);
-        if(_kind is FinancialKind.Receipt or FinancialKind.Refund or FinancialKind.AssetDisposal)panel.Add(_customer,_tax,_taxResolved);
+        if(_kind is FinancialKind.Receipt or FinancialKind.Refund or FinancialKind.AssetDisposal or FinancialKind.ReceiptClassification)panel.Add(_customer,_tax,_taxResolved);
         if(_kind is FinancialKind.Receipt or FinancialKind.LoanPayment)panel.Add(_fee);
         if(_kind==FinancialKind.LoanPayment)panel.Add(_principal,_interest);
         if(_kind is FinancialKind.Contribution or FinancialKind.Withdrawal or FinancialKind.OwnerPaidExpense or FinancialKind.OwnerReimbursement or FinancialKind.AssetContribution or FinancialKind.Opening)panel.Add(_economicOwner);
         if(_kind is FinancialKind.LoanProceeds or FinancialKind.LoanPayment or FinancialKind.Opening)panel.Add(_loan);
         if(_kind is FinancialKind.AssetPurchase or FinancialKind.AssetContribution or FinancialKind.Depreciation or FinancialKind.AssetDisposal or FinancialKind.Opening)panel.Add(_asset);
         if(_kind is FinancialKind.Expense or FinancialKind.SupplierRefund)panel.Add(_supplier);
-        if(_kind is FinancialKind.Refund or FinancialKind.SupplierRefund or FinancialKind.PurchaseRefund or FinancialKind.SupplierCreditUse or FinancialKind.Reversal or FinancialKind.TaxRecovery)panel.Add(_original);
+        if(_kind is FinancialKind.Refund or FinancialKind.SupplierRefund or FinancialKind.PurchaseRefund or FinancialKind.SupplierCreditUse or FinancialKind.Reversal or FinancialKind.TaxRecovery or FinancialKind.ReceiptClassification)panel.Add(_original);
+        if(_kind==FinancialKind.ReceiptClassification)panel.Add(Form.Text("Classify only the received value supported by this decision. Choose its income account and confirm the total tax on the classified share. Tax already collected carries forward. The original cash account and payment method stay linked; this creates no additional payment."));
         if(_kind is FinancialKind.Refund or FinancialKind.TaxRecovery)panel.Add(_taxRefund.Build());
         if(_kind==FinancialKind.PurchaseRefund)panel.Add(_supplierRefund.Build());
         if(_kind is FinancialKind.SupplierRefund or FinancialKind.PurchaseRefund or FinancialKind.SupplierCreditUse)panel.Add(_assetRefund.Build());
         if(_kind==FinancialKind.Refund)panel.Add(_credit);
         if(_kind is FinancialKind.Receipt or FinancialKind.UnclassifiedReceipt or FinancialKind.Refund or FinancialKind.AssetDisposal or FinancialKind.PurchasePayment or FinancialKind.PurchaseRefund or FinancialKind.TaxRecovery)panel.Add(_method);
         if(_kind==FinancialKind.Opening)panel.Add(_openingCredit,Form.Text("Approve a documented starting book value. Link an individual loan, asset, or owner when its account requires one. This does not import earlier business activity. Confirm zero cash balances in Opening balances."));
-        panel.Add(_booking,_reference,_provider,_reliable,_evidence,Form.Text("Missing evidence remains visible for review. It does not prove that a payment or expense occurred."));
+        panel.Add(_booking);
+        if(_kind!=FinancialKind.ReceiptClassification)panel.Add(_reference,_provider,_reliable);
+        panel.Add(_evidence,Form.Text("Missing evidence remains visible for review. It does not prove that a payment or expense occurred."));
         return panel;
     }
 

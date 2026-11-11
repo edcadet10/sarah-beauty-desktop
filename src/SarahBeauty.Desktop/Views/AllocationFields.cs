@@ -20,7 +20,7 @@ internal sealed class AllocationFields
         _date=Form.Input("Application or reversal date",draft.Date?.ToString("yyyy-MM-dd")??"");
         _amount=Form.Input("Amount in USD",Money.Input(draft.Cents));
         _sourceType=Form.Select("Source value",["Approved receipt","Funded customer credit"],draft.CreditId.Length>0?"Funded customer credit":"Approved receipt");
-        var payments=new FinanceBook(store).Posted(owner).Where(p=>p.Source.Kind==FinancialKind.Receipt).ToList();
+        var payments=new FinanceBook(store).Posted(owner).Where(p=>p.Source.Kind is FinancialKind.Receipt or FinancialKind.ReceiptClassification).ToList();
         _payment=Form.Records("Approved receipt",payments.Select(p=>(p.Id,$"{p.Source} • {p.Id[..8]}")),draft.PaymentId);
         _credit=Form.Records("Funded customer credit",new CreditBook(store).Credits(owner).Select(c=>(c.Id,$"{c.CustomerName} • Issued {Money.Display(c.IssuedCents)} • {c.Id[..8]}")),draft.CreditId);
         var invoices=new QuoteBook(store).Versions(owner).Where(v=>v.Snapshot.Kind==DocumentKind.Invoice && v.Status!="Void");

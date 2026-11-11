@@ -19,7 +19,7 @@ internal static class PostingValidation
         if (draft.AmountCents < 0 || draft.TaxCents < 0 || draft.TaxCents > draft.AmountCents
             || draft.FeeCents < 0 || draft.PrincipalCents < 0 || draft.InterestCents < 0)
             throw new ArgumentException("Review the movement's amounts.");
-        if (draft.Kind is not (FinancialKind.Receipt or FinancialKind.Refund or FinancialKind.AssetDisposal) && draft.TaxCents != 0)
+        if (draft.Kind is not (FinancialKind.Receipt or FinancialKind.Refund or FinancialKind.AssetDisposal or FinancialKind.ReceiptClassification) && draft.TaxCents != 0)
             throw new ArgumentException("Sales tax components belong to receipts and their refunds.");
         if (draft.Kind is not (FinancialKind.Receipt or FinancialKind.LoanPayment) && draft.FeeCents != 0)
             throw new ArgumentException("Record this fee as a separately classified expense.");
@@ -38,9 +38,9 @@ internal static class PostingValidation
 
     private static void ValidateAmounts(FinancialDraft draft)
     {
-        if (draft.Kind is FinancialKind.Receipt or FinancialKind.Refund or FinancialKind.AssetDisposal && !draft.TaxResolved)
+        if (draft.Kind is FinancialKind.Receipt or FinancialKind.Refund or FinancialKind.AssetDisposal or FinancialKind.ReceiptClassification && !draft.TaxResolved)
             throw new ArgumentException("Resolve the tax treatment before approving this receipt or refund.");
-        if (draft.Kind == FinancialKind.Receipt && (draft.FeeCents > draft.AmountCents || draft.CustomerId.Length == 0))
+        if (draft.Kind is FinancialKind.Receipt or FinancialKind.ReceiptClassification && (draft.FeeCents > draft.AmountCents || draft.CustomerId.Length == 0))
             throw new ArgumentException("Choose the payer and a fee no greater than the gross receipt.");
         if (draft.Kind == FinancialKind.LoanPayment && checked(draft.PrincipalCents + draft.InterestCents + draft.FeeCents) != draft.AmountCents)
             throw new ArgumentException("Principal, interest, and fees must equal the cash payment.");
@@ -52,7 +52,7 @@ internal static class PostingValidation
     {
         Account Required(string id) => accounts.SingleOrDefault(a => a.Id == id && a.Active)
             ?? throw new ArgumentException("Choose an active account from this business.");
-        if (draft.Kind is not (FinancialKind.OwnerPaidExpense or FinancialKind.Depreciation or FinancialKind.AssetContribution or FinancialKind.Opening or FinancialKind.Reversal or FinancialKind.SupplierCreditUse)
+        if (draft.Kind is not (FinancialKind.OwnerPaidExpense or FinancialKind.Depreciation or FinancialKind.AssetContribution or FinancialKind.Opening or FinancialKind.Reversal or FinancialKind.SupplierCreditUse or FinancialKind.ReceiptClassification)
             && !(draft.Kind==FinancialKind.AssetDisposal && draft.AmountCents==0)
             && !(draft.Kind==FinancialKind.PurchasePayment && draft.PurchaseFunding!="Business cash")
             && !(draft.Kind==FinancialKind.PurchaseRefund && draft.SupplierRefundDestination!="Business cash")
@@ -76,6 +76,8 @@ internal static class PostingValidation
         if (draft.Kind == FinancialKind.Receipt && Required(draft.CounterAccountId).Type != "Income"
             && Required(draft.CounterAccountId).Code != "2200")
             throw new ArgumentException("Classify this receipt as income or a refundable customer deposit.");
+        if(draft.Kind==FinancialKind.ReceiptClassification && Required(draft.CounterAccountId).Type!="Income")
+            throw new ArgumentException("Choose the reviewed income classification for this received value.");
         if (draft.Kind is FinancialKind.SupplierRefund or FinancialKind.Refund or FinancialKind.Opening) Required(draft.CounterAccountId);
     }
 

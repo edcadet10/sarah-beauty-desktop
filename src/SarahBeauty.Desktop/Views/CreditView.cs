@@ -44,7 +44,7 @@ internal sealed class CreditView(BusinessStore store,OwnerSession owner)
         var reason=Form.Input("Explicit decision / reason",draft.Name);
         var date=Form.Input("Effective date",draft.Date?.ToString("yyyy-MM-dd")??"");
         var amount=Form.Input("Amount in USD",Money.Input(draft.Cents));
-        var payment=Form.Records("Original approved receipt",new FinanceBook(store).Posted(owner).Where(p=>p.Source.Kind==FinancialKind.Receipt).Select(p=>(p.Id,$"{p.Source} • {p.Id[..8]}")),draft.PaymentId);
+        var payment=Form.Records("Original approved receipt",new FinanceBook(store).Posted(owner).Where(p=>p.Source.Kind is FinancialKind.Receipt or FinancialKind.ReceiptClassification).Select(p=>(p.Id,$"{p.Source} • {p.Id[..8]}")),draft.PaymentId);
         var credit=Form.Records("Customer credit",_book.Credits(owner).Select(c=>(c.Id,$"{c.CustomerName} • {c.Id[..8]}")),draft.CreditId);
         var status=Form.Text();
         _detail.Add(Form.Title(draft.Action==CreditAction.Issue?"Funded credit draft":"Return unused credit"),reason,date,amount);
