@@ -17,7 +17,7 @@ internal static class ApplicationSource
         string payment=credit?.PaymentId??draft.PaymentId;
         var receipt=CorrectionRules.Original(db,owner,payment);
         string? accountType=db.Scalar("SELECT Type FROM Accounts WHERE Id=$id;",("$id",receipt.CounterAccountId)) as string;
-        if(receipt.Kind!=FinancialKind.Receipt || accountType!="Income")
+        if(receipt.Kind is not (FinancialKind.Receipt or FinancialKind.ReceiptClassification) || accountType!="Income")
             throw new ArgumentException("Use an approved income receipt or a credit funded by one. Held money needs a reviewed reclassification first.");
         if((credit?.IssueDate??receipt.Date)>draft.Date)throw new ArgumentException("The application cannot precede its source value.");
         var available=credit is null?ValueAvailability.Payment(db,owner,payment,draft.Date!.Value):CreditValues.Available(db,owner,credit.Id,draft.Date!.Value);

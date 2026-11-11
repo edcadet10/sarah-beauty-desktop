@@ -66,6 +66,7 @@ internal sealed class MoneyView
         if(draft.Kind==FinancialKind.PurchaseRefund)_detail.Add(Form.Text("Refund destination: "+draft.SupplierRefundDestination));
         if(draft.Kind==FinancialKind.SupplierCreditUse)_detail.Add(Form.Text("Credit treatment: "+draft.SupplierCreditTreatment+" • Transfers existing supplier credit."));
         if(draft.Kind==FinancialKind.TaxRecovery)_detail.Add(Form.Text("Tax recovery outcome: "+draft.TaxRecoveryDestination));
+        if(draft.Kind==FinancialKind.ReceiptClassification)_detail.Add(Form.Text($"Classifies existing received value. Tax already collected on this share: {Money.Display(draft.SourceTaxCents)}. No additional cash payment."));
         if(draft.TaxRefundAllocation is { } split)_detail.Add(Form.Text($"Refunded tax: liability reduction {Money.Display(split.LiabilityCents)} • Recoverable {Money.Display(split.RecoverableCents)} • Nonrecoverable {Money.Display(split.NonrecoverableCents)}"));
         if(draft.AssetAdjustments.Length>0)
         {

@@ -20,7 +20,7 @@ internal sealed class ReceiptView(BusinessStore store,OwnerSession owner)
     internal UIElement Build()
     {
         var panel=Form.Panel();
-        var payments=new FinanceBook(store).Posted(owner).Where(p=>p.Source.Kind is FinancialKind.Receipt or FinancialKind.AssetDisposal && p.Source.AmountCents>0).ToList();
+        var payments=new FinanceBook(store).Posted(owner).Where(p=>p.Source.Kind is FinancialKind.Receipt or FinancialKind.AssetDisposal or FinancialKind.ReceiptClassification && p.Source.AmountCents>0).ToList();
         var selected=Form.Records("Approved customer payment",payments.Select(p=>(p.Id,p.Source.ToString())));
         panel.Add(Form.Title("Payment receipts"),selected,Form.Action("Prepare receipt",_status,()=>
         {

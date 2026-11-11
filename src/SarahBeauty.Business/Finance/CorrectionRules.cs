@@ -15,10 +15,10 @@ internal static class CorrectionRules
         if (db.Scalar("SELECT Id FROM Movements WHERE ReversesId=$original;", ("$original", draft.OriginalId)) is not null)
             throw new ArgumentException("The original movement has already been reversed.");
         if (draft.Kind == FinancialKind.Reversal) return Reversal(db, owner, draft, original);
-        var required = draft.Kind == FinancialKind.Refund ? FinancialKind.Receipt : original.Kind;
+        string account=original.Kind==FinancialKind.UnclassifiedReceipt?(string)db.Scalar("SELECT Id FROM Accounts WHERE BusinessId=$id AND Code='2400';",("$id",owner.BusinessId))!:original.CounterAccountId;
         if ((draft.Kind == FinancialKind.SupplierRefund && original.Kind is not (FinancialKind.Expense or FinancialKind.AssetPurchase))
-            || (draft.Kind == FinancialKind.Refund && original.Kind != required)
-            || draft.CounterAccountId != original.CounterAccountId || draft.CustomerId != original.CustomerId)
+            || (draft.Kind == FinancialKind.Refund && original.Kind is not (FinancialKind.Receipt or FinancialKind.UnclassifiedReceipt or FinancialKind.ReceiptClassification))
+            || draft.CounterAccountId != account || draft.CustomerId != original.CustomerId)
             throw new ArgumentException("The refund must keep the original source, customer, and classification.");
         CheckRefundLimit(db, owner, draft, original);
         return draft with { LoanId = original.LoanId, AssetId = original.AssetId, SupplierId = original.SupplierId, BookingId = original.BookingId };

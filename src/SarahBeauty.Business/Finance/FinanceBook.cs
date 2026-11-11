@@ -26,6 +26,7 @@ public sealed class FinanceBook(BusinessStore store)
         var accounts = ChartOfAccounts.List(db, owner);
         draft = CorrectionRules.Prepare(db, owner, draft);
         draft=PurchasePayments.Prepare(db,store,owner,draft);
+        draft=ReceiptClassifications.Prepare(db,owner,draft);
         PostingValidation.Validate(db, owner, store, draft, accounts);
         OpeningRules.Validate(db,store,owner,draft,accounts);
         CreditRefundRules.Validate(db,owner,draft);
@@ -51,6 +52,7 @@ public sealed class FinanceBook(BusinessStore store)
             }
             value=value with{AssetAdjustments=value.AssetAdjustments.Select(c=>c with{Generation=ValueState.Generation(db,owner,"Asset",c.AssetId)}).ToArray()};
             if(value.Kind==FinancialKind.TaxRecovery)value=value with{TaxRecoveryGeneration=ValueState.Generation(db,owner,"TaxRecovery",value.OriginalId)};
+            if(value.Kind==FinancialKind.ReceiptClassification)value=ReceiptClassifications.Review(db,owner,value);
             return _drafts.Save(db, owner, value);
         });
     }
@@ -75,12 +77,13 @@ public sealed class FinanceBook(BusinessStore store)
         var accounts = ChartOfAccounts.List(db, owner);
         draft = CorrectionRules.Prepare(db, owner, draft);
         draft=PurchasePayments.Prepare(db,store,owner,draft);
+        draft=ReceiptClassifications.Prepare(db,owner,draft);
         PostingValidation.Validate(db, owner, store, draft, accounts);
         OpeningRules.Validate(db,store,owner,draft,accounts);
         CreditRefundRules.Validate(db,owner,draft);
         CheckReference(db, owner, draft);
         var lines=BuildLines(db,owner,draft,accounts);
-        PostingRules.ValidateBalance(lines,PurchasePayments.AllowsEmpty(db,owner,draft) || AssetDisposals.AllowsEmpty(db,owner,draft));
+        PostingRules.ValidateBalance(lines,PurchasePayments.AllowsEmpty(db,owner,draft) || AssetDisposals.AllowsEmpty(db,owner,draft) || ReceiptClassifications.AllowsEmpty(db,owner,draft));
         var posted = PostingWriter.Save(db, owner, draft, lines, FailurePoint);
         OpeningRules.AfterPosting(db,owner,draft,posted.Id,accounts);
         AssetDisposals.AfterPosting(db,store,owner,draft,posted.Id);
@@ -94,6 +97,8 @@ public sealed class FinanceBook(BusinessStore store)
         FailurePoint?.Invoke("opening-record");
         if(CreditRefundRules.AfterPosting(db,owner,draft,posted.Id))FailurePoint?.Invoke("credit-refund-funding");
         ReceiptValueGuard.AfterPosting(db,owner,draft,posted.Id);
+        ReceiptClassifications.AfterPosting(db,owner,draft);
+        if(draft.Kind==FinancialKind.ReceiptClassification)FailurePoint?.Invoke("receipt-classification");
         TaxRecoveries.AfterPosting(db,owner,draft,posted.Id);
         if(draft.Kind==FinancialKind.TaxRecovery || draft.TaxRefundAllocation is not null)FailurePoint?.Invoke("tax-recovery");
         BalanceGuards.Validate(db, owner, draft);
@@ -111,6 +116,7 @@ public sealed class FinanceBook(BusinessStore store)
             FinancialKind.SupplierRefund=>AssetRefunds.ClassicLines(db,owner,draft,accounts),
             FinancialKind.Refund=>TaxRefunds.Lines(draft,accounts),
             FinancialKind.TaxRecovery=>TaxRecoveries.Lines(db,owner,draft,accounts),
+            FinancialKind.ReceiptClassification=>ReceiptClassifications.Lines(db,owner,draft,accounts),
             FinancialKind.PurchasePayment=>PurchasePayments.Lines(db,store,owner,draft,accounts),
             FinancialKind.PurchaseRefund=>PurchaseRefundPlan.Lines(db,store,owner,draft,accounts),
             FinancialKind.SupplierCreditUse=>SupplierCreditUsePlan.Lines(db,store,owner,draft,accounts),

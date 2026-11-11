@@ -10,7 +10,7 @@ internal static class ValueAvailability
     internal static ValueBalance Payment(DbWork db,OwnerSession owner,string paymentId,DateOnly date)
     {
         var source=CorrectionRules.Original(db,owner,paymentId);
-        if(source.Kind!=FinancialKind.Receipt)throw new ArgumentException("Choose an approved customer receipt.");
+        if(source.Kind is not (FinancialKind.Receipt or FinancialKind.UnclassifiedReceipt or FinancialKind.ReceiptClassification))throw new ArgumentException("Choose an approved customer receipt or reviewed classification.");
         string at=date.ToString("yyyy-MM-dd");
         bool reversed=db.Scalar("SELECT Id FROM Movements WHERE ReversesId=$id AND Date<=$date;",("$id",paymentId),("$date",at)) is not null;
         long gross=source.Date<=date && !reversed?source.AmountCents:0;
@@ -21,8 +21,9 @@ internal static class ValueAvailability
             """,r=>(Gross:r.GetInt64(0),Tax:r.GetInt64(1)),("$id",paymentId),("$date",at));
         var applied=ApplicationSum(db,"PaymentId",paymentId,date);
         var funding=Funding(db,"PaymentId",paymentId,date);
-        return new(checked(gross-refunds.Sum(r=>r.Gross)-applied.Cents-funding.Cents),
-            checked(tax-refunds.Sum(r=>r.Tax)-applied.TaxCents-funding.TaxCents));
+        var classified=ReceiptClassifications.Consumed(db,paymentId,date);
+        return new(checked(gross-refunds.Sum(r=>r.Gross)-applied.Cents-funding.Cents-classified.Cents),
+            checked(tax-refunds.Sum(r=>r.Tax)-applied.TaxCents-funding.TaxCents-classified.TaxCents));
     }
 
     internal static ValueBalance ApplicationSum(DbWork db,string column,string id,DateOnly date)

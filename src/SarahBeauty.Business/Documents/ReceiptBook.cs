@@ -17,7 +17,7 @@ public sealed class ReceiptBook(BusinessStore store)
         {
             if(draft.Status!="Draft" || draft.IssuedVersionId.Length>0 || (draft.Revision>0 && _drafts.Get(db,owner,draft.Id).Status!="Draft"))
                 throw new ArgumentException("Issued receipts cannot be edited. Reprint the saved version.");
-            if(CorrectionRules.Original(db,owner,draft.PaymentId).Kind is not (FinancialKind.Receipt or FinancialKind.AssetDisposal))
+            if(CorrectionRules.Original(db,owner,draft.PaymentId).Kind is not (FinancialKind.Receipt or FinancialKind.AssetDisposal or FinancialKind.ReceiptClassification))
                 throw new ArgumentException("Choose an approved customer payment or asset-sale receipt.");
             return _drafts.Save(db,owner,draft with{ReviewedWatermark=checked(ReceiptSnapshot.Watermark(db,owner)+1)});
         });
