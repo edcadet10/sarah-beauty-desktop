@@ -40,10 +40,12 @@ public sealed class ServiceCatalog(BusinessStore store)
         return _records.Save(db,owner,service with{History=[..service.History,revision]});
     }
 
-    public Booking AddService(OwnerSession owner,Booking booking,string serviceId,decimal quantity)=>store.ReadSnapshot(db=>
+    public Booking AddService(OwnerSession owner,Booking booking,string serviceId,decimal quantity,int? reviewedRevision=null)=>store.ReadSnapshot(db=>
     {
         store.RequireSession(db,owner);
-        return ServiceBooking.Add(booking,_records.Get(db,owner,serviceId),quantity);
+        var service=_records.Get(db,owner,serviceId);
+        if(reviewedRevision.HasValue && service.Revision!=reviewedRevision.Value)throw new InvalidOperationException("This service changed. Reload the catalog choices and review its current price before adding it.");
+        return ServiceBooking.Add(booking,service,quantity);
     });
 
     public Booking NewWedding(OwnerSession owner,string name,int guests=0,decimal miles=0)

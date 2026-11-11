@@ -12,6 +12,7 @@ internal sealed partial class BookingView
         var panel = Form.Panel();
         foreach (var charge in booking.Charges.Where(c => c.Active))
             panel.Add(Section(charge.ToString(), ChargeEditor(booking, charge)));
+        panel.Add(CatalogServices(booking));
         var description = Form.Input("New service description");
         var unit = Form.Select("Unit", ["Person", "Package", "Mile", "Custom"], "Person");
         var quantity = Form.Input("Quantity", "1");
@@ -32,14 +33,16 @@ internal sealed partial class BookingView
         var discount = Form.Input("Discount in USD", Money.Input(charge.DiscountCents));
         var tax = Form.Input("Resolved tax rate (decimal, e.g. 0.075; blank means undecided)", charge.TaxRate?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "");
         var payer = CustomerSelect("Default payer for this charge (travel payer must be explicit)", charge.PayerCustomerId);
+        var duration=Form.Input("Duration for this service in minutes (blank means unknown)",charge.DurationMinutes?.ToString()??"");
         var status = Form.Text();
-        panel.Add(description, quantity, price, discount, tax, payer, Form.Action("Save charge", status, async () =>
+        if(charge.ServiceId.Length>0)panel.Add(Form.Text("Copied catalog revision: "+charge.ServiceRevision));
+        panel.Add(description, quantity, price, discount, tax, payer,duration, Form.Action("Save charge", status, async () =>
         {
             var changed = BookingRules.ChangeQuantity(booking, charge.Id, Input.Decimal(quantity.Text));
             var edited = changed.Charges.Single(c => c.Id == charge.Id) with
             {
                 Description = description.Text.Trim(), UnitCents = Money.Parse(price.Text), DiscountCents = Money.Parse(discount.Text),
-                TaxRate = string.IsNullOrWhiteSpace(tax.Text) ? null : Input.Decimal(tax.Text), PayerCustomerId = payer.SelectedId()
+                TaxRate = string.IsNullOrWhiteSpace(tax.Text) ? null : Input.Decimal(tax.Text), PayerCustomerId = payer.SelectedId(),DurationMinutes=Input.Minutes(duration.Text)
             };
             await Save(changed with { Charges = changed.Charges.Select(c => c.Id == charge.Id ? edited : c).ToArray() });
         }), status);
