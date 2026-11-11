@@ -26,16 +26,18 @@ public sealed class BankMatching(BusinessStore store)
         var bank=StatementQueries.Lines(db,owner,account);
         var cash=BankMatchQueries.CashLines(db,owner,account);
         var history=BankMatchQueries.History(db,owner);
-        return new BankMatchingSources(bank,cash,BankPositions(bank,history,date),CashPositions(cash,history,date),history,BankMatchQueries.Approvals(db,owner));
+        return new BankMatchingSources(bank,cash,BankPositions(bank,history,date,StatementErrorHistory.Reservations(db,owner,account)),CashPositions(cash,history,date),history,BankMatchQueries.Approvals(db,owner));
     });
 
     public List<MatchPosition> BankPositions(OwnerSession owner,string account,DateOnly date)=>LoadSources(owner,account,date).BankPositions;
     public List<MatchPosition> CashPositions(OwnerSession owner,string account,DateOnly date)=>LoadSources(owner,account,date).CashPositions;
 
-    internal static List<MatchPosition> BankPositions(List<BankLine> bank,List<BankMatch> history,DateOnly date)
+    internal static List<MatchPosition> BankPositions(List<BankLine> bank,List<BankMatch> history,DateOnly date,List<BankReservation>? reservations=null)
     {
         var lookup=history.ToLookup(r=>r.BankLineId);
-        return bank.Where(b=>b.Date<=date).Select(b=>new MatchPosition(b.Id,b.SignedCents,BankMatchQueries.Matched(lookup[b.Id],date))).ToList();
+        var reserved=(reservations??[]).Where(r=>r.Date<=date).ToLookup(r=>r.BankLineId);
+        return bank.Where(b=>b.Date<=date).Select(b=>new MatchPosition(b.Id,b.SignedCents,BankMatchQueries.Matched(lookup[b.Id],date))
+            {ReservedForStatementErrorsCents=ReconciliationSourcesReader.Cents(reserved[b.Id].Select(r=>r.Cents))}).ToList();
     }
 
     internal static List<MatchPosition> CashPositions(List<CashMatchLine> cash,List<BankMatch> history,DateOnly date)

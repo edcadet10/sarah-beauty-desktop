@@ -45,8 +45,9 @@ internal sealed class TestStore : IDisposable
 
     internal void PrepareBankingVersion(int version)
     {
-        if(version is <18 or >22)throw new ArgumentOutOfRangeException(nameof(version));
-        var tables=new List<string>{"ReconciliationBankCoverage","ReconciliationReopens","Reconciliations"};
+        if(version is <18 or >23)throw new ArgumentOutOfRangeException(nameof(version));
+        var tables=new List<string>{"StatementErrorResolutions","StatementErrors"};
+        if(version<23)tables.AddRange(["ReconciliationBankCoverage","ReconciliationReopens","Reconciliations"]);
         if(version<21)tables.AddRange(["BankMatches","BankMatchGroups"]);
         if(version<20)tables.AddRange(["StatementRows","BankLines","StatementImports"]);
         tables=tables.Where(t=>Convert.ToInt64(Scalar(DatabasePath,$"SELECT COUNT(*) FROM sqlite_schema WHERE type='table' AND name='{t}';"))>0).ToList();

@@ -13,7 +13,7 @@ internal static class ReconciliationSourcesReader
         var bank=StatementQueries.Lines(db,owner,account.Id).Where(b=>b.Date<=statement.Through).ToDictionary(b=>b.Id);
         var cash=BankMatchQueries.CashLines(db,owner,account.Id).Where(c=>c.Date<=statement.Through).ToList();
         var history=BankMatchQueries.History(db,owner);
-        var bankPositions=BankMatching.BankPositions(bank.Values.ToList(),history,statement.Through);
+        var bankPositions=BankMatching.BankPositions(bank.Values.ToList(),history,statement.Through,StatementErrorHistory.Reservations(db,owner,account.Id));
         var cashPositions=BankMatching.CashPositions(cash,history,statement.Through);
         var cashById=cash.ToDictionary(c=>c.Id);
         var coverage=ReconciliationQueries.Coverage(db,owner,account.Id,statement.Through);
@@ -23,7 +23,7 @@ internal static class ReconciliationSourcesReader
             OpeningDate(db,owner,account.Id,statement.Through).HasValue,Cents(cash.Select(c=>c.SignedCents)),
             bankPositions.Where(p=>!coverage.BankIds.Contains(p.Id)).Select(p=>new ReconciliationLine(p.Id,bank[p.Id].Date,p.SignedCents,p.RemainingCents,bank[p.Id].Description,"Bank transaction")).ToArray(),
             cashPositions.Select(p=>new ReconciliationLine(p.Id,cashById[p.Id].Date,cashById[p.Id].SignedCents,p.RemainingCents,cashById[p.Id].Description,cashById[p.Id].Kind)).ToArray(),Corrections(db,owner,account.Id,statement.Through))
-            {PriorReconciliationIds=coverage.PriorIds,ContinuityWarnings=ReconciliationContinuity.Check(db,owner,statement)};
+            {PriorReconciliationIds=coverage.PriorIds,ContinuityWarnings=ReconciliationContinuity.Check(db,owner,statement),CarriedErrors=StatementErrorHistory.Carried(db,owner,account.Id,statement.Through)};
     }
 
     internal static DateOnly? OpeningDate(DbWork db,OwnerSession owner,string account,DateOnly through)

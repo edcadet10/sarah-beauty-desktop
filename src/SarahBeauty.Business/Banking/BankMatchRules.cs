@@ -56,6 +56,7 @@ internal static class BankMatchRules
         var all=BankMatchQueries.History(db,owner).Concat(proposed??[]).ToList();
         var cash=BankMatchQueries.CashLines(db,owner).ToDictionary(c=>c.Id);
         var bankLines=BankSources(db,owner,portions.Select(p=>cash[p.JournalLineId]));
+        var reservations=bankLines.Values.Select(b=>b.AccountId).Distinct().SelectMany(a=>StatementErrorHistory.Reservations(db,owner,a)).ToLookup(r=>r.BankLineId);
         foreach(string id in portions.Select(p=>p.JournalLineId).Distinct())
         {
             var line=cash[id];
@@ -66,7 +67,8 @@ internal static class BankMatchRules
         {
             var line=bankLines[id];
             var rows=all.Where(r=>r.BankLineId==id).ToList();
-            Check(rows,rows.Select(r=>r.Date),_=>Math.Abs(line.SignedCents));
+            var reserved=reservations[id].ToList();
+            Check(rows,rows.Select(r=>r.Date).Concat(reserved.Select(r=>r.Date)),d=>Math.Abs(line.SignedCents)-ReconciliationSourcesReader.Cents(reserved.Where(r=>r.Date<=d).Select(r=>r.Cents)));
         }
         foreach(string id in portions.Where(p=>p.ReversesId.Length>0).Select(p=>p.ReversesId).Distinct())
         {
