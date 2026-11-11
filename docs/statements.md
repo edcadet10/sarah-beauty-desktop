@@ -1,6 +1,6 @@
 # Preview a statement CSV
 
-The Statements screen previews CSV rows, records reviewed transaction identities, and imports statements. Imports do not post cash or income. Bank matching is available separately; reconciliation completion remains in development.
+The Statements screen previews CSV rows, records reviewed transaction identities, and imports statements. Imports do not post cash or income. Use Bank matching and Reconciliation to review the imported transactions against the books.
 
 1. Open **Statements**, then choose a CSV file or paste its contents. Use UTF-8 text with a header row, at most 4 MB, and at most 10,000 transaction rows.
 2. Expand **Map statement columns and signs**. Enter the actual column headers for the date and description.
@@ -36,6 +36,21 @@ If a statement confirms no transactions, leave CSV contents empty, select **The 
 Match and unmatch history retains the effective date, approver, approval time, and reason. A cash movement with active matches requires the matching dependencies to be undone before its posting can be cancelled. A cancellation reversal does not represent another bank transaction. Record an actual cash return through its refund workflow.
 
 Matching does not complete a reconciliation. Zero net difference alone does not explain unmatched deposits and payments.
+
+## Complete a reconciliation
+
+1. Confirm the account's opening balance in **Opening balances**. An unknown opening is different from a confirmed zero.
+2. Import the statement and match its actual business transactions. Post a missing receipt, fee, or other real movement in **Money**, then match it.
+3. Open **Reconciliation**, choose the statement, enter the review reason, and select **Load reconciliation sources**. Work in statement date order, with consistent balances between periods.
+4. Support each real deposit in transit or outstanding payment with its full remaining amount, explanation, and evidence. Select book corrections already posted when relevant; their amounts are already included in the ledger balance.
+5. If the bank made an actual statement error, choose its row under **Document an actual bank-statement error**. Enter the bank evidence and explanation, then select **Add or update statement error**. This claims the row's full unmatched remainder.
+6. If the bank has corrected an error, select the original error and the actual opposite-direction bank transaction under **Link actual bank corrections**. Enter the correction amount, evidence, and explanation. A partial correction leaves the unresolved amount to carry into later statements.
+7. Select **Preview reconciliation**. Check the raw and adjusted statement balances, bank-error adjustment, ledger balance, outstanding evidence, and source issues. Every item must be explained and the difference must be zero. A bank-error decision creates no ledger entry.
+8. Confirm your passphrase and select **Complete reviewed reconciliation**. Completion retains the reviewed snapshot and prevents changes to covered cash dates, matching, or imported bank lines.
+
+Bank errors and correction portions cannot also match business cash. The original error evidence remains after the bank fully corrects it. To change a completed reconciliation, open its retained snapshot, enter the reopening reason, and confirm your passphrase. Reopen later reconciliations first. Reopening preserves the old snapshot; a revised completion creates another record.
+
+After saving new records in another section, use **Reload this section** to refresh a cached source list. Reloading asks before discarding unsaved fields.
 
 ## Development references
 
