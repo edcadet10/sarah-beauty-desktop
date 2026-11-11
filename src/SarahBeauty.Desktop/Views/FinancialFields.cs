@@ -12,7 +12,7 @@ namespace SarahBeauty_Desktop.Views;
 
 internal sealed class FinancialFields
 {
-    private readonly TextBox _memo,_date,_amount,_tax,_fee,_principal,_interest,_reference,_provider,_evidence;
+    private readonly TextBox _memo,_date,_amount,_tax,_fee,_principal,_interest,_reference,_provider,_evidence,_method;
     private readonly ComboBox _cash,_counter,_to,_customer,_economicOwner,_booking,_loan,_asset,_supplier,_original,_credit;
     private readonly CheckBox _taxResolved,_reliable,_openingCredit;
     private readonly FinancialKind _kind;
@@ -38,6 +38,7 @@ internal sealed class FinancialFields
         _tax=Form.Input("Included sales tax in USD",Money.Input(d.TaxCents));
         _taxResolved=new CheckBox{Content="I have explicitly resolved the tax treatment",IsChecked=d.TaxResolved};
         _fee=Form.Input("Processor / loan fee in USD",Money.Input(d.FeeCents));
+        _method=Form.Input("Payment method (cash, Zelle, card, transfer, or other; no account numbers)",d.PaymentMethod);
         _principal=Form.Input("Loan principal paid in USD",Money.Input(d.PrincipalCents));
         _interest=Form.Input("Loan interest paid in USD",Money.Input(d.InterestCents));
         _reference=Form.Input("External reference",d.ExternalReference);
@@ -61,6 +62,7 @@ internal sealed class FinancialFields
         if(_kind is FinancialKind.Expense or FinancialKind.SupplierRefund)panel.Add(_supplier);
         if(_kind is FinancialKind.Refund or FinancialKind.SupplierRefund or FinancialKind.Reversal)panel.Add(_original);
         if(_kind==FinancialKind.Refund)panel.Add(_credit);
+        if(_kind is FinancialKind.Receipt or FinancialKind.UnclassifiedReceipt or FinancialKind.Refund)panel.Add(_method);
         if(_kind==FinancialKind.Opening)panel.Add(_openingCredit);
         panel.Add(_booking,_reference,_provider,_reliable,_evidence,Form.Text("Missing evidence remains visible for review. It does not prove that a payment or expense occurred."));
         return panel;
@@ -74,6 +76,7 @@ internal sealed class FinancialFields
         CustomerId=_customer.SelectedId(),EconomicOwnerId=_economicOwner.SelectedId(),BookingId=_booking.SelectedId(),
         LoanId=_loan.SelectedId(),AssetId=_asset.SelectedId(),SupplierId=_supplier.SelectedId(),OriginalId=_original.SelectedId(),
         CreditId=_kind==FinancialKind.Refund?_credit.SelectedId():d.CreditId,
+        PaymentMethod=_method.Text.Trim(),
         ExternalReference=_reference.Text,Provider=_provider.Text,ReliableReference=_reliable.IsChecked==true,
         OpeningCredit=_openingCredit.IsChecked==true,EvidenceId=_evidence.Text.Trim()
     };

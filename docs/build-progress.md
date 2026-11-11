@@ -8,7 +8,7 @@ This file tracks the full application build requested on November 10, 2026. A co
 | Owner setup and sign-in | Implemented | Two owners, salted PBKDF2-SHA256 hashes, short lockout after failed attempts, expiring store-bound sessions, transaction audit |
 | Customers | Implemented | Name-only save, contact warning, validated optional contact fields, search/edit/archive, permission history, stale-edit guard |
 | Bookings | In progress | Charges, places, recipient links, exact plans, appointments, and explicit paid reservation implemented; full cancellation workflow and calendar refinements pending |
-| Client documents | In progress | Quote versions, bounded payer invoices, dated credit notes, and saved PDF artifacts implemented; payment receipts pending |
+| Client documents | Implemented core | Quote versions, bounded payer invoices, dated credit notes, approved-payment receipts, and saved PDFs; full release walkthrough pending |
 | Books and approvals | In progress | Core posting/reports, receipt/credit applications, funded credits, cash refunds and dated reversals implemented; period-close UI and remaining workflows pending |
 | Resources | Pending | Supplies, suppliers, assets, loans, owner movements, mileage |
 | Reconciliation and reports | Pending | Statements, bounded matches, reports, dashboard |
@@ -100,3 +100,9 @@ Seven integration cases cover trial-only rejection followed by a valid deposit, 
 Schema 10 adds immutable, dated invoice reductions. Credit notes retain their original invoice and client snapshot, release bounded source coverage, and reduce unpaid milestone gross/tax balances. Paid amounts must be unapplied before a reduction can consume them. A reduction of an unpaid charge creates no cash, income entry, or funded customer credit. Fully credited charges can be amended and invoiced under a newly accepted quote. Original invoices and PDFs stay unchanged.
 
 Eight new cases cover partial/final-cent reductions, retry, paid-invoice protection and unapplication, later application dependencies, corrected reissuance, stale competing drafts, and rollback at two write stages without consuming a number. Actual PDF extraction verifies the invoice reference, reduction labels, and exclusion of private markers. All 119 automated cases pass, and the Windows Debug build passes. The credit-note screen supports prepare, review, owner-confirmed issue, and PDF creation/reprint.
+
+## Payment receipt checks
+
+Schema 11 links one issued receipt to each approved customer payment. The saved client snapshot shows the original gross payment, recorded method (or an explicit unknown), an owner-reviewed client-safe reference, direct/credit applications, refunds, unused value, and payer invoice balance as of issuance. The snapshot excludes internal memo, account/provider details, evidence IDs, and private customer notes. Changing records after review requires a fresh review; later refunds and allocations do not rewrite the issued receipt or its PDF.
+
+Five added integration cases cover gross versus processor-net value, actual PDF text/privacy, frozen reprints after a later refund, funded credit applications without double counting, review invalidation, duplicate/unapproved/reversed payments, and rollback/retry. All 124 cases pass. A new fictional demo generated quote, invoice, credit note, and receipt PDFs; the receipt and credit-note pages were visually inspected for readable amounts, references, TEST labels, and layout. Windows Debug build passes. No document is sent automatically.

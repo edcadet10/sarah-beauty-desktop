@@ -22,7 +22,8 @@ internal static class ClientPdf
         document.Info.Subject="SarahBeauty snapshot "+snapshotHash;
         var section=Page(document,snapshot);
         Header(section,snapshot);
-        Lines(section,snapshot);
+        if(snapshot.Receipt is not null)ReceiptPdf.Detail(section,snapshot.Receipt);
+        else Lines(section,snapshot);
         Totals(section,snapshot);
         var renderer=new PdfDocumentRenderer{Document=document};
         renderer.RenderDocument();
@@ -101,9 +102,11 @@ internal static class ClientPdf
 
     private static void Totals(Section section,ClientSnapshot snapshot)
     {
-        section.AddParagraph((snapshot.Kind==DocumentKind.CreditNote?"Net reduction: ":"Net charges: ")+Money.Display(snapshot.NetCents)).Format.Alignment=ParagraphAlignment.Right;
+        string netLabel=snapshot.Kind switch{DocumentKind.CreditNote=>"Net reduction: ",DocumentKind.Receipt=>"Net payment: ",_=>"Net charges: "};
+        section.AddParagraph(netLabel+Money.Display(snapshot.NetCents)).Format.Alignment=ParagraphAlignment.Right;
         section.AddParagraph("Tax: "+Money.Display(snapshot.TaxCents)).Format.Alignment=ParagraphAlignment.Right;
-        var total=section.AddParagraph((snapshot.Kind==DocumentKind.CreditNote?"Total reduction: ":"Total: ")+Money.Display(snapshot.TotalCents));
+        string totalLabel=snapshot.Kind switch{DocumentKind.CreditNote=>"Total reduction: ",DocumentKind.Receipt=>"Gross payment: ",_=>"Total: "};
+        var total=section.AddParagraph(totalLabel+Money.Display(snapshot.TotalCents));
         total.Format.Alignment=ParagraphAlignment.Right;
         total.Format.Font.Bold=true;
         foreach(var milestone in snapshot.Milestones)

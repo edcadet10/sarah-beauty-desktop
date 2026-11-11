@@ -12,6 +12,7 @@ internal static class PostingValidation
     {
         if (!Enum.IsDefined(draft.Kind) || draft.Date is null || string.IsNullOrWhiteSpace(draft.Name))
             throw new ArgumentException("Choose a movement, date, and description.");
+        if(draft.PaymentMethod.Length>100)throw new ArgumentException("Use a payment method of up to 100 characters.");
         if (draft.Kind != FinancialKind.Reversal && draft.Kind != FinancialKind.AssetDisposal) Money.Positive(draft.AmountCents);
         if (draft.AmountCents < 0 || draft.TaxCents < 0 || draft.TaxCents > draft.AmountCents
             || draft.FeeCents < 0 || draft.PrincipalCents < 0 || draft.InterestCents < 0)
