@@ -13,7 +13,7 @@ public sealed class LocalBackups(BusinessStore store)
     {
         store.RequireSession(db,owner);var jobs=BackupJobRecords.List(db,owner.BusinessId).Where(j=>j.InstanceId==store.InstanceId).ToList();var latest=jobs.FirstOrDefault();var success=jobs.Where(j=>j.Status=="Succeeded").OrderByDescending(j=>j.Result!.Manifest.Watermark).ThenByDescending(j=>j.FinishedAtUtc,StringComparer.Ordinal).FirstOrDefault();
         long current=(long)db.Scalar("SELECT Watermark FROM Business WHERE Id=$id;",("$id",owner.BusinessId))!;long? covered=success?.Result?.Manifest.Watermark;
-        string status=jobs.Any(j=>j.Status=="Running" && ActiveJobs.ContainsKey(j.Id))?"Running":jobs.Any(j=>j.Status=="Running")?"Needs review":latest?.Status is "Failed" or "Cancelled"?latest.Status:covered is null?"Never completed":covered<current?"Pending":"Succeeded";
+        string status=jobs.Any(j=>j.Status=="Running" && ActiveJobs.ContainsKey(j.Id))?"Running":jobs.Any(j=>j.Status=="Running") || latest?.Status=="Interrupted"?"Needs review":latest?.Status is "Failed" or "Cancelled"?latest.Status:covered is null?"Never completed":covered<current?"Pending":"Succeeded";
         return new LocalBackupHealth(status,current,covered,success?.FinishedAtUtc,latest,success);
     });
     public Task<LocalBackupJob> CreateAsync(OwnerSession owner,string destination,CancellationToken cancellation=default)
