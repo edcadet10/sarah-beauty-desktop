@@ -39,7 +39,7 @@ internal sealed class ReportsView(BusinessStore store,OwnerSession owner)
         if(report.OpeningWarnings.Length>0)_result.Add(Form.Text("Unconfirmed inputs: "+string.Join("; ",report.OpeningWarnings)));
         _result.Add(Table(report));
         if(_kind.SelectedItem as string=="Supplier balances")_result.Add(Form.Text("Supporting supplier bills"),
-            ReportTable.Build(["Bill","Purchase date","Due date","Unpaid","Supplier credit"],report.SupplierBills.Select(b=>new[]{b.Name,b.PurchaseDate.ToString("yyyy-MM-dd"),b.DueDate?.ToString("yyyy-MM-dd")??"Unknown",Money.Display(Math.Max(0,b.Cents)),Money.Display(Math.Max(0,-b.Cents))})));
+            ReportTable.Build(["Bill","Purchase date","Due date","Unpaid","Supplier credit"],report.SupplierBills.Select(b=>new[]{b.Name,b.PurchaseDate.ToString("yyyy-MM-dd"),b.DueDate?.ToString("yyyy-MM-dd")??"Unknown",Money.Display(b.PayableCents),Money.Display(b.CreditCents)})));
         if(_kind.SelectedItem as string=="Balance sheet")_result.Add(Form.Text(report.BalanceSheet.Balances?"Assets equal liabilities plus equity including result.":"Balance-sheet equality failed. Review the source ledger."));
         SupportingEntries(report);
     }

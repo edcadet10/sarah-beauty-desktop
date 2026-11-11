@@ -10,7 +10,7 @@ internal static class PurchaseRefundPlan
     internal static FinancialDraft Prepare(DbWork db,OwnerSession owner,FinancialDraft draft)
     {
         var source=CorrectionRules.Original(db,owner,draft.OriginalId);
-        if(source.Kind!=FinancialKind.PurchasePayment || draft.Date<source.Date
+        if(source.Kind is not (FinancialKind.PurchasePayment or FinancialKind.SupplierCreditUse) || draft.Date<source.Date
             || db.Scalar("SELECT Id FROM Movements WHERE ReversesId=$id;",("$id",draft.OriginalId)) is not null)
             throw new ArgumentException("Choose an unreversed approved supplier payment and a refund date on or after it.");
         if(draft.PurchaseId.Length>0 && draft.PurchaseId!=source.PurchaseId)throw new ArgumentException("Keep the original supplier bill for this refund.");
