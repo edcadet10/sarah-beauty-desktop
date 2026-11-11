@@ -16,11 +16,11 @@ internal sealed class SearchableRecords(string label)
     }
 
     internal string SelectedId=>_choice.SelectedId();
-    internal void Update(IEnumerable<(string Id,string Label)> choices){_choices=choices.ToArray();Filter();}
+    internal void Update(IEnumerable<(string Id,string Label)> choices,string? selected=null){_choices=choices.ToArray();Filter(selected);}
 
-    private void Filter()
+    private void Filter(string? requested=null)
     {
-        string selected=SelectedId;
+        string selected=requested??SelectedId;
         var matches=_choices.Where(c=>c.Label.Contains(_search.Text,StringComparison.OrdinalIgnoreCase)).Take(50).ToList();
         var kept=_choices.FirstOrDefault(c=>c.Id==selected);
         if(kept.Id is not null && matches.All(c=>c.Id!=selected))matches.Add(kept);
