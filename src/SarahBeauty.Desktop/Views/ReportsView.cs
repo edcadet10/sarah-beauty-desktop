@@ -12,7 +12,7 @@ internal sealed class ReportsView(BusinessStore store,OwnerSession owner)
     private readonly FinancialReports _reports=new(store);
     private readonly StackPanel _result=Form.Panel();
     private readonly TextBlock _status=Form.Text();
-    private readonly ComboBox _kind=Form.Select("Report",["Profit and loss","Balance sheet","Trial balance","Cash movements","Customer aging","Supplier balances","Tax activity","Asset schedule","Debt schedule"],"Profit and loss");
+    private readonly ComboBox _kind=Form.Select("Report",["Profit and loss","Balance sheet","Trial balance","Cash movements","Customer aging","Supplier balances","Tax activity","Asset schedule","Debt schedule","Owner schedule"],"Profit and loss");
 
     internal UIElement Build()
     {
@@ -55,6 +55,7 @@ internal sealed class ReportsView(BusinessStore store,OwnerSession owner)
         "Tax activity"=>TaxTable(r.Tax),
         "Asset schedule"=>AssetScheduleView.Build(r),
         "Debt schedule"=>DebtScheduleView.Build(r),
+        "Owner schedule"=>OwnerScheduleView.Build(r),
         _=>ReportTable.Build(["Period result","USD"],[["Income",Money.Display(r.ProfitLoss.IncomeCents)],["Expenses",Money.Display(r.ProfitLoss.ExpenseCents)],["Result",Money.Display(r.ProfitLoss.ResultCents)]])
     };
 
