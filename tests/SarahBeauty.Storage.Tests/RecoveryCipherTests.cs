@@ -6,6 +6,14 @@ namespace SarahBeauty.Storage.Tests;
 public sealed class RecoveryCipherTests
 {
     [Fact]
+    public async Task SavedProtectedMaterialReopensExactlyAndPreservesAnExistingDestination()
+    {
+        using var f=new TestStore();var cipher=new RecoveryCipher();var material=await cipher.CreateAsync(BusinessFixture.Phrase);string path=Path.Combine(f.Folder,"fictional.sbrecovery");
+        await RecoveryMaterialFiles.SaveAsync(material,path);byte[] read=await RecoveryMaterialFiles.ReadAsync(path);Assert.True(material.ProtectedIdentity.SequenceEqual(read));Assert.Equal(material.Recipient,await cipher.InspectAsync(read,BusinessFixture.Phrase));
+        await Assert.ThrowsAsync<IOException>(()=>RecoveryMaterialFiles.SaveAsync(material,path));byte[] retained=await File.ReadAllBytesAsync(path);Assert.True(read.SequenceEqual(retained));Assert.Empty(Directory.EnumerateDirectories(f.Folder,".sarah-recovery-*"));
+        string large=Path.Combine(f.Folder,"unsupported.sbrecovery");await File.WriteAllBytesAsync(large,new byte[65537]);await Assert.ThrowsAsync<InvalidDataException>(()=>RecoveryMaterialFiles.ReadAsync(large));
+    }
+    [Fact]
     public async Task RealHelperProtectsRecoveryAndPublishesOnlyVerifiedStreamingOutput()
     {
         using var f=new TestStore();var cipher=new RecoveryCipher();var material=await cipher.CreateAsync(BusinessFixture.Phrase);

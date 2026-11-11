@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using SarahBeauty.Business.Dashboard;
+using SarahBeauty.Business.Recovery;
 using SarahBeauty.Business.Rules;
 using SarahBeauty.Business.Security;
 using SarahBeauty.Business.Storage;
@@ -46,14 +47,14 @@ internal sealed class DashboardView(BusinessStore store,OwnerSession owner,Actio
         _loading=true;_status.Text="Loading a consistent local snapshot…";
         try
         {
-            var snapshot=await Task.Run(()=>new DashboardSources(store).Load(owner,request));
+            var capture=await Task.Run(()=>(Snapshot:new DashboardSources(store).Load(owner,request),Backup:new LocalBackups(store).Health(owner)));var snapshot=capture.Snapshot;
             if(!values.SequenceEqual(Values())){_status.Text="Dates changed during loading. Refresh again to capture those dates.";return;}
-            var view=Show(snapshot);_result.Content=view;_status.Text=$"Dashboard captured • Watermark {snapshot.Finance.Reports.Watermark}";
+            var view=Show(snapshot,capture.Backup);_result.Content=view;_status.Text=$"Dashboard captured • Watermark {snapshot.Finance.Reports.Watermark}";
         }
         finally{_loading=false;}
     }
 
-    private UIElement Show(DashboardSnapshot snapshot)
+    private UIElement Show(DashboardSnapshot snapshot,LocalBackupHealth backup)
     {
         var report=snapshot.Finance.Reports;var panel=Form.Panel();
         panel.Add(Form.Text($"{report.BusinessName} • {report.Mode} • Watermark {report.Watermark}\nCaptured {report.GeneratedAtUtc}\n"
@@ -61,7 +62,8 @@ internal sealed class DashboardView(BusinessStore store,OwnerSession owner,Actio
             +$"Planning date {snapshot.Upcoming.PlanningAsOf:yyyy-MM-dd} • Upcoming window {snapshot.Upcoming.From:yyyy-MM-dd} through {snapshot.Upcoming.Through:yyyy-MM-dd}"),
             DashboardCardsView.Build(snapshot),DashboardChartsView.Build(snapshot),DashboardFinanceView.Build(snapshot.Finance,navigate),DashboardUpcomingView.Build(snapshot.Upcoming,navigate),
             DashboardOperationsView.Build(snapshot.Operations,navigate),
-            Form.Title("Backup health"),Form.Text("Sheets export: Never completed. Full recovery archive: Never completed. Restore test: Never completed. Google connection and portable recovery are not configured."));
+            Form.Title("Backup health"),Form.Text(LocalBackupView.HealthText(backup)),Form.Text("Local archive coverage checked separately from the financial capture. Drive upload: Never completed. Sheets export: Never completed. Second-device restore test: Never completed. Google is not connected."),
+            Form.Action("Open backups and recovery",_status,()=>{navigate("Backups and recovery");return Task.CompletedTask;}));
         return panel;
     }
 }

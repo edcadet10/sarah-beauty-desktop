@@ -1,6 +1,6 @@
 # Keep local archive history
 
-Status: Confirmed public recovery settings, manual local archive jobs, persistent history, and coverage checks are implemented in the business service. Desktop controls, scheduling, cloud outputs, and restore activation follow separately.
+Status: Confirmed public recovery settings, manual local archive jobs, persistent history, coverage checks, and [desktop controls](desktop-local-backups.md) are implemented. Scheduling, cloud outputs, and restore activation follow separately.
 
 ## Confirm recovery material
 
