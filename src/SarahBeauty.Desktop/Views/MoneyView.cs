@@ -65,6 +65,8 @@ internal sealed class MoneyView
         if(draft.PurchaseId.Length>0)_detail.Add(Form.Text("Bill: "+new PurchaseBook(_store).List(_owner).Single(p=>p.Id==draft.PurchaseId).Name+" • Funding: "+draft.PurchaseFunding));
         if(draft.Kind==FinancialKind.PurchaseRefund)_detail.Add(Form.Text("Refund destination: "+draft.SupplierRefundDestination));
         if(draft.Kind==FinancialKind.SupplierCreditUse)_detail.Add(Form.Text("Credit treatment: "+draft.SupplierCreditTreatment+" • Transfers existing supplier credit."));
+        if(draft.Kind==FinancialKind.TaxRecovery)_detail.Add(Form.Text("Tax recovery outcome: "+draft.TaxRecoveryDestination));
+        if(draft.TaxRefundAllocation is { } split)_detail.Add(Form.Text($"Refunded tax: liability reduction {Money.Display(split.LiabilityCents)} • Recoverable {Money.Display(split.RecoverableCents)} • Nonrecoverable {Money.Display(split.NonrecoverableCents)}"));
         if(draft.AssetAdjustments.Length>0)
         {
             var assets=new BusinessResources(_store).Assets(_owner);

@@ -7,7 +7,7 @@ public enum FinancialKind
 {
     Receipt, UnclassifiedReceipt, Expense, Transfer, Contribution, Withdrawal,
     LoanProceeds, LoanPayment, AssetPurchase, AssetContribution, Depreciation, AssetDisposal,
-    OwnerPaidExpense, OwnerReimbursement, TaxRemittance, SupplierRefund, Refund, Reversal, Opening, PurchasePayment, PurchaseRefund, SupplierCreditUse
+    OwnerPaidExpense, OwnerReimbursement, TaxRemittance, SupplierRefund, Refund, Reversal, Opening, PurchasePayment, PurchaseRefund, SupplierCreditUse, TaxRecovery
 }
 
 public sealed record FinancialDraft : BusinessRecord
@@ -48,6 +48,9 @@ public sealed record FinancialDraft : BusinessRecord
     public string SupplierCreditTreatment {get;init;}="Original funding";
     public AssetValueChoice[] AssetAdjustments {get;init;}=[];
     public SarahBeauty.Business.Purchasing.SupplierRefundPortion[] SupplierRefundPortions {get;init;}=[];
+    public TaxRefundAllocation? TaxRefundAllocation {get;init;}
+    public string TaxRecoveryDestination {get;init;}=global::SarahBeauty.Business.Finance.TaxRecoveryDestination.Cash;
+    public long TaxRecoveryGeneration {get;init;}
     public override string ToString() => $"{Date?.ToString("yyyy-MM-dd") ?? "Date missing"} • {Kind} • {Money.Display(AmountCents)} • {Name} • {Status}";
 }
 

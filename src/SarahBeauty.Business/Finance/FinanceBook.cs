@@ -50,6 +50,7 @@ public sealed class FinanceBook(BusinessStore store)
                 value=value with{SourcePurchaseGeneration=ValueState.Generation(db,owner,"Purchase",source.PurchaseId)};
             }
             value=value with{AssetAdjustments=value.AssetAdjustments.Select(c=>c with{Generation=ValueState.Generation(db,owner,"Asset",c.AssetId)}).ToArray()};
+            if(value.Kind==FinancialKind.TaxRecovery)value=value with{TaxRecoveryGeneration=ValueState.Generation(db,owner,"TaxRecovery",value.OriginalId)};
             return _drafts.Save(db, owner, value);
         });
     }
@@ -93,6 +94,8 @@ public sealed class FinanceBook(BusinessStore store)
         FailurePoint?.Invoke("opening-record");
         if(CreditRefundRules.AfterPosting(db,owner,draft,posted.Id))FailurePoint?.Invoke("credit-refund-funding");
         ReceiptValueGuard.AfterPosting(db,owner,draft,posted.Id);
+        TaxRecoveries.AfterPosting(db,owner,draft,posted.Id);
+        if(draft.Kind==FinancialKind.TaxRecovery || draft.TaxRefundAllocation is not null)FailurePoint?.Invoke("tax-recovery");
         BalanceGuards.Validate(db, owner, draft);
         _drafts.Save(db, owner, draft with { Status = "Posted", PostedBatchId = posted.Id });
         BusinessStore.Audit(db, owner, "Approve financial draft", draft.Id);
@@ -106,6 +109,8 @@ public sealed class FinanceBook(BusinessStore store)
         var lines=draft.Kind switch
         {
             FinancialKind.SupplierRefund=>AssetRefunds.ClassicLines(db,owner,draft,accounts),
+            FinancialKind.Refund=>TaxRefunds.Lines(draft,accounts),
+            FinancialKind.TaxRecovery=>TaxRecoveries.Lines(db,owner,draft,accounts),
             FinancialKind.PurchasePayment=>PurchasePayments.Lines(db,store,owner,draft,accounts),
             FinancialKind.PurchaseRefund=>PurchaseRefundPlan.Lines(db,store,owner,draft,accounts),
             FinancialKind.SupplierCreditUse=>SupplierCreditUsePlan.Lines(db,store,owner,draft,accounts),
