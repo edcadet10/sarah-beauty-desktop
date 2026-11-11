@@ -18,7 +18,9 @@ internal static class SchemaMigrations
             (21,SarahBeauty.Business.Banking.BankMatchSchema.Sql),(22,SarahBeauty.Business.Banking.StatementEvidenceSchema.Sql),
             (23,SarahBeauty.Business.Banking.ReconciliationSchema.Sql),(24,SarahBeauty.Business.Banking.StatementErrorSchema.Sql),
             (25,SarahBeauty.Business.Banking.StatementWithdrawalSchema.Sql),(26,BookPeriodSchema.Sql),(27,SarahBeauty.Business.Bookings.CancellationSchema.Sql),
-            (28,SarahBeauty.Business.Resources.TripPaymentSchema.Sql),(29,SarahBeauty.Business.Attachments.AttachmentSchema.Sql),(30,SarahBeauty.Business.Attachments.EvidenceLinkSchema.Sql)];
+            (28,SarahBeauty.Business.Resources.TripPaymentSchema.Sql),(29,SarahBeauty.Business.Attachments.AttachmentSchema.Sql),(30,SarahBeauty.Business.Attachments.EvidenceLinkSchema.Sql),
+            // Version 31 raises the minimum writer contract: older models must not discard or bypass pinned financial file evidence.
+            (31,"SELECT 1;")];
         foreach (var migration in migrations.Where(m => m.Version > fromVersion))
         {
             command.CommandText = migration.Sql;
