@@ -9,7 +9,7 @@ This file tracks the full application build requested on November 10, 2026. A co
 | Customers | Implemented | Name-only save, contact warning, validated optional contact fields, search/edit/archive, permission history, stale-edit guard |
 | Bookings | In progress | Persistent charges, places, recipient links, exact plans, and appointments implemented; confirmation awaits approved-payment workflow |
 | Client documents | In progress | Quote versions, bounded payer invoices, and saved PDF artifacts implemented; receipts and credit notes pending |
-| Books and approvals | In progress | Core posting/reports, receipt/credit applications, funded credits and dated reversals implemented; credit-funded refunds, period-close UI and remaining workflows pending |
+| Books and approvals | In progress | Core posting/reports, receipt/credit applications, funded credits, cash refunds and dated reversals implemented; period-close UI and remaining workflows pending |
 | Resources | Pending | Supplies, suppliers, assets, loans, owner movements, mileage |
 | Reconciliation and reports | Pending | Statements, bounded matches, reports, dashboard |
 | Recovery and Google | Pending | Attachments, portable encrypted archive, Sheets export, Drive authorization/readback |
@@ -82,3 +82,9 @@ Eight new integration cases cover one receipt across invoices, multiple receipts
 Schema 9 makes issued credit/funding history immutable and gives each funding movement an idempotent source draft. A reviewed credit action reserves actual unused receipt value or returns unused credit to the same receipt. Credit applications use the shared allocation/reversal service. Applying or unapplying a credit leaves its underlying receipt reservation in place, preventing use as both customer credit and unused cash.
 
 Seven new cases cover reserve/retry without a second receipt or income entry, two competing $200 uses against $326.65, a single release of unused funding, restored credit after unapplication, rollback at credit/funding stages, and retained tax components. Income and tax are not posted again when credit is used. Cash refunds from reserved credit and charge-adjustment documents remain separate follow-up work.
+
+## Credit cash refund checks
+
+A cash refund can now identify its funded customer credit. Approval releases that credit's reservation and posts the cash refund in one transaction. A dated reversal restores both the cash and the original credit reservation. The receipt never becomes available for a second use as a side effect. Refunds require the original receipt, payer, classification, and bounded unused gross/tax components.
+
+Six new integration cases cover repeated approval, a one-cent excess after partial application, reversal identity, failure between funding and journal completion, mismatched receipt links, and exact tax restoration. All 104 automated cases pass. These checks cover the cash and funding operations; a complete cancellation decision and charge credit note remain separate work.

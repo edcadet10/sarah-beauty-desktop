@@ -89,6 +89,7 @@ internal sealed class CreditView(BusinessStore store,OwnerSession owner)
         var available=_book.Available(owner,credit.Id,date);
         _detail.Add(Form.Title(credit.CustomerName),Form.Text($"Issued {Money.Display(credit.IssuedCents)} on {credit.IssueDate:yyyy-MM-dd}\n"+
             $"Available as of {date:yyyy-MM-dd}: {Money.Display(available.Cents)} including tax {Money.Display(available.TaxCents)}"),
+            Form.Text($"Original receipt reference: {credit.PaymentId[..8]}"),
             Form.Text(credit.Reason),Form.Text("Use Apply payments to allocate this credit to an invoice or reverse an earlier allocation."));
     }
 
