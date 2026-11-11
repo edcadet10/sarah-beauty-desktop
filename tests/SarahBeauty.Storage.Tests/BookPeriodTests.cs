@@ -60,6 +60,7 @@ public sealed class BookPeriodTests
         Assert.Equal(1,saved.Snapshot.Reports.Debts!.Version);
         Assert.Equal(1,saved.Snapshot.Reports.Owners!.Version);
         Assert.Equal(1,saved.Snapshot.Reports.Bookings!.Version);
+        Assert.Equal(1,saved.Snapshot.Reports.TaxFilings!.Version);
         Assert.True(Assert.Single(saved.Snapshot.Reports.Assets.Positions).CurrentFacts.Archived);
         Assert.Equal(3,saved.Snapshot.Reconciliations.Length);
         Assert.Equal(f.Business.Owner.OwnerId,saved.ApprovedBy);
