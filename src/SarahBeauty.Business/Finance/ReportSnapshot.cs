@@ -25,4 +25,5 @@ public sealed record ReportSnapshot(string BusinessName,string Mode,long Waterma
     public DebtScheduleSnapshot? Debts {get;init;}
     public OwnerScheduleSnapshot? Owners {get;init;}
     public BookingReportSnapshot? Bookings {get;init;}
+    public TaxFilingSnapshot? TaxFilings {get;init;}
 }

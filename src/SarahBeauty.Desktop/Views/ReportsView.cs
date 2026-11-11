@@ -52,7 +52,7 @@ internal sealed class ReportsView(BusinessStore store,OwnerSession owner)
         "Cash movements"=>ActivityTable(r.Cash),
         "Customer aging"=>ReportTable.Build(["Payer","Open","Overdue","Due today","Future","Date unknown","Unallocated income receipts","Held deposits","Unused credits"],r.Customers.Select(c=>new[]{c.Name,Money.Display(c.OpenCents),Money.Display(c.OverdueCents),Money.Display(c.DueTodayCents),Money.Display(c.FutureCents),Money.Display(c.UnknownDueCents),Money.Display(c.UnallocatedReceiptsCents),Money.Display(c.HeldReceiptsCents),Money.Display(c.UnusedCreditCents)})),
         "Supplier balances"=>ReportTable.Build(["Supplier","Unpaid","Overdue","Due today","Future","Date unknown","Supplier credit"],r.Suppliers.Select(s=>new[]{s.Name,Money.Display(s.OpenCents),Money.Display(s.OverdueCents),Money.Display(s.DueTodayCents),Money.Display(s.FutureCents),Money.Display(s.UnknownDueCents),Money.Display(s.CreditCents)})),
-        "Tax activity"=>TaxTable(r.Tax),
+        "Tax activity"=>TaxReport(r),
         "Asset schedule"=>AssetScheduleView.Build(r),
         "Debt schedule"=>DebtScheduleView.Build(r),
         "Owner schedule"=>OwnerScheduleView.Build(r),
@@ -66,6 +66,11 @@ internal sealed class ReportsView(BusinessStore store,OwnerSession owner)
         ["Remitted, net of reversals",Money.Display(tax.RemittedCents)],["Liability as of end",Money.Display(tax.LiabilityCents)],
         ["Recoverable tax as of end",Money.Display(tax.RecoverableCents)],["Actual cash recovered in period",Money.Display(tax.RecoveredCashCents)],
         ["Actual liability offsets in period",Money.Display(tax.OffsetCents)],["Nonrecoverable tax expense in period",Money.Display(tax.NonrecoverableCents)]]);
+
+    private static UIElement TaxReport(ReportSnapshot report)
+    {
+        var panel=Form.Panel();panel.Add(TaxTable(report.Tax),TaxFilingView.Build(report));return panel;
+    }
 
     private void SupportingEntries(ReportSnapshot report)
     {
