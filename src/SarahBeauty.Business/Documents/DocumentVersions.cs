@@ -35,9 +35,14 @@ internal static class DocumentVersions
         WHERE D.BusinessId=$business ORDER BY D.CreatedAtUtc,V.Version;
         """,Read,("$business",owner.BusinessId));
 
-    private static DocumentVersion Read(Microsoft.Data.Sqlite.SqliteDataReader r)=>new(r.GetString(0),r.GetString(1),r.IsDBNull(7)?"":r.GetString(7),
-        JsonSerializer.Deserialize<ClientSnapshot>(r.GetString(2))!,r.GetString(3),r.GetString(4),
-        r.IsDBNull(5)?null:DateOnly.Parse(r.GetString(5)),r.IsDBNull(6)?null:r.GetString(6));
+    private static DocumentVersion Read(Microsoft.Data.Sqlite.SqliteDataReader r)
+    {
+        string json=r.GetString(2),hash=r.GetString(3);
+        if(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(json)))!=hash)
+            throw new InvalidOperationException("The document snapshot failed its integrity check.");
+        return new(r.GetString(0),r.GetString(1),r.IsDBNull(7)?"":r.GetString(7),JsonSerializer.Deserialize<ClientSnapshot>(json)!,hash,r.GetString(4),
+            r.IsDBNull(5)?null:DateOnly.Parse(r.GetString(5)),r.IsDBNull(6)?null:r.GetString(6));
+    }
 
     internal static string AllocateNumber(DbWork db,OwnerSession owner,DocumentKind kind)
     {
