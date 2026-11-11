@@ -17,6 +17,7 @@ public sealed record Booking : BusinessRecord
     public string AcceptedQuoteVersionId { get; init; } = "";
     public bool HasTrial { get; init; } = true;
     public long TrialCents { get; init; } = 15000;
+    public int? TrialDurationMinutes {get;init;}
     public long? CustomDepositCents { get; init; }
     public DateOnly? TrialDue { get; init; }
     public DateOnly? DepositDue { get; init; }
@@ -33,6 +34,9 @@ public sealed record Booking : BusinessRecord
 public sealed record BookingCharge(string Id, string Description, string Unit, decimal Quantity,
     long UnitCents, long DiscountCents = 0, decimal? TaxRate = null, string PayerCustomerId = "", bool Active = true)
 {
+    public string ServiceId {get;init;}="";
+    public int ServiceRevision {get;init;}
+    public int? DurationMinutes {get;init;}
     public long NetCents => checked(Money.Multiply(Quantity, UnitCents) - DiscountCents);
     public bool PersonBased => Unit is "Person" or "Package";
     public override string ToString() => $"{Description} • {Quantity} × {Money.Display(UnitCents)} • {Money.Display(NetCents)}";

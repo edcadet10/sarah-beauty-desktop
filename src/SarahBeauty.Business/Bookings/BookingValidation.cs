@@ -1,3 +1,4 @@
+using System.Text.Json;
 using SarahBeauty.Business.Customers;
 using SarahBeauty.Business.Security;
 using SarahBeauty.Business.Storage;
@@ -9,6 +10,7 @@ internal static class BookingValidation
     internal static void Validate(DbWork db, OwnerSession owner, Booking booking, IReadOnlyList<Booking> others, IReadOnlyList<Artist> artists)
     {
         if (string.IsNullOrWhiteSpace(booking.Name) || booking.Name.Length > 200) throw new ArgumentException("Enter a booking name of up to 200 characters.");
+        if(booking.TrialDurationMinutes is <=0 or >1440)throw new ArgumentException("Leave an unknown trial duration blank, or use 1 to 1,440 minutes.");
         if (!new[] { "Undecided", "Single", "Split" }.Contains(booking.PayerMode)) throw new ArgumentException("Choose a payer arrangement.");
         Customer(db, owner, booking.PrimaryCustomerId);
         Customer(db, owner, booking.SinglePayerCustomerId);
@@ -31,6 +33,8 @@ internal static class BookingValidation
             || charge.Quantity <= 0 || charge.Quantity > 100000 || charge.UnitCents < 0 || charge.DiscountCents < 0
             || charge.NetCents < 0 || charge.TaxRate is < 0 or > 1)
             throw new ArgumentException("Check each charge's description, unit, quantity, amount, discount, and tax rate.");
+        if(charge.DurationMinutes is <=0 or >1440)throw new ArgumentException("Leave an unknown service duration blank, or use 1 to 1,440 minutes.");
+        ValidateService(db,owner,charge);
         if (charge.PersonBased && (charge.Quantity != decimal.Truncate(charge.Quantity)
             || booking.Places.Count(p => p.ChargeId == charge.Id && p.Active) != charge.Quantity))
             throw new ArgumentException("Named and unnamed places must equal the booked quantity.");
@@ -41,5 +45,18 @@ internal static class BookingValidation
     {
         if (id.Length > 0 && CustomerBook.Find(db, owner, id) is null)
             throw new ArgumentException("A linked customer does not belong to this business.");
+    }
+
+    private static void ValidateService(DbWork db,OwnerSession owner,BookingCharge charge)
+    {
+        if(charge.ServiceId.Length==0)
+        {
+            if(charge.ServiceRevision!=0)throw new ArgumentException("A catalog revision needs its original service definition.");
+            return;
+        }
+        var json=db.Scalar("SELECT DataJson FROM Records WHERE Id=$id AND BusinessId=$business AND Kind='Service';",("$id",charge.ServiceId),("$business",owner.BusinessId)) as string
+            ??throw new ArgumentException("The source service does not belong to this business.");
+        if(!JsonSerializer.Deserialize<ServiceDefinition>(json)!.History.Any(r=>r.Revision==charge.ServiceRevision))
+            throw new ArgumentException("Retain an actual source revision for this service charge.");
     }
 }
