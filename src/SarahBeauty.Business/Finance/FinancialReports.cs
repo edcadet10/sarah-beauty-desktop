@@ -43,7 +43,7 @@ public sealed class FinancialReports(BusinessStore store)
             WHERE M.BusinessId=$business AND A.Code='2000' AND M.Date BETWEEN $from AND $through GROUP BY CASE WHEN M.Kind='Reversal' THEN O.Kind ELSE M.Kind END;
             """,r=>(Kind:r.GetString(0),Cents:r.GetInt64(1)),("$business",owner.BusinessId),("$from",from.ToString("yyyy-MM-dd")),("$through",through.ToString("yyyy-MM-dd")));
         return new(documents.Where(v=>v.Snapshot.Kind==DocumentKind.Invoice && v.Status!="Void").Sum(v=>v.Snapshot.TaxCents),
-            documents.Where(v=>v.Snapshot.Kind==DocumentKind.CreditNote).Sum(v=>v.Snapshot.TaxCents),tax.Where(t=>t.Kind=="Receipt").Sum(t=>t.Cents),
+            documents.Where(v=>v.Snapshot.Kind==DocumentKind.CreditNote).Sum(v=>v.Snapshot.TaxCents),tax.Where(t=>t.Kind is "Receipt" or "AssetDisposal").Sum(t=>t.Cents),
             -tax.Where(t=>t.Kind=="Refund").Sum(t=>t.Cents),-tax.Where(t=>t.Kind=="TaxRemittance").Sum(t=>t.Cents),
             -trial.Where(r=>r.Account.Code=="2000").Sum(r=>r.Ending));
     }

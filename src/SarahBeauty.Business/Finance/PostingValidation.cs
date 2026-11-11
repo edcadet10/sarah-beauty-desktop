@@ -17,7 +17,7 @@ internal static class PostingValidation
         if (draft.AmountCents < 0 || draft.TaxCents < 0 || draft.TaxCents > draft.AmountCents
             || draft.FeeCents < 0 || draft.PrincipalCents < 0 || draft.InterestCents < 0)
             throw new ArgumentException("Review the movement's amounts.");
-        if (draft.Kind is not (FinancialKind.Receipt or FinancialKind.Refund) && draft.TaxCents != 0)
+        if (draft.Kind is not (FinancialKind.Receipt or FinancialKind.Refund or FinancialKind.AssetDisposal) && draft.TaxCents != 0)
             throw new ArgumentException("Sales tax components belong to receipts and their refunds.");
         if (draft.Kind is not (FinancialKind.Receipt or FinancialKind.LoanPayment) && draft.FeeCents != 0)
             throw new ArgumentException("Record this fee as a separately classified expense.");
@@ -35,7 +35,7 @@ internal static class PostingValidation
 
     private static void ValidateAmounts(FinancialDraft draft)
     {
-        if (draft.Kind is FinancialKind.Receipt or FinancialKind.Refund && !draft.TaxResolved)
+        if (draft.Kind is FinancialKind.Receipt or FinancialKind.Refund or FinancialKind.AssetDisposal && !draft.TaxResolved)
             throw new ArgumentException("Resolve the tax treatment before approving this receipt or refund.");
         if (draft.Kind == FinancialKind.Receipt && (draft.FeeCents > draft.AmountCents || draft.CustomerId.Length == 0))
             throw new ArgumentException("Choose the payer and a fee no greater than the gross receipt.");
@@ -49,7 +49,8 @@ internal static class PostingValidation
     {
         Account Required(string id) => accounts.SingleOrDefault(a => a.Id == id && a.Active)
             ?? throw new ArgumentException("Choose an active account from this business.");
-        if (draft.Kind is not (FinancialKind.OwnerPaidExpense or FinancialKind.Depreciation or FinancialKind.AssetContribution or FinancialKind.Opening or FinancialKind.Reversal))
+        if (draft.Kind is not (FinancialKind.OwnerPaidExpense or FinancialKind.Depreciation or FinancialKind.AssetContribution or FinancialKind.Opening or FinancialKind.Reversal)
+            && !(draft.Kind==FinancialKind.AssetDisposal && draft.AmountCents==0))
         {
             var cash = Required(draft.CashAccountId);
             if (cash.Type != "Asset" || cash.CashKind == "None") throw new ArgumentException("Choose the actual cash, bank, or processor account.");
@@ -93,7 +94,7 @@ internal static class PostingValidation
         if (draft.Kind is FinancialKind.AssetPurchase or FinancialKind.AssetContribution or FinancialKind.Depreciation or FinancialKind.AssetDisposal)
         {
             var asset = new RecordStore<Asset>(store, "Asset").Get(db, owner, draft.AssetId);
-            if (asset.Archived || asset.DisposedDate.HasValue || asset.BusinessUseFraction is null)
+            if (asset.Archived || asset.DisposedDate.HasValue || asset.BusinessUseFraction is null || AssetDisposals.IsDisposed(db,owner,asset.Id,draft.Date!.Value))
                 throw new ArgumentException("Confirm business use and use an asset that has not been disposed of.");
         }
     }

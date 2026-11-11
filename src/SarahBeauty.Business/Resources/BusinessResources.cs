@@ -25,7 +25,8 @@ public sealed class BusinessResources(BusinessStore store)
     {
         if (value.CostCents is < 0 || value.TaxBasisCents is < 0 || value.BusinessUseFraction is < 0 or > 1)
             throw new ArgumentException("Check the asset's values and business-use fraction. Unknown values may stay blank.");
-        if (value.DisposedDate != previous?.DisposedDate) throw new ArgumentException("Use an approved disposal to change the disposal date.");
+        if (value.DisposedDate != previous?.DisposedDate || value.DisposalMovementId!=(previous?.DisposalMovementId??""))
+            throw new ArgumentException("Use an approved disposal or its reversal to change disposal details.");
         if(!new[]{"Undecided","Purchased","Contributed","Borrowed"}.Contains(value.Funding) || value.InServiceDate<value.AcquisitionDate)
             throw new ArgumentException("Choose the asset funding and an in-service date on or after acquisition.");
         if(previous is not null && (value.CostCents!=previous.CostCents || value.TaxBasisCents!=previous.TaxBasisCents

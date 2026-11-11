@@ -39,6 +39,7 @@ public sealed record FinancialDraft : BusinessRecord
     public string Status { get; init; } = "Draft";
     public string PostedBatchId { get; init; } = "";
     public bool OpeningCredit { get; init; }
+    public long AssetGeneration {get;init;}
     public override string ToString() => $"{Date?.ToString("yyyy-MM-dd") ?? "Date missing"} • {Kind} • {Money.Display(AmountCents)} • {Name} • {Status}";
 }
 

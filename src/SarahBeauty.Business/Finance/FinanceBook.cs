@@ -39,6 +39,7 @@ public sealed class FinanceBook(BusinessStore store)
             if (value.Status != "Draft" || value.PostedBatchId.Length != 0 || (value.Revision > 0
                 && _drafts.Get(db, owner, value.Id).Status != "Draft"))
                 throw new ArgumentException("Posted financial records cannot be edited. Prepare a linked correction.");
+            if(value.Kind==FinancialKind.AssetDisposal)value=value with{AssetGeneration=ValueState.Generation(db,owner,"Asset",value.AssetId)};
             return _drafts.Save(db, owner, value);
         });
     }
@@ -71,6 +72,9 @@ public sealed class FinanceBook(BusinessStore store)
         PostingRules.ValidateBalance(lines);
         var posted = PostingWriter.Save(db, owner, draft, lines, FailurePoint);
         OpeningRules.AfterPosting(db,owner,draft,posted.Id,accounts);
+        AssetDisposals.AfterPosting(db,store,owner,draft,posted.Id);
+        if(draft.AssetId.Length>0)ValueState.Advance(db,owner,"Asset",draft.AssetId);
+        if(draft.Kind==FinancialKind.AssetDisposal)FailurePoint?.Invoke("asset-disposal-record");
         FailurePoint?.Invoke("opening-record");
         if(CreditRefundRules.AfterPosting(db,owner,draft,posted.Id))FailurePoint?.Invoke("credit-refund-funding");
         ReceiptValueGuard.AfterPosting(db,owner,draft,posted.Id);
