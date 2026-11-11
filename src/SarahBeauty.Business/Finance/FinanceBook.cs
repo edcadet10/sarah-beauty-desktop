@@ -1,4 +1,5 @@
 using System.Text.Json;
+using SarahBeauty.Business.Banking;
 using SarahBeauty.Business.Purchasing;
 using SarahBeauty.Business.Security;
 using SarahBeauty.Business.Storage;
@@ -30,7 +31,9 @@ public sealed class FinanceBook(BusinessStore store)
         PostingValidation.Validate(db, owner, store, draft, accounts);
         OpeningRules.Validate(db,store,owner,draft,accounts);
         CreditRefundRules.Validate(db,owner,draft);
-        return BuildLines(db,owner,draft,accounts);
+        var lines=BuildLines(db,owner,draft,accounts);
+        ReconciliationLocks.Posting(db,owner,draft.Date!.Value,lines,accounts);
+        return lines;
     });
 
     public FinancialDraft SaveDraft(OwnerSession owner, FinancialDraft value)
@@ -84,6 +87,7 @@ public sealed class FinanceBook(BusinessStore store)
         CheckReference(db, owner, draft);
         var lines=BuildLines(db,owner,draft,accounts);
         PostingRules.ValidateBalance(lines,PurchasePayments.AllowsEmpty(db,owner,draft) || AssetDisposals.AllowsEmpty(db,owner,draft) || ReceiptClassifications.AllowsEmpty(db,owner,draft));
+        ReconciliationLocks.Posting(db,owner,draft.Date!.Value,lines,accounts);
         var posted = PostingWriter.Save(db, owner, draft, lines, FailurePoint);
         OpeningRules.AfterPosting(db,owner,draft,posted.Id,accounts);
         AssetDisposals.AfterPosting(db,store,owner,draft,posted.Id);
