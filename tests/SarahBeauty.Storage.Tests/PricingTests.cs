@@ -44,4 +44,11 @@ public sealed class PricingTests
         Assert.Throws<ArgumentException>(() => PaymentPlan.Bridal(10000, 15000));
         Assert.Throws<OverflowException>(() => Money.Multiply(decimal.MaxValue, long.MaxValue));
     }
+
+    [Theory]
+    [InlineData(1L,1L,2L,1L)]
+    [InlineData(100L,1L,3L,33L)]
+    [InlineData(long.MaxValue,long.MaxValue,long.MaxValue,long.MaxValue)]
+    public void MonetaryProportionsRoundExactlyWithoutIntermediateOverflow(long cents,long part,long whole,long expected)=>
+        Assert.Equal(expected,Money.Proportion(cents,part,whole));
 }

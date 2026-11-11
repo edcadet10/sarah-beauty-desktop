@@ -20,4 +20,12 @@ public static class Money
     {
         if (cents <= 0) throw new ArgumentException("The amount must be greater than zero.");
     }
+
+    public static long Proportion(long cents,long part,long whole)
+    {
+        if(cents<0 || part<0 || whole<=0 || part>whole)throw new ArgumentException("Invalid proportional amounts.");
+        System.Numerics.BigInteger numerator=(System.Numerics.BigInteger)cents*part;
+        var quotient=System.Numerics.BigInteger.DivRem(numerator,whole,out var remainder);
+        return checked((long)(quotient+(remainder*2>=whole?1:0)));
+    }
 }

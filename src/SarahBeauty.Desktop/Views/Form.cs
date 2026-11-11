@@ -14,9 +14,9 @@ internal static class Form
     internal static ComboBox Select(string label, string[] choices, string selected) =>
         new() { Header = label, ItemsSource = choices, SelectedItem = selected, MinWidth = 200 };
 
-    internal static ComboBox Records(string label, IEnumerable<(string Id, string Label)> choices, string selected = "")
+    internal static ComboBox Records(string label, IEnumerable<(string Id, string Label)> choices, string selected = "",string noneLabel="Undecided / none")
     {
-        var options = new[] { new RecordChoice("", "Undecided / none") }.Concat(choices.Select(c => new RecordChoice(c.Id, c.Label))).ToList();
+        var options = new[] { new RecordChoice("",noneLabel) }.Concat(choices.Select(c => new RecordChoice(c.Id, c.Label))).ToList();
         return new ComboBox { Header = label, ItemsSource = options, SelectedItem = options.FirstOrDefault(o => o.Id == selected) ?? options[0], MinWidth = 200 };
     }
 

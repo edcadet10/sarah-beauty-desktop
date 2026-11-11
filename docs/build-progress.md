@@ -9,7 +9,7 @@ This file tracks the full application build requested on November 10, 2026. A co
 | Customers | Implemented | Name-only save, contact warning, validated optional contact fields, search/edit/archive, permission history, stale-edit guard |
 | Bookings | In progress | Persistent charges, places, recipient links, exact plans, and appointments implemented; confirmation awaits approved-payment workflow |
 | Client documents | In progress | Quote versions, bounded payer invoices, and saved PDF artifacts implemented; receipts and credit notes pending |
-| Books and approvals | In progress | Atomic balanced posting, authenticated approvals, core receipts/expenses/transfers, financing, bounded refunds/reversals, historical reports; applications/credits and period-close UI pending |
+| Books and approvals | In progress | Core posting, reports, and bounded receipt-to-invoice/milestone applications with dated reversal implemented; customer credits and period-close UI pending |
 | Resources | Pending | Supplies, suppliers, assets, loans, owner movements, mileage |
 | Reconciliation and reports | Pending | Statements, bounded matches, reports, dashboard |
 | Recovery and Google | Pending | Attachments, portable encrypted archive, Sheets export, Drive authorization/readback |
@@ -70,3 +70,9 @@ To create an isolated fictional document rehearsal, run `dotnet run --project to
 The workspace now uses the Windows navigation pane. Each section retains its view while switching, so unsaved fields survive navigation. An explicit reload asks before discarding fields. Owner/business/TEST identity and cloud state remain visible. A TEST-only environment override, `SARAHBEAUTY_TEST_DIRECTORY`, allows an isolated generated demo without changing the normal data location; stored mode validation still applies.
 
 An actual developer-computer preview was launched against the fictional demo store. Windows UI Automation signed in, opened Customers, Bookings, Quotes, Invoices, and Money, and verified that unsaved customer input survived a section switch and return. A screenshot of that isolated workspace was inspected. The app remained responsive. This was a developer-machine navigation smoke check, not a full business walkthrough or Surface acceptance pass.
+
+## Payment application checks
+
+Schema 8 adds immutable application history, approval groups, source/target generations, and funding records for the upcoming credit workflow. Saved application drafts require review and owner confirmation. Applications bind approved receipts to invoices and milestones, with explicit decisions when paying on another customer's behalf. Partial application and reversal keep gross and tax components bounded. Source/target changes invalidate stale drafts.
+
+Eight new integration cases cover one receipt across invoices, multiple receipts against one invoice, over-application, dated unapplication before refund, rollback at three write stages, retry identity, concurrent source consumption, tax mismatch, and on-behalf decisions. Historical receipt and invoice balances are checked after each write. A receipt refund or reversal cannot consume value that is still allocated or reserved. Customer credit issuance/application, receipt/credit documents, and booking reservation checks remain subsequent work.
