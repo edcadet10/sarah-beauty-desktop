@@ -31,7 +31,7 @@ public sealed class RecoveredStoreTests
     {
         using var f=new LedgerFixture();using var target=new TestStore();using var review=await Review(f);long sourceWatermark=review.Manifest.Watermark;
         string[] originals=f.Business.Store.Read(db=>db.Read("SELECT DataJson FROM Movements ORDER BY Id;",r=>r.GetString(0)).ToArray());
-        var prepared=await new RecoveredStores().PrepareAsync(review,target.Folder,Decision(f),NewPhrase,Guid.NewGuid().ToString());var store=new BusinessStore(prepared.DatabasePath);var access=new OwnerAccess(store);
+        var prepared=await new RecoveredStores().PrepareAsync(review,target.Folder,Decision(f),NewPhrase,Guid.NewGuid().ToString());Assert.Throws<UnauthorizedAccessException>(()=>new BusinessStore(prepared.DatabasePath));var store=new BusinessStore(prepared.DatabasePath,"Prepared");var access=new OwnerAccess(store);
         Assert.Equal(f.Business.Store.StoreId,store.StoreId);Assert.NotEqual(f.Business.Store.InstanceId,store.InstanceId);Assert.Equal(prepared.Receipt.InstanceId,store.InstanceId);Assert.Throws<UnauthorizedAccessException>(()=>store.BusinessName(f.Business.Owner));
         Assert.Throws<UnauthorizedAccessException>(()=>access.SignIn(f.Business.Owner.OwnerId,BusinessFixture.Phrase));var owner=access.SignIn(f.Business.Owner.OwnerId,NewPhrase);Assert.Equal("Fictional Beauty",store.BusinessName(owner));
         var other=access.Owners().Single(p=>p.Id!=owner.OwnerId);Assert.Equal("Fictional Beauty",store.BusinessName(access.SignIn(other.Id,BusinessFixture.Phrase)));
@@ -39,9 +39,8 @@ public sealed class RecoveredStoreTests
         foreach(var file in review.Manifest.Files.Where(p=>p.Kind!="Database"))Assert.True(File.ReadAllBytes(review.FilePath(file.RelativePath)).SequenceEqual(File.ReadAllBytes(Path.Combine(prepared.Folder,file.RelativePath))));
         Assert.Equal(sourceWatermark+1,TestStore.Scalar(prepared.DatabasePath,"SELECT Watermark FROM Business;"));Assert.Equal(sourceWatermark,TestStore.Scalar(f.Business.Files.DatabasePath,"SELECT Watermark FROM Business;"));Assert.Equal(7500,f.Balance("1010"));
         string provenance=(string)TestStore.Scalar(prepared.DatabasePath,"SELECT Value FROM AppMetadata WHERE Key GLOB 'RecoveredStore/*';")!;Assert.False(provenance.Contains(NewPhrase,StringComparison.Ordinal));Assert.False(provenance.Contains(BusinessFixture.Phrase,StringComparison.Ordinal));
-        Assert.Equal(prepared.Receipt,JsonSerializer.Deserialize<RecoveredStoreReceipt>(provenance));Assert.Equal(review.ArchiveHash,prepared.Receipt.SourceArchiveHash);
-        var book=new FinanceBook(store);var draft=book.SaveDraft(owner,f.Draft(FinancialKind.Expense,500));book.Approve(owner,draft.Id,draft.Revision,NewPhrase);
-        Assert.Equal(7000,new LedgerReports(store).TrialBalance(owner,DateOnly.MinValue,DateOnly.MaxValue).Single(p=>p.Account.Code=="1010").Ending);Assert.Equal(7500,f.Balance("1010"));
+        Assert.Equal(JsonSerializer.Serialize(prepared.Receipt),provenance);Assert.Equal(review.ArchiveHash,prepared.Receipt.SourceArchiveHash);
+        Assert.Equal(7500,new LedgerReports(store).TrialBalance(owner,DateOnly.MinValue,DateOnly.MaxValue).Single(p=>p.Account.Code=="1010").Ending);Assert.Equal(7500,f.Balance("1010"));
         review.Dispose();Assert.True(File.Exists(prepared.DatabasePath));
     }
 
@@ -131,6 +130,6 @@ public sealed class RecoveredStoreTests
         using var review=await new ArchiveRestores().StageAsync(older.Archive,legacy.Folder,older.Key.ProtectedIdentity,BusinessFixture.Phrase);string before=Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(review.FilePath("sarahbeauty.db"))));
         var prepared=await new RecoveredStores().PrepareAsync(review,target.Folder,new(f.Owner.OwnerId,"Fictional older archive recovery",true),NewPhrase,Guid.NewGuid().ToString());
         Assert.Equal(32L,TestStore.Scalar(prepared.DatabasePath,"PRAGMA user_version;"));Assert.Equal(31L,TestStore.Scalar(review.FilePath("sarahbeauty.db"),"PRAGMA user_version;"));Assert.Equal(before,Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(review.FilePath("sarahbeauty.db")))));Assert.Null(prepared.Receipt.SourceInstanceId);
-        var store=new BusinessStore(prepared.DatabasePath);Assert.Equal("Fictional Beauty",store.BusinessName(new OwnerAccess(store).SignIn(f.Owner.OwnerId,NewPhrase)));Assert.Equal("Fictional Beauty",f.Store.BusinessName(f.Owner));
+        Assert.Throws<UnauthorizedAccessException>(()=>new BusinessStore(prepared.DatabasePath));var store=new BusinessStore(prepared.DatabasePath,"Prepared");Assert.Equal("Fictional Beauty",store.BusinessName(new OwnerAccess(store).SignIn(f.Owner.OwnerId,NewPhrase)));Assert.Equal("Fictional Beauty",f.Store.BusinessName(f.Owner));
     }
 }

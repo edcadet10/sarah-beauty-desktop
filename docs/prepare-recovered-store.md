@@ -1,6 +1,6 @@
 # Prepare a recovered working copy
 
-Status: The business service and desktop review can prepare an isolated TEST working copy. Active-store switching, explicit local retirement, and second-device acceptance follow separately.
+Status: The business service and desktop review can prepare an isolated TEST working copy. The service also supports [controlled activation](active-test-store.md) and [local retirement](retire-local-instance.md). Desktop activation/retirement and second-device acceptance follow separately.
 
 ## Required decisions
 
@@ -13,12 +13,12 @@ Recovery possession authorizes this separate recovery action. The resulting work
 1. Reread the original manifest from the staged package and require its retained byte hash. Mutable display objects cannot replace that source.
 2. Copy each staged file to a new generated workspace, checking actual bytes against the original manifest again. Recheck the copied database, references, and source facts.
 3. Apply supported schema migrations to that separate database. Earlier schema-31 archives can become schema-32 working copies; the reviewed database and encrypted archive remain unchanged.
-4. Assign a fresh writable-instance identity while retaining the logical Store ID, business identities, historical records, approvals, documents, and file versions.
+4. Assign a fresh instance identity in Prepared state while retaining the logical Store ID, business identities, historical records, approvals, documents, and file versions. Ordinary business access stays blocked until controlled activation.
 5. Set the selected active owner's new salted PBKDF2 passphrase and clear that owner's failed-attempt/lockout state. Preserve other owners' credentials. Record a distinct portable-recovery audit action and provenance containing source hashes/watermark, known original instance identity, new instance, selected owner, reason, time, and acknowledgement. No passphrase is included in that provenance.
 6. Recheck the resulting identity, source hashes, balanced journals, movement/line counts, and exact debit/credit totals.
 7. Publish under `RestoredStores/<request-id>` with a move that preserves existing destinations. Require that the review is still open and cancellation has not occurred at publication.
 
-Preparation advances the copied business watermark once for its recovery audit. It posts no money. Existing databases and the original validated review are preserved. Closing the review after successful preparation does not delete the separate recovered working copy.
+Preparation advances the copied business watermark once for its recovery audit. It posts no money. Version-2 provenance retains the original validated manifest for activation checks. Existing databases and the original validated review are preserved. Closing the review after successful preparation does not delete the separate recovered working copy.
 
 ## Interrupted or repeated requests
 

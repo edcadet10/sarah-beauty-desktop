@@ -8,18 +8,21 @@ public sealed class BusinessStore
     public string DatabasePath { get; }
     public string StoreId { get; }
     public string InstanceId {get;}
+    private readonly string _requiredState;
     internal Action? BeforeTransactionReservation {get;set;}
 
-    public BusinessStore(string databasePath)
+    public BusinessStore(string databasePath):this(databasePath,"Active"){}
+    internal BusinessStore(string databasePath,string requiredState)
     {
+        if(requiredState is not("Active" or "Prepared"))throw new ArgumentException("Unsupported business-store access purpose.");_requiredState=requiredState;
         var database = SarahBeauty_Desktop.Storage.LocalDatabase.InitializeTestDatabaseAt(databasePath);
         (DatabasePath, StoreId) = (database.DatabasePath, database.StoreId);
-        using var connection=Connect();InstanceId=StoreInstanceGuard.Read(new DbWork(connection),StoreId);
+        using var connection=Connect();InstanceId=StoreInstanceGuard.Read(new DbWork(connection),StoreId,requiredState:_requiredState);
     }
 
     internal SqliteConnection Open()
     {
-        var connection=Connect();try{StoreInstanceGuard.Require(new DbWork(connection),StoreId,InstanceId);return connection;}
+        var connection=Connect();try{StoreInstanceGuard.Require(new DbWork(connection),StoreId,InstanceId,_requiredState);return connection;}
         catch{connection.Dispose();throw;}
     }
 
@@ -44,7 +47,7 @@ public sealed class BusinessStore
     {
         using var connection=Open();
         using var transaction=connection.BeginTransaction(deferred:true);
-        var db=new DbWork(connection,transaction);StoreInstanceGuard.Require(db,StoreId,InstanceId);T value=read(db);
+        var db=new DbWork(connection,transaction);StoreInstanceGuard.Require(db,StoreId,InstanceId,_requiredState);T value=read(db);
         transaction.Commit();
         return value;
     }
@@ -60,7 +63,7 @@ public sealed class BusinessStore
         using var connection = Open();
         BeforeTransactionReservation?.Invoke();
         using var transaction = connection.BeginTransaction(deferred: false);
-        var db=new DbWork(connection,transaction);StoreInstanceGuard.Require(db,StoreId,InstanceId);T value = write(db);
+        var db=new DbWork(connection,transaction);StoreInstanceGuard.Require(db,StoreId,InstanceId,_requiredState);T value = write(db);
         transaction.Commit();
         return value;
     }
@@ -76,7 +79,7 @@ public sealed class BusinessStore
 
     internal void RequireSession(DbWork db, OwnerSession session)
     {
-        StoreInstanceGuard.Require(db,StoreId,InstanceId);
+        StoreInstanceGuard.Require(db,StoreId,InstanceId,_requiredState);
         if (session.StoreId != StoreId || session.InstanceId!=InstanceId || session.ExpiresAt <= DateTimeOffset.UtcNow
             || db.Scalar("SELECT Id FROM Owners WHERE Id=$id AND BusinessId=$business AND Active=1;",
                 ("$id", session.OwnerId), ("$business", session.BusinessId)) is null)
