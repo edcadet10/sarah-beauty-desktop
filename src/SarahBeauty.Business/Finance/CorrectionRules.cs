@@ -54,8 +54,8 @@ internal static class CorrectionRules
     internal static List<JournalLine> Lines(DbWork db, OwnerSession owner, FinancialDraft draft, List<Account> accounts)
     {
         if (draft.Kind == FinancialKind.Reversal)
-            return db.Read("SELECT AccountId,CreditCents,DebitCents FROM JournalLines WHERE MovementId=$id;",
-                r => new JournalLine(r.GetString(0), r.GetInt64(1), r.GetInt64(2)), ("$id", draft.OriginalId));
+            return db.Read("SELECT AccountId,CreditCents,DebitCents,COALESCE(AssetId,'') FROM JournalLines WHERE MovementId=$id;",
+                r => new JournalLine(r.GetString(0), r.GetInt64(1), r.GetInt64(2),r.GetString(3)), ("$id", draft.OriginalId));
         return AssetDisposals.Lines(db,owner,draft,accounts);
     }
 }

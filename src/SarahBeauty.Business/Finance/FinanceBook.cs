@@ -14,9 +14,9 @@ public sealed class FinanceBook(BusinessStore store)
     {
         store.RequireSession(db, owner);
         return db.Read("""
-            SELECT J.AccountId,J.DebitCents,J.CreditCents FROM JournalLines J JOIN Movements M ON M.Id=J.MovementId
+            SELECT J.AccountId,J.DebitCents,J.CreditCents,COALESCE(J.AssetId,'') FROM JournalLines J JOIN Movements M ON M.Id=J.MovementId
             WHERE M.Id=$id AND M.BusinessId=$business;
-            """, r => new JournalLine(r.GetString(0),r.GetInt64(1),r.GetInt64(2)), ("$id",movementId),("$business",owner.BusinessId));
+            """, r => new JournalLine(r.GetString(0),r.GetInt64(1),r.GetInt64(2),r.GetString(3)), ("$id",movementId),("$business",owner.BusinessId));
     });
 
     public List<JournalLine> Preview(OwnerSession owner, FinancialDraft draft) => store.Read(db =>
@@ -27,8 +27,9 @@ public sealed class FinanceBook(BusinessStore store)
         PostingValidation.Validate(db, owner, store, draft, accounts);
         OpeningRules.Validate(db,store,owner,draft,accounts);
         CreditRefundRules.Validate(db,owner,draft);
-        return draft.Kind is FinancialKind.Reversal or FinancialKind.AssetDisposal
+        var lines=draft.Kind is FinancialKind.Reversal or FinancialKind.AssetDisposal
             ? CorrectionRules.Lines(db, owner, draft, accounts) : PostingRules.Build(draft, accounts);
+        return JournalAssets.Assign(db,store,owner,draft,lines,accounts);
     });
 
     public FinancialDraft SaveDraft(OwnerSession owner, FinancialDraft value)
@@ -69,11 +70,12 @@ public sealed class FinanceBook(BusinessStore store)
         CheckReference(db, owner, draft);
         var lines = draft.Kind is FinancialKind.Reversal or FinancialKind.AssetDisposal
             ? CorrectionRules.Lines(db, owner, draft, accounts) : PostingRules.Build(draft, accounts);
+        lines=JournalAssets.Assign(db,store,owner,draft,lines,accounts);
         PostingRules.ValidateBalance(lines);
         var posted = PostingWriter.Save(db, owner, draft, lines, FailurePoint);
         OpeningRules.AfterPosting(db,owner,draft,posted.Id,accounts);
         AssetDisposals.AfterPosting(db,store,owner,draft,posted.Id);
-        if(draft.AssetId.Length>0)ValueState.Advance(db,owner,"Asset",draft.AssetId);
+        JournalAssets.AfterPosting(db,owner,lines);
         if(draft.Kind==FinancialKind.AssetDisposal)FailurePoint?.Invoke("asset-disposal-record");
         FailurePoint?.Invoke("opening-record");
         if(CreditRefundRules.AfterPosting(db,owner,draft,posted.Id))FailurePoint?.Invoke("credit-refund-funding");

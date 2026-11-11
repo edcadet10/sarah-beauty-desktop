@@ -45,7 +45,7 @@ internal static class OpeningRules
             ("$business",owner.BusinessId),("$account",accountId),("$kind",kind),("$dimension",dimension)) is not null)
             throw new ArgumentException("This balance already has an opening. Reverse or revoke its original decision before replacing it.");
         var dates=db.Read("""
-            SELECT M.Date,M.LoanId,M.AssetId,M.OwnerId FROM Movements M JOIN JournalLines J ON J.MovementId=M.Id
+            SELECT M.Date,M.LoanId,J.AssetId,M.OwnerId FROM Movements M JOIN JournalLines J ON J.MovementId=M.Id
             WHERE M.BusinessId=$business AND J.AccountId=$account AND M.Kind NOT IN('Opening','Reversal');
             """,r=>(Date:DateOnly.Parse(r.GetString(0)),Loan:r.IsDBNull(1)?"":r.GetString(1),Asset:r.IsDBNull(2)?"":r.GetString(2),Owner:r.IsDBNull(3)?"":r.GetString(3)),
             ("$business",owner.BusinessId),("$account",accountId));

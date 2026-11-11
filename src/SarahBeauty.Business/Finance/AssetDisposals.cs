@@ -17,7 +17,7 @@ internal static class AssetDisposals
             throw new ArgumentException("Record the approved disposal decision and evidence.");
         if(draft.AssetGeneration!=ValueState.Generation(db,owner,"Asset",draft.AssetId))
             throw new ArgumentException("The asset ledger changed. Save and review this disposal again.");
-        if(db.Scalar("SELECT Id FROM Movements WHERE BusinessId=$business AND AssetId=$asset AND Date>$date LIMIT 1;",
+        if(db.Scalar("SELECT M.Id FROM Movements M JOIN JournalLines J ON J.MovementId=M.Id WHERE M.BusinessId=$business AND J.AssetId=$asset AND M.Date>$date LIMIT 1;",
             ("$business",owner.BusinessId),("$asset",draft.AssetId),("$date",draft.Date!.Value.ToString("yyyy-MM-dd"))) is not null)
             throw new ArgumentException("The disposal date precedes another asset movement. Review the asset history first.");
         var values=Values(db,owner,draft);
@@ -39,7 +39,7 @@ internal static class AssetDisposals
 
     private static List<AssetValue> Values(DbWork db,OwnerSession owner,FinancialDraft draft)=>db.Read("""
         SELECT A.Id,A.Code,SUM(J.DebitCents-J.CreditCents) FROM Movements M JOIN JournalLines J ON J.MovementId=M.Id
-        JOIN Accounts A ON A.Id=J.AccountId WHERE M.BusinessId=$business AND M.AssetId=$asset AND M.Date<=$date
+        JOIN Accounts A ON A.Id=J.AccountId WHERE M.BusinessId=$business AND J.AssetId=$asset AND M.Date<=$date
         AND A.Type='Asset' AND A.CashKind='None' GROUP BY A.Id,A.Code;
         """,r=>new AssetValue(r.GetString(0),r.GetString(1),r.GetInt64(2)),("$business",owner.BusinessId),
         ("$asset",draft.AssetId),("$date",draft.Date!.Value.ToString("yyyy-MM-dd")));

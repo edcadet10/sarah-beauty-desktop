@@ -47,5 +47,5 @@ public sealed record Account(string Id, string Code, string Name, string Type, s
 {
     public override string ToString() => $"{Code} • {Name}";
 }
-public sealed record JournalLine(string AccountId, long DebitCents, long CreditCents);
+public sealed record JournalLine(string AccountId, long DebitCents, long CreditCents,string AssetId="");
 public sealed record PostedMovement(string Id, FinancialDraft Source, string ApprovedBy, string AtUtc);
