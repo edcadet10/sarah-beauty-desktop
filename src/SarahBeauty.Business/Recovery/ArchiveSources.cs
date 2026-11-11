@@ -12,13 +12,21 @@ internal sealed class ArchiveSources(BusinessStore store)
     internal Action<string>? FailurePoint {get;set;}
     internal ArchiveCapture Capture(OwnerSession owner,CancellationToken cancellation=default)
     {
-        store.Read(db=>{store.RequireSession(db,owner);return true;});string root=Path.GetDirectoryName(Path.GetFullPath(store.DatabasePath))!;var workspace=new ArchiveWorkspace(root);
+        store.Read(db=>{store.RequireSession(db,owner);return true;});return Capture(owner.BusinessId,null,cancellation);
+    }
+    internal ArchiveCapture Capture(BackupPermit permit,CancellationToken cancellation=default)
+    {
+        var schedules=new BackupSchedules(store);store.Read(db=>{schedules.Require(db,permit);return true;});return Capture(permit.Schedule.BusinessId,db=>schedules.Require(db,permit),cancellation);
+    }
+    private ArchiveCapture Capture(string businessId,Action<DbWork>? authorizeSnapshot,CancellationToken cancellation)
+    {
+        string root=Path.GetDirectoryName(Path.GetFullPath(store.DatabasePath))!;var workspace=new ArchiveWorkspace(root);
         try
         {
             cancellation.ThrowIfCancellationRequested();string snapshot=workspace.FilePath("sarahbeauty.db");DatabaseBackup.CreateVerifiedSnapshotAt(store.DatabasePath,snapshot);FailurePoint?.Invoke("Database captured");
             cancellation.ThrowIfCancellationRequested();
             using var connection=new SqliteConnection(new SqliteConnectionStringBuilder{DataSource=snapshot,Mode=SqliteOpenMode.ReadOnly,Pooling=false,ForeignKeys=true}.ToString());connection.Open();var db=new DbWork(connection);
-            var facts=ArchiveDatabaseChecks.Read(db);var header=Header(db,owner,facts);var references=ArchiveReferences.Read(db,owner.BusinessId);var files=new List<ArchiveFile>{Describe(snapshot,"sarahbeauty.db","Database")};
+            authorizeSnapshot?.Invoke(db);var facts=ArchiveDatabaseChecks.Read(db);var header=Header(db,businessId,facts);var references=ArchiveReferences.Read(db,businessId);var files=new List<ArchiveFile>{Describe(snapshot,"sarahbeauty.db","Database")};
             if(references.Length>=100000)throw new InvalidDataException("The store exceeds the supported recovery file count.");
             long total=files[0].ByteLength;foreach(var reference in references)
             {
@@ -29,13 +37,13 @@ internal sealed class ArchiveSources(BusinessStore store)
         }
         catch{workspace.Dispose();throw;}
     }
-    private ArchiveManifest Header(DbWork db,OwnerSession owner,ArchiveDatabaseFacts facts)
+    private ArchiveManifest Header(DbWork db,string businessId,ArchiveDatabaseFacts facts)
     {
         StoreInstanceGuard.Require(db,store.StoreId,store.InstanceId);
         string id=(string)db.Scalar("SELECT Value FROM AppMetadata WHERE Key='StoreId';")!,mode=(string)db.Scalar("SELECT Value FROM AppMetadata WHERE Key='StoreMode';")!;
         int schema=Convert.ToInt32(db.Scalar("PRAGMA user_version;"));if(id!=store.StoreId || mode is not("TEST" or "LIVE") || schema!=BusinessSchema.Version)throw new InvalidDataException("The recovery snapshot identity, mode, or schema does not match its source.");
-        string name=(string?)db.Scalar("SELECT DisplayName FROM Business WHERE Id=$id;",("$id",owner.BusinessId))??throw new InvalidDataException("The recovery business was not found.");
-        return new(1,owner.BusinessId,name,id,mode,schema,(long)db.Scalar("SELECT Watermark FROM Business WHERE Id=$id;",("$id",owner.BusinessId))!,DateTimeOffset.UtcNow.ToString("O"),typeof(BusinessStore).Assembly.GetName().Version?.ToString()??"Unknown",[],facts);
+        string name=(string?)db.Scalar("SELECT DisplayName FROM Business WHERE Id=$id;",("$id",businessId))??throw new InvalidDataException("The recovery business was not found.");
+        return new(1,businessId,name,id,mode,schema,(long)db.Scalar("SELECT Watermark FROM Business WHERE Id=$id;",("$id",businessId))!,DateTimeOffset.UtcNow.ToString("O"),typeof(BusinessStore).Assembly.GetName().Version?.ToString()??"Unknown",[],facts);
     }
     private static ArchiveFile Describe(string file,string relative,string kind)
     {
