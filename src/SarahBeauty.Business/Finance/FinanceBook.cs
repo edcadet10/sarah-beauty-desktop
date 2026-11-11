@@ -66,6 +66,7 @@ public sealed class FinanceBook(BusinessStore store)
             ? CorrectionRules.Lines(db, owner, draft, accounts) : PostingRules.Build(draft, accounts);
         PostingRules.ValidateBalance(lines);
         var posted = PostingWriter.Save(db, owner, draft, lines, FailurePoint);
+        ReceiptValueGuard.AfterPosting(db,owner,draft,posted.Id);
         BalanceGuards.Validate(db, owner, draft);
         _drafts.Save(db, owner, draft with { Status = "Posted", PostedBatchId = posted.Id });
         BusinessStore.Audit(db, owner, "Approve financial draft", draft.Id);
