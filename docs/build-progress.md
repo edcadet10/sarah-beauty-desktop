@@ -8,7 +8,7 @@ This file tracks the full application build requested on November 10, 2026. A co
 | Owner setup and sign-in | Implemented | Two owners, salted PBKDF2-SHA256 hashes, short lockout after failed attempts, expiring store-bound sessions, transaction audit |
 | Customers | Implemented | Name-only save, contact warning, validated optional contact fields, search/edit/archive, permission history, stale-edit guard |
 | Bookings | In progress | Persistent charges, places, recipient links, exact plans, and appointments implemented; confirmation awaits approved-payment workflow |
-| Client documents | In progress | Issued quote snapshots, version history, acceptance and stale-source checks implemented; invoice conversion and PDFs pending |
+| Client documents | In progress | Quote versions/acceptance and bounded single/split-payer invoice conversion implemented; PDFs, receipts, and credits pending |
 | Books and approvals | In progress | Atomic balanced posting, authenticated approvals, core receipts/expenses/transfers, financing, bounded refunds/reversals, historical reports; applications/credits and period-close UI pending |
 | Resources | Pending | Supplies, suppliers, assets, loans, owner movements, mileage |
 | Reconciliation and reports | Pending | Statements, bounded matches, reports, dashboard |
@@ -50,3 +50,9 @@ Invoice applications, customer credit funding, reconciliation dependencies, full
 Schema 6 stores numbered documents, immutable version snapshots, acceptance evidence, and pending render artifacts. The quote screen prepares and reviews saved drafts, confirms the owner before issuance, and records acceptance of an exact version. Issuance retries retain the same number/version. Issuing a proposed revision leaves an earlier accepted agreement intact until the new version is accepted. Unknown tax, unresolved payment plans, changed source bookings, and invalid recipients block issuance.
 
 Three additional cases verify frozen customer/event/pricing data, exclusion of private sentinel fields, same-number issuance retry, version-specific acceptance, and failure without consuming a document number. PDF rendering and invoice conversion are separate follow-up PRs. No document has been automatically sent.
+
+## Invoice conversion checks
+
+Schema 7 adds source coverage, explicit payer headers, invoice milestones, and a billing generation guard. Single-payer decisions cover all charges including travel; split-payer travel needs an explicit charge payer. Unpaid-share responsibility cannot remain undecided at issuance. Partial invoices consume accepted quantities and cents once; their milestone shares sum to the accepted booking plan. Retried/concurrent issuance cannot duplicate coverage.
+
+Five new cases cover full and split-payer conversion, racing requests, tiny fractional-cent allocation, and rejection of an accepted amendment that would reprice billed charges. The fractional-cent probe initially stopped a valid later portion when repeated rounding exhausted the source cents; individual allocations are now capped at their remaining source cents, with an explicit rounding adjustment and final residual. Issued invoice data stays immutable. Applications, credit adjustments, and PDF output remain separate work.

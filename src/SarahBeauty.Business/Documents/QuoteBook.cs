@@ -82,6 +82,7 @@ public sealed class QuoteBook(BusinessStore store)
         var version=DocumentVersions.Find(db,owner,id:versionId)??throw new ArgumentException("Quote not found.");
         if(version.Snapshot.Kind!=DocumentKind.Quote || version.Status!="Issued" || acceptedDate<version.Snapshot.IssueDate || string.IsNullOrWhiteSpace(evidence))
             throw new ArgumentException("Choose a current issued quote and record its acceptance date and evidence.");
+        InvoiceCoverage.ValidateAmendment(db,owner,version);
         db.Execute("UPDATE DocumentVersions SET Status='Accepted',AcceptedDate=$date,AcceptanceEvidence=$evidence,AcceptedBy=$owner WHERE Id=$id;",
             ("$date",acceptedDate.ToString("yyyy-MM-dd")),("$evidence",evidence.Trim()),("$owner",owner.OwnerId),("$id",versionId));
         db.Execute("UPDATE DocumentVersions SET Status='Superseded' WHERE DocumentId=$document AND Id<>$id AND Status='Accepted';",("$document",version.DocumentId),("$id",versionId));

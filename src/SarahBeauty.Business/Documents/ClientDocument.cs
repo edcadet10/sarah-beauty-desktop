@@ -21,7 +21,7 @@ public sealed record DocumentDraft : BusinessRecord
 public sealed record ClientParty(string Name,string BillingName,string BillingAddress,string Phone,string Email);
 public sealed record ClientEvent(string Name,DateOnly? Date,string Venue,string ReadyBy);
 public sealed record ClientLine(string ChargeId,string Description,string Unit,decimal Quantity,long UnitCents,
-    long DiscountCents,long NetCents,long TaxCents,long TotalCents);
+    long DiscountCents,long NetCents,long TaxCents,long TotalCents,long RoundingCents=0);
 public sealed record ClientMilestone(string Kind,long Cents,DateOnly? DueDate);
 public sealed record ClientSnapshot(DocumentKind Kind,string Number,int Version,string Mode,string BusinessName,
     ClientParty Client,ClientEvent Event,DateOnly IssueDate,DateOnly? DueDate,string Terms,ClientLine[] Lines,
