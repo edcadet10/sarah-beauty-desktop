@@ -27,7 +27,11 @@ public sealed record Asset : BusinessRecord
     public string EvidenceId { get; init; } = "";
     public DateOnly? DisposedDate { get; init; }
     public string DisposalMovementId {get;init;}="";
+    public AssetFactReview[] FactHistory {get;init;}=[];
 }
+
+public sealed record AssetFactDraft(string AssetId,long? CostCents,long? TaxBasisCents,string Reason,string EvidenceId);
+public sealed record AssetFactReview(string RequestId,long? PreviousCostCents,long? PreviousTaxBasisCents,long? CostCents,long? TaxBasisCents,string Reason,string EvidenceId,string OwnerId,string AtUtc);
 
 public sealed record Supplier : BusinessRecord
 {
