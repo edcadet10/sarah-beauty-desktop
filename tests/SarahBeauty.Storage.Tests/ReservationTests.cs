@@ -47,6 +47,41 @@ public sealed class ReservationTests
         new BookingReservations(f.Business.Store).Confirm(f.Business.Owner,booking.Id,booking.Revision,request??Guid.NewGuid().ToString(),
             date??f.Date,"Fictional recorded reservation",BusinessFixture.Phrase);
 
+    [Theory]
+    [InlineData(0)]
+    [InlineData(2)]
+    public void ConfirmedBookingCanReviewAnAmendedAgreementAfterItsAdditionalDepositIsPaid(int originalDay)
+    {
+        using var f=new LedgerFixture();var (booking,invoice)=Setup(f);Pay(f,invoice,22500);var original=Confirm(f,booking,date:f.Date.AddDays(originalDay));
+        var reviewDate=f.Date.AddDays(Math.Max(1,originalDay));
+        var books=new BookingBook(f.Business.Store);booking=BookingRules.AddCharge(original,"Fictional agreed extra service","Custom",1,6000);
+        booking=books.Save(f.Business.Owner,booking with{Charges=booking.Charges.Select(c=>c with{TaxRate=0m}).ToArray()});
+        var quotes=new QuoteBook(f.Business.Store);var prior=quotes.Versions(f.Business.Owner).Single(v=>v.Snapshot.Kind==DocumentKind.Quote);
+        var draft=quotes.SaveDraft(f.Business.Owner,quotes.FromBooking(f.Business.Owner,booking,prior.DocumentId) with{IssueDate=f.Date.AddDays(1)});
+        var quote=quotes.Issue(f.Business.Owner,draft.Id,draft.Revision,BusinessFixture.Phrase);quotes.Accept(f.Business.Owner,quote.Id,f.Date.AddDays(1),"Fictional amended service agreement");
+        booking=books.List(f.Business.Owner).Single();Assert.Throws<ArgumentException>(()=>Confirm(f,booking,date:f.Date.AddDays(1)));
+        var invoices=new InvoiceBook(f.Business.Store);var extra=quote.Snapshot.Lines.Single(l=>l.Description=="Fictional agreed extra service");
+        var added=invoices.SaveDraft(f.Business.Owner,new InvoiceDraft{Name="Fictional additional service invoice",QuoteVersionId=quote.Id,
+            PayerCustomerId=f.CustomerId,IssueDate=f.Date.AddDays(1),Portions=[new(extra.ChargeId,1)]});
+        var issued=invoices.Issue(f.Business.Owner,added.Id,added.Revision,BusinessFixture.Phrase);Pay(f,issued,3000,f.Date.AddDays(1));
+        if(originalDay>1)Assert.Throws<ArgumentException>(()=>Confirm(f,booking,date:f.Date.AddDays(1)));
+        string request=Guid.NewGuid().ToString();var reservations=new BookingReservations(f.Business.Store){FailurePoint=_=>throw new IOException("Injected amended reservation failure")};
+        Assert.Throws<IOException>(()=>reservations.Confirm(f.Business.Owner,booking.Id,booking.Revision,request,reviewDate,"Fictional recorded reservation",BusinessFixture.Phrase));
+        Assert.Single(books.List(f.Business.Owner).Single().Reservations);
+        reservations.FailurePoint=null;var reviewed=Confirm(f,booking,request,reviewDate);
+        Assert.Equal("Confirmed",reviewed.Status);Assert.Equal(2,reviewed.Reservations.Length);Assert.Equal(original.History,reviewed.History);
+        Assert.Equal(original.Reservations[0],reviewed.Reservations[0]);Assert.Equal(quote.Id,reviewed.Reservations[1].QuoteVersionId);
+        Assert.Equal(10500,reviewed.Reservations[1].DepositCents);Assert.Equal(15000,reviewed.Reservations[1].TrialCents);
+        Assert.Equal(reviewed.Revision,Confirm(f,booking,request.ToUpperInvariant(),reviewDate).Revision);Assert.Equal(2,f.Book.Posted(f.Business.Owner).Count);Assert.Equal(25500,f.Balance("1010"));
+    }
+
+    [Fact]
+    public void AlreadyConfirmedCurrentAgreementDoesNotCreateAnotherReservationReview()
+    {
+        using var f=new LedgerFixture();var (booking,invoice)=Setup(f);Pay(f,invoice,22500);var confirmed=Confirm(f,booking);
+        Assert.Throws<ArgumentException>(()=>Confirm(f,confirmed));Assert.Single(new BookingBook(f.Business.Store).List(f.Business.Owner).Single().Reservations);
+    }
+
     [Fact]
     public void TrialAloneDoesNotReserveAndApprovedDepositAllowsOneRecordedConfirmation()
     {

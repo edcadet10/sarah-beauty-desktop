@@ -12,7 +12,8 @@ public sealed class BookingReservations(BusinessStore store)
     public Booking Confirm(OwnerSession owner,string bookingId,int revision,string requestId,DateOnly date,string reason,string phrase)
     {
         new OwnerAccess(store).Confirm(owner,phrase);
-        if(!Guid.TryParse(requestId,out _) || string.IsNullOrWhiteSpace(reason))throw new ArgumentException("Record a reservation reason and valid request identity.");
+        if(!Guid.TryParse(requestId,out var request) || string.IsNullOrWhiteSpace(reason))throw new ArgumentException("Record a reservation reason and valid request identity.");
+        requestId=request.ToString();
         return store.Transaction(db=>Confirm(db,owner,bookingId,revision,requestId,date,reason.Trim()));
     }
 
@@ -21,14 +22,14 @@ public sealed class BookingReservations(BusinessStore store)
         store.RequireSession(db,owner);
         var book=new BookingBook(store);
         var booking=book.Records.Get(db,owner,bookingId);
-        var prior=booking.Reservations.SingleOrDefault(r=>r.RequestId==requestId);
+        var prior=booking.Reservations.SingleOrDefault(r=>string.Equals(r.RequestId,requestId,StringComparison.OrdinalIgnoreCase));
         if(prior is not null)
         {
             if(prior.Date!=date || prior.Reason!=reason)throw new ArgumentException("This reservation request was already used with different details.");
             return booking;
         }
         if(booking.Revision!=revision)throw new ArgumentException("Reload the changed booking before reserving it.");
-        if(booking.Status!="Awaiting deposit")throw new ArgumentException("Choose an accepted booking awaiting its deposit.");
+        bool review=ValidateStatus(booking,date);
         var quote=DocumentVersions.Find(db,owner,id:booking.AcceptedQuoteVersionId)
             ??throw new ArgumentException("Accept an exact quote version before reserving the date.");
         ReservationRules.ValidateAgreement(booking,quote,date);
@@ -40,10 +41,21 @@ public sealed class BookingReservations(BusinessStore store)
         long deposit=quote.Snapshot.Milestones.Where(m=>m.Kind=="Deposit").Sum(m=>m.Cents);
         if(paid.Trial<trial || paid.Deposit<deposit)throw new ArgumentException("Apply approved receipts or accepted funded credits to the required trial and booking deposit before reserving.");
         var reservation=new BookingReservation(requestId,quote.Id,date,trial,deposit,reason,owner.OwnerId,DateTimeOffset.UtcNow.ToString("O"));
-        var result=book.Transition(db,owner,booking with{Reservations=[..booking.Reservations,reservation]},"Confirmed",reason);
+        var updated=booking with{Reservations=[..booking.Reservations,reservation]};
+        var result=review?book.Records.Save(db,owner,updated):book.Transition(db,owner,updated,"Confirmed",reason);
         FailurePoint?.Invoke("reservation");
-        BusinessStore.Audit(db,owner,"Confirm booking reservation",booking.Id);
+        BusinessStore.Audit(db,owner,review?"Review confirmed booking reservation":"Confirm booking reservation",booking.Id);
         return result;
+    }
+
+    private static bool ValidateStatus(Booking booking,DateOnly date)
+    {
+        if(booking.Status=="Awaiting deposit")return false;
+        if(booking.Status!="Confirmed")throw new ArgumentException("Choose an accepted booking awaiting its deposit or a confirmed booking with a changed agreement.");
+        if(booking.Reservations.LastOrDefault()?.QuoteVersionId==booking.AcceptedQuoteVersionId)
+            throw new ArgumentException("This booking is already confirmed for its current accepted agreement.");
+        if(booking.Reservations.Any(r=>r.Date>date))throw new ArgumentException("This reservation review cannot precede an earlier recorded confirmation.");
+        return true;
     }
 
     private static (long Trial,long Deposit) PaidMilestones(DbWork db,OwnerSession owner,string bookingId,DateOnly date)

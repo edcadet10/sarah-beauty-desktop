@@ -15,6 +15,7 @@ internal sealed partial class BookingView
     private readonly ServiceCatalog _catalog;
     private BookingFields? _fields;
     private readonly OwnerSession _owner;
+    private readonly Dictionary<string,string> _ownerNames;
     private readonly List<Customer> _customers;
     private readonly ListView _list = new() { MaxHeight = 220 };
     private readonly StackPanel _editor = Form.Panel();
@@ -25,6 +26,7 @@ internal sealed partial class BookingView
         (_book, _owner, _reservations) = (new(store), owner, new(store));
         _catalog=new(store);_catalog.Initialize(owner);
         _customers = new CustomerBook(store).Search(owner, includeArchived: true);
+        _ownerNames=new OwnerAccess(store).Owners().ToDictionary(o=>o.Id,o=>o.Name);
     }
 
     internal UIElement Build()
@@ -80,7 +82,11 @@ internal sealed partial class BookingView
         var panel = Form.Panel();
         var reason = Form.Input("Reason for status change");
         var status = Form.Text();
-        if(booking.Status=="Awaiting deposit")panel.Add(Reservation(booking));
+        if(booking.Status=="Awaiting deposit" || booking.Status=="Confirmed" && booking.Reservations.LastOrDefault()?.QuoteVersionId!=booking.AcceptedQuoteVersionId)
+            panel.Add(Reservation(booking));
+        panel.Add(PagedReport.Build("Reservation reviews",["Date","Accepted quote version","Trial required","Deposit required","Decision / evidence","Owner / time"],
+            booking.Reservations.Select(r=>new[]{r.Date.ToString("yyyy-MM-dd"),r.QuoteVersionId,Money.Display(r.TrialCents),Money.Display(r.DepositCents),r.Reason,
+                _ownerNames.GetValueOrDefault(r.OwnerId,"Former owner")+" • "+r.AtUtc})));
         if(booking.Status=="Confirmed")panel.Add(reason,Form.Action("Mark booking completed",status,async()=>
         {
             string explanation=reason.Text;
