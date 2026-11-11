@@ -1,4 +1,5 @@
 using System.Text.Json;
+using SarahBeauty.Business.Purchasing;
 using SarahBeauty.Business.Security;
 using SarahBeauty.Business.Storage;
 
@@ -24,12 +25,11 @@ public sealed class FinanceBook(BusinessStore store)
         store.RequireSession(db, owner);
         var accounts = ChartOfAccounts.List(db, owner);
         draft = CorrectionRules.Prepare(db, owner, draft);
+        draft=PurchasePayments.Prepare(db,store,owner,draft);
         PostingValidation.Validate(db, owner, store, draft, accounts);
         OpeningRules.Validate(db,store,owner,draft,accounts);
         CreditRefundRules.Validate(db,owner,draft);
-        var lines=draft.Kind is FinancialKind.Reversal or FinancialKind.AssetDisposal
-            ? CorrectionRules.Lines(db, owner, draft, accounts) : PostingRules.Build(draft, accounts);
-        return JournalAssets.Assign(db,store,owner,draft,lines,accounts);
+        return BuildLines(db,owner,draft,accounts);
     });
 
     public FinancialDraft SaveDraft(OwnerSession owner, FinancialDraft value)
@@ -41,6 +41,7 @@ public sealed class FinanceBook(BusinessStore store)
                 && _drafts.Get(db, owner, value.Id).Status != "Draft"))
                 throw new ArgumentException("Posted financial records cannot be edited. Prepare a linked correction.");
             if(value.Kind==FinancialKind.AssetDisposal)value=value with{AssetGeneration=ValueState.Generation(db,owner,"Asset",value.AssetId)};
+            if(value.Kind==FinancialKind.PurchasePayment)value=value with{PurchaseGeneration=ValueState.Generation(db,owner,"Purchase",value.PurchaseId)};
             return _drafts.Save(db, owner, value);
         });
     }
@@ -64,17 +65,18 @@ public sealed class FinanceBook(BusinessStore store)
     {
         var accounts = ChartOfAccounts.List(db, owner);
         draft = CorrectionRules.Prepare(db, owner, draft);
+        draft=PurchasePayments.Prepare(db,store,owner,draft);
         PostingValidation.Validate(db, owner, store, draft, accounts);
         OpeningRules.Validate(db,store,owner,draft,accounts);
         CreditRefundRules.Validate(db,owner,draft);
         CheckReference(db, owner, draft);
-        var lines = draft.Kind is FinancialKind.Reversal or FinancialKind.AssetDisposal
-            ? CorrectionRules.Lines(db, owner, draft, accounts) : PostingRules.Build(draft, accounts);
-        lines=JournalAssets.Assign(db,store,owner,draft,lines,accounts);
-        PostingRules.ValidateBalance(lines);
+        var lines=BuildLines(db,owner,draft,accounts);
+        PostingRules.ValidateBalance(lines,PurchasePayments.AllowsEmpty(db,owner,draft));
         var posted = PostingWriter.Save(db, owner, draft, lines, FailurePoint);
         OpeningRules.AfterPosting(db,owner,draft,posted.Id,accounts);
         AssetDisposals.AfterPosting(db,store,owner,draft,posted.Id);
+        PurchasePayments.AfterPosting(db,store,owner,draft,posted.Id);
+        if(draft.Kind==FinancialKind.PurchasePayment)FailurePoint?.Invoke("purchase-settlement");
         JournalAssets.AfterPosting(db,owner,lines);
         if(draft.Kind==FinancialKind.AssetDisposal)FailurePoint?.Invoke("asset-disposal-record");
         FailurePoint?.Invoke("opening-record");
@@ -85,6 +87,17 @@ public sealed class FinanceBook(BusinessStore store)
         BusinessStore.Audit(db, owner, "Approve financial draft", draft.Id);
         FailurePoint?.Invoke("audit");
         return posted;
+    }
+
+    private List<JournalLine> BuildLines(DbWork db,OwnerSession owner,FinancialDraft draft,List<Account> accounts)
+    {
+        var lines=draft.Kind switch
+        {
+            FinancialKind.PurchasePayment=>PurchasePayments.Lines(db,store,owner,draft,accounts),
+            FinancialKind.Reversal or FinancialKind.AssetDisposal=>CorrectionRules.Lines(db,owner,draft,accounts),
+            _=>PostingRules.Build(draft,accounts)
+        };
+        return JournalAssets.Assign(db,store,owner,draft,lines,accounts);
     }
 
     public List<PostedMovement> Posted(OwnerSession owner) => store.Read(db =>

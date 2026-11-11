@@ -37,7 +37,8 @@ internal static class CorrectionRules
             throw new ArgumentException("Resolve dependent refunds or corrections before reversing this movement.");
         return draft with { AmountCents = original.AmountCents, CustomerId = original.CustomerId,
             EconomicOwnerId = original.EconomicOwnerId, BookingId = original.BookingId, LoanId = original.LoanId,
-            AssetId = original.AssetId, SupplierId = original.SupplierId, CreditId=original.CreditId };
+            AssetId = original.AssetId, SupplierId = original.SupplierId, CreditId=original.CreditId,
+            PurchaseId=original.PurchaseId,PurchaseFunding=original.PurchaseFunding };
     }
 
     private static void CheckRefundLimit(DbWork db, OwnerSession owner, FinancialDraft draft, FinancialDraft original)

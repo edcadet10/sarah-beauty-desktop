@@ -10,7 +10,7 @@ This file tracks the full application build requested on November 10, 2026. A co
 | Bookings | In progress | Charges, places, recipient links, exact plans, appointments, and explicit paid reservation implemented; full cancellation workflow and calendar refinements pending |
 | Client documents | Implemented core | Quote versions, bounded payer invoices, dated credit notes, approved-payment receipts, and saved PDFs; full release walkthrough pending |
 | Books and approvals | In progress | Core posting/reports, receipt/credit applications, funded credits, cash refunds and dated reversals implemented; period-close UI and remaining workflows pending |
-| Resources | In progress | Registers, supplies, trips, evidenced openings, and asset disposal/reversal implemented; purchases and full reimbursement workflows pending |
+| Resources | In progress | Registers, supplies, trips, openings, disposals, reviewed bills, and mixed supplier payments implemented; supplier adjustments and complete trip reimbursement pending |
 | Reconciliation and reports | In progress | Date-filtered financial reports, customer aging, tax activity, and source entries implemented; statements, matches, closing, full dashboard pending |
 | Recovery and Google | Pending | Attachments, portable encrypted archive, Sheets export, Drive authorization/readback |
 | Release | Pending | Installer, full fictional walkthrough, actual Surface and second-device checks |
@@ -148,3 +148,9 @@ Five new integration cases cover exact mixed expense/asset shares, absence of un
 Schema 13 gives individual noncash asset journal lines their own asset identity. Existing movement-level asset history is backfilled after the verified upgrade snapshot. Cash lines stay unassigned. Asset carrying-value limits, disposal calculations, metadata protection, and reversal/generation checks now follow these line identities, preparing for a supplier payment that contains several assets.
 
 Two additional SQLite cases verify a version-12 upgrade with retained balances/links and a real writer batch containing two assets followed by its exact reversal. Both assets restore independently, and an excessive subsequent depreciation fails. This is the posting foundation; mixed supplier payment approval remains the next feature. All 156 cases and the Windows Debug build pass.
+
+## Supplier payment checks
+
+Schema 14 records immutable supplier settlements by original bill line. Money prepares partial/final payments from reviewed approved bills and requires a current bill generation. Business cash recognizes the business expense/asset shares and records any personal share as a draw for its identified owner. Owner contribution/reimbursable funding recognizes only the business shares; reimbursement later clears the payable without another expense. Actual supplier tax paid stays in cost rather than sales-tax liability. Exact reversals restore each bill line and asset identity.
+
+Seven new cases cover partial/final cents, owner funding/reimbursement, historical reversal, simultaneous competing approvals, failure after settlement with retry, supplier report equality, and an owner-funded personal-only installment with no invented business journal. Per-line gross/business availability is validated at all affected dates. All 163 cases and the Windows Debug build pass. Supplier aging and supporting bills use the same report snapshot. The asset-link regression now applies its historical migration SQL directly so later schema additions do not invalidate the old-layout fixture; the original full version-12 upgrade evidence remains recorded above. Supplier refunds and approved bill reductions follow separately.

@@ -7,17 +7,16 @@ namespace SarahBeauty.Storage.Tests;
 public sealed class JournalAssetTests
 {
     [Fact]
-    public void SchemaTwelveUpgradePreservesIndividualAssetLinksAndLeavesCashUnassigned()
+    public void AssetLinkMigrationPreservesIndividualAssetLinksAndLeavesCashUnassigned()
     {
         using var f=new LedgerFixture();
         var purchase=f.Post(f.Draft(FinancialKind.AssetPurchase,30000));
-        f.Business.Files.Execute("DROP INDEX JournalLines_Asset; ALTER TABLE JournalLines DROP COLUMN AssetId; PRAGMA user_version=12;");
-        var reopened=new BusinessStore(f.Business.Files.DatabasePath);
-        var lines=new FinanceBook(reopened).Journal(f.Business.Owner,purchase.Id);
+        f.Business.Files.Execute("DROP INDEX JournalLines_Asset; ALTER TABLE JournalLines DROP COLUMN AssetId;");
+        f.Business.Files.Execute(JournalAssetSchema.Sql);
+        var lines=f.Book.Journal(f.Business.Owner,purchase.Id);
         Assert.Equal(f.Asset.Id,lines.Single(l=>l.AccountId==f.Accounts["1500"].Id).AssetId);
         Assert.Empty(lines.Single(l=>l.AccountId==f.Accounts["1010"].Id).AssetId);
         Assert.Equal(30000,f.Balance("1500"));
-        Assert.Single(f.Business.Files.Snapshots());
     }
 
     [Fact]

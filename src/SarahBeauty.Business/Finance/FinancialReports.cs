@@ -1,5 +1,6 @@
 using SarahBeauty.Business.Documents;
 using SarahBeauty.Business.Resources;
+using SarahBeauty.Business.Purchasing;
 using SarahBeauty.Business.Security;
 using SarahBeauty.Business.Storage;
 
@@ -23,8 +24,10 @@ public sealed class FinancialReports(BusinessStore store)
         var versions=DocumentVersions.List(db,owner);
         var entries=Activity(db,owner,from,through);
         var cashAccounts=trial.Where(r=>r.Account.CashKind!="None").Select(r=>r.Account.Id).ToHashSet();
+        var bills=PurchasePayments.Outstanding(db,store,owner,through);
         return new ReportSnapshot(business,"TEST",watermark,DateTimeOffset.UtcNow.ToString("O"),from,through,trial,pnl,balance,entries.Where(e=>cashAccounts.Contains(e.AccountId)).ToList(),
-            CustomerPositions.Read(db,owner,through,versions),Tax(db,owner,from,through,trial,versions),OpeningWarnings(db,owner,trial)){Entries=entries};
+            CustomerPositions.Read(db,owner,through,versions),Tax(db,owner,from,through,trial,versions),OpeningWarnings(db,owner,trial))
+            {Entries=entries,SupplierBills=bills,Suppliers=SupplierPositions(db,owner,through,bills)};
     });
 
     private static List<CashActivity> Activity(DbWork db,OwnerSession owner,DateOnly from,DateOnly through)=>db.Read("""
@@ -54,6 +57,14 @@ public sealed class FinancialReports(BusinessStore store)
         var loans=new RecordStore<Loan>(store,"Loan").List(db,owner).Where(l=>!l.Archived && l.OpeningPrincipalCents is null).Select(l=>l.Name+": opening principal unknown");
         var assets=new RecordStore<Asset>(store,"Asset").List(db,owner).Where(a=>!a.Archived && (a.CostCents is null || a.TaxBasisCents is null)).Select(a=>a.Name+": cost or tax basis unknown");
         return cash.Concat(loans).Concat(assets).ToArray();
+    }
+
+    private List<SupplierPosition> SupplierPositions(DbWork db,OwnerSession owner,DateOnly through,List<PurchaseDue> bills)
+    {
+        var suppliers=new RecordStore<Supplier>(store,"Supplier").List(db,owner);
+        return bills.GroupBy(b=>b.SupplierId).Select(group=>new SupplierPosition(group.Key,suppliers.Single(s=>s.Id==group.Key).Name,
+            group.Sum(b=>b.Cents),group.Where(b=>b.DueDate<through).Sum(b=>b.Cents),group.Where(b=>b.DueDate==through).Sum(b=>b.Cents),
+            group.Where(b=>b.DueDate>through).Sum(b=>b.Cents),group.Where(b=>b.DueDate is null).Sum(b=>b.Cents))).ToList();
     }
 
     private static HashSet<string> ConfirmedOpenings(DbWork db,OwnerSession owner,DateOnly through)=>db.Read("""
