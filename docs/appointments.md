@@ -19,3 +19,5 @@ Enter the event's ready-by local time and time zone in the booking details. If t
 Appointment start and end offsets must match their stated zone for those local times. Calculating an elapsed duration across a clock change can produce different offsets at the two ends. The editor retains both; do not replace them with a fixed seasonal offset.
 
 Changing the quoted event time zone requires a revised accepted agreement before reservation. Already-issued documents retain the zone and offset they captured.
+
+Use [Review the calendar](calendar.md) to inspect dated appointments, recipients, scheduling issues, and undecided work together.
