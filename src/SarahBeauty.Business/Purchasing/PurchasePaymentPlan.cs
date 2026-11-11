@@ -13,8 +13,8 @@ internal static class PurchasePaymentPlan
         if(purchase.Status!="Approved" || draft.Date<purchase.PurchaseDate || draft.PurchaseGeneration!=ValueState.Generation(db,owner,"Purchase",purchase.Id))
             throw new ArgumentException("Choose an approved bill, a valid payment date, and review its current unpaid balance.");
         var previous=PurchasePayments.Rows(db,purchase.Id).Where(r=>r.Date<=draft.Date).ToList();
-        var available=purchase.Lines.Select(l=>new{Line=l,Gross=l.GrossCents!.Value-previous.Where(p=>p.LineId==l.Id).Sum(p=>p.ReversesId is null?p.Cents:-p.Cents),
-            Business=l.BusinessCents!.Value-previous.Where(p=>p.LineId==l.Id).Sum(p=>p.ReversesId is null?p.BusinessCents:-p.BusinessCents)}).ToList();
+        var available=purchase.Lines.Select(l=>new{Line=l,Gross=l.GrossCents!.Value-previous.Where(p=>p.LineId==l.Id).Sum(p=>p.Sign*p.Cents),
+            Business=l.BusinessCents!.Value-previous.Where(p=>p.LineId==l.Id).Sum(p=>p.Sign*p.BusinessCents)}).ToList();
         if(draft.AmountCents>available.Sum(a=>a.Gross) || available.Any(a=>a.Gross<0 || a.Business<0 || a.Business>a.Gross))
             throw new ArgumentException("The payment exceeds the supplier bill's unpaid value.");
         long[] shares=PaymentPlan.Allocate(draft.AmountCents,available.Select(a=>a.Gross).ToArray());

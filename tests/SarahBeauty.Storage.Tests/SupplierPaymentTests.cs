@@ -5,17 +5,17 @@ namespace SarahBeauty.Storage.Tests;
 
 public sealed class SupplierPaymentTests
 {
-    private static Purchase Bill(LedgerFixture f,Purchase? value=null)
+    internal static Purchase Bill(LedgerFixture f,Purchase? value=null)
     {
         var book=new PurchaseBook(f.Business.Store);
         var draft=book.SaveDraft(f.Business.Owner,value??PurchaseTests.Draft(f));
         return book.Approve(f.Business.Owner,draft.Id,draft.Revision,BusinessFixture.Phrase);
     }
 
-    private static FinancialDraft Payment(LedgerFixture f,Purchase bill,long cents,string funding="Business cash")=>
+    internal static FinancialDraft Payment(LedgerFixture f,Purchase bill,long cents,string funding="Business cash")=>
         f.Draft(FinancialKind.PurchasePayment,cents) with{PurchaseId=bill.Id,PurchaseFunding=funding,EconomicOwnerId=f.Business.Owner.OwnerId};
 
-    private static long Due(LedgerFixture f,Purchase bill,DateOnly? date=null)=>
+    internal static long Due(LedgerFixture f,Purchase bill,DateOnly? date=null)=>
         new PurchasePayments(f.Business.Store).Outstanding(f.Business.Owner,date??f.Date).Single(p=>p.PurchaseId==bill.Id).Cents;
 
     [Fact]

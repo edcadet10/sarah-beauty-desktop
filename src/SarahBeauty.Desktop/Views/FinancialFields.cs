@@ -4,7 +4,6 @@ using SarahBeauty.Business.Bookings;
 using SarahBeauty.Business.Customers;
 using SarahBeauty.Business.Finance;
 using SarahBeauty.Business.Resources;
-using SarahBeauty.Business.Purchasing;
 using SarahBeauty.Business.Rules;
 using SarahBeauty.Business.Security;
 using SarahBeauty.Business.Storage;
@@ -14,7 +13,8 @@ namespace SarahBeauty_Desktop.Views;
 internal sealed class FinancialFields
 {
     private readonly TextBox _memo,_date,_amount,_tax,_fee,_principal,_interest,_reference,_provider,_evidence,_method;
-    private readonly ComboBox _cash,_counter,_to,_customer,_economicOwner,_booking,_loan,_asset,_supplier,_original,_credit,_purchase,_purchaseFunding;
+    private readonly ComboBox _cash,_counter,_to,_customer,_economicOwner,_booking,_loan,_asset,_supplier,_original,_credit;
+    private readonly SupplierPaymentFields _supplierPayment;
     private readonly CheckBox _taxResolved,_reliable,_openingCredit;
     private readonly FinancialKind _kind;
 
@@ -37,14 +37,7 @@ internal sealed class FinancialFields
         _supplier=Form.Records("Supplier",resources.Suppliers(owner).Select(s=>(s.Id,s.Name)),d.SupplierId);
         _original=Form.Records("Original posted movement",new FinanceBook(store).Posted(owner).Select(p=>(p.Id,p.Source.ToString())),d.OriginalId);
         _credit=Form.Records("Linked funded credit (for a refund from reserved value)",new CreditBook(store).Credits(owner).Select(c=>(c.Id,$"{c.CustomerName} • {c.Id[..8]}")),d.CreditId);
-        _purchase=Form.Records("Approved supplier bill",new PurchaseBook(store).List(owner).Where(p=>p.Status=="Approved").Select(p=>(p.Id,p.ToString())),d.PurchaseId);
-        _purchaseFunding=Form.Select("Actual payment funding",["Business cash","Owner contribution","Owner reimbursable"],d.PurchaseFunding);
-        if(d.Kind==FinancialKind.PurchasePayment)
-        {
-            void ShowCash()=>_cash.Visibility=_purchaseFunding.SelectedItem as string=="Business cash"?Visibility.Visible:Visibility.Collapsed;
-            _purchaseFunding.SelectionChanged+=(_,_)=>ShowCash();
-            ShowCash();
-        }
+        _supplierPayment=new SupplierPaymentFields(store,owner,d,_cash,_economicOwner);
         _tax=Form.Input("Included sales tax in USD",Money.Input(d.TaxCents));
         _taxResolved=new CheckBox{Content="I have explicitly resolved the tax treatment",IsChecked=d.TaxResolved};
         _fee=Form.Input("Processor / loan fee in USD",Money.Input(d.FeeCents));
@@ -63,9 +56,8 @@ internal sealed class FinancialFields
         var panel=Form.Panel();
         panel.Add(_memo,_date,_amount);
         if(_kind!=FinancialKind.Opening)panel.Add(_cash);
-        if(_kind is not (FinancialKind.AssetDisposal or FinancialKind.PurchasePayment))panel.Add(_counter);
-        if(_kind==FinancialKind.PurchasePayment)panel.Add(_purchase,_purchaseFunding,_economicOwner,
-            Form.Text("The bill's reviewed business shares determine expense and asset entries. Business cash paying a personal share requires its benefiting owner. Owner-funded personal costs stay outside the business books."));
+        if(_kind is not (FinancialKind.AssetDisposal or FinancialKind.PurchasePayment or FinancialKind.PurchaseRefund))panel.Add(_counter);
+        if(_kind is FinancialKind.PurchasePayment or FinancialKind.PurchaseRefund)panel.Add(_supplierPayment.Build());
         if(_kind==FinancialKind.Transfer)panel.Add(_to);
         if(_kind is FinancialKind.Receipt or FinancialKind.Refund or FinancialKind.AssetDisposal)panel.Add(_customer,_tax,_taxResolved);
         if(_kind is FinancialKind.Receipt or FinancialKind.LoanPayment)panel.Add(_fee);
@@ -74,15 +66,15 @@ internal sealed class FinancialFields
         if(_kind is FinancialKind.LoanProceeds or FinancialKind.LoanPayment or FinancialKind.Opening)panel.Add(_loan);
         if(_kind is FinancialKind.AssetPurchase or FinancialKind.AssetContribution or FinancialKind.Depreciation or FinancialKind.AssetDisposal or FinancialKind.Opening)panel.Add(_asset);
         if(_kind is FinancialKind.Expense or FinancialKind.SupplierRefund)panel.Add(_supplier);
-        if(_kind is FinancialKind.Refund or FinancialKind.SupplierRefund or FinancialKind.Reversal)panel.Add(_original);
+        if(_kind is FinancialKind.Refund or FinancialKind.SupplierRefund or FinancialKind.PurchaseRefund or FinancialKind.Reversal)panel.Add(_original);
         if(_kind==FinancialKind.Refund)panel.Add(_credit);
-        if(_kind is FinancialKind.Receipt or FinancialKind.UnclassifiedReceipt or FinancialKind.Refund or FinancialKind.AssetDisposal or FinancialKind.PurchasePayment)panel.Add(_method);
+        if(_kind is FinancialKind.Receipt or FinancialKind.UnclassifiedReceipt or FinancialKind.Refund or FinancialKind.AssetDisposal or FinancialKind.PurchasePayment or FinancialKind.PurchaseRefund)panel.Add(_method);
         if(_kind==FinancialKind.Opening)panel.Add(_openingCredit,Form.Text("Approve a documented starting book value. Link an individual loan, asset, or owner when its account requires one. This does not import earlier business activity. Confirm zero cash balances in Opening balances."));
         panel.Add(_booking,_reference,_provider,_reliable,_evidence,Form.Text("Missing evidence remains visible for review. It does not prove that a payment or expense occurred."));
         return panel;
     }
 
-    internal FinancialDraft Read(FinancialDraft d)=>d with
+    internal FinancialDraft Read(FinancialDraft d)=>_supplierPayment.Read(d with
     {
         Name=_memo.Text,Date=Input.Date(_date.Text),AmountCents=Money.Parse(_amount.Text),TaxCents=Money.Parse(_tax.Text),
         TaxResolved=_taxResolved.IsChecked==true,FeeCents=Money.Parse(_fee.Text),PrincipalCents=Money.Parse(_principal.Text),InterestCents=Money.Parse(_interest.Text),
@@ -91,9 +83,7 @@ internal sealed class FinancialFields
         LoanId=_loan.SelectedId(),AssetId=_asset.SelectedId(),SupplierId=_supplier.SelectedId(),OriginalId=_original.SelectedId(),
         CreditId=_kind==FinancialKind.Refund?_credit.SelectedId():d.CreditId,
         PaymentMethod=_method.Text.Trim(),
-        PurchaseId=_kind==FinancialKind.PurchasePayment?_purchase.SelectedId():d.PurchaseId,
-        PurchaseFunding=_kind==FinancialKind.PurchasePayment?(string)_purchaseFunding.SelectedItem:d.PurchaseFunding,
         ExternalReference=_reference.Text,Provider=_provider.Text,ReliableReference=_reliable.IsChecked==true,
         OpeningCredit=_openingCredit.IsChecked==true,EvidenceId=_evidence.Text.Trim()
-    };
+    });
 }

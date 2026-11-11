@@ -62,6 +62,7 @@ internal sealed class MoneyView
         var status=Form.Text();
         _detail.Add(Form.Title(draft.Status=="Posted"?"Posted movement":"Review saved draft"),Form.Text(draft.ToString()));
         if(draft.PurchaseId.Length>0)_detail.Add(Form.Text("Bill: "+new PurchaseBook(_store).List(_owner).Single(p=>p.Id==draft.PurchaseId).Name+" • Funding: "+draft.PurchaseFunding));
+        if(draft.Kind==FinancialKind.PurchaseRefund)_detail.Add(Form.Text("Refund destination: "+draft.SupplierRefundDestination));
         try
         {
             var lines=draft.Status=="Posted"?_book.Journal(_owner,draft.PostedBatchId):_book.Preview(_owner,draft);

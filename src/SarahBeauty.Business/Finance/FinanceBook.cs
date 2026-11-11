@@ -41,7 +41,8 @@ public sealed class FinanceBook(BusinessStore store)
                 && _drafts.Get(db, owner, value.Id).Status != "Draft"))
                 throw new ArgumentException("Posted financial records cannot be edited. Prepare a linked correction.");
             if(value.Kind==FinancialKind.AssetDisposal)value=value with{AssetGeneration=ValueState.Generation(db,owner,"Asset",value.AssetId)};
-            if(value.Kind==FinancialKind.PurchasePayment)value=value with{PurchaseGeneration=ValueState.Generation(db,owner,"Purchase",value.PurchaseId)};
+            if(value.Kind==FinancialKind.PurchaseRefund)value=PurchasePayments.Prepare(db,store,owner,value);
+            if(value.Kind is FinancialKind.PurchasePayment or FinancialKind.PurchaseRefund)value=value with{PurchaseGeneration=ValueState.Generation(db,owner,"Purchase",value.PurchaseId)};
             return _drafts.Save(db, owner, value);
         });
     }
@@ -76,7 +77,7 @@ public sealed class FinanceBook(BusinessStore store)
         OpeningRules.AfterPosting(db,owner,draft,posted.Id,accounts);
         AssetDisposals.AfterPosting(db,store,owner,draft,posted.Id);
         PurchasePayments.AfterPosting(db,store,owner,draft,posted.Id);
-        if(draft.Kind==FinancialKind.PurchasePayment)FailurePoint?.Invoke("purchase-settlement");
+        if(draft.Kind is FinancialKind.PurchasePayment or FinancialKind.PurchaseRefund)FailurePoint?.Invoke("purchase-settlement");
         JournalAssets.AfterPosting(db,owner,lines);
         if(draft.Kind==FinancialKind.AssetDisposal)FailurePoint?.Invoke("asset-disposal-record");
         FailurePoint?.Invoke("opening-record");
@@ -94,6 +95,7 @@ public sealed class FinanceBook(BusinessStore store)
         var lines=draft.Kind switch
         {
             FinancialKind.PurchasePayment=>PurchasePayments.Lines(db,store,owner,draft,accounts),
+            FinancialKind.PurchaseRefund=>PurchaseRefundPlan.Lines(db,store,owner,draft,accounts),
             FinancialKind.Reversal or FinancialKind.AssetDisposal=>CorrectionRules.Lines(db,owner,draft,accounts),
             _=>PostingRules.Build(draft,accounts)
         };
