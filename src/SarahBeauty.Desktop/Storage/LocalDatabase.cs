@@ -10,69 +10,78 @@ public static class LocalDatabase
         InitializeTestDatabase()
     {
         string folderPath = AppDataPaths.EnsureTestFolderExists();
-        string databasePath = Path.Combine(folderPath, "sarahbeauty.db");
+        return InitializeTestDatabaseAt(Path.Combine(folderPath, "sarahbeauty.db"));
+    }
 
+    internal static (string DatabasePath, string StoreId, int SchemaVersion)
+        InitializeTestDatabaseAt(string databasePath)
+    {
+        using var connection = OpenConnection(databasePath);
+        using var transaction = connection.BeginTransaction(deferred: false);
+        using var command = connection.CreateCommand();
+        command.Transaction = transaction;
+
+        int schemaVersion = DatabaseSchema.ReadSupportedVersion(command);
+        bool isEmpty = schemaVersion == 0 && DatabaseSchema.IsEmpty(command);
+
+        if (isEmpty)
+        {
+            DatabaseMetadata.Create(command);
+        }
+        else
+        {
+            DatabaseSchema.ValidateMetadataTable(command);
+        }
+
+        string storeId = DatabaseMetadata.ReadStoreId(command);
+        DatabaseMetadata.ValidateTestMode(command, schemaVersion);
+        schemaVersion = UpgradeIfNeeded(command, databasePath, schemaVersion, isEmpty);
+        transaction.Commit();
+
+        return (databasePath, storeId, schemaVersion);
+    }
+
+    private static SqliteConnection OpenConnection(string databasePath)
+    {
         var options = new SqliteConnectionStringBuilder
         {
             DataSource = databasePath,
             Mode = SqliteOpenMode.ReadWriteCreate,
-            ForeignKeys = true
+            ForeignKeys = true,
+            DefaultTimeout = 5,
+            Pooling = false
         };
 
-        using var connection = new SqliteConnection(options.ToString());
-        connection.Open();
-
-        using var transaction = connection.BeginTransaction();
-        using var command = connection.CreateCommand();
-        command.Transaction = transaction;
-
-        command.CommandText = "PRAGMA user_version;";
-
-        const int supportedSchemaVersion = 0;
-
-        int schemaVersion = Convert.ToInt32(
-            command.ExecuteScalar()
-            ?? throw new InvalidOperationException(
-                "The database did not return a schema version."));
-
-        if (schemaVersion < 0 || schemaVersion > supportedSchemaVersion)
+        var connection = new SqliteConnection(options.ToString());
+        try
         {
-            throw new InvalidOperationException(
-                $"Database schema version {schemaVersion} is unsupported. " +
-                $"The latest version this app supports is {supportedSchemaVersion}.");
+            connection.Open();
+            return connection;
+        }
+        catch
+        {
+            connection.Dispose();
+            throw;
+        }
+    }
+
+    private static int UpgradeIfNeeded(
+        SqliteCommand command, string databasePath, int version, bool isEmpty)
+    {
+        if (version == 0)
+        {
+            // Keep the write reservation while a separate reader snapshots committed data.
+            if (!isEmpty)
+            {
+                DatabaseBackup.CreateVerifiedSnapshot(databasePath);
+            }
+
+            DatabaseMetadata.SaveTestMode(command);
+            command.CommandText = "PRAGMA user_version = 1;";
+            command.ExecuteNonQuery();
+            return 1;
         }
 
-        command.CommandText = """
-              CREATE TABLE IF NOT EXISTS AppMetadata (
-                  Key TEXT NOT NULL PRIMARY KEY,
-                  Value TEXT NOT NULL
-              );
-              """;
-
-        command.ExecuteNonQuery();
-
-        command.CommandText = """
-              INSERT INTO AppMetadata (Key, Value)
-              VALUES ('StoreId', $storeId)
-              ON CONFLICT(Key) DO NOTHING;
-              """;
-
-        command.Parameters.AddWithValue(
-            "$storeId",
-            Guid.NewGuid().ToString());
-
-        command.ExecuteNonQuery();
-
-        command.Parameters.Clear();
-        command.CommandText =
-            "SELECT Value FROM AppMetadata WHERE Key = 'StoreId';";
-
-        string storeId = command.ExecuteScalar() as string
-            ?? throw new InvalidOperationException(
-                "The database has no store ID.");
-
-        transaction.Commit();
-
-        return (databasePath, storeId, schemaVersion);
+        return version;
     }
 }
