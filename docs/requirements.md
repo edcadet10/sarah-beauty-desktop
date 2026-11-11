@@ -1,6 +1,6 @@
 # Sarah Beauty Desktop Requirements
 
-Status: Requirements baseline. A basic welcome screen runs; business features and their acceptance testing remain pending.
+Status: Requirements baseline. Implementation and component verification are in progress. See [Build progress](build-progress.md) for implemented workflows, evidence, and remaining release checks.
 
 This document records the agreed scope. Detailed fields are in the [data model](data-model.md), calculations in [business rules](business-rules.md), and unresolved choices in the [implementation plan](implementation-plan.md). Open choices must not be silently replaced with invented business facts.
 
@@ -39,7 +39,7 @@ The application will support two owners.
 - Financial posting, corrections, document issuance, period closing, and restoration must be logged.
 - Owner identity and the selected business must remain visible while working.
 
-The local sign-in method is an open implementation decision. A selected display name alone is not proof of who approved an entry. Google sign-in is for backup authorization, not a prerequisite for local financial approval.
+Local sign-in and approval use the selected owner's passphrase, with salted password hashes, failed-attempt lockout, and expiring sessions. A selected display name alone is not proof of who approved an entry. Google sign-in is for backup authorization, not a prerequisite for local financial approval. Owner-access hardening and release checks remain tracked in the build progress.
 
 ## Customer records
 

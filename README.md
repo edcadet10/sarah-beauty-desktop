@@ -6,7 +6,7 @@ This is an app for my wife and me to help us manage her beauty services business
 
 Google Sheets and Google Drive backups will require an internet connection.
 
-## Planned features
+## Feature scope
 
 - Customer records and appointment history
 - Wedding bookings, unnamed party members, trials, and payment schedules
@@ -24,9 +24,13 @@ Google Sheets and Google Drive backups will require an internet connection.
 
 ## Project status
 
-The full build is in progress. See [Build progress](docs/build-progress.md) for the current feature and verification status. The application now has offline two-owner setup/sign-in and schema-2 storage in a shared business project. The milestone notes below describe the earlier storage preview.
+The full build is in progress in small GitHub pull requests. The app remains in TEST mode. See [Build progress](docs/build-progress.md) for current coverage and dated verification evidence.
 
-The Windows application has a welcome screen and local TEST SQLite storage. It preserves the Store ID, records TEST mode, and upgrades the original version-0 database to version 1 only after creating a verified local snapshot. Automated storage checks pass, and the Windows app builds. The interface previously ran on the development computer; the latest storage changes have not been checked through the interface or on the Surface Pro 7. Customer records, bookings, bookkeeping, owner login, and cloud backups remain planned. There is no published installer yet.
+The implemented local core includes two-owner sign-in and approvals, customers, service prices, bookings and recipient places, appointment planning and calendar review, versioned client documents and PDFs, bookkeeping, payment applications and funded credits, resource registers, supplier bills and refunds, statements, bank matching, reconciliation, and retained period close/reopen reports. Combined cancellation preview and approval are implemented in the business layer; their desktop controls are still being connected.
+
+The latest complete automated suite has 397 passing cases, and the Windows Debug build succeeds with no warnings or errors. Fictional desktop walkthroughs cover selected workflows and restart persistence. These checks do not establish full release acceptance or current Surface compatibility.
+
+Remaining work includes combined cancellation controls, trip reimbursement links, additional schedules and dashboard, managed attachments, portable encrypted backup/restore, the app's own Google authorization and exports, separate LIVE setup, owner-access and unsaved-work hardening, an installer, and full release/device checks. There is no published installer yet.
 
 The first target is a Surface Pro 7. Everyday work will happen locally on Windows. Google Sheets will hold a readable export, and private Google Drive storage will hold recovery backups. These are backups of the desktop records, not a second place to edit the books.
 
@@ -42,15 +46,21 @@ From the repository root, run:
 dotnet run --project .\src\SarahBeauty.Desktop\SarahBeauty.Desktop.csproj
 ```
 
-Development runs unpackaged by default, with the project directory as its working directory so the app can find its icon. On startup it creates or opens `%LOCALAPPDATA%\SarahBeautyDesktop\Test\sarahbeauty.db`, outside the repository. The preview shows the database path, its saved Store ID, and its application schema version. Storage initialization failures appear on the preview screen.
+Development runs unpackaged by default, with the project directory as its working directory so the app can find its icon. On startup it creates or opens `%LOCALAPPDATA%\SarahBeautyDesktop\Test\sarahbeauty.db`, outside the repository. An empty store offers two-owner TEST setup; existing stores require local sign-in. Use fictional records during development.
 
-The database contains only `AppMetadata`, with a generated UUID under `StoreId` and `TEST` under `StoreMode`. SQLite's `user_version` is `1`. The app rejects negative or newer versions, unexpected table layouts, invalid store IDs, and incompatible store modes before changing metadata.
+The shared business project manages the SQLite schema, currently version 27. Metadata retains the permanent Store ID and TEST mode. The app validates store identity, mode, supported versions, integrity, and foreign keys during initialization.
 
-For an existing version-0 store from this preview, initialization creates a verified snapshot in the data folder's `Backups` directory before adding TEST mode and advancing the version in one transaction. If the snapshot or migration fails, the upgrade stops. New empty stores start at version 1 without a snapshot. Reopening a version-1 TEST store preserves its identity and does not create another upgrade snapshot.
+Before upgrading an older store, initialization creates a verified database snapshot in the data folder's `Backups` directory, then applies migrations atomically. A failed snapshot or migration stops the upgrade. Reopening a current store preserves its identity without creating another upgrade snapshot.
 
-The storage checks cover fresh initialization, restart, migration, rollback, incompatible stores, concurrent initialization, and committed WAL data in snapshots. They use temporary fictional databases. Local snapshots contain the database only; a restore interface, attachments, owner authentication, LIVE setup, and Google backups are not implemented. Do not enter live business records into this preview.
+Run the automated checks with:
 
-The earlier published preview launched on a Surface Pro 7 running Windows 11 Pro 25H2, OS build 26200.9457. The current storage additions, touch interaction, and offline behavior still need explicit Surface checks.
+```powershell
+dotnet test .\tests\SarahBeauty.Storage.Tests\SarahBeauty.Storage.Tests.csproj -c Release
+```
+
+The tests use temporary fictional SQLite stores and the same business assembly as the desktop app. They include historical balance limits, concurrent/stale decisions, interrupted transactions, migrations, document integrity, and scheduling boundaries. Local upgrade snapshots contain only the database. Complete encrypted archives, managed attachments, restore, LIVE setup, and Google backups remain pending.
+
+An earlier welcome-screen preview launched on the Surface Pro 7. The current business workflows, touch interaction, offline behavior, and restore on a second Windows device still need explicit device checks.
 
 ## Publish a Surface test copy
 
