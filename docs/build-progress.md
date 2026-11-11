@@ -168,3 +168,9 @@ Schema 16 protects approved supplier bills and credits from database updates/del
 Eight new cases cover unpaid/paid reductions, refund completion, partial cost/tax shares, stale review, rollback/retry, exact reversal, historical bounds, invalid tax/foreign lines, and database source immutability. All 181 cases and the Windows Debug build pass. Supplier report aging keeps payable amounts and supplier credit separate. Using supplier credit against another bill and handling refunds after depreciation remain follow-up workflows.
 
 A subsequent odd-cent falsification check found that a one-cent unpaid reduction could also consume a business cent already assigned to a retained payment. That check failed with an expected credit business share of zero and an actual share of one. Credit allocation now preserves the paid share and its remaining business/personal bounds; a shared historical check rejects incompatible credit/payment/refund classifications. The corrected case passes. This correction is included in the same supplier-credit PR before merging.
+
+## Supplier funding components
+
+Schema 17 preserves business cost, business-funded personal draws, and outside personal funding within each supplier settlement share. Existing cash-funded personal shares are backfilled. Refunds retain these components and clear a personal draw separately from amounts owed or contributed by an owner. The reusable cent allocator keeps every component bounded and preserves the final residual. The source-consumption link prepares for credit use without also refunding the same payment value.
+
+Three new checks exercise all small component splits, the supported maximum gross, and an actual payment/refund/reversal history through the funding migration. All 185 automated cases and the Windows Debug build pass. This is the funding foundation; the supplier-credit-use command and screen are still pending.

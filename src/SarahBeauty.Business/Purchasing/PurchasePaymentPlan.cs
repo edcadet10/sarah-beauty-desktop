@@ -19,8 +19,12 @@ internal static class PurchasePaymentPlan
         if(draft.AmountCents>available.Sum(a=>a.Gross) || available.Any(a=>a.Gross<0 || a.Business<0 || a.Business>a.Gross))
             throw new ArgumentException("The payment exceeds the supplier bill's unpaid value.");
         long[] shares=PaymentPlan.Allocate(draft.AmountCents,available.Select(a=>a.Gross).ToArray());
-        return available.Select((a,i)=>new PurchaseSettlement(Guid.NewGuid().ToString(),"",purchase.Id,a.Line.Id,draft.Date!.Value,shares[i],
-            shares[i]==0?0:shares[i]==a.Gross?a.Business:Money.Proportion(a.Business,shares[i],a.Gross),null)).Where(r=>r.Cents>0).ToList();
+        return available.Select((a,i)=>
+        {
+            long business=shares[i]==0?0:shares[i]==a.Gross?a.Business:Money.Proportion(a.Business,shares[i],a.Gross);
+            return new PurchaseSettlement(Guid.NewGuid().ToString(),"",purchase.Id,a.Line.Id,draft.Date!.Value,shares[i],business,null,
+                DrawCents:draft.PurchaseFunding=="Business cash"?shares[i]-business:0);
+        }).Where(r=>r.Cents>0).ToList();
     }
 
     internal static List<JournalLine> Lines(DbWork db,BusinessStore store,OwnerSession owner,Purchase purchase,FinancialDraft draft,List<Account> accounts)
