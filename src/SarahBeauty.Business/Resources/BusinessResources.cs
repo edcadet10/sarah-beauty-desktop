@@ -31,7 +31,7 @@ public sealed class BusinessResources(BusinessStore store)
             throw new ArgumentException("Choose the asset funding and an in-service date on or after acquisition.");
         if(previous is not null && (value.CostCents!=previous.CostCents || value.TaxBasisCents!=previous.TaxBasisCents
             || value.BusinessUseFraction!=previous.BusinessUseFraction || value.AcquisitionDate!=previous.AcquisitionDate || value.InServiceDate!=previous.InServiceDate)
-            && db.Scalar("SELECT Id FROM Movements WHERE AssetId=$id LIMIT 1;",("$id",value.Id)) is not null)
+            && db.Scalar("SELECT Id FROM JournalLines WHERE AssetId=$id LIMIT 1;",("$id",value.Id)) is not null)
             throw new ArgumentException("An asset with posted movements needs a reviewed value or business-use correction. Its original basis cannot be overwritten.");
     });
 

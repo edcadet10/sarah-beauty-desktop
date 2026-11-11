@@ -142,3 +142,9 @@ Eight integration cases cover gains, losses, write-offs, removal/restoration of 
 The Supplier bills screen now prepares line-based purchase drafts, reviews actual tax paid and business/personal shares, and requires owner confirmation before approving the bill record. Supplier/date/reference, expense versus asset classification, individual asset use, booking links, and permanent line IDs are validated. An approved unpaid bill retains its original lines and creates no cash or expense journal entry. Actual payment and supplier-adjustment integration are the next separate feature.
 
 Five new integration cases cover exact mixed expense/asset shares, absence of unpaid cash-method posting, retained approval/retry identity, unresolved tax/use, invalid asset classification, duplicate reliable supplier references, stale review, and rollback/retry. All 154 cases and the Windows Debug build pass.
+
+## Journal asset links
+
+Schema 13 gives individual noncash asset journal lines their own asset identity. Existing movement-level asset history is backfilled after the verified upgrade snapshot. Cash lines stay unassigned. Asset carrying-value limits, disposal calculations, metadata protection, and reversal/generation checks now follow these line identities, preparing for a supplier payment that contains several assets.
+
+Two additional SQLite cases verify a version-12 upgrade with retained balances/links and a real writer batch containing two assets followed by its exact reversal. Both assets restore independently, and an excessive subsequent depreciation fails. This is the posting foundation; mixed supplier payment approval remains the next feature. All 156 cases and the Windows Debug build pass.

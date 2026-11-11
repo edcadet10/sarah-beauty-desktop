@@ -22,8 +22,9 @@ internal static class PostingWriter
         failure?.Invoke("movement");
         foreach (var line in lines)
         {
-            db.Execute("INSERT INTO JournalLines (Id,MovementId,AccountId,DebitCents,CreditCents) VALUES ($id,$movement,$account,$debit,$credit);",
-                ("$id", Guid.NewGuid().ToString()), ("$movement", id), ("$account", line.AccountId), ("$debit", line.DebitCents), ("$credit", line.CreditCents));
+            db.Execute("INSERT INTO JournalLines (Id,MovementId,AccountId,DebitCents,CreditCents,AssetId) VALUES ($id,$movement,$account,$debit,$credit,$asset);",
+                ("$id", Guid.NewGuid().ToString()), ("$movement", id), ("$account", line.AccountId), ("$debit", line.DebitCents), ("$credit", line.CreditCents),
+                ("$asset",line.AssetId.Length==0?null:line.AssetId));
             failure?.Invoke("line");
         }
         return new(id, draft, owner.OwnerId, at);
