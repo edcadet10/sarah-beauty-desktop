@@ -28,7 +28,7 @@ The full build is in progress in small GitHub pull requests. The app remains in 
 
 The implemented local core includes two-owner sign-in and approvals, customers, service prices, bookings and recipient places, appointment planning and calendar review, combined cancellation decisions and history, versioned client documents and PDFs, bookkeeping, payment applications and funded credits, resource registers, supplier bills and refunds, statements, bank matching, reconciliation, and retained period close/reopen reports.
 
-The latest complete .NET suite has 576 passing cases, with four separate recovery-crypto test groups. The Windows Debug build succeeds with no warnings or errors. Fictional desktop walkthroughs cover selected workflows and restart persistence. These checks do not establish full release acceptance or current Surface compatibility.
+The latest complete .NET suite has 583 passing cases, with four separate recovery-crypto test groups. The Windows Debug build succeeds with no warnings or errors. Fictional desktop walkthroughs cover selected workflows and restart persistence. These checks do not establish full release acceptance or current Surface compatibility.
 
 Remaining work includes managed-evidence selection within entry forms, portable encrypted backup/restore, the app's own Google authorization and exports, separate LIVE setup, owner-access and unsaved-work hardening, an installer, and full release/device checks. There is no published installer yet.
 
