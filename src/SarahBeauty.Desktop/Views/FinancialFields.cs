@@ -15,6 +15,7 @@ internal sealed class FinancialFields
     private readonly TextBox _memo,_date,_amount,_tax,_fee,_principal,_interest,_reference,_provider,_evidence,_method;
     private readonly ComboBox _cash,_counter,_to,_customer,_economicOwner,_booking,_loan,_asset,_supplier,_original,_credit;
     private readonly SupplierPaymentFields _supplierPayment;
+    private readonly AssetRefundFields _assetRefund;
     private readonly CheckBox _taxResolved,_reliable,_openingCredit;
     private readonly FinancialKind _kind;
 
@@ -41,6 +42,7 @@ internal sealed class FinancialFields
             movements.Select(p=>(p.Id,$"{p.Source} • {p.Id[..8]}")),d.OriginalId);
         _credit=Form.Records("Linked funded credit (for a refund from reserved value)",new CreditBook(store).Credits(owner).Select(c=>(c.Id,$"{c.CustomerName} • {c.Id[..8]}")),d.CreditId);
         _supplierPayment=new SupplierPaymentFields(store,owner,d,_cash,_economicOwner);
+        _assetRefund=new AssetRefundFields(store,owner,d,_original);
         _tax=Form.Input("Included sales tax in USD",Money.Input(d.TaxCents));
         _taxResolved=new CheckBox{Content="I have explicitly resolved the tax treatment",IsChecked=d.TaxResolved};
         _fee=Form.Input("Processor / loan fee in USD",Money.Input(d.FeeCents));
@@ -70,6 +72,7 @@ internal sealed class FinancialFields
         if(_kind is FinancialKind.AssetPurchase or FinancialKind.AssetContribution or FinancialKind.Depreciation or FinancialKind.AssetDisposal or FinancialKind.Opening)panel.Add(_asset);
         if(_kind is FinancialKind.Expense or FinancialKind.SupplierRefund)panel.Add(_supplier);
         if(_kind is FinancialKind.Refund or FinancialKind.SupplierRefund or FinancialKind.PurchaseRefund or FinancialKind.SupplierCreditUse or FinancialKind.Reversal)panel.Add(_original);
+        if(_kind==FinancialKind.SupplierRefund)panel.Add(_assetRefund.Build());
         if(_kind==FinancialKind.Refund)panel.Add(_credit);
         if(_kind is FinancialKind.Receipt or FinancialKind.UnclassifiedReceipt or FinancialKind.Refund or FinancialKind.AssetDisposal or FinancialKind.PurchasePayment or FinancialKind.PurchaseRefund)panel.Add(_method);
         if(_kind==FinancialKind.Opening)panel.Add(_openingCredit,Form.Text("Approve a documented starting book value. Link an individual loan, asset, or owner when its account requires one. This does not import earlier business activity. Confirm zero cash balances in Opening balances."));
@@ -77,7 +80,7 @@ internal sealed class FinancialFields
         return panel;
     }
 
-    internal FinancialDraft Read(FinancialDraft d)=>_supplierPayment.Read(d with
+    internal FinancialDraft Read(FinancialDraft d)=>_assetRefund.Read(_supplierPayment.Read(d with
     {
         Name=_memo.Text,Date=Input.Date(_date.Text),AmountCents=Money.Parse(_amount.Text),TaxCents=Money.Parse(_tax.Text),
         TaxResolved=_taxResolved.IsChecked==true,FeeCents=Money.Parse(_fee.Text),PrincipalCents=Money.Parse(_principal.Text),InterestCents=Money.Parse(_interest.Text),
@@ -88,5 +91,5 @@ internal sealed class FinancialFields
         PaymentMethod=_method.Text.Trim(),
         ExternalReference=_reference.Text,Provider=_provider.Text,ReliableReference=_reliable.IsChecked==true,
         OpeningCredit=_openingCredit.IsChecked==true,EvidenceId=_evidence.Text.Trim()
-    });
+    }));
 }

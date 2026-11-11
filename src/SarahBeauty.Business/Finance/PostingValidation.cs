@@ -69,6 +69,8 @@ internal static class PostingValidation
         };
         if (type is not null && (Required(draft.CounterAccountId).Type != type || Required(draft.CounterAccountId).CashKind != "None"))
             throw new ArgumentException($"Choose a noncash {type.ToLowerInvariant()} classification.");
+        if(draft.Kind is FinancialKind.AssetPurchase or FinancialKind.AssetContribution && Required(draft.CounterAccountId).Code=="1590")
+            throw new ArgumentException("Use an asset cost account, rather than accumulated depreciation, for this acquisition.");
         if (draft.Kind == FinancialKind.Receipt && Required(draft.CounterAccountId).Type != "Income"
             && Required(draft.CounterAccountId).Code != "2200")
             throw new ArgumentException("Classify this receipt as income or a refundable customer deposit.");
