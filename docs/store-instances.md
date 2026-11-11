@@ -1,6 +1,6 @@
 # Keep writable store instances separate
 
-Status: Persisted instance identity, session binding, stale-handle checks, and retired-instance rejection are implemented. Owner-confirmed retirement and restore activation follow separately.
+Status: Persisted instance identity, session binding, stale-handle checks, retired-instance rejection, and [prepared recovered copies](prepare-recovered-store.md) are implemented. Owner-confirmed retirement and active-store switching follow separately.
 
 Schema 32 adds a generated `WritableInstanceId` and Active/Retired state to database metadata. The logical Store ID stays unchanged. Older app versions reject schema 32 when opening the store. The current app checks instance state again during business operations.
 
