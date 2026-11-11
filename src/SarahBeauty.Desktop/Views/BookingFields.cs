@@ -12,13 +12,16 @@ internal sealed class BookingFields
     private readonly ComboBox _customer, _payers, _singlePayer;
     private readonly CheckBox _hasTrial;
     private readonly TextBox _trialDuration;
+    private readonly TextBox _zone,_readyOffset;
 
     internal BookingFields(Booking booking, List<Customer> customers)
     {
         _name = Form.Input("Booking name", booking.Name);
         _date = Form.Input("Event date (YYYY-MM-DD; optional in an inquiry)", booking.EventDate?.ToString("yyyy-MM-dd") ?? "");
         _venue = Form.Input("Venue and address", booking.Venue);
-        _ready = Form.Input("Ready-by time (America/New_York)", booking.ReadyBy);
+        _ready = Form.Input("Ready-by local time (HH:mm)", booking.ReadyBy);
+        _zone=Form.Input("Event time zone",booking.EventTimeZoneId);
+        _readyOffset=Form.Input("Ready-by UTC offset (optional; e.g. -04:00)",booking.ReadyByUtcOffset);
         _customer = Form.Records("Primary contact", customers.Select(c => (c.Id, $"{c.FullName} • {c.Id[..8]}")), booking.PrimaryCustomerId);
         _payers = Form.Select("Payer arrangement", ["Undecided", "Single", "Split"], booking.PayerMode);
         _singlePayer = Form.Records("Single payer (covers all charges, including travel)",customers.Select(c=>(c.Id,$"{c.FullName} • {c.Id[..8]}")),booking.SinglePayerCustomerId);
@@ -36,7 +39,7 @@ internal sealed class BookingFields
     internal UIElement Build()
     {
         var panel = Form.Panel();
-        panel.Add(_name, _date, _venue, _ready, _customer, _payers, _singlePayer, _responsibility, _hasTrial,
+        panel.Add(_name, _date, _venue,_zone, _ready,_readyOffset, _customer, _payers, _singlePayer, _responsibility, _hasTrial,
             _trial,_trialDuration, _deposit, _trialDue, _depositDue, _finalDue, _notes);
         return panel;
     }
@@ -44,6 +47,7 @@ internal sealed class BookingFields
     internal Booking Read(Booking previous) => previous with
     {
         Name = _name.Text, EventDate = Input.Date(_date.Text), Venue = _venue.Text.Trim(), ReadyBy = _ready.Text.Trim(),
+        EventTimeZoneId=_zone.Text.Trim(),ReadyByUtcOffset=_readyOffset.Text.Trim(),
         PrimaryCustomerId = _customer.SelectedId(), PayerMode = (string)_payers.SelectedItem,
         SinglePayerCustomerId = _singlePayer.SelectedId(),
         UnpaidResponsibility = _responsibility.Text.Trim(), HasTrial = _hasTrial.IsChecked == true,
