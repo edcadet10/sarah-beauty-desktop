@@ -23,8 +23,8 @@ public sealed partial class MainPage : Page
         }
         catch (Exception error)
         {
-            var panel=Form.Panel();
-            panel.Add(Form.Title("Storage could not open"),Form.Text(error.Message));
+            var panel=Form.Panel();var status=Form.Text();
+            panel.Add(Form.Title("Storage could not open"),Form.Text(error.Message),Form.Action("Review an encrypted recovery archive",status,()=>{ShowArchiveReview();return Task.CompletedTask;}),status);
             Host.Content=panel;
         }
     }
@@ -34,16 +34,22 @@ public sealed partial class MainPage : Page
         _session?.Lock();
         _session = null;
         var panel=Form.Panel();
-        panel.Add(Form.Text("TEST • Local business records"), OwnerView.Build(_access!, session =>
+        var recoveryStatus=Form.Text();panel.Add(Form.Text("TEST • Local business records"), OwnerView.Build(_access!, session =>
         {
             _session = session;
             ShowWorkspace();
-        }));
+        }),Form.Action("Review an encrypted recovery archive",recoveryStatus,()=>{ShowArchiveReview();return Task.CompletedTask;}),recoveryStatus);
         Host.Content=new ScrollViewer{Padding=new Microsoft.UI.Xaml.Thickness(24),Content=panel};
     }
 
     private void ShowWorkspace()
     {
         Host.Content=new WorkspaceView(_store!,_session!,ShowSignIn).Build();
+    }
+    private void ShowArchiveReview()
+    {
+        _session?.Lock();_session=null;var panel=Form.Panel();var status=Form.Text();
+        if(_access is not null)panel.Add(Form.Action("Back to owner sign-in",status,()=>{ShowSignIn();return Task.CompletedTask;}),status);
+        panel.Add(new RestoreReviewView().Build());Host.Content=new ScrollViewer{Padding=new Microsoft.UI.Xaml.Thickness(24),Content=panel};
     }
 }

@@ -1,6 +1,6 @@
 # Review a staged archive restore
 
-Status: Isolated decryption, file extraction, and database validation are implemented in the business service. Desktop review, activation, restored-instance protection, and second-device acceptance follow separately.
+Status: Isolated decryption, file extraction, database validation, and desktop review are implemented. Activation, restored-instance protection, and second-device acceptance follow separately.
 
 `ArchiveRestores.StageAsync` takes an encrypted archive, an existing private review folder, the separately held protected recovery file, and its passphrase. If a completed backup record is available, pass its `CreatedArchive` facts too. Recovery review does not require the original computer's owner session or credential store.
 
@@ -24,6 +24,16 @@ The implementation treats ZIP names as untrusted because [.NET allows invalid an
 Review neither opens an editable business session nor switches the active store. It does not reset owner credentials, reconnect Google, retire another computer, or mark a second-device restore test complete. Activation must revalidate the staged files and apply the separate instance/owner-confirmation rules before allowing writes.
 
 Ordinary cancellation and failures remove only generated known files. An abrupt shutdown or unexpected extra file can leave workspace contents; those contents are not an activated or completed restore.
+
+## Review in the desktop app
+
+1. On the sign-in or storage-error screen, select **Review an encrypted recovery archive**. An active owner session is not required. Alternatively, show a completed attempt in **Backups and recovery** and expand **Decrypt and review this recorded archive**.
+2. Choose the encrypted archive if one is not already selected. Choose its separately saved protected recovery file and enter its recovery passphrase.
+3. Select **Decrypt and validate archive for review**. Cancel to stop incomplete work.
+4. Review the business, mode/schema, captured time/watermark, archive/manifest hashes, journal facts, and paged file/table counts. A review from recorded history must match that exact completed archive. Standalone review explicitly labels the absent local record.
+5. Select **Close staged archive review**, leave the view, or return to owner sign-in to dispose its known temporary plaintext. Review clears the passphrase after its attempt and on leaving. It rechecks cancellation after an asynchronous result so a detached view does not retain a late staged workspace.
+
+Fictional native checks validated the same archive from history and before owner sign-in, including two movements/five journal lines, issued PDFs, and all three managed file versions. Wrong recovery proof and cancellation were rejected/cleaned. Closing and returning to sign-in removed the generated plaintext workspace. These checks ran on the development computer and did not activate a restored store.
 
 ## Verification
 
