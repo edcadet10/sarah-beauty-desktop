@@ -54,7 +54,7 @@ internal static class ValueAvailability
         {
             var applied=ApplicationSum(db,"MilestoneId",m.Id,date);
             var reduced=CreditNoteReductions.Milestone(db,m.Id,date);
-            return new InvoiceDue(invoice.Id,invoice.Snapshot.Number,payer,invoice.Snapshot.Client.Name,m.Id,m.Kind,m.Due,
+            return new InvoiceDue(invoice.Id,invoice.Snapshot.Number,payer,invoice.Snapshot.Client.Name,m.Id,m.Kind,m.Due??invoice.Snapshot.DueDate,
                 checked(m.Cents-applied.Cents-reduced.Cents),checked(taxes[i]-applied.TaxCents-reduced.TaxCents));
         }).ToList();
     }

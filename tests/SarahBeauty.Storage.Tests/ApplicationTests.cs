@@ -6,7 +6,7 @@ namespace SarahBeauty.Storage.Tests;
 
 public sealed class ApplicationTests
 {
-    internal static DocumentVersion Invoice(LedgerFixture f,long net=12000,decimal taxRate=0m,string? payer=null)
+    internal static DocumentVersion Invoice(LedgerFixture f,long net=12000,decimal taxRate=0m,string? payer=null,DateOnly? dueDate=null)
     {
         payer??=f.CustomerId;
         var booking=BookingRules.AddCharge(new Booking{Name="Fictional invoice booking",HasTrial=false,TrialCents=0,
@@ -19,7 +19,7 @@ public sealed class ApplicationTests
         quotes.Accept(f.Business.Owner,quote.Id,f.Date,"Fictional acceptance for an allocation fixture");
         var invoices=new InvoiceBook(f.Business.Store);
         var invoice=invoices.SaveDraft(f.Business.Owner,new InvoiceDraft{Name="Fictional invoice",QuoteVersionId=quote.Id,
-            PayerCustomerId=payer,IssueDate=f.Date,Portions=quote.Snapshot.Lines.Select(l=>new InvoicePortion(l.ChargeId,l.Quantity)).ToArray()});
+            PayerCustomerId=payer,IssueDate=f.Date,DueDate=dueDate,Portions=quote.Snapshot.Lines.Select(l=>new InvoicePortion(l.ChargeId,l.Quantity)).ToArray()});
         return invoices.Issue(f.Business.Owner,invoice.Id,invoice.Revision,BusinessFixture.Phrase);
     }
 
