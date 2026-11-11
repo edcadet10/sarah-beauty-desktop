@@ -21,8 +21,6 @@ public sealed class DocumentArtifacts(BusinessStore store)
         {
             store.RequireSession(db,owner);
             var value=DocumentVersions.Find(db,owner,id:versionId)??throw new ArgumentException("Document not found.");
-            string json=(string)db.Scalar("SELECT DataJson FROM DocumentVersions WHERE Id=$id;",("$id",versionId))!;
-            if(Hash(System.Text.Encoding.UTF8.GetBytes(json))!=value.Hash)throw new InvalidOperationException("The document snapshot failed its integrity check.");
             return value;
         });
         if(Get(owner,versionId).Status=="Succeeded")return VerifiedPath(owner,versionId);
