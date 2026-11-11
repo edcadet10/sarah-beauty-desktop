@@ -52,9 +52,16 @@ internal sealed class ReportsView(BusinessStore store,OwnerSession owner)
         "Cash movements"=>ActivityTable(r.Cash),
         "Customer aging"=>ReportTable.Build(["Payer","Open","Overdue","Due today","Future","Date unknown","Unallocated receipts","Unused credits"],r.Customers.Select(c=>new[]{c.Name,Money.Display(c.OpenCents),Money.Display(c.OverdueCents),Money.Display(c.DueTodayCents),Money.Display(c.FutureCents),Money.Display(c.UnknownDueCents),Money.Display(c.UnallocatedReceiptsCents),Money.Display(c.UnusedCreditCents)})),
         "Supplier balances"=>ReportTable.Build(["Supplier","Unpaid","Overdue","Due today","Future","Date unknown","Supplier credit"],r.Suppliers.Select(s=>new[]{s.Name,Money.Display(s.OpenCents),Money.Display(s.OverdueCents),Money.Display(s.DueTodayCents),Money.Display(s.FutureCents),Money.Display(s.UnknownDueCents),Money.Display(s.CreditCents)})),
-        "Tax activity"=>ReportTable.Build(["Tax measure","USD"],[["Charged on issued invoices",Money.Display(r.Tax.ChargedCents)],["Charge reductions",Money.Display(r.Tax.ChargeReductionCents)],["Collected, net of reversals",Money.Display(r.Tax.CollectedCents)],["Refunded, net of reversals",Money.Display(r.Tax.RefundedCents)],["Remitted, net of reversals",Money.Display(r.Tax.RemittedCents)],["Liability as of end",Money.Display(r.Tax.LiabilityCents)]]),
+        "Tax activity"=>TaxTable(r.Tax),
         _=>ReportTable.Build(["Period result","USD"],[["Income",Money.Display(r.ProfitLoss.IncomeCents)],["Expenses",Money.Display(r.ProfitLoss.ExpenseCents)],["Result",Money.Display(r.ProfitLoss.ResultCents)]])
     };
+
+    private static UIElement TaxTable(TaxPosition tax)=>ReportTable.Build(["Tax measure","USD"],
+        [["Charged on issued invoices",Money.Display(tax.ChargedCents)],["Charge reductions",Money.Display(tax.ChargeReductionCents)],
+        ["Collected, net of reversals",Money.Display(tax.CollectedCents)],["Refunded to customers, net of reversals",Money.Display(tax.RefundedCents)],
+        ["Remitted, net of reversals",Money.Display(tax.RemittedCents)],["Liability as of end",Money.Display(tax.LiabilityCents)],
+        ["Recoverable tax as of end",Money.Display(tax.RecoverableCents)],["Actual cash recovered in period",Money.Display(tax.RecoveredCashCents)],
+        ["Actual liability offsets in period",Money.Display(tax.OffsetCents)],["Nonrecoverable tax expense in period",Money.Display(tax.NonrecoverableCents)]]);
 
     private void SupportingEntries(ReportSnapshot report)
     {

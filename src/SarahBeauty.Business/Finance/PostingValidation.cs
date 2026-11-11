@@ -27,6 +27,7 @@ internal static class PostingValidation
         ValidateAccounts(draft, accounts);
         ValidateReferences(db, owner, store, draft);
         ValidateAmounts(draft);
+        TaxRefunds.Validate(draft);
     }
 
     internal static void CheckClosedPeriod(DbWork db, OwnerSession owner, DateOnly date)
@@ -54,7 +55,8 @@ internal static class PostingValidation
         if (draft.Kind is not (FinancialKind.OwnerPaidExpense or FinancialKind.Depreciation or FinancialKind.AssetContribution or FinancialKind.Opening or FinancialKind.Reversal or FinancialKind.SupplierCreditUse)
             && !(draft.Kind==FinancialKind.AssetDisposal && draft.AmountCents==0)
             && !(draft.Kind==FinancialKind.PurchasePayment && draft.PurchaseFunding!="Business cash")
-            && !(draft.Kind==FinancialKind.PurchaseRefund && draft.SupplierRefundDestination!="Business cash"))
+            && !(draft.Kind==FinancialKind.PurchaseRefund && draft.SupplierRefundDestination!="Business cash")
+            && !(draft.Kind==FinancialKind.TaxRecovery && draft.TaxRecoveryDestination!=TaxRecoveryDestination.Cash))
         {
             var cash = Required(draft.CashAccountId);
             if (cash.Type != "Asset" || cash.CashKind == "None") throw new ArgumentException("Choose the actual cash, bank, or processor account.");

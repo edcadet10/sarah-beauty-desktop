@@ -62,7 +62,7 @@ public sealed class ChartOfAccounts(BusinessStore store)
     private static readonly (string Code, string Name, string Type, string CashKind)[] Defaults =
     [
         ("1000","Cash","Asset","Cash"), ("1010","Bank","Asset","Bank"), ("1020","Processor clearing","Asset","Processor"),
-        ("1200","Prepayments","Asset","None"), ("1500","Equipment","Asset","None"), ("1590","Accumulated depreciation","Asset","None"),
+        ("1200","Prepayments","Asset","None"), ("1250","Sales tax recoverable","Asset","None"), ("1500","Equipment","Asset","None"), ("1590","Accumulated depreciation","Asset","None"),
         ("2000","Sales tax payable","Liability","None"), ("2100","Owner reimbursements payable","Liability","None"),
         ("2200","Refundable customer deposits","Liability","None"), ("2300","Loan principal","Liability","None"),
         ("2400","Unclassified receipts","Liability","None"), ("3000","Owner contributions","Equity","None"),
@@ -70,6 +70,6 @@ public sealed class ChartOfAccounts(BusinessStore store)
         ("4000","Service income","Income","None"), ("4010","Asset disposal gain","Income","None"),
         ("5000","Supplies expense","Expense","None"), ("5010","General expense","Expense","None"),
         ("5020","Processor fees","Expense","None"), ("5030","Interest expense","Expense","None"), ("5035","Loan fees","Expense","None"),
-        ("5040","Depreciation expense","Expense","None"), ("5060","Asset disposal loss","Expense","None")
+        ("5040","Depreciation expense","Expense","None"), ("5050","Nonrecoverable refunded tax","Expense","None"), ("5060","Asset disposal loss","Expense","None")
     ];
 }
