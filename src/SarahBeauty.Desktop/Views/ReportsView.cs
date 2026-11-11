@@ -37,14 +37,14 @@ internal sealed class ReportsView(BusinessStore store,OwnerSession owner)
         _result.Add(Form.Title((string)_kind.SelectedItem),Form.Text($"{report.BusinessName} • {report.Mode} • Management cash-method policy\n"
             +$"Period {report.From:yyyy-MM-dd} through {report.Through:yyyy-MM-dd} • Watermark {report.Watermark}\nGenerated {report.GeneratedAtUtc}"));
         if(report.OpeningWarnings.Length>0)_result.Add(Form.Text("Unconfirmed inputs: "+string.Join("; ",report.OpeningWarnings)));
-        _result.Add(Table(report));
+        _result.Add(Table(report,_kind.SelectedItem as string));
         if(_kind.SelectedItem as string=="Supplier balances")_result.Add(Form.Text("Supporting supplier bills"),
             ReportTable.Build(["Bill","Purchase date","Due date","Unpaid","Supplier credit"],report.SupplierBills.Select(b=>new[]{b.Name,b.PurchaseDate.ToString("yyyy-MM-dd"),b.DueDate?.ToString("yyyy-MM-dd")??"Unknown",Money.Display(b.PayableCents),Money.Display(b.CreditCents)})));
         if(_kind.SelectedItem as string=="Balance sheet")_result.Add(Form.Text(report.BalanceSheet.Balances?"Assets equal liabilities plus equity including result.":"Balance-sheet equality failed. Review the source ledger."));
         SupportingEntries(report);
     }
 
-    private UIElement Table(ReportSnapshot r)=>(_kind.SelectedItem as string) switch
+    internal static UIElement Table(ReportSnapshot r,string? kind)=>kind switch
     {
         "Balance sheet"=>ReportTable.Build(["Balance as of period end","USD"],
             [["Assets",Money.Display(r.BalanceSheet.AssetsCents)],["Liabilities",Money.Display(r.BalanceSheet.LiabilitiesCents)],["Equity including result",Money.Display(r.BalanceSheet.EquityCents)]]),
