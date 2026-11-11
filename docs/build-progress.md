@@ -136,3 +136,9 @@ Four new cases verify aging equality, independent tax periods, historical openin
 Money now prepares an owner-approved asset disposal using the recorded asset cost and accumulated depreciation. Proceeds, explicitly resolved included tax, carrying value, and gain/loss remain separate. Zero-proceeds write-offs need evidence. The asset's disposal state and balanced journal commit together; a linked reversal restores them together. A changed asset ledger requires fresh review, and historical disposed intervals block ordinary asset postings even when a later reversal already exists. A buyer can receive an immutable receipt for approved sale proceeds.
 
 Eight integration cases cover gains, losses, write-offs, removal/restoration of cost and depreciation, unknown value, stale review, injected failure/retry, tax/receipt output, remittance dependencies, later asset movements, and future-dated reversals. All 149 automated cases pass, and the Windows Debug build passes. Refund/tax-recovery workflows after remittance still require their own reviewed handling before live release.
+
+## Supplier bill register checks
+
+The Supplier bills screen now prepares line-based purchase drafts, reviews actual tax paid and business/personal shares, and requires owner confirmation before approving the bill record. Supplier/date/reference, expense versus asset classification, individual asset use, booking links, and permanent line IDs are validated. An approved unpaid bill retains its original lines and creates no cash or expense journal entry. Actual payment and supplier-adjustment integration are the next separate feature.
+
+Five new integration cases cover exact mixed expense/asset shares, absence of unpaid cash-method posting, retained approval/retry identity, unresolved tax/use, invalid asset classification, duplicate reliable supplier references, stale review, and rollback/retry. All 154 cases and the Windows Debug build pass.
