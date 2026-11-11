@@ -6,6 +6,18 @@ namespace SarahBeauty.Business.Purchasing;
 
 public sealed class PurchasePayments(BusinessStore store)
 {
+    public List<SupplierRefundItem> RefundableLines(OwnerSession owner,string movement,DateOnly date)=>store.ReadSnapshot(db=>
+    {
+        store.RequireSession(db,owner);
+        var draft=PurchaseRefundPlan.Prepare(db,owner,new FinancialDraft{OriginalId=movement,Date=date});
+        var purchase=new RecordStore<Purchase>(store,"Purchase").Get(db,owner,draft.PurchaseId);
+        return PurchaseRefundPlan.Available(db,draft).Select(a=>
+        {
+            var line=purchase.Lines.Single(l=>l.Id==a.Row.LineId);
+            return new SupplierRefundItem(line.Id,line.Description,a.Share.Gross,line.AssetId);
+        }).ToList();
+    });
+
     public List<PurchaseDue> Outstanding(OwnerSession owner,DateOnly date)=>store.ReadSnapshot(db=>
     {
         store.RequireSession(db,owner);

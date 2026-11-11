@@ -2,6 +2,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using SarahBeauty.Business.Finance;
 using SarahBeauty.Business.Purchasing;
+using SarahBeauty.Business.Resources;
 using SarahBeauty.Business.Rules;
 using SarahBeauty.Business.Security;
 using SarahBeauty.Business.Storage;
@@ -64,7 +65,16 @@ internal sealed class MoneyView
         if(draft.PurchaseId.Length>0)_detail.Add(Form.Text("Bill: "+new PurchaseBook(_store).List(_owner).Single(p=>p.Id==draft.PurchaseId).Name+" • Funding: "+draft.PurchaseFunding));
         if(draft.Kind==FinancialKind.PurchaseRefund)_detail.Add(Form.Text("Refund destination: "+draft.SupplierRefundDestination));
         if(draft.Kind==FinancialKind.SupplierCreditUse)_detail.Add(Form.Text("Credit treatment: "+draft.SupplierCreditTreatment+" • Transfers existing supplier credit."));
-        if(draft.AssetAdjustments.Length>0)_detail.Add(Form.Text("Asset decisions: "+string.Join("; ",draft.AssetAdjustments.Select(c=>c.Treatment))));
+        if(draft.AssetAdjustments.Length>0)
+        {
+            var assets=new BusinessResources(_store).Assets(_owner);
+            _detail.Add(Form.Text("Asset decisions: "+string.Join("; ",draft.AssetAdjustments.Select(c=>$"{assets.Single(a=>a.Id==c.AssetId).Name}: {c.Treatment}"))));
+        }
+        if(draft.SupplierRefundPortions.Length>0)
+        {
+            var bill=new PurchaseBook(_store).List(_owner).Single(p=>p.Id==draft.PurchaseId);
+            _detail.Add(Form.Text("Selected refund lines: "+string.Join("; ",draft.SupplierRefundPortions.Select(p=>$"{bill.Lines.Single(l=>l.Id==p.LineId).Description}: {Money.Display(p.GrossCents)}"))));
+        }
         try
         {
             if(draft.EconomicOwnerId.Length>0)_detail.Add(Form.Text("Owner involved: "+(new OwnerAccess(_store).Owners().FirstOrDefault(o=>o.Id==draft.EconomicOwnerId).Name??"Owner unavailable")));

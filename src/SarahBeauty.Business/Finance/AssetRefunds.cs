@@ -7,8 +7,10 @@ internal static class AssetRefunds
 {
     internal static void ValidateContext(FinancialDraft draft)
     {
+        if(draft.SupplierRefundPortions.Length>0 && draft.Kind is not (FinancialKind.PurchaseRefund or FinancialKind.Reversal))
+            throw new ArgumentException("Selected supplier refund lines belong to a supplier payment refund.");
         if(draft.AssetAdjustments.Length==0)return;
-        if(draft.Kind is not (FinancialKind.SupplierRefund or FinancialKind.Reversal))throw new ArgumentException("Use a supported asset-refund adjustment workflow.");
+        if(draft.Kind is not (FinancialKind.SupplierRefund or FinancialKind.PurchaseRefund or FinancialKind.SupplierCreditUse or FinancialKind.Reversal))throw new ArgumentException("Use a supported asset-refund adjustment workflow.");
         if(draft.AssetAdjustments.Select(c=>c.AssetId).Distinct().Count()!=draft.AssetAdjustments.Length
             || draft.AssetAdjustments.Any(c=>c.Treatment is not (AssetValueChoice.Reduce or AssetValueChoice.Recover or AssetValueChoice.Retire)))
             throw new ArgumentException("Choose distinct assets and a supported refund treatment.");

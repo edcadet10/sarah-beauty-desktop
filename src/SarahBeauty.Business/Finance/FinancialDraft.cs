@@ -47,6 +47,7 @@ public sealed record FinancialDraft : BusinessRecord
     public long SourcePurchaseGeneration {get;init;}
     public string SupplierCreditTreatment {get;init;}="Original funding";
     public AssetValueChoice[] AssetAdjustments {get;init;}=[];
+    public SarahBeauty.Business.Purchasing.SupplierRefundPortion[] SupplierRefundPortions {get;init;}=[];
     public override string ToString() => $"{Date?.ToString("yyyy-MM-dd") ?? "Date missing"} • {Kind} • {Money.Display(AmountCents)} • {Name} • {Status}";
 }
 

@@ -41,7 +41,8 @@ internal static class CorrectionRules
             EconomicOwnerId = original.EconomicOwnerId, BookingId = original.BookingId, LoanId = original.LoanId,
             AssetId = original.AssetId, SupplierId = original.SupplierId, CreditId=original.CreditId,
             PurchaseId=original.PurchaseId,PurchaseFunding=original.PurchaseFunding,SupplierRefundDestination=original.SupplierRefundDestination,
-            SupplierCreditTreatment=original.SupplierCreditTreatment,AssetAdjustments=original.AssetAdjustments };
+            SupplierCreditTreatment=original.SupplierCreditTreatment,AssetAdjustments=original.AssetAdjustments,
+            SupplierRefundPortions=original.SupplierRefundPortions };
     }
 
     private static void CheckRefundLimit(DbWork db, OwnerSession owner, FinancialDraft draft, FinancialDraft original)
