@@ -30,7 +30,8 @@ public sealed class FinancialReports(BusinessStore store)
         string mode=(string)db.Scalar("SELECT Value FROM AppMetadata WHERE Key='StoreMode';")!;
         return new ReportSnapshot(business,mode,watermark,DateTimeOffset.UtcNow.ToString("O"),from,through,trial,pnl,balance,entries.Where(e=>cashAccounts.Contains(e.AccountId)).ToList(),
             CustomerPositions.Read(db,owner,through,versions),Tax(db,owner,from,through,trial,versions),OpeningWarnings(db,owner,trial))
-            {Entries=entries,SupplierBills=bills,Suppliers=SupplierPositions(db,owner,through,bills),Assets=AssetSchedule.Read(db,store,owner,from,through)};
+            {Entries=entries,SupplierBills=bills,Suppliers=SupplierPositions(db,owner,through,bills),Assets=AssetSchedule.Read(db,store,owner,from,through),
+                Debts=DebtSchedule.Read(db,store,owner,from,through)};
     }
 
     private static List<CashActivity> Activity(DbWork db,OwnerSession owner,DateOnly from,DateOnly through)=>db.Read("""

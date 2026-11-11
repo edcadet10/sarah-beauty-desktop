@@ -25,7 +25,7 @@ internal static class BookPeriodSnapshotView
     private static UIElement CapturedReports(ReportSnapshot report)
     {
         var panel=Form.Panel();var result=Form.Panel();
-        var kind=Form.Select("Captured financial report",["Profit and loss","Balance sheet","Trial balance","Cash movements","Customer aging","Supplier balances","Tax activity","Asset schedule"],"Profit and loss");
+        var kind=Form.Select("Captured financial report",["Profit and loss","Balance sheet","Trial balance","Cash movements","Customer aging","Supplier balances","Tax activity","Asset schedule","Debt schedule"],"Profit and loss");
         void Show(){result.Children.Clear();result.Add(ReportsView.Table(report,kind.SelectedItem as string));}
         kind.SelectionChanged+=(_,_)=>Show();
         panel.Add(Form.Text("These report tables use the captured records. Switching reports does not load newer business changes."),kind,result,
