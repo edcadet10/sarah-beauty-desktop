@@ -56,6 +56,7 @@ internal sealed class WorkspaceView(BusinessStore store,OwnerSession session,Act
         _routes["Opening balances"]=()=>new OpeningView(store,session).Build();
         _routes["Reports"]=()=>new ReportsView(store,session).Build();
         _routes["Supplier bills"]=()=>new PurchaseView(store,session).Build();
+        _routes["Supplier credits"]=()=>new PurchaseCreditView(store,session).Build();
     }
 
     private void Navigate(string key)
