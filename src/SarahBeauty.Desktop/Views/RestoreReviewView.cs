@@ -31,7 +31,11 @@ internal sealed class RestoreReviewView(string? archive=null,CreatedArchive? exp
         {
             string parent=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"SarahBeautyDesktop","RecoveryReview");Directory.CreateDirectory(parent);
             byte[] material=await RecoveryMaterialFiles.ReadAsync(key,_cancellation.Token);var staged=await new ArchiveRestores().StageAsync(source,parent,material,phrase,expected,_cancellation.Token);
-            try{_cancellation.Token.ThrowIfCancellationRequested();var view=RestoreReviewFactsView.Build(staged);Close();_review=staged;_details.Content=view;}
+            try
+            {
+                _cancellation.Token.ThrowIfCancellationRequested();var view=Form.Panel();view.Add(RestoreReviewFactsView.Build(staged));
+                if(staged.Manifest.Mode=="TEST")view.Add(new RecoveredCopyView(staged).Build());Close();_review=staged;_details.Content=view;
+            }
             catch{staged.Dispose();throw;}
             _status.Text="Archive validation completed. Review the captured facts; the working store is unchanged.";
         }
