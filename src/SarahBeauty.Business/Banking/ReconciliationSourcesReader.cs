@@ -16,18 +16,24 @@ internal static class ReconciliationSourcesReader
         var bankPositions=BankMatching.BankPositions(bank.Values.ToList(),history,statement.Through);
         var cashPositions=BankMatching.CashPositions(cash,history,statement.Through);
         var cashById=cash.ToDictionary(c=>c.Id);
+        var coverage=ReconciliationQueries.Coverage(db,owner,account.Id,statement.Through);
         return new(statement,(string)db.Scalar("SELECT DisplayName FROM Business WHERE Id=$id;",("$id",owner.BusinessId))!,
             (string)db.Scalar("SELECT Value FROM AppMetadata WHERE Key='StoreMode';")!,account.Name,
             Convert.ToInt64(db.Scalar("SELECT Watermark FROM Business WHERE Id=$id;",("$id",owner.BusinessId))),DateTimeOffset.UtcNow.ToString("O"),
-            ConfirmedOpening(db,owner,account.Id,statement.Through),Cents(cash.Select(c=>c.SignedCents)),
-            bankPositions.Select(p=>new ReconciliationLine(p.Id,bank[p.Id].Date,p.SignedCents,p.RemainingCents,bank[p.Id].Description,"Bank transaction")).ToArray(),
-            cashPositions.Select(p=>new ReconciliationLine(p.Id,cashById[p.Id].Date,cashById[p.Id].SignedCents,p.RemainingCents,cashById[p.Id].Description,cashById[p.Id].Kind)).ToArray(),Corrections(db,owner,account.Id,statement.Through));
+            OpeningDate(db,owner,account.Id,statement.Through).HasValue,Cents(cash.Select(c=>c.SignedCents)),
+            bankPositions.Where(p=>!coverage.BankIds.Contains(p.Id)).Select(p=>new ReconciliationLine(p.Id,bank[p.Id].Date,p.SignedCents,p.RemainingCents,bank[p.Id].Description,"Bank transaction")).ToArray(),
+            cashPositions.Select(p=>new ReconciliationLine(p.Id,cashById[p.Id].Date,cashById[p.Id].SignedCents,p.RemainingCents,cashById[p.Id].Description,cashById[p.Id].Kind)).ToArray(),Corrections(db,owner,account.Id,statement.Through))
+            {PriorReconciliationIds=coverage.PriorIds,ContinuityWarnings=ReconciliationContinuity.Check(db,owner,statement)};
     }
 
-    private static bool ConfirmedOpening(DbWork db,OwnerSession owner,string account,DateOnly through)=>db.Scalar("""
-        SELECT O.Id FROM OpeningBalances O WHERE O.BusinessId=$business AND O.AccountId=$account AND O.DimensionKind='Account' AND O.Date<=$date
-        AND (O.RevokedAt IS NULL OR (O.ReversalMovementId IS NOT NULL AND NOT EXISTS(SELECT 1 FROM Movements R WHERE R.Id=O.ReversalMovementId AND R.Date<=$date))) LIMIT 1;
-        """,("$business",owner.BusinessId),("$account",account),("$date",through.ToString("yyyy-MM-dd"))) is not null;
+    internal static DateOnly? OpeningDate(DbWork db,OwnerSession owner,string account,DateOnly through)
+    {
+        var rows=db.Read("""
+            SELECT O.Date FROM OpeningBalances O WHERE O.BusinessId=$business AND O.AccountId=$account AND O.DimensionKind='Account' AND O.Date<=$date
+            AND (O.RevokedAt IS NULL OR (O.ReversalMovementId IS NOT NULL AND NOT EXISTS(SELECT 1 FROM Movements R WHERE R.Id=O.ReversalMovementId AND R.Date<=$date))) ORDER BY O.Date LIMIT 1;
+            """,r=>DateOnly.Parse(r.GetString(0)),("$business",owner.BusinessId),("$account",account),("$date",through.ToString("yyyy-MM-dd")));
+        return rows.Count==0?null:rows[0];
+    }
 
     private static PostedBookCorrection[] Corrections(DbWork db,OwnerSession owner,string account,DateOnly through)=>db.Read("""
         SELECT M.Id,M.Date,SUM(J.DebitCents-J.CreditCents),M.Memo,json_extract(M.DataJson,'$.EvidenceId') FROM Movements M

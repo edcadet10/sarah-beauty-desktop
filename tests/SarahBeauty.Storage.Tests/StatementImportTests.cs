@@ -146,7 +146,7 @@ public sealed class StatementImportTests
     public void ImportedSourcesAreImmutableAndVersionNineteenUpgradeKeepsItsSnapshot()
     {
         using var f=new LedgerFixture();
-        f.Business.Files.Execute("DROP TABLE BankMatches; DROP TABLE BankMatchGroups; DROP TABLE StatementRows; DROP TABLE BankLines; DROP TABLE StatementImports; PRAGMA user_version=19;");
+        f.Business.Files.PrepareBankingVersion(19);
         Assert.Equal(BusinessSchema.Version,LocalDatabase.InitializeTestDatabaseAt(f.Business.Files.DatabasePath).SchemaVersion);
         Assert.Single(f.Business.Files.Snapshots());
         var book=new StatementBook(f.Business.Store);

@@ -39,6 +39,7 @@ public sealed class StatementBook(BusinessStore store)
             if(preview.ExistingImportId.Length>0)throw new ArgumentException("This CSV content was already imported. Open its existing statement and source rows.");
             if(preview.Generation!=expectedGeneration)throw new ArgumentException("This account's imported lines changed. Preview and review the statement again.");
             StatementPlan.ValidateChoices(preview,choices);
+            ReconciliationLocks.Import(db,owner,preview,choices);
             var saved=StatementWriter.Save(db,owner,preview,choices,requestId,sourceHash,payloadHash,FailurePoint);
             ValueState.Advance(db,owner,"StatementImport",draft.AccountId);
             BusinessStore.Audit(db,owner,"Import reviewed statement",saved.Id);

@@ -43,6 +43,22 @@ internal sealed class TestStore : IDisposable
         command.ExecuteNonQuery();
     }
 
+    internal void PrepareBankingVersion(int version)
+    {
+        if(version is <18 or >22)throw new ArgumentOutOfRangeException(nameof(version));
+        var tables=new List<string>{"ReconciliationBankCoverage","ReconciliationReopens","Reconciliations"};
+        if(version<21)tables.AddRange(["BankMatches","BankMatchGroups"]);
+        if(version<20)tables.AddRange(["StatementRows","BankLines","StatementImports"]);
+        tables=tables.Where(t=>Convert.ToInt64(Scalar(DatabasePath,$"SELECT COUNT(*) FROM sqlite_schema WHERE type='table' AND name='{t}';"))>0).ToList();
+        foreach(string table in tables)
+            if(Convert.ToInt64(Scalar(DatabasePath,$"SELECT COUNT(*) FROM {table};"))!=0)throw new InvalidOperationException("An older-layout fixture cannot discard newer records.");
+        bool dropEvidence=version is >=20 and <22 && Convert.ToInt64(Scalar(DatabasePath,"SELECT COUNT(*) FROM pragma_table_info('StatementImports') WHERE name='EvidenceId';"))>0;
+        if(dropEvidence && Convert.ToInt64(Scalar(DatabasePath,"SELECT COUNT(*) FROM StatementImports WHERE EvidenceId<>'';"))>0)
+            throw new InvalidOperationException("An older-layout fixture cannot discard newer statement evidence.");
+        string drops=string.Join(" ",tables.Select(t=>$"DROP TABLE {t};"));
+        Execute($"BEGIN IMMEDIATE; {drops} {(dropEvidence?"ALTER TABLE StatementImports DROP COLUMN EvidenceId;":"")} PRAGMA user_version={version}; COMMIT;");
+    }
+
     internal string Hash() => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(DatabasePath)));
 
     internal string[] Snapshots() => Directory.Exists(BackupFolder)

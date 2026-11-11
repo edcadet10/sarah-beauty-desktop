@@ -5,6 +5,19 @@ namespace SarahBeauty.Business.Banking;
 
 public sealed class Reconciliations(BusinessStore store)
 {
+    internal Action<string>? FailurePoint {get;set;}
+    public List<ReconciliationSummary> History(OwnerSession owner)=>store.Read(db=>
+    {
+        store.RequireSession(db,owner);
+        return db.Read("""
+            SELECT C.Id,C.AccountId,C.StatementId,C.AsOfDate,C.ApprovedBy,C.AtUtc,EXISTS(SELECT 1 FROM ReconciliationReopens R WHERE R.ReconciliationId=C.Id)
+            FROM Reconciliations C WHERE C.BusinessId=$business ORDER BY C.AsOfDate,C.AtUtc,C.Id;
+            """,r=>new ReconciliationSummary(r.GetString(0),r.GetString(1),r.GetString(2),DateOnly.Parse(r.GetString(3)),r.GetString(4),r.GetString(5),r.GetInt32(6)==1),("$business",owner.BusinessId));
+    });
+
+    public CompletedReconciliation Open(OwnerSession owner,string id)=>store.ReadSnapshot(db=>
+    {store.RequireSession(db,owner);return ReconciliationQueries.List(db,owner,id).SingleOrDefault()??throw new ArgumentException("Choose a saved reconciliation from this business.");});
+
     public ReconciliationSources Sources(OwnerSession owner,string statement)=>store.ReadSnapshot(db=>
     {store.RequireSession(db,owner);return ReconciliationSourcesReader.Read(db,owner,statement);});
 
@@ -14,6 +27,28 @@ public sealed class Reconciliations(BusinessStore store)
         draft=Normalize(draft);
         return ReconciliationCalculator.Calculate(ReconciliationSourcesReader.Read(db,owner,draft.StatementId),draft);
     });
+
+    public CompletedReconciliation Complete(OwnerSession owner,ReconciliationDraft draft,long reviewedWatermark,string requestId,string phrase)
+    {
+        requestId=ConfirmRequest(owner,requestId,phrase);
+        draft=Normalize(draft);
+        return store.Transaction(db=>{store.RequireSession(db,owner);return ReconciliationCompleter.Complete(db,owner,draft,reviewedWatermark,requestId,FailurePoint);});
+    }
+
+    public ReconciliationReopen Reopen(OwnerSession owner,string id,string reason,string requestId,string phrase)
+    {
+        requestId=ConfirmRequest(owner,requestId,phrase);
+        reason=reason.Trim();
+        if(reason.Length==0)throw new ArgumentException("Record the reason for reopening this reconciliation.");
+        return store.Transaction(db=>{store.RequireSession(db,owner);return ReconciliationReopening.Reopen(db,owner,id,reason,requestId,FailurePoint);});
+    }
+
+    private string ConfirmRequest(OwnerSession owner,string request,string phrase)
+    {
+        new OwnerAccess(store).Confirm(owner,phrase);
+        if(!Guid.TryParse(request,out var id))throw new ArgumentException("Use a permanent request ID for this reviewed action.");
+        return id.ToString();
+    }
 
     internal static ReconciliationDraft Normalize(ReconciliationDraft draft)=>draft with{StatementId=draft.StatementId.Trim(),Reason=draft.Reason.Trim(),
         Outstanding=draft.Outstanding.Select(o=>o with{JournalLineId=o.JournalLineId.Trim(),Explanation=o.Explanation.Trim(),EvidenceId=o.EvidenceId.Trim()}).OrderBy(o=>o.JournalLineId,StringComparer.Ordinal).ToArray(),

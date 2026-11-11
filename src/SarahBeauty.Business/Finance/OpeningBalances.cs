@@ -1,4 +1,5 @@
 using SarahBeauty.Business.Security;
+using SarahBeauty.Business.Banking;
 using SarahBeauty.Business.Storage;
 
 namespace SarahBeauty.Business.Finance;
@@ -22,6 +23,7 @@ public sealed class OpeningBalances(BusinessStore store)
             var account=ChartOfAccounts.List(db,owner).SingleOrDefault(a=>a.Id==accountId && a.Active && a.CashKind!="None")
                 ??throw new ArgumentException("Choose an actual active cash, bank, or processor account.");
             PostingValidation.CheckClosedPeriod(db,owner,date);
+            ReconciliationLocks.RequireWritable(db,owner,accountId,date);
             OpeningRules.ValidateTarget(db,owner,accountId,"Account","",date);
             Insert(db,owner,accountId,"Account","",date,0,false,null,reason.Trim(),"");
             return true;
@@ -37,6 +39,7 @@ public sealed class OpeningBalances(BusinessStore store)
             var row=List(db,owner).SingleOrDefault(r=>r.Id==id && r.MovementId is null && r.RevokedAt is null)
                 ??throw new ArgumentException("Choose a current zero opening. Reverse a posted opening through Money.");
             PostingValidation.CheckClosedPeriod(db,owner,row.Date);
+            ReconciliationLocks.RequireWritable(db,owner,row.AccountId,row.Date);
             Revoke(db,owner,row.Id,row.AccountId,row.DimensionKind,reason.Trim(),null);
             return true;
         });

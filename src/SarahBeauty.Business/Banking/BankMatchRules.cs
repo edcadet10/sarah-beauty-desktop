@@ -15,6 +15,8 @@ internal static class BankMatchRules
         var history=BankMatchQueries.History(db,owner);
         var cash=BankMatchQueries.CashLines(db,owner).ToDictionary(c=>c.Id);
         var bankLines=BankSources(db,owner,draft.Portions.Where(p=>cash.ContainsKey(p.JournalLineId)).Select(p=>cash[p.JournalLineId]));
+        foreach(string account in draft.Portions.Where(p=>cash.ContainsKey(p.JournalLineId)).Select(p=>cash[p.JournalLineId].AccountId).Distinct())
+            ReconciliationLocks.RequireWritable(db,owner,account,draft.Date);
         var generations=new Dictionary<string,long>();
         foreach(var portion in draft.Portions)
         {
