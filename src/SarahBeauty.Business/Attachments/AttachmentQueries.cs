@@ -9,11 +9,12 @@ namespace SarahBeauty.Business.Attachments;
 internal static class AttachmentQueries
 {
     internal static string Hash(string value)=>Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(value)));
-    internal static List<StoredAttachment> List(DbWork db,OwnerSession owner,string attachmentId="",string versionId="")=>db.Read("""
+    internal static List<StoredAttachment> List(DbWork db,OwnerSession owner,string attachmentId="",string versionId="")=>List(db,owner.BusinessId,attachmentId,versionId);
+    internal static List<StoredAttachment> List(DbWork db,string businessId,string attachmentId="",string versionId="")=>db.Read("""
         SELECT Id,BusinessId,AttachmentId,Number,SnapshotJson,SnapshotHash FROM AttachmentVersions WHERE BusinessId=$business
         AND ($attachment='' OR AttachmentId=$attachment) AND ($version='' OR Id=$version) ORDER BY AttachmentId,Number;
         """,r=>Read(r.GetString(0),r.GetString(1),r.GetString(2),r.GetInt32(3),r.GetString(4),r.GetString(5)),
-        ("$business",owner.BusinessId),("$attachment",attachmentId),("$version",versionId));
+        ("$business",businessId),("$attachment",attachmentId),("$version",versionId));
     internal static StoredAttachment Get(DbWork db,OwnerSession owner,string id)=>List(db,owner,versionId:id).SingleOrDefault()??throw new ArgumentException("Attachment version not found in this business.");
     internal static StoredAttachment? Prior(DbWork db,OwnerSession owner,string request,string payload)
     {
