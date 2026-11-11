@@ -7,14 +7,23 @@ public sealed class BusinessStore
 {
     public string DatabasePath { get; }
     public string StoreId { get; }
+    public string InstanceId {get;}
+    internal Action? BeforeTransactionReservation {get;set;}
 
     public BusinessStore(string databasePath)
     {
         var database = SarahBeauty_Desktop.Storage.LocalDatabase.InitializeTestDatabaseAt(databasePath);
         (DatabasePath, StoreId) = (database.DatabasePath, database.StoreId);
+        using var connection=Connect();InstanceId=StoreInstanceGuard.Read(new DbWork(connection),StoreId);
     }
 
     internal SqliteConnection Open()
+    {
+        var connection=Connect();try{StoreInstanceGuard.Require(new DbWork(connection),StoreId,InstanceId);return connection;}
+        catch{connection.Dispose();throw;}
+    }
+
+    private SqliteConnection Connect()
     {
         var connection = new SqliteConnection(new SqliteConnectionStringBuilder
         {
@@ -35,7 +44,7 @@ public sealed class BusinessStore
     {
         using var connection=Open();
         using var transaction=connection.BeginTransaction(deferred:true);
-        T value=read(new DbWork(connection,transaction));
+        var db=new DbWork(connection,transaction);StoreInstanceGuard.Require(db,StoreId,InstanceId);T value=read(db);
         transaction.Commit();
         return value;
     }
@@ -49,8 +58,9 @@ public sealed class BusinessStore
     internal T Transaction<T>(Func<DbWork, T> write)
     {
         using var connection = Open();
+        BeforeTransactionReservation?.Invoke();
         using var transaction = connection.BeginTransaction(deferred: false);
-        T value = write(new DbWork(connection, transaction));
+        var db=new DbWork(connection,transaction);StoreInstanceGuard.Require(db,StoreId,InstanceId);T value = write(db);
         transaction.Commit();
         return value;
     }
@@ -66,7 +76,8 @@ public sealed class BusinessStore
 
     internal void RequireSession(DbWork db, OwnerSession session)
     {
-        if (session.StoreId != StoreId || session.ExpiresAt <= DateTimeOffset.UtcNow
+        StoreInstanceGuard.Require(db,StoreId,InstanceId);
+        if (session.StoreId != StoreId || session.InstanceId!=InstanceId || session.ExpiresAt <= DateTimeOffset.UtcNow
             || db.Scalar("SELECT Id FROM Owners WHERE Id=$id AND BusinessId=$business AND Active=1;",
                 ("$id", session.OwnerId), ("$business", session.BusinessId)) is null)
             throw new UnauthorizedAccessException("Sign in to this business to continue.");

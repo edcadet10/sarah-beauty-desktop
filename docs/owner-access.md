@@ -4,7 +4,7 @@ Passphrase verification runs before the short database transaction that records 
 
 Before accepting the result, the transaction rereads the active owner, business, credential material, current failed-attempt count, and lockout. Changed credentials or a deactivated owner invalidate an earlier proof. A lockout recorded while verification runs also blocks that proof. Concurrent failures increment the current persisted counter instead of replacing it with an older count.
 
-Successful confirmation still identifies the authenticated owner. Failed sign-in and temporary lockout behavior remain persisted. Password change/recovery, automatic desktop idle locking, and restore-session invalidation remain separate pending work.
+Successful confirmation still identifies the authenticated owner. Failed sign-in and temporary lockout behavior remain persisted. [Writable-instance checks](store-instances.md) now bind sessions to their store generation and reject changed or retired handles. Password change/recovery, automatic desktop idle locking, and owner-confirmed restore activation remain separate pending work.
 
 ## Verification
 
