@@ -11,7 +11,7 @@ This file tracks the full application build requested on November 10, 2026. A co
 | Client documents | Implemented core | Quote versions, bounded payer invoices, dated credit notes, approved-payment receipts, and saved PDFs; full release walkthrough pending |
 | Books and approvals | In progress | Core posting/reports, receipt/credit applications, funded credits, cash refunds and dated reversals implemented; period-close UI and remaining workflows pending |
 | Resources | In progress | Registers, supplies, trips, openings, disposals, reviewed bills, mixed supplier payments/refunds, bill credits, and credit use implemented; complete trip reimbursement pending |
-| Reconciliation and reports | In progress | Financial reports, aging, tax, statement import/review, and matching controls implemented; reconciliation completion, closing, and full dashboard pending |
+| Reconciliation and reports | In progress | Reports, aging, tax periods, statement import/correction, partial matching, completed reconciliation, bank errors, and retained reopen snapshots implemented; full book closing and dashboard pending |
 | Recovery and Google | Pending | Attachments, portable encrypted archive, Sheets export, Drive authorization/readback |
 | Release | Pending | Installer, full fictional walkthrough, actual Surface and second-device checks |
 
@@ -304,3 +304,9 @@ The Windows Debug build passes with no warnings or errors. An isolated fictional
 Schema 25 adds immutable owner-confirmed withdrawal decisions with reasons and evidence. Withdrawing an incorrect import retains its header and original source rows. A bank line remains active when another active statement also references it. Otherwise its matching must be fully undone, including future matches, before withdrawal. Covered reconciliations and book periods must be reopened first. Historical matching remains available for review; withdrawn source lines no longer consume cash availability or appear as match candidates.
 
 The same CSV and reliable references can then be imported with corrected mapping. Active-source duplicate guards remain enforced by database triggers. Retrying the original import returns its withdrawn record without reactivating it. Nine new SQLite cases cover sign correction, reliable references, overlap, historical/future matching, stale owner reviews, exact retries, interrupted withdrawals, retained reconciliation snapshots, and the version-24 upgrade. All 320 automated cases and the Windows Debug build pass. Desktop withdrawal controls follow separately.
+
+## Desktop statement withdrawal and file chooser
+
+Imported statements now show their withdrawal state, owner, time, reason, evidence, and original source rows. The correction form captures the account generation and shows how many unshared lines still have matching dependencies. Withdrawn imports are excluded from the reconciliation selector; matching history labels withdrawn sources while keeping their original decisions available.
+
+The Windows Debug build and all nine withdrawal cases pass; the latest full suite has 320 passing cases. An isolated fictional desktop run loaded a CSV through the actual Windows file chooser, imported it with deliberately inverted signs, withdrew it with evidence, and reimported the same CSV with corrected signs and the same reliable reference. Both sources and the withdrawal reason survived restart. The chooser automation initially targeted a different control with the same numeric ID; narrowing it to the named Open action completed the real chooser check without an application change. This development-machine evidence does not replace Surface acceptance.

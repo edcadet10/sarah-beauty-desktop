@@ -52,6 +52,16 @@ Bank errors and correction portions cannot also match business cash. The origina
 
 After saving new records in another section, use **Reload this section** to refresh a cached source list. Reloading asks before discarding unsaved fields.
 
+## Correct an incorrect import
+
+1. Open the saved statement under **Imported statements** and compare its source rows, signs, period, account, and balances with the actual statement.
+2. Reopen covered book periods and reconciliations first. Unmatch any otherwise unreferenced source lines, including future matches. A transaction shared with another active statement stays active.
+3. Under **Correct an imported statement**, enter the reason and evidence for the correction. Confirm your passphrase and select **Withdraw incorrect statement import**.
+4. Check the retained withdrawal reason and original rows. Withdrawal creates no cash movement and does not delete the import.
+5. Load the corrected source, fix its mapping or balances, and review a new import. The same CSV contents and reliable references can be reused after withdrawal; duplicate active imports remain blocked.
+
+The original import remains marked **Withdrawn** in history. Retrying its old import request returns that same withdrawn record and does not reactivate it.
+
 ## Development references
 
 The parser uses .NET's [TextFieldParser](https://learn.microsoft.com/en-us/dotnet/api/microsoft.visualbasic.fileio.textfieldparser?view=net-10.0) for quoted fields and multiline descriptions. The file chooser uses the [Windows App SDK picker](https://learn.microsoft.com/en-us/windows/apps/develop/files/using-file-folder-pickers) associated with the app window. No bank feed is connected.
