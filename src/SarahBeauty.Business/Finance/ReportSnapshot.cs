@@ -21,4 +21,5 @@ public sealed record ReportSnapshot(string BusinessName,string Mode,long Waterma
     public List<CashActivity> Entries {get;init;}=[];
     public List<SupplierPosition> Suppliers {get;init;}=[];
     public List<Purchasing.PurchaseDue> SupplierBills {get;init;}=[];
+    public AssetScheduleSnapshot? Assets {get;init;}
 }

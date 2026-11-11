@@ -1,6 +1,6 @@
 # Screens, Forms, Dashboard, and Reports
 
-Status: A basic welcome screen is implemented. The business screens, forms, reports, and generated documents described below remain planned.
+Status: This document defines the intended screens and reports. Many core workflows are implemented; see [Build progress](build-progress.md) for current evidence and remaining work. The full app and device acceptance are still in progress.
 
 ## Navigation and common behavior
 
