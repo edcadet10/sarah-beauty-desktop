@@ -14,6 +14,7 @@ internal static class ReconciliationSnapshotView
             Form.Text("Review reason: "+p.Draft.Reason),
             ReportTable.Build(["Reconciliation measure","USD"],[["Statement closing",Money.Display(s.Statement.ClosingCents)],
                 ["Add deposits in transit",Money.Display(p.OutstandingDepositsCents)],["Less outstanding payments",Money.Display(p.OutstandingPaymentsCents)],
+                ["Bank-error adjustment",Money.Display(p.StatementErrorAdjustmentCents)],
                 ["Adjusted statement",Money.Display(p.AdjustedStatementCents)],["Ledger before selected posted corrections",Money.Display(p.LedgerBeforeCorrectionsCents)],
                 ["Selected posted corrections",Money.Display(p.PostedBookCorrectionsCents)],["Ledger closing (corrections included)",Money.Display(p.AdjustedLedgerCents)],["Difference",Money.Display(p.DifferenceCents)]]),
             Form.Text($"Opening: {(s.OpeningConfirmed?"Confirmed":"Unconfirmed")} • Unexplained bank lines: {p.UnexplainedBankCount} • Unsupported cash items: {p.UnexplainedCashIds.Length}"));
@@ -23,7 +24,11 @@ internal static class ReconciliationSnapshotView
         panel.Add(Lines("Bank source rows",s.Bank),Lines("Cash source entries",s.Cash),
             PagedReport.Build("Outstanding evidence",["Cash entry","Amount","Explanation","Evidence"],p.Draft.Outstanding.Select(o=>new[]{o.JournalLineId[..8],Money.Display(o.Cents),o.Explanation,o.EvidenceId})),
             PagedReport.Build("Selected posted corrections",["Date","Cash amount","Description","Evidence"],s.CorrectionChoices.Where(c=>p.Draft.PostedCorrectionIds.Contains(c.MovementId))
-                .Select(c=>new[]{c.Date.ToString("yyyy-MM-dd"),Money.Display(c.SignedCents),c.Description,c.EvidenceId})));
+                .Select(c=>new[]{c.Date.ToString("yyyy-MM-dd"),Money.Display(c.SignedCents),c.Description,c.EvidenceId})),
+            PagedReport.Build("Bank-error evidence",["Error / bank code","Original signed amount","Unresolved","Explanation / evidence"],
+                p.RemainingStatementErrors.Select(e=>new[]{e.Id[..8]+" / "+e.BankLineId[..8],Money.Display(e.SignedCents),Money.Display(e.RemainingCents),e.Explanation+" • "+e.EvidenceId})),
+            PagedReport.Build("Actual bank corrections",["Original error","Bank transaction","Amount","Explanation / evidence"],
+                p.Draft.BankCorrections.Select(c=>new[]{c.ErrorId[..8],c.BankLineId[..8],Money.Display(c.Cents),c.Explanation+" • "+c.EvidenceId})));
         return panel;
     }
 
