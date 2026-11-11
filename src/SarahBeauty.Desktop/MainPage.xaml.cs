@@ -2,15 +2,8 @@ using System;
 using Microsoft.UI.Xaml.Controls;
 using SarahBeauty_Desktop.Storage;
 
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
-
 namespace SarahBeauty_Desktop;
 
-/// <summary>
-/// The main content page displayed inside the application window.
-/// Add your UI logic, event handlers, and data binding here.
-/// </summary>
 public sealed partial class MainPage : Page
 {
     public MainPage()
@@ -22,12 +15,14 @@ public sealed partial class MainPage : Page
             var database = LocalDatabase.InitializeTestDatabase();
 
             StoragePathText.Text =
-                $"{database.DatabasePath}\nStore ID: {database.StoreId}";
+                $"{database.DatabasePath}\n" +
+                $"Store ID: {database.StoreId}\n" +
+                $"Schema version: {database.SchemaVersion}";
         }
         catch (Exception error)
         {
-            StoragePathText.Text = $"Could not prepare TEST storage:{error.Message}";
+            StoragePathText.Text =
+                $"Could not prepare TEST storage: {error.Message}";
         }
-
     }
 }

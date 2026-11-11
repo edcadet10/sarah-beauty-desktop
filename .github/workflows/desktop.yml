@@ -1,0 +1,24 @@
+name: Desktop checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  storage-and-build:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - name: Test storage with fictional databases
+        run: dotnet test tests/SarahBeauty.Storage.Tests/SarahBeauty.Storage.Tests.csproj --configuration Release --verbosity minimal
+      - name: Build the Windows app
+        run: dotnet build src/SarahBeauty.Desktop/SarahBeauty.Desktop.csproj --configuration Debug --verbosity minimal

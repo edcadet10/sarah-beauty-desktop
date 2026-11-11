@@ -1,6 +1,12 @@
 # Backup and Recovery
 
-Status: Recovery contract for the planned desktop application. No desktop backup or restore has been implemented or verified yet.
+Status: Verified local database snapshots are implemented for the first schema upgrade. Automated fictional fixtures cover committed WAL data, invalid sources, failed verification, and migration rollback. Complete archives, attachments, cloud backups, and a restore interface remain planned. The procedure below is the contract for those future features.
+
+## Local upgrade snapshots
+
+Before upgrading an existing version-0 TEST store, the app saves a database snapshot in `Backups` beside `sarahbeauty.db`. The filename includes a UTC timestamp and random ID. The app uses [Microsoft.Data.Sqlite's backup API](https://learn.microsoft.com/en-us/dotnet/standard/data/sqlite/backup), converts the destination to rollback-journal mode so it can open without WAL sidecars, and checks database integrity and foreign-key references. It publishes the `.db` filename only after verification. A failed upgrade keeps an already verified snapshot and rolls back metadata changes.
+
+The app attempts to remove incomplete `.partial` files after a failure. Windows can prevent cleanup; a leftover `.partial` file is not a verified recovery copy. Existing snapshots are retained without automatic pruning. They are unencrypted local database copies, contain no attachments, and do not protect against loss of the device. A full disk, interrupted power, and recovery on another computer still require testing.
 
 ## Two separate outputs
 

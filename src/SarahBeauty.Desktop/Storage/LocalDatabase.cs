@@ -6,56 +6,82 @@ namespace SarahBeauty_Desktop.Storage;
 
 public static class LocalDatabase
 {
-    public static (string DatabasePath, string StoreId) InitializeTestDatabase()
+    public static (string DatabasePath, string StoreId, int SchemaVersion)
+        InitializeTestDatabase()
     {
         string folderPath = AppDataPaths.EnsureTestFolderExists();
-        string databasePath = Path.Combine(folderPath, "sarahbeauty.db");
+        return InitializeTestDatabaseAt(Path.Combine(folderPath, "sarahbeauty.db"));
+    }
 
+    internal static (string DatabasePath, string StoreId, int SchemaVersion)
+        InitializeTestDatabaseAt(string databasePath)
+    {
+        using var connection = OpenConnection(databasePath);
+        using var transaction = connection.BeginTransaction(deferred: false);
+        using var command = connection.CreateCommand();
+        command.Transaction = transaction;
+
+        int schemaVersion = DatabaseSchema.ReadSupportedVersion(command);
+        bool isEmpty = schemaVersion == 0 && DatabaseSchema.IsEmpty(command);
+
+        if (isEmpty)
+        {
+            DatabaseMetadata.Create(command);
+        }
+        else
+        {
+            DatabaseSchema.ValidateMetadataTable(command);
+        }
+
+        string storeId = DatabaseMetadata.ReadStoreId(command);
+        DatabaseMetadata.ValidateTestMode(command, schemaVersion);
+        schemaVersion = UpgradeIfNeeded(command, databasePath, schemaVersion, isEmpty);
+        transaction.Commit();
+
+        return (databasePath, storeId, schemaVersion);
+    }
+
+    private static SqliteConnection OpenConnection(string databasePath)
+    {
         var options = new SqliteConnectionStringBuilder
         {
             DataSource = databasePath,
             Mode = SqliteOpenMode.ReadWriteCreate,
-            ForeignKeys = true
+            ForeignKeys = true,
+            DefaultTimeout = 5,
+            Pooling = false
         };
 
-        using var connection = new SqliteConnection(options.ToString());
-        connection.Open();
+        var connection = new SqliteConnection(options.ToString());
+        try
+        {
+            connection.Open();
+            return connection;
+        }
+        catch
+        {
+            connection.Dispose();
+            throw;
+        }
+    }
 
-        using var transaction = connection.BeginTransaction();
-        using var command = connection.CreateCommand();
-        command.Transaction = transaction;
+    private static int UpgradeIfNeeded(
+        SqliteCommand command, string databasePath, int version, bool isEmpty)
+    {
+        if (version == 0)
+        {
+            // Keep the write reservation while a separate reader snapshots committed data.
+            if (!isEmpty)
+            {
+                DatabaseBackup.CreateVerifiedSnapshot(databasePath);
+            }
 
-        command.CommandText = """
-              CREATE TABLE IF NOT EXISTS AppMetadata (
-                  Key TEXT NOT NULL PRIMARY KEY,
-                  Value TEXT NOT NULL
-              );
-              """;
+            DatabaseMetadata.SaveTestMode(command);
+            command.CommandText = "PRAGMA user_version = 1;";
+            command.ExecuteNonQuery();
+            return 1;
+        }
 
-        command.ExecuteNonQuery();
-
-        command.CommandText = """
-              INSERT INTO AppMetadata (Key, Value)
-              VALUES ('StoreId', $storeId)
-              ON CONFLICT(Key) DO NOTHING;
-              """;
-
-        command.Parameters.AddWithValue(
-            "$storeId",
-            Guid.NewGuid().ToString());
-
-        command.ExecuteNonQuery();
-
-        command.Parameters.Clear();
-        command.CommandText =
-            "SELECT Value FROM AppMetadata WHERE Key = 'StoreId';";
-
-        string storeId = command.ExecuteScalar() as string
-            ?? throw new InvalidOperationException(
-                "The database has no store ID.");
-
-        transaction.Commit();
-
-        return (databasePath, storeId);
+        return version;
     }
 }

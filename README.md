@@ -24,7 +24,7 @@ Google Sheets and Google Drive backups will require an internet connection.
 
 ## Project status
 
-The Windows application builds and runs on the development computer. It displays a welcome screen and initializes a local TEST SQLite database with a Store ID that remains unchanged after closing and reopening the app. An earlier welcome-screen preview was manually launched on the Surface Pro 7; the storage additions have not yet been tested there. Customer records, bookings, bookkeeping, owner login, and backups are still planned. There is no published installer yet.
+The Windows application has a welcome screen and local TEST SQLite storage. It preserves the Store ID, records TEST mode, and upgrades the original version-0 database to version 1 only after creating a verified local snapshot. Automated storage checks pass, and the Windows app builds. The interface previously ran on the development computer; the latest storage changes have not been checked through the interface or on the Surface Pro 7. Customer records, bookings, bookkeeping, owner login, and cloud backups remain planned. There is no published installer yet.
 
 The first target is a Surface Pro 7. Everyday work will happen locally on Windows. Google Sheets will hold a readable export, and private Google Drive storage will hold recovery backups. These are backups of the desktop records, not a second place to edit the books.
 
@@ -40,9 +40,13 @@ From the repository root, run:
 dotnet run --project .\src\SarahBeauty.Desktop\SarahBeauty.Desktop.csproj
 ```
 
-Development runs unpackaged by default, with the project directory as its working directory so the app can find its icon. On startup it creates or opens `%LOCALAPPDATA%\SarahBeautyDesktop\Test\sarahbeauty.db`, outside the repository. The preview shows the database path and its saved Store ID. Storage initialization failures appear on the preview screen.
+Development runs unpackaged by default, with the project directory as its working directory so the app can find its icon. On startup it creates or opens `%LOCALAPPDATA%\SarahBeautyDesktop\Test\sarahbeauty.db`, outside the repository. The preview shows the database path, its saved Store ID, and its application schema version. Storage initialization failures appear on the preview screen.
 
-The database currently contains only `AppMetadata`, with a generated UUID under `StoreId`. Closing and reopening the app was manually checked on the development computer, and the ID remained unchanged. This is a first persistence milestone: business tables, schema migrations, stored TEST/LIVE mode checks, authentication, and recovery are not implemented yet. Do not enter live business records into this preview.
+The database contains only `AppMetadata`, with a generated UUID under `StoreId` and `TEST` under `StoreMode`. SQLite's `user_version` is `1`. The app rejects negative or newer versions, unexpected table layouts, invalid store IDs, and incompatible store modes before changing metadata.
+
+For an existing version-0 store from this preview, initialization creates a verified snapshot in the data folder's `Backups` directory before adding TEST mode and advancing the version in one transaction. If the snapshot or migration fails, the upgrade stops. New empty stores start at version 1 without a snapshot. Reopening a version-1 TEST store preserves its identity and does not create another upgrade snapshot.
+
+The storage checks cover fresh initialization, restart, migration, rollback, incompatible stores, concurrent initialization, and committed WAL data in snapshots. They use temporary fictional databases. Local snapshots contain the database only; a restore interface, attachments, owner authentication, LIVE setup, and Google backups are not implemented. Do not enter live business records into this preview.
 
 The earlier published preview launched on a Surface Pro 7 running Windows 11 Pro 25H2, OS build 26200.9457. The current storage additions, touch interaction, and offline behavior still need explicit Surface checks.
 
@@ -75,6 +79,7 @@ The project's asset copy settings include all nine image/icon files in build and
 | [Backup and recovery](docs/backup-and-recovery.md) | Sheets exports, complete backups, and restore requirements |
 | [Acceptance criteria](docs/acceptance-criteria.md) | Examples that the future application must pass |
 | [Implementation plan](docs/implementation-plan.md) | Build order, open decisions, and release checks |
+| [Contribute a small change](docs/contributing.md) | Short functions, checks, GitHub workflow, and documentation style |
 
 ## Demo data
 

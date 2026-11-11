@@ -1,6 +1,6 @@
 # Implementation Plan
 
-Status: Development started. The WinUI preview initializes a local TEST database and preserves its Store ID after restarting on the development computer. An earlier welcome-screen preview launched on the Surface Pro 7. Business features, the remaining local foundation, and further device testing remain pending.
+Status: The preview now creates a version-1 TEST database or upgrades the original version-0 store after a verified local snapshot. Automated storage checks pass and the Windows app builds. The latest changes still need interface and Surface checks. Business features and the remaining foundation are pending.
 
 ## Current progress
 
@@ -12,7 +12,14 @@ Status: Development started. The WinUI preview initializes a local TEST database
 - Development now launches unpackaged by default. `AppDataPaths` creates the TEST data directory beneath the current user's local application data directory, outside the repository.
 - `Microsoft.Data.Sqlite` 10.0.12 opens `sarahbeauty.db`. Initialization creates `AppMetadata`, preserves an existing `StoreId`, and reads it within a transaction. The preview displays the database path and saved ID, or an initialization error.
 - On September 22, 2026, the tester confirmed that closing and reopening the application preserved the Store ID. A read-only database inspection also found `AppMetadata` and the saved ID. This validates the first persistence exercise; it does not complete phase 2 or establish offline, recovery, migration, or Surface storage behavior.
-- Schema versioning, stored TEST/LIVE mode validation, owner login, business tables, managed attachments, authenticated approvals, and backups remain unimplemented.
+- The September 22 preview read and displayed SQLite's `user_version`, then `0`. Initialization rejected negative and unsupported newer versions before creating tables or inserting metadata. The tester confirmed that the version-0 preview opened normally.
+- An isolated C# check on September 22, 2026 compiled the actual `LocalDatabase.cs` with Microsoft.Data.Sqlite 10.0.12 and substituted only the data-directory helper to use temporary fixtures. Version `0` initialized and reopened with the same Store ID. Versions `1` and `-1` raised the expected compatibility error, retained their version, ID, and fictional record, and had matching file hashes before and after rejection. These checks did not exercise the WinUI error display, the real path helper, or a migration.
+- On November 10, 2026, storage checks passed for 29 cases using the production storage files and temporary fictional databases. They cover new stores, restart, version-0 upgrades in rollback-journal and WAL modes, concurrent initialization, incompatible versions/modes/layouts, binary metadata, missing/invalid IDs, blocked snapshot creation, failed migration rollback, corrupt sources, and foreign-key failures. Rejected and failed rollback-journal fixtures retain matching file hashes. An upgraded fixture retains its identity and original metadata in an openable version-0 snapshot.
+- Version 1 adds `StoreMode = TEST`. The upgrade takes a write reservation, validates the original store, creates and verifies a snapshot through a separate reader, and then commits metadata and version changes together. New empty stores initialize directly. Version-1 stores require explicit TEST mode; no LIVE store can be created through this preview.
+- The first WAL snapshot check failed because the copied journal mode produced sidecar files when reopened. Snapshots now switch to rollback-journal mode before verification; the rerun passed, including committed data held in the source WAL. This establishes the tested local database behavior, not cloud or whole-business recovery.
+- The latest Windows Debug build passed with zero warnings and zero errors. These changes have not been launched through WinUI or checked on the Surface. A physically full disk, interrupted power, attachment recovery, and restore on a second computer have not been tested.
+- Owner login, business tables, managed attachments, authenticated approvals, a restore interface, LIVE setup, and Google backups remain unimplemented. Local database snapshots are the first recovery step, not completion of phase 2.
+- Source changes are saved to GitHub in focused pull requests. Functions have one responsibility, and documentation follows the Google developer documentation style guide as described in [Contribute a small change](contributing.md).
 - Phase 1 remains in progress: document the remaining device details and review dependency licenses before closing that phase.
 
 ## Agreed decisions
