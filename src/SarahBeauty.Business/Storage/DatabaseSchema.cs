@@ -1,11 +1,12 @@
 using System;
 using Microsoft.Data.Sqlite;
+using SarahBeauty.Business.Storage;
 
 namespace SarahBeauty_Desktop.Storage;
 
 internal static class DatabaseSchema
 {
-    private const int SupportedVersion = 1;
+    private const int SupportedVersion = BusinessSchema.Version;
 
     internal static int ReadSupportedVersion(SqliteCommand command)
     {
@@ -31,19 +32,19 @@ internal static class DatabaseSchema
         return Convert.ToInt32(command.ExecuteScalar()) == 0;
     }
 
-    internal static void ValidateMetadataTable(SqliteCommand command)
+    internal static void ValidateMetadataTable(SqliteCommand command, bool metadataOnly = true)
     {
         command.CommandText = """
             SELECT COUNT(*) FROM sqlite_schema
             WHERE name NOT GLOB 'sqlite_*'
               AND NOT (name = 'AppMetadata' AND type = 'table');
             """;
-        if (Convert.ToInt32(command.ExecuteScalar()) != 0)
+        if (metadataOnly && Convert.ToInt32(command.ExecuteScalar()) != 0)
         {
             throw InvalidSchema();
         }
 
-        command.CommandText = "PRAGMA table_info(AppMetadata);";
+        command.CommandText = "PRAGMA table_xinfo(AppMetadata);";
         using var reader = command.ExecuteReader();
         if (!IsColumn(reader, "Key", 1) || !IsColumn(reader, "Value", 0) || reader.Read())
         {

@@ -24,6 +24,8 @@ Google Sheets and Google Drive backups will require an internet connection.
 
 ## Project status
 
+The full build is in progress. See [Build progress](docs/build-progress.md) for the current feature and verification status. The application now has offline two-owner setup/sign-in and schema-2 storage in a shared business project. The milestone notes below describe the earlier storage preview.
+
 The Windows application has a welcome screen and local TEST SQLite storage. It preserves the Store ID, records TEST mode, and upgrades the original version-0 database to version 1 only after creating a verified local snapshot. Automated storage checks pass, and the Windows app builds. The interface previously ran on the development computer; the latest storage changes have not been checked through the interface or on the Surface Pro 7. Customer records, bookings, bookkeeping, owner login, and cloud backups remain planned. There is no published installer yet.
 
 The first target is a Surface Pro 7. Everyday work will happen locally on Windows. Google Sheets will hold a readable export, and private Google Drive storage will hold recovery backups. These are backups of the desktop records, not a second place to edit the books.

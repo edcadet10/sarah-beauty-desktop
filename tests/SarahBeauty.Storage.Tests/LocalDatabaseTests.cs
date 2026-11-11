@@ -13,7 +13,7 @@ public sealed class LocalDatabaseTests
         var second = LocalDatabase.InitializeTestDatabaseAt(store.DatabasePath);
 
         Assert.Equal(first, second);
-        Assert.Equal(1, first.SchemaVersion);
+        Assert.Equal(2, first.SchemaVersion);
         Assert.True(Guid.TryParse(first.StoreId, out _));
         Assert.Equal("TEST", TestStore.Scalar(store.DatabasePath,
             "SELECT Value FROM AppMetadata WHERE Key = 'StoreMode';"));
@@ -41,7 +41,7 @@ public sealed class LocalDatabaseTests
         var result = LocalDatabase.InitializeTestDatabaseAt(store.DatabasePath);
         string snapshot = Assert.Single(store.Snapshots());
         Assert.Equal(TestStore.StoreId, result.StoreId);
-        Assert.Equal(1, result.SchemaVersion);
+        Assert.Equal(2, result.SchemaVersion);
         Assert.Equal(0L, TestStore.Scalar(snapshot, "PRAGMA user_version;"));
         Assert.Equal(TestStore.StoreId, TestStore.Scalar(snapshot,
             "SELECT Value FROM AppMetadata WHERE Key = 'StoreId';"));
@@ -66,7 +66,7 @@ public sealed class LocalDatabaseTests
         var result = LocalDatabase.InitializeTestDatabaseAt(store.DatabasePath);
 
         Assert.Equal(TestStore.StoreId, result.StoreId);
-        Assert.Equal(1, result.SchemaVersion);
+        Assert.Equal(2, result.SchemaVersion);
         Assert.Single(store.Snapshots());
     }
 
@@ -96,12 +96,19 @@ public sealed class LocalDatabaseTests
 
     [Theory]
     [InlineData(-1)]
-    [InlineData(2)]
     [InlineData(int.MaxValue)]
     public void UnsupportedVersionLeavesTheFileUnchanged(int version)
     {
         using var store = new TestStore();
         store.CreateLegacy(version);
+        AssertRejectedWithoutChanges(store, "unsupported");
+    }
+
+    [Fact]
+    public void NextSchemaVersionIsRejectedWithoutChanges()
+    {
+        using var store = new TestStore();
+        store.CreateLegacy(SarahBeauty.Business.Storage.BusinessSchema.Version + 1);
         AssertRejectedWithoutChanges(store, "unsupported");
     }
 
