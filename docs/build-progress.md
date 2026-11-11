@@ -6,7 +6,7 @@ This file tracks the full application build requested on November 10, 2026. A co
 |---|---|---|
 | Local storage | Implemented | Verified pre-upgrade snapshots, atomic migrations, explicit TEST mode |
 | Owner setup and sign-in | Implemented | Two owners, salted PBKDF2-SHA256 hashes, short lockout after failed attempts, expiring store-bound sessions, transaction audit |
-| Customers | Pending | Form, search, editing, permission history, archive |
+| Customers | Implemented | Name-only save, contact warning, validated optional contact fields, search/edit/archive, permission history, stale-edit guard |
 | Bookings | Pending | Charges, places, appointments, exact payment plans |
 | Client documents | Pending | Versioning, source coverage, PDF output |
 | Books and approvals | Pending | Atomic balanced posting, payments, credits, refunds, closed periods |
@@ -20,5 +20,9 @@ This file tracks the full application build requested on November 10, 2026. A co
 The 34 automated storage and access cases pass using fictional temporary stores. Checks include sign-in after reopening, distinct salts, persisted failed-attempt lockout, invalid/repeated setup, cross-store and expired-session rejection, and rollback of business writes. No actual owner names or passphrases are committed.
 
 Storage now lives in `src/SarahBeauty.Business`; tests reference the same compiled project that WinUI uses. Schema 2 introduces Business, Owners, and Audit. Existing schemas 0 and 1 are snapshotted before the upgrade. The interface offers setup, sign-in, and lock/switch owner; interface automation and device checks remain pending.
+
+## Customer checks
+
+Schema 3 adds customer records and permission history. The 40 automated cases include name-only save, contact warning removal/restoration, invalid input rejection, distinct IDs for duplicate names, archive filtering, permission withdrawal history, and stale-edit rejection. The WinUI customer form exposes the same operations. These checks establish service/database behavior; device and interface acceptance checks are still pending.
 
 Password hashing follows [OWASP's PBKDF2 guidance](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html) and uses [.NET's PBKDF2 implementation](https://learn.microsoft.com/en-us/dotnet/api/system.security.cryptography.rfc2898derivebytes.pbkdf2). Local sign-in controls application actions; database files also require appropriate Windows account and device protection before live use.

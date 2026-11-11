@@ -11,6 +11,9 @@ internal static class Form
     internal static TextBox Input(string label, string value = "") => new() { Header = label, Text = value, MinWidth = 200 };
     internal static PasswordBox Secret(string label) => new() { Header = label, PasswordRevealMode = PasswordRevealMode.Hidden };
 
+    internal static ComboBox Select(string label, string[] choices, string selected) =>
+        new() { Header = label, ItemsSource = choices, SelectedItem = selected, MinWidth = 200 };
+
     internal static Button Action(string label, TextBlock status, Func<Task> action)
     {
         var button = new Button { Content = label, MinHeight = 44 };

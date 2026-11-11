@@ -13,7 +13,7 @@ public sealed class LocalDatabaseTests
         var second = LocalDatabase.InitializeTestDatabaseAt(store.DatabasePath);
 
         Assert.Equal(first, second);
-        Assert.Equal(2, first.SchemaVersion);
+        Assert.Equal(SarahBeauty.Business.Storage.BusinessSchema.Version, first.SchemaVersion);
         Assert.True(Guid.TryParse(first.StoreId, out _));
         Assert.Equal("TEST", TestStore.Scalar(store.DatabasePath,
             "SELECT Value FROM AppMetadata WHERE Key = 'StoreMode';"));
@@ -41,7 +41,7 @@ public sealed class LocalDatabaseTests
         var result = LocalDatabase.InitializeTestDatabaseAt(store.DatabasePath);
         string snapshot = Assert.Single(store.Snapshots());
         Assert.Equal(TestStore.StoreId, result.StoreId);
-        Assert.Equal(2, result.SchemaVersion);
+        Assert.Equal(SarahBeauty.Business.Storage.BusinessSchema.Version, result.SchemaVersion);
         Assert.Equal(0L, TestStore.Scalar(snapshot, "PRAGMA user_version;"));
         Assert.Equal(TestStore.StoreId, TestStore.Scalar(snapshot,
             "SELECT Value FROM AppMetadata WHERE Key = 'StoreId';"));
@@ -66,7 +66,7 @@ public sealed class LocalDatabaseTests
         var result = LocalDatabase.InitializeTestDatabaseAt(store.DatabasePath);
 
         Assert.Equal(TestStore.StoreId, result.StoreId);
-        Assert.Equal(2, result.SchemaVersion);
+        Assert.Equal(SarahBeauty.Business.Storage.BusinessSchema.Version, result.SchemaVersion);
         Assert.Single(store.Snapshots());
     }
 
