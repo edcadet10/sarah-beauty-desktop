@@ -25,6 +25,7 @@ public sealed class FinanceBook(BusinessStore store)
         var accounts = ChartOfAccounts.List(db, owner);
         draft = CorrectionRules.Prepare(db, owner, draft);
         PostingValidation.Validate(db, owner, store, draft, accounts);
+        OpeningRules.Validate(db,store,owner,draft,accounts);
         CreditRefundRules.Validate(db,owner,draft);
         return draft.Kind is FinancialKind.Reversal or FinancialKind.AssetDisposal
             ? CorrectionRules.Lines(db, owner, draft, accounts) : PostingRules.Build(draft, accounts);
@@ -62,12 +63,15 @@ public sealed class FinanceBook(BusinessStore store)
         var accounts = ChartOfAccounts.List(db, owner);
         draft = CorrectionRules.Prepare(db, owner, draft);
         PostingValidation.Validate(db, owner, store, draft, accounts);
+        OpeningRules.Validate(db,store,owner,draft,accounts);
         CreditRefundRules.Validate(db,owner,draft);
         CheckReference(db, owner, draft);
         var lines = draft.Kind is FinancialKind.Reversal or FinancialKind.AssetDisposal
             ? CorrectionRules.Lines(db, owner, draft, accounts) : PostingRules.Build(draft, accounts);
         PostingRules.ValidateBalance(lines);
         var posted = PostingWriter.Save(db, owner, draft, lines, FailurePoint);
+        OpeningRules.AfterPosting(db,owner,draft,posted.Id,accounts);
+        FailurePoint?.Invoke("opening-record");
         if(CreditRefundRules.AfterPosting(db,owner,draft,posted.Id))FailurePoint?.Invoke("credit-refund-funding");
         ReceiptValueGuard.AfterPosting(db,owner,draft,posted.Id);
         BalanceGuards.Validate(db, owner, draft);

@@ -112,3 +112,9 @@ Five added integration cases cover gross versus processor-net value, actual PDF 
 The Resources screen now saves and archives suppliers, loans, and assets. Loan opening principal, asset cost, tax basis, and business use can remain unknown. Register saves create no financial movements. Approved financial entries remain separate; a loan's nonzero opening needs a dated ledger opening, and disposed/archived assets cannot receive new ordinary postings. Posted asset basis/use and loan opening metadata cannot be overwritten through these forms.
 
 Four integration cases verify unknown-value preservation, absence of automatic ledger entries, reference/date/contact validation, stale edits, retained archive identity, and protection for posted assets. All 128 cases and the Windows Debug build pass. An isolated fictional Windows UI rehearsal opened Credit notes, Receipts, and Resources and saved a supplier visibly through the form. This developer-machine smoke check does not replace the full Surface/offline walkthrough.
+
+## Opening balance checks
+
+Schema 12 records evidenced opening decisions by account and individual loan/asset/owner. Nonzero openings post through the reviewed Money workflow. A separate Opening balances screen confirms or revokes zero cash openings without creating a financial movement. Unknown stays distinct from zero; register metadata alone cannot satisfy a nonzero loan opening. The account form cannot set the confirmation flag directly.
+
+Six integration cases cover zero/revocation history, duplicate cash openings and reversal, matching loan principal/date before repayment, asset book value without invented tax basis, transactional failure/retry, missing evidence, invalid dimensions/classifications, and dates after the first ordinary movement. All 134 cases and the Windows Debug build pass. These decisions retain source evidence and actors; they do not automatically import an earlier business.

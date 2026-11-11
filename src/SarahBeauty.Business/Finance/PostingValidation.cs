@@ -83,6 +83,11 @@ internal static class PostingValidation
             var loan = new RecordStore<Loan>(store, "Loan").Get(db, owner, draft.LoanId);
             if(loan.Archived)throw new ArgumentException("Choose an active loan.");
             if (!loan.OpeningPrincipalCents.HasValue) throw new ArgumentException("Confirm this loan's opening principal before posting.");
+            if(loan.OpeningPrincipalCents>0 && db.Scalar("""
+                SELECT Id FROM OpeningBalances WHERE BusinessId=$business AND DimensionKind='Loan' AND DimensionId=$loan
+                AND RevokedAt IS NULL AND Date<=$date;
+                """,("$business",owner.BusinessId),("$loan",loan.Id),("$date",draft.Date!.Value.ToString("yyyy-MM-dd"))) is null)
+                throw new ArgumentException("Approve this loan's evidenced ledger opening before posting proceeds or repayments.");
             if (loan.OpeningDate.HasValue && draft.Date < loan.OpeningDate) throw new ArgumentException("This movement precedes the loan opening date.");
         }
         if (draft.Kind is FinancialKind.AssetPurchase or FinancialKind.AssetContribution or FinancialKind.Depreciation or FinancialKind.AssetDisposal)

@@ -24,7 +24,8 @@ internal sealed class FinancialFields
         _date=Form.Input("Transaction date (YYYY-MM-DD)",d.Date?.ToString("yyyy-MM-dd")??"");
         _amount=Form.Input("Business amount in USD (gross for a receipt)",Money.Input(d.AmountCents));
         _cash=Form.Records("Actual cash / bank / processor account",accounts.Where(a=>a.CashKind!="None"&&a.Active).Select(a=>(a.Id,a.ToString())),d.CashAccountId);
-        _counter=Form.Records("Classification account",accounts.Where(a=>a.CashKind=="None"&&a.Active).Select(a=>(a.Id,a.ToString())),d.CounterAccountId);
+        _counter=Form.Records(d.Kind==FinancialKind.Opening?"Account whose opening is being approved":"Classification account",
+            accounts.Where(a=>a.Active && (d.Kind==FinancialKind.Opening || a.CashKind=="None")).Select(a=>(a.Id,a.ToString())),d.CounterAccountId);
         _to=Form.Records("Receiving cash account",accounts.Where(a=>a.CashKind!="None"&&a.Active).Select(a=>(a.Id,a.ToString())),d.ToAccountId);
         _customer=Form.Records("Payer / customer",new CustomerBook(store).Search(owner,includeArchived:true).Select(c=>(c.Id,$"{c.FullName} • {c.Id[..8]}")),d.CustomerId);
         _economicOwner=Form.Records("Owner involved in this movement",new OwnerAccess(store).Owners(),d.EconomicOwnerId);
@@ -51,7 +52,9 @@ internal sealed class FinancialFields
     internal UIElement Build()
     {
         var panel=Form.Panel();
-        panel.Add(_memo,_date,_amount,_cash,_counter);
+        panel.Add(_memo,_date,_amount);
+        if(_kind!=FinancialKind.Opening)panel.Add(_cash);
+        panel.Add(_counter);
         if(_kind==FinancialKind.Transfer)panel.Add(_to);
         if(_kind is FinancialKind.Receipt or FinancialKind.Refund)panel.Add(_customer,_tax,_taxResolved);
         if(_kind is FinancialKind.Receipt or FinancialKind.LoanPayment)panel.Add(_fee);
@@ -63,7 +66,7 @@ internal sealed class FinancialFields
         if(_kind is FinancialKind.Refund or FinancialKind.SupplierRefund or FinancialKind.Reversal)panel.Add(_original);
         if(_kind==FinancialKind.Refund)panel.Add(_credit);
         if(_kind is FinancialKind.Receipt or FinancialKind.UnclassifiedReceipt or FinancialKind.Refund)panel.Add(_method);
-        if(_kind==FinancialKind.Opening)panel.Add(_openingCredit);
+        if(_kind==FinancialKind.Opening)panel.Add(_openingCredit,Form.Text("Approve a documented starting book value. Link an individual loan, asset, or owner when its account requires one. This does not import earlier business activity. Confirm zero cash balances in Opening balances."));
         panel.Add(_booking,_reference,_provider,_reliable,_evidence,Form.Text("Missing evidence remains visible for review. It does not prove that a payment or expense occurred."));
         return panel;
     }
