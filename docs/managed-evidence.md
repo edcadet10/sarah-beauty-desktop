@@ -1,6 +1,6 @@
 # Keep managed evidence files
 
-Status: Versioned storage, record links, and the desktop evidence workspace are implemented. Managed-file selection within individual entry forms, complete encrypted archives, and restore remain in progress.
+Status: Versioned storage, record links, the desktop evidence workspace, and [managed-file selection in Money](financial-evidence.md) are implemented. Other entry-form integration, complete encrypted archives, and restore remain in progress.
 
 ## Import and review a file
 

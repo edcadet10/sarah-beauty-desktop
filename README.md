@@ -28,7 +28,7 @@ The full build is in progress in small GitHub pull requests. The app remains in 
 
 The implemented local core includes two-owner sign-in and approvals, customers, service prices, bookings and recipient places, appointment planning and calendar review, combined cancellation decisions and history, versioned client documents and PDFs, bookkeeping, payment applications and funded credits, resource registers, supplier bills and refunds, statements, bank matching, reconciliation, and retained period close/reopen reports.
 
-The latest complete automated suite has 514 passing cases, and the Windows Debug build succeeds with no warnings or errors. Fictional desktop walkthroughs cover selected workflows and restart persistence. These checks do not establish full release acceptance or current Surface compatibility.
+The latest complete automated suite has 522 passing cases, and the Windows Debug build succeeds with no warnings or errors. Fictional desktop walkthroughs cover selected workflows and restart persistence. These checks do not establish full release acceptance or current Surface compatibility.
 
 Remaining work includes managed-evidence selection within entry forms, portable encrypted backup/restore, the app's own Google authorization and exports, separate LIVE setup, owner-access and unsaved-work hardening, an installer, and full release/device checks. There is no published installer yet.
 
@@ -48,7 +48,7 @@ dotnet run --project .\src\SarahBeauty.Desktop\SarahBeauty.Desktop.csproj
 
 Development runs unpackaged by default, with the project directory as its working directory so the app can find its icon. On startup it creates or opens `%LOCALAPPDATA%\SarahBeautyDesktop\Test\sarahbeauty.db`, outside the repository. An empty store offers two-owner TEST setup; existing stores require local sign-in. Use fictional records during development.
 
-The shared business project manages the SQLite schema, currently version 30. Metadata retains the permanent Store ID and TEST mode. The app validates store identity, mode, supported versions, integrity, and foreign keys during initialization.
+The shared business project manages the SQLite schema, currently version 31. Metadata retains the permanent Store ID and TEST mode. The app validates store identity, mode, supported versions, integrity, and foreign keys during initialization.
 
 Before upgrading an older store, initialization creates a verified database snapshot in the data folder's `Backups` directory, then applies migrations atomically. A failed snapshot or migration stops the upgrade. Reopening a current store preserves its identity without creating another upgrade snapshot.
 

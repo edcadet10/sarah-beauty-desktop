@@ -20,10 +20,12 @@ internal sealed class FinancialFields
     private readonly TaxRefundFields _taxRefund;
     private readonly CheckBox _taxResolved,_reliable,_openingCredit;
     private readonly FinancialKind _kind;
+    private readonly EvidenceFileField _evidenceFile;
 
     internal FinancialFields(BusinessStore store,OwnerSession owner,List<Account> accounts,FinancialDraft d)
     {
         _kind=d.Kind;
+        _evidenceFile=new(store,owner,d.EvidenceFile);
         _memo=Form.Input("Description / reason",d.Name);
         _date=Form.Input("Transaction date (YYYY-MM-DD)",d.Date?.ToString("yyyy-MM-dd")??"");
         string amountLabel=d.Kind switch
@@ -99,7 +101,7 @@ internal sealed class FinancialFields
         if(_kind==FinancialKind.Opening)panel.Add(_openingCredit,Form.Text("Approve a documented starting book value. Link an individual loan, asset, or owner when its account requires one. This does not import earlier business activity. Confirm zero cash balances in Opening balances."));
         panel.Add(_booking);
         if(_kind!=FinancialKind.ReceiptClassification)panel.Add(_reference,_provider,_reliable);
-        panel.Add(_evidence,Form.Text("Missing evidence remains visible for review. It does not prove that a payment or expense occurred."));
+        panel.Add(_evidenceFile.Build(),_evidence,Form.Text("Missing evidence remains visible for review. It does not prove that a payment or expense occurred."));
         return panel;
     }
 
@@ -113,6 +115,6 @@ internal sealed class FinancialFields
         CreditId=_kind==FinancialKind.Refund?_credit.SelectedId():d.CreditId,
         PaymentMethod=_method.Text.Trim(),
         ExternalReference=_reference.Text,Provider=_provider.Text,ReliableReference=_reliable.IsChecked==true,
-        OpeningCredit=_openingCredit.IsChecked==true,EvidenceId=_evidence.Text.Trim()
+        OpeningCredit=_openingCredit.IsChecked==true,EvidenceId=_evidence.Text.Trim(),EvidenceFile=_evidenceFile.Read()
     }))));
 }

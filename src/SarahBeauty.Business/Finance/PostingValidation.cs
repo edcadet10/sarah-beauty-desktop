@@ -28,6 +28,7 @@ internal static class PostingValidation
         ValidateReferences(db, owner, store, draft);
         ValidateAmounts(draft);
         TaxRefunds.Validate(draft);
+        FinancialEvidence.Validate(db,store,owner,draft.EvidenceFile,verifyContents:true);
     }
 
     internal static void CheckClosedPeriod(DbWork db, OwnerSession owner, DateOnly date)
