@@ -10,7 +10,7 @@ This file tracks the full application build requested on November 10, 2026. A co
 | Bookings | In progress | Charges, places, recipient links, exact plans, appointments, and explicit paid reservation implemented; full cancellation workflow and calendar refinements pending |
 | Client documents | Implemented core | Quote versions, bounded payer invoices, dated credit notes, approved-payment receipts, and saved PDFs; full release walkthrough pending |
 | Books and approvals | In progress | Core posting/reports, receipt/credit applications, funded credits, cash refunds and dated reversals implemented; period-close UI and remaining workflows pending |
-| Resources | Pending | Supplies, suppliers, assets, loans, owner movements, mileage |
+| Resources | In progress | Supplier/asset/loan registers and core postings implemented; purchases, supplies, mileage, full opening/disposal workflows pending |
 | Reconciliation and reports | Pending | Statements, bounded matches, reports, dashboard |
 | Recovery and Google | Pending | Attachments, portable encrypted archive, Sheets export, Drive authorization/readback |
 | Release | Pending | Installer, full fictional walkthrough, actual Surface and second-device checks |
@@ -106,3 +106,9 @@ Eight new cases cover partial/final-cent reductions, retry, paid-invoice protect
 Schema 11 links one issued receipt to each approved customer payment. The saved client snapshot shows the original gross payment, recorded method (or an explicit unknown), an owner-reviewed client-safe reference, direct/credit applications, refunds, unused value, and payer invoice balance as of issuance. The snapshot excludes internal memo, account/provider details, evidence IDs, and private customer notes. Changing records after review requires a fresh review; later refunds and allocations do not rewrite the issued receipt or its PDF.
 
 Five added integration cases cover gross versus processor-net value, actual PDF text/privacy, frozen reprints after a later refund, funded credit applications without double counting, review invalidation, duplicate/unapproved/reversed payments, and rollback/retry. All 124 cases pass. A new fictional demo generated quote, invoice, credit note, and receipt PDFs; the receipt and credit-note pages were visually inspected for readable amounts, references, TEST labels, and layout. Windows Debug build passes. No document is sent automatically.
+
+## Resource register checks
+
+The Resources screen now saves and archives suppliers, loans, and assets. Loan opening principal, asset cost, tax basis, and business use can remain unknown. Register saves create no financial movements. Approved financial entries remain separate; a loan's nonzero opening needs a dated ledger opening, and disposed/archived assets cannot receive new ordinary postings. Posted asset basis/use and loan opening metadata cannot be overwritten through these forms.
+
+Four integration cases verify unknown-value preservation, absence of automatic ledger entries, reference/date/contact validation, stale edits, retained archive identity, and protection for posted assets. All 128 cases and the Windows Debug build pass. An isolated fictional Windows UI rehearsal opened Credit notes, Receipts, and Resources and saved a supplier visibly through the form. This developer-machine smoke check does not replace the full Surface/offline walkthrough.
