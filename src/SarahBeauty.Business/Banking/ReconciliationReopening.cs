@@ -29,6 +29,7 @@ internal static class ReconciliationReopening
         db.Execute("INSERT INTO ReconciliationReopens (Id,ReconciliationId,RequestId,Reason,OwnerId,AtUtc) VALUES ($id,$target,$request,$reason,$owner,$at);",
             ("$id",reopen),("$target",id),("$request",request),("$reason",reason),("$owner",owner.OwnerId),("$at",at));
         failure?.Invoke("reconciliation-reopen");
+        StatementErrorHistory.Advance(db,owner,target.Snapshot.Draft);
         BusinessStore.Audit(db,owner,"Reopen reconciliation",id);failure?.Invoke("audit");
         return new(reopen,id,reason,owner.OwnerId,at);
     }

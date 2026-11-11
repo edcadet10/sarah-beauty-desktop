@@ -9,7 +9,7 @@ internal static class ReconciliationCompleter
 {
     internal static CompletedReconciliation Complete(DbWork db,OwnerSession owner,ReconciliationDraft draft,long reviewedWatermark,string request,Action<string>? failure)
     {
-        string payload=ReconciliationQueries.Hash(JsonSerializer.Serialize(new{Version=1,draft.StatementId,draft.Reason,draft.Outstanding,draft.PostedCorrectionIds}));
+        string payload=Payload(draft);
         var existing=db.Read("SELECT Id,PayloadHash FROM Reconciliations WHERE BusinessId=$business AND RequestId=$request;",
             r=>(Id:r.GetString(0),Hash:r.GetString(1)),("$business",owner.BusinessId),("$request",request)).SingleOrDefault();
         if(existing.Id is not null)
@@ -22,6 +22,7 @@ internal static class ReconciliationCompleter
         PostingValidation.CheckClosedPeriod(db,owner,sources.Statement.Through);
         ReconciliationLocks.RequireWritable(db,owner,sources.Statement.AccountId,sources.Statement.Through);
         var preview=ReconciliationCalculator.Calculate(sources,draft);
+        StatementErrorHistory.CheckProposed(db,owner,preview);
         if(!preview.ReadyToComplete)throw new ArgumentException("Resolve every unexplained bank line, unsupported cash remainder, balance difference, and unconfirmed opening before completing.");
         return Save(db,owner,preview,request,payload,failure);
     }
@@ -38,7 +39,16 @@ internal static class ReconciliationCompleter
         failure?.Invoke("reconciliation-snapshot");
         foreach(var bank in s.Bank)db.Execute("INSERT INTO ReconciliationBankCoverage (ReconciliationId,BankLineId) VALUES ($reconciliation,$bank);",("$reconciliation",id),("$bank",bank.Id));
         failure?.Invoke("reconciliation-coverage");
+        StatementErrorHistory.Save(db,owner,id,preview.Draft,failure);
         BusinessStore.Audit(db,owner,"Complete reconciliation",id);failure?.Invoke("audit");
         return new(id,s.Statement.AccountId,s.Statement.Id,s.Statement.Through,owner.OwnerId,at,preview,hash,false);
+    }
+
+    private static string Payload(ReconciliationDraft draft)
+    {
+        string json=draft.StatementErrors.Length==0 && draft.BankCorrections.Length==0
+            ?JsonSerializer.Serialize(new{Version=1,draft.StatementId,draft.Reason,draft.Outstanding,draft.PostedCorrectionIds})
+            :JsonSerializer.Serialize(new{Version=2,draft.StatementId,draft.Reason,draft.Outstanding,draft.PostedCorrectionIds,draft.StatementErrors,draft.BankCorrections});
+        return ReconciliationQueries.Hash(json);
     }
 }

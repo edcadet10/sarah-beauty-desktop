@@ -34,7 +34,9 @@ public sealed class Reconciliations(BusinessStore store)
     {
         store.RequireSession(db,owner);
         draft=Normalize(draft);
-        return ReconciliationCalculator.Calculate(ReconciliationSourcesReader.Read(db,owner,draft.StatementId),draft);
+        var preview=ReconciliationCalculator.Calculate(ReconciliationSourcesReader.Read(db,owner,draft.StatementId),draft);
+        StatementErrorHistory.CheckProposed(db,owner,preview);
+        return preview;
     });
 
     public CompletedReconciliation Complete(OwnerSession owner,ReconciliationDraft draft,long reviewedWatermark,string requestId,string phrase)
@@ -61,5 +63,10 @@ public sealed class Reconciliations(BusinessStore store)
 
     internal static ReconciliationDraft Normalize(ReconciliationDraft draft)=>draft with{StatementId=draft.StatementId.Trim(),Reason=draft.Reason.Trim(),
         Outstanding=draft.Outstanding.Select(o=>o with{JournalLineId=o.JournalLineId.Trim(),Explanation=o.Explanation.Trim(),EvidenceId=o.EvidenceId.Trim()}).OrderBy(o=>o.JournalLineId,StringComparer.Ordinal).ToArray(),
-        PostedCorrectionIds=draft.PostedCorrectionIds.Select(id=>id.Trim()).OrderBy(id=>id,StringComparer.Ordinal).ToArray()};
+        PostedCorrectionIds=draft.PostedCorrectionIds.Select(id=>id.Trim()).OrderBy(id=>id,StringComparer.Ordinal).ToArray(),
+        StatementErrors=draft.StatementErrors.Select(e=>e with{Id=ErrorId(e.Id),BankLineId=e.BankLineId.Trim(),Explanation=e.Explanation.Trim(),EvidenceId=e.EvidenceId.Trim()}).OrderBy(e=>e.Id,StringComparer.Ordinal).ToArray(),
+        BankCorrections=draft.BankCorrections.Select(r=>r with{ErrorId=ErrorId(r.ErrorId),BankLineId=r.BankLineId.Trim(),Explanation=r.Explanation.Trim(),EvidenceId=r.EvidenceId.Trim()})
+            .OrderBy(r=>r.ErrorId,StringComparer.Ordinal).ThenBy(r=>r.BankLineId,StringComparer.Ordinal).ToArray()};
+
+    private static string ErrorId(string id)=>Guid.TryParse(id,out var value)?value.ToString():id.Trim();
 }

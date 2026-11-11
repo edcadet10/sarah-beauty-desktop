@@ -5,6 +5,8 @@ public sealed record ReconciliationDraft(string StatementId,string Reason)
 {
     public OutstandingCash[] Outstanding {get;init;}=[];
     public string[] PostedCorrectionIds {get;init;}=[];
+    public StatementError[] StatementErrors {get;init;}=[];
+    public StatementErrorResolution[] BankCorrections {get;init;}=[];
 }
 public sealed record ReconciliationLine(string Id,DateOnly Date,long SignedCents,long RemainingCents,string Description,string Kind="");
 public sealed record PostedBookCorrection(string MovementId,DateOnly Date,long SignedCents,string Description,string EvidenceId);
@@ -13,6 +15,7 @@ public sealed record ReconciliationSources(StatementImport Statement,string Busi
 {
     public string[] PriorReconciliationIds {get;init;}=[];
     public string[] ContinuityWarnings {get;init;}=[];
+    public CarriedStatementError[] CarriedErrors {get;init;}=[];
 }
 public sealed record CompletedReconciliation(string Id,string AccountId,string StatementId,DateOnly AsOfDate,string ApprovedBy,string AtUtc,
     ReconciliationPreview Snapshot,string SnapshotHash,bool Reopened);
@@ -22,6 +25,9 @@ public sealed record ReconciliationPreview(ReconciliationDraft Draft,Reconciliat
     long PostedBookCorrectionsCents,long LedgerBeforeCorrectionsCents,long AdjustedStatementCents,long DifferenceCents,string[] UnexplainedCashIds)
 {
     public long AdjustedLedgerCents=>Sources.LedgerClosingCents;
-    public int UnexplainedBankCount=>Sources.Bank.Count(b=>b.RemainingCents>0);
+    public Dictionary<string,long> BankErrorClaims {get;init;}=[];
+    public long StatementErrorAdjustmentCents {get;init;}
+    public CarriedStatementError[] RemainingStatementErrors {get;init;}=[];
+    public int UnexplainedBankCount=>Sources.Bank.Count(b=>b.RemainingCents>BankErrorClaims.GetValueOrDefault(b.Id));
     public bool ReadyToComplete=>Sources.OpeningConfirmed && Sources.ContinuityWarnings.Length==0 && DifferenceCents==0 && UnexplainedBankCount==0 && UnexplainedCashIds.Length==0;
 }

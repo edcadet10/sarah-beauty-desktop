@@ -5,15 +5,17 @@ internal static class ReconciliationCalculator
     internal static ReconciliationPreview Calculate(ReconciliationSources sources,ReconciliationDraft draft)
     {
         Validate(draft,sources);
+        var errors=StatementErrorCalculator.Calculate(sources.Bank,sources.CarriedErrors,draft.StatementErrors,draft.BankCorrections);
         var cash=sources.Cash.ToDictionary(c=>c.Id);
         long deposits=ReconciliationSourcesReader.Cents(draft.Outstanding.Where(o=>cash[o.JournalLineId].SignedCents>0).Select(o=>o.Cents));
         long payments=ReconciliationSourcesReader.Cents(draft.Outstanding.Where(o=>cash[o.JournalLineId].SignedCents<0).Select(o=>o.Cents));
         long corrections=ReconciliationSourcesReader.Cents(sources.CorrectionChoices.Where(c=>draft.PostedCorrectionIds.Contains(c.MovementId)).Select(c=>c.SignedCents));
-        long adjusted=ReconciliationSourcesReader.Cents([sources.Statement.ClosingCents,deposits,-payments]);
+        long adjusted=ReconciliationSourcesReader.Cents([sources.Statement.ClosingCents,deposits,-payments,errors.AdjustmentCents]);
         long before=ReconciliationSourcesReader.Difference(sources.LedgerClosingCents,corrections);
         long difference=ReconciliationSourcesReader.Difference(adjusted,sources.LedgerClosingCents);
         var supported=draft.Outstanding.Select(o=>o.JournalLineId).ToHashSet();
-        return new(draft,sources,deposits,payments,corrections,before,adjusted,difference,sources.Cash.Where(c=>c.RemainingCents>0 && !supported.Contains(c.Id)).Select(c=>c.Id).ToArray());
+        return new(draft,sources,deposits,payments,corrections,before,adjusted,difference,sources.Cash.Where(c=>c.RemainingCents>0 && !supported.Contains(c.Id)).Select(c=>c.Id).ToArray())
+            {BankErrorClaims=errors.ClaimedBankCents,StatementErrorAdjustmentCents=errors.AdjustmentCents,RemainingStatementErrors=errors.RemainingErrors};
     }
 
     private static void Validate(ReconciliationDraft draft,ReconciliationSources sources)

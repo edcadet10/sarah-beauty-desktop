@@ -13,5 +13,6 @@ public sealed record BankMatchingSources(List<BankLine> BankLines,List<CashMatch
     List<MatchPosition> CashPositions,List<BankMatch> History,List<BankMatchGroup> Approvals);
 public sealed record MatchPosition(string Id,long SignedCents,long MatchedCents)
 {
-    public long RemainingCents=>checked(Math.Abs(SignedCents)-MatchedCents);
+    public long ReservedForStatementErrorsCents {get;init;}
+    public long RemainingCents=>checked(Math.Abs(SignedCents)-MatchedCents-ReservedForStatementErrorsCents);
 }
