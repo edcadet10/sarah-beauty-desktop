@@ -31,6 +31,15 @@ public sealed class BusinessStore
         return read(new DbWork(connection));
     }
 
+    internal T ReadSnapshot<T>(Func<DbWork,T> read)
+    {
+        using var connection=Open();
+        using var transaction=connection.BeginTransaction(deferred:true);
+        T value=read(new DbWork(connection,transaction));
+        transaction.Commit();
+        return value;
+    }
+
     public string BusinessName(OwnerSession session) => Read(db =>
     {
         RequireSession(db, session);

@@ -11,7 +11,7 @@ This file tracks the full application build requested on November 10, 2026. A co
 | Client documents | Implemented core | Quote versions, bounded payer invoices, dated credit notes, approved-payment receipts, and saved PDFs; full release walkthrough pending |
 | Books and approvals | In progress | Core posting/reports, receipt/credit applications, funded credits, cash refunds and dated reversals implemented; period-close UI and remaining workflows pending |
 | Resources | In progress | Supplier/asset/loan registers, supply status/expiry, actual trip logs, and evidenced openings implemented; purchases and full disposal/reimbursement workflows pending |
-| Reconciliation and reports | Pending | Statements, bounded matches, reports, dashboard |
+| Reconciliation and reports | In progress | Date-filtered financial reports, customer aging, tax activity, and source entries implemented; statements, matches, closing, full dashboard pending |
 | Recovery and Google | Pending | Attachments, portable encrypted archive, Sheets export, Drive authorization/readback |
 | Release | Pending | Installer, full fictional walkthrough, actual Surface and second-device checks |
 
@@ -124,3 +124,9 @@ Six integration cases cover zero/revocation history, duplicate cash openings and
 Resources now includes supplies with Available/Low/Finished status, opened/expiry dates, location, and retained status/date history. Expiry and low/finished alerts are available independently of accounting. Actual trip records identify exactly one real owner or artist driver, route, purpose, distance, parking/tolls, booking, evidence, and reimbursement review status. Neither a supply status change nor a trip log invents a financial transaction or a mileage deduction. Reimbursement payment integration remains pending.
 
 Three new integration cases cover status/date history, inclusive expiry alerts, archives, invalid and stale edits, exactly one scoped driver, and unchanged booking travel/no automatic money posting. All 137 cases and the Windows Debug build pass. One initial test incorrectly compared deserialized arrays by record identity; it now checks the booking revision and charge contents, and the corrected case passes.
+
+## Financial report checks
+
+Reports now provides profit and loss, balance sheet, trial balance with carry-forward, cash movements, customer aging, and tax activity. Each report retains business/mode/basis, date filters, generation time, and committed watermark. Supporting account entries come from that same snapshot. Customer aging separates overdue, due today, future, and unknown dates; unused receipts and funded credits are separate. Tax charged, reduced, collected, refunded, and remitted follow their own document/posting dates.
+
+Four new cases verify aging equality, independent tax periods, historical opening warnings, and a real approval committed midway through report generation in a WAL fixture. The report retains one consistent database generation, including its supporting entries. The full suite has 141 passing cases; the final report changes also pass targeted checks and a warning-free Windows build. An actual isolated Windows UI run displayed the fictional $250 income, $7.50 expense, and $242.50 result. Statement reconciliation, period closing, tax-recovery handling, charting, and the complete dashboard remain pending.

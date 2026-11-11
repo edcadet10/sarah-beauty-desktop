@@ -21,6 +21,11 @@ public sealed class LedgerReports(BusinessStore store)
     public List<AccountTotal> TrialBalance(OwnerSession owner, DateOnly from, DateOnly through) => store.Read(db =>
     {
         store.RequireSession(db, owner);
+        return TrialBalance(db,owner,from,through);
+    });
+
+    internal static List<AccountTotal> TrialBalance(DbWork db,OwnerSession owner,DateOnly from,DateOnly through)
+    {
         if (from > through) throw new ArgumentException("The period start must be on or before its end.");
         return db.Read("""
             SELECT A.Id,A.Code,A.Name,A.Type,A.CashKind,A.Active,A.OpeningConfirmed,
@@ -32,7 +37,7 @@ public sealed class LedgerReports(BusinessStore store)
             """, r => new AccountTotal(new(r.GetString(0),r.GetString(1),r.GetString(2),r.GetString(3),r.GetString(4),r.GetInt32(5)==1,r.GetInt32(6)==1),
                 r.GetInt64(7),r.GetInt64(8),r.GetInt64(9)), ("$business",owner.BusinessId),
             ("$from",from.ToString("yyyy-MM-dd")),("$through",through.ToString("yyyy-MM-dd")));
-    });
+    }
 
     public ProfitAndLoss ProfitLoss(OwnerSession owner, DateOnly from, DateOnly through)
     {
