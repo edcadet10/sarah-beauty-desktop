@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Page x:Class="SarahBeauty_Desktop.MainPage"
+<Page x:Class="SarahBeauty_Desktop.MainPage" Background="#FFFBF8"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <ScrollViewer Padding="24" HorizontalScrollBarVisibility="Disabled">
-        <StackPanel x:Name="Host" Spacing="16" />
-    </ScrollViewer>
+    <ContentControl x:Name="Host" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />
 </Page>

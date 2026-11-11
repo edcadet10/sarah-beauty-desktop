@@ -64,3 +64,9 @@ Issued versions render to private managed PDF files. Rendering has independent P
 Four new cases check actual extracted PDF text for totals/privacy, repeated TEST labels and final content across multiple pages, retry after blocked file storage, and rejection of changed/unsafe artifact paths. A fictional six-page quote and invoice were also generated through `tools/SarahBeauty.Demo` and reviewed visually. The renderer uses the pinned MIT-licensed dependency and Windows font resolver documented in [Document dependencies](third-party/dependencies.md).
 
 To create an isolated fictional document rehearsal, run `dotnet run --project tools/SarahBeauty.Demo -- --output NEW_EMPTY_DIRECTORY`. The tool refuses a nonempty destination. Its database, PDFs, and owner fixture are TEST data only. The app still needs full interface, actual Surface, backup/restore, and complete business workflow checks.
+
+## Workspace navigation checks
+
+The workspace now uses the Windows navigation pane. Each section retains its view while switching, so unsaved fields survive navigation. An explicit reload asks before discarding fields. Owner/business/TEST identity and cloud state remain visible. A TEST-only environment override, `SARAHBEAUTY_TEST_DIRECTORY`, allows an isolated generated demo without changing the normal data location; stored mode validation still applies.
+
+An actual developer-computer preview was launched against the fictional demo store. Windows UI Automation signed in, opened Customers, Bookings, Quotes, Invoices, and Money, and verified that unsaved customer input survived a section switch and return. A screenshot of that isolated workspace was inspected. The app remained responsive. This was a developer-machine navigation smoke check, not a full business walkthrough or Surface acceptance pass.

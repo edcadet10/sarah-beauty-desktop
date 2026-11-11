@@ -7,6 +7,8 @@ public static class AppDataPaths
 {
     public static string GetTestFolder()
     {
+        string? previewFolder=Environment.GetEnvironmentVariable("SARAHBEAUTY_TEST_DIRECTORY");
+        if(!string.IsNullOrWhiteSpace(previewFolder))return Path.GetFullPath(previewFolder);
         string localData = Environment.GetFolderPath(
             Environment.SpecialFolder.LocalApplicationData);
         if (string.IsNullOrWhiteSpace(localData))

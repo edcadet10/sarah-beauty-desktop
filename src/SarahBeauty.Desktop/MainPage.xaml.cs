@@ -21,24 +21,29 @@ public sealed partial class MainPage : Page
             _access = new OwnerAccess(_store);
             ShowSignIn();
         }
-        catch (Exception error) { Host.Add(Form.Title("Storage could not open"), Form.Text(error.Message)); }
+        catch (Exception error)
+        {
+            var panel=Form.Panel();
+            panel.Add(Form.Title("Storage could not open"),Form.Text(error.Message));
+            Host.Content=panel;
+        }
     }
 
     private void ShowSignIn()
     {
         _session?.Lock();
         _session = null;
-        Host.Children.Clear();
-        Host.Add(Form.Text("TEST • Local business records"), OwnerView.Build(_access!, session =>
+        var panel=Form.Panel();
+        panel.Add(Form.Text("TEST • Local business records"), OwnerView.Build(_access!, session =>
         {
             _session = session;
             ShowWorkspace();
         }));
+        Host.Content=new ScrollViewer{Padding=new Microsoft.UI.Xaml.Thickness(24),Content=panel};
     }
 
     private void ShowWorkspace()
     {
-        Host.Children.Clear();
-        Host.Add(new WorkspaceView(_store!, _session!, ShowSignIn).Build());
+        Host.Content=new WorkspaceView(_store!,_session!,ShowSignIn).Build();
     }
 }

@@ -6,7 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:SarahBeauty_Desktop"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    Title="SarahBeauty.Desktop"
+    Title="Sarah Beauty"
     mc:Ignorable="d">
     <Window.SystemBackdrop>
         <MicaBackdrop />
@@ -18,7 +18,7 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <TitleBar x:Name="AppTitleBar" Title="SarahBeauty.Desktop">
+        <TitleBar x:Name="AppTitleBar" Title="Sarah Beauty">
             <TitleBar.IconSource>
                 <ImageIconSource ImageSource="Assets/AppIcon.ico" />
             </TitleBar.IconSource>
