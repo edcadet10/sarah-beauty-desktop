@@ -8,3 +8,6 @@ public sealed record LinkedTripPayment(string Id,string ApprovedBy,string AtUtc,
 public sealed record TripPaymentReleaseDraft(string LinkId,DateOnly Date,long Cents,string Reason,string EvidenceId);
 public sealed record TripPaymentReleasePreview(TripPaymentReleaseDraft Draft,LinkedTripPayment Original,long Watermark,long RemainingCents);
 public sealed record ReleasedTripPayment(string Id,string ApprovedBy,string AtUtc,TripPaymentReleasePreview Snapshot,string SnapshotHash);
+public sealed record TripReimbursementRow(LinkedTripPayment Source,long RemainingCents,long RemainingAfterAllDatedActionsCents,bool CurrentBasis);
+public sealed record TripReimbursementReview(string BusinessName,string Mode,long Watermark,string GeneratedAtUtc,DateOnly AsOf,MileageTrip CurrentTrip,
+    long CurrentClaimLinkedCents,long OtherBasisLinkedCents,TripReimbursementRow[] Links,ReleasedTripPayment[] Releases);
