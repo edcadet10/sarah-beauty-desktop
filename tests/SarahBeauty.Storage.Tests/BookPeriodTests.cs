@@ -56,6 +56,8 @@ public sealed class BookPeriodTests
         string request=Guid.NewGuid().ToString();var saved=book.Close(f.Business.Owner,draft,preview.Reports.Watermark,request,BusinessFixture.Phrase);
         Assert.Equal(new DateOnly(2027,1,31),book.ClosedThrough(f.Business.Owner));
         Assert.Equal(10000,saved.Snapshot.Reports.ProfitLoss.IncomeCents);
+        Assert.Equal(1,saved.Snapshot.Reports.Assets!.Version);
+        Assert.True(Assert.Single(saved.Snapshot.Reports.Assets.Positions).CurrentFacts.Archived);
         Assert.Equal(3,saved.Snapshot.Reconciliations.Length);
         Assert.Equal(f.Business.Owner.OwnerId,saved.ApprovedBy);
         Assert.Equal(saved.Id,book.Close(f.Business.Owner,draft,preview.Reports.Watermark,request.ToUpperInvariant(),BusinessFixture.Phrase).Id);
@@ -67,6 +69,9 @@ public sealed class BookPeriodTests
         Assert.True(book.Close(f.Business.Owner,draft,preview.Reports.Watermark,request,BusinessFixture.Phrase).Reopened);
         Assert.Null(book.ClosedThrough(f.Business.Owner));
         Assert.Equal(saved.SnapshotHash,book.Open(f.Business.Owner,saved.Id).SnapshotHash);
+        new AssetFacts(f.Business.Store).Review(f.Business.Owner,new(f.Asset.Id,50000,40000,"Fictional later register review","Fictional later evidence"),
+            new BusinessResources(f.Business.Store).Assets(f.Business.Owner).Single().Revision,Guid.NewGuid().ToString(),BusinessFixture.Phrase);
+        Assert.Null(Assert.Single(book.Open(f.Business.Owner,saved.Id).Snapshot.Reports.Assets!.Positions).CurrentFacts.CostCents);
     }
 
     [Fact]
