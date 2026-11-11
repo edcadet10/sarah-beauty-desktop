@@ -55,8 +55,9 @@ internal static class PostingRules
     private static List<JournalLine> LoanPayment(FinancialDraft d,string principal,string interest,string fee) =>
         [new(principal,d.PrincipalCents,0),new(interest,d.InterestCents,0),new(fee,d.FeeCents,0),new(d.CashAccountId,0,d.AmountCents)];
 
-    internal static void ValidateBalance(IReadOnlyList<JournalLine> lines)
+    internal static void ValidateBalance(IReadOnlyList<JournalLine> lines,bool allowEmpty=false)
     {
+        if(allowEmpty && lines.Count==0)return;
         if (lines.Count < 2 || lines.Any(l => l.DebitCents < 0 || l.CreditCents < 0
             || (l.DebitCents > 0) == (l.CreditCents > 0))
             || lines.Sum(l => l.DebitCents) != lines.Sum(l => l.CreditCents))

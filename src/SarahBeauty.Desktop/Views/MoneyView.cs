@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using SarahBeauty.Business.Finance;
+using SarahBeauty.Business.Purchasing;
 using SarahBeauty.Business.Rules;
 using SarahBeauty.Business.Security;
 using SarahBeauty.Business.Storage;
@@ -60,9 +61,11 @@ internal sealed class MoneyView
         _detail.Children.Clear();
         var status=Form.Text();
         _detail.Add(Form.Title(draft.Status=="Posted"?"Posted movement":"Review saved draft"),Form.Text(draft.ToString()));
+        if(draft.PurchaseId.Length>0)_detail.Add(Form.Text("Bill: "+new PurchaseBook(_store).List(_owner).Single(p=>p.Id==draft.PurchaseId).Name+" • Funding: "+draft.PurchaseFunding));
         try
         {
             var lines=draft.Status=="Posted"?_book.Journal(_owner,draft.PostedBatchId):_book.Preview(_owner,draft);
+            if(lines.Count==0)_detail.Add(Form.Text("This owner-funded installment has no business journal effect. Its supplier payment remains in the bill settlement history."));
             _detail.Add(Form.Text(string.Join("\n",lines.Select(l=>$"{_accounts.Single(a=>a.Id==l.AccountId).Name} • Debit {Money.Display(l.DebitCents)} • Credit {Money.Display(l.CreditCents)}"))));
         }
         catch(Exception error){status.Text=error.Message;}

@@ -13,6 +13,8 @@ internal static class PostingValidation
         if (!Enum.IsDefined(draft.Kind) || draft.Date is null || string.IsNullOrWhiteSpace(draft.Name))
             throw new ArgumentException("Choose a movement, date, and description.");
         if(draft.PaymentMethod.Length>100)throw new ArgumentException("Use a payment method of up to 100 characters.");
+        if(draft.PurchaseId.Length>0 && draft.Kind is not (FinancialKind.PurchasePayment or FinancialKind.Reversal))
+            throw new ArgumentException("Use the supplier payment workflow to settle a supplier bill.");
         if (draft.Kind != FinancialKind.Reversal && draft.Kind != FinancialKind.AssetDisposal) Money.Positive(draft.AmountCents);
         if (draft.AmountCents < 0 || draft.TaxCents < 0 || draft.TaxCents > draft.AmountCents
             || draft.FeeCents < 0 || draft.PrincipalCents < 0 || draft.InterestCents < 0)
@@ -50,7 +52,8 @@ internal static class PostingValidation
         Account Required(string id) => accounts.SingleOrDefault(a => a.Id == id && a.Active)
             ?? throw new ArgumentException("Choose an active account from this business.");
         if (draft.Kind is not (FinancialKind.OwnerPaidExpense or FinancialKind.Depreciation or FinancialKind.AssetContribution or FinancialKind.Opening or FinancialKind.Reversal)
-            && !(draft.Kind==FinancialKind.AssetDisposal && draft.AmountCents==0))
+            && !(draft.Kind==FinancialKind.AssetDisposal && draft.AmountCents==0)
+            && !(draft.Kind==FinancialKind.PurchasePayment && draft.PurchaseFunding!="Business cash"))
         {
             var cash = Required(draft.CashAccountId);
             if (cash.Type != "Asset" || cash.CashKind == "None") throw new ArgumentException("Choose the actual cash, bank, or processor account.");

@@ -57,7 +57,14 @@ internal sealed class PurchaseView(BusinessStore store,OwnerSession owner)
         }
         catch(Exception error){status.Text=error.Message;}
         _detail.Add(status);
-        if(value.Status!="Draft")return;
+        if(value.Status!="Draft")
+        {
+            var today=DateOnly.FromDateTime(DateTime.Today);
+            var due=new PurchasePayments(store).Outstanding(owner,today).SingleOrDefault(p=>p.PurchaseId==value.Id);
+            _detail.Add(Form.Text(due is null?"This bill is outside today's balances.":$"Unpaid as of {today:yyyy-MM-dd}: {Money.Display(due.Cents)}"),
+                Form.Text("Prepare the actual PurchasePayment movement in Money and choose this approved bill. Payment is reviewed and approved separately."));
+            return;
+        }
         var phrase=Form.Secret($"Confirm {owner.OwnerName}'s passphrase to approve the bill");
         _detail.Add(Form.Action("Edit bill draft",status,()=>{Edit(value);return Task.CompletedTask;}),phrase,
             Form.Action("Approve saved supplier bill",status,async()=>
