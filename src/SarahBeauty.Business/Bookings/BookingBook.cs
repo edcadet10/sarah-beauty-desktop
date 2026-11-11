@@ -29,6 +29,8 @@ public sealed class BookingBook(BusinessStore store)
                 || (previous is null && booking.History.Length > 0))
                 throw new ArgumentException("Booking history cannot be overwritten.");
             if (previous is not null) PreserveLinks(previous, booking);
+            if(booking.AcceptedQuoteVersionId!=(previous?.AcceptedQuoteVersionId??""))
+                throw new ArgumentException("Record quote acceptance through the document workflow.");
             BookingValidation.Validate(db, owner, booking, Records.List(db, owner).Where(b => b.Id != booking.Id).ToList(), _artists.List(db, owner));
             return Records.Save(db, owner, booking);
         });
