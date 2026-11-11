@@ -15,6 +15,7 @@ internal sealed class StatementReviewRows(StatementRowReview[] reviews)
 
     internal UIElement Build()
     {
+        if(reviews.Length==0)return Form.Text("No transaction rows. The statement is being confirmed as having no activity.");
         var panel=Form.Panel();
         var status=Form.Text();
         panel.Add(Form.Action("Use matching unique bank references",status,()=>

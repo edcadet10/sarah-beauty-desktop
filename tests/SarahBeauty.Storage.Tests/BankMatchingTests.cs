@@ -226,7 +226,7 @@ public sealed class BankMatchingTests
         using var f=new LedgerFixture();
         var bank=Statement(f,10000).Single();
         var cash=Cash(f,f.Post(f.Draft(FinancialKind.Receipt,10000)));
-        f.Business.Files.Execute("DROP TABLE BankMatches; DROP TABLE BankMatchGroups; PRAGMA user_version=20;");
+        f.Business.Files.Execute("DROP TABLE BankMatches; DROP TABLE BankMatchGroups; ALTER TABLE StatementImports DROP COLUMN EvidenceId; PRAGMA user_version=20;");
         Assert.Equal(BusinessSchema.Version,LocalDatabase.InitializeTestDatabaseAt(f.Business.Files.DatabasePath).SchemaVersion);
         Assert.Single(f.Business.Files.Snapshots());
         var book=new BankMatching(f.Business.Store);

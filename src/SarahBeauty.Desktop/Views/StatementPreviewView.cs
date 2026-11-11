@@ -64,6 +64,11 @@ internal sealed class StatementPreviewView
     private Task<StatementSource> Parse()
     {
         string contents=_csv.Text;
+        if(_importFields.NoActivity)
+        {
+            if(!string.IsNullOrWhiteSpace(contents))throw new ArgumentException("Clear CSV contents before confirming a no-activity statement.");
+            return Task.FromResult(new StatementSource([],"","{\"Kind\":\"Confirmed no-activity statement\"}"));
+        }
         var mapping=_fields.Read();
         return Task.Run(()=>StatementCsv.Parse(contents,mapping));
     }

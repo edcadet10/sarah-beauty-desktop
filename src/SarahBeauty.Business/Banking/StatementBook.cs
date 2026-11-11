@@ -22,7 +22,9 @@ public sealed class StatementBook(BusinessStore store)
         if(!Guid.TryParse(requestId,out _))throw new ArgumentException("Use a permanent request ID for this reviewed import.");
         draft=StatementValidation.Normalize(draft);
         choices=choices.Select(c=>c with{ExistingLineId=c.ExistingLineId.Trim(),Reason=c.Reason.Trim()}).OrderBy(c=>c.SourceRow).ToArray();
-        string sourceHash=Hash(draft),payloadHash=Hash(new{Draft=draft,Choices=choices});
+        var legacy=new{draft.AccountId,draft.From,draft.Through,draft.OpeningCents,draft.ClosingCents,draft.Source};
+        string sourceHash=draft.EvidenceId.Length==0?Hash(legacy):Hash(new{Statement=legacy,draft.EvidenceId});
+        string payloadHash=draft.EvidenceId.Length==0?Hash(new{Draft=legacy,Choices=choices}):Hash(new{Draft=legacy,Choices=choices,draft.EvidenceId});
         return store.Transaction(db=>
         {
             store.RequireSession(db,owner);
