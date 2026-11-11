@@ -11,6 +11,7 @@ internal static class BookingValidation
         if (string.IsNullOrWhiteSpace(booking.Name) || booking.Name.Length > 200) throw new ArgumentException("Enter a booking name of up to 200 characters.");
         if (!new[] { "Undecided", "Single", "Split" }.Contains(booking.PayerMode)) throw new ArgumentException("Choose a payer arrangement.");
         Customer(db, owner, booking.PrimaryCustomerId);
+        Customer(db, owner, booking.SinglePayerCustomerId);
         foreach (var charge in booking.Charges.Where(c => c.Active)) ValidateCharge(db, owner, booking, charge);
         foreach (var place in booking.Places) Customer(db, owner, place.CustomerId);
         if (booking.Charges.Select(c => c.Id).Distinct().Count() != booking.Charges.Length
