@@ -16,6 +16,7 @@ internal sealed class WorkspaceView(BusinessStore store, OwnerSession session, A
         var nav = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
         var status = Form.Text();
         nav.Add(Link("Dashboard", Dashboard, status), Link("Customers", () => new CustomerView(store, session).Build(), status),
+            Link("Bookings", () => new BookingView(store, session).Build(), status),
             Form.Action("Lock / switch owner", status, () => { locked(); return Task.CompletedTask; }));
         panel.Add(Form.Title(store.BusinessName(session)), Form.Text($"TEST • Signed in as {session.OwnerName}"),
             nav, status, _content);

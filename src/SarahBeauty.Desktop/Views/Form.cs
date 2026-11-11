@@ -14,6 +14,15 @@ internal static class Form
     internal static ComboBox Select(string label, string[] choices, string selected) =>
         new() { Header = label, ItemsSource = choices, SelectedItem = selected, MinWidth = 200 };
 
+    internal static ComboBox Records(string label, IEnumerable<(string Id, string Label)> choices, string selected = "")
+    {
+        var options = new[] { new RecordChoice("", "Undecided / none") }.Concat(choices.Select(c => new RecordChoice(c.Id, c.Label))).ToList();
+        return new ComboBox { Header = label, ItemsSource = options, SelectedItem = options.FirstOrDefault(o => o.Id == selected) ?? options[0], MinWidth = 200 };
+    }
+
+    internal static string SelectedId(this ComboBox control) => (control.SelectedItem as RecordChoice)?.Id ?? "";
+    private sealed record RecordChoice(string Id, string Label) { public override string ToString() => Label; }
+
     internal static Button Action(string label, TextBlock status, Func<Task> action)
     {
         var button = new Button { Content = label, MinHeight = 44 };

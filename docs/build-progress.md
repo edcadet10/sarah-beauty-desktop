@@ -7,7 +7,7 @@ This file tracks the full application build requested on November 10, 2026. A co
 | Local storage | Implemented | Verified pre-upgrade snapshots, atomic migrations, explicit TEST mode |
 | Owner setup and sign-in | Implemented | Two owners, salted PBKDF2-SHA256 hashes, short lockout after failed attempts, expiring store-bound sessions, transaction audit |
 | Customers | Implemented | Name-only save, contact warning, validated optional contact fields, search/edit/archive, permission history, stale-edit guard |
-| Bookings | In progress | Exact money/quantity rounding and bridal/custom payment plans implemented; persistent bookings, places, and appointments pending |
+| Bookings | In progress | Persistent charges, places, recipient links, exact plans, and appointments implemented; confirmation awaits approved-payment workflow |
 | Client documents | Pending | Versioning, source coverage, PDF output |
 | Books and approvals | Pending | Atomic balanced posting, payments, credits, refunds, closed periods |
 | Resources | Pending | Supplies, suppliers, assets, loans, owner movements, mileage |
@@ -30,3 +30,9 @@ Password hashing follows [OWASP's PBKDF2 guidance](https://cheatsheetseries.owas
 ## Pricing checks
 
 The 48 automated cases include the three agreed wedding calculation fixtures, odd-cent deposits, explicit no-trial custom plans, invalid money/overflow rejection, and deterministic proportional cent allocation. Money uses integer cents; quantities use decimal arithmetic. Allocation uses integer arithmetic, including amounts at the supported 64-bit limit. These helpers will be used by booking and document commands.
+
+## Booking checks
+
+Schema 4 adds a shared revisioned store for typed operational aggregates. Booking commands validate referenced customers, named/unnamed counts, retained identities, valid charges, and artist conflicts in the same transaction as the save. Removed unnamed places remain in history. Appointment times carry explicit offsets; overlapping work for the same artist needs an override reason. Status changes retain their actor and reason and never create money movements.
+
+The suite now has 53 passing cases. Added cases cover six unnamed guests with two named later, quantity reduction/increase, explicit tax resolution, no-trial plans, artist overlap/separate-artist handling, and rejection of direct confirmation or cross-business customer IDs. Windows Debug build passes. Booking confirmation is deliberately unavailable until approved deposits can be checked; document, financial, interface, and Surface checks remain pending.
