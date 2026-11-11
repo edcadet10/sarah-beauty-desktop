@@ -4,6 +4,8 @@ Status: Verified local database upgrade snapshots and the [managed evidence work
 
 The [portable encryption helper](archive-encryption.md) now uses the published age format and passes reference interoperability and failure checks. Archive assembly and staged restore verification remain separate work.
 
+The [recovery source capture](archive-snapshot.md) also retains a verified standalone database and all required managed file versions from that same snapshot, with exact metadata and journal checks. Packaging and desktop restore remain in progress.
+
 ## Local upgrade snapshots
 
 Before upgrading an existing version-0 TEST store, the app saves a database snapshot in `Backups` beside `sarahbeauty.db`. The filename includes a UTC timestamp and random ID. The app uses [Microsoft.Data.Sqlite's backup API](https://learn.microsoft.com/en-us/dotnet/standard/data/sqlite/backup), converts the destination to rollback-journal mode so it can open without WAL sidecars, and checks database integrity and foreign-key references. It publishes the `.db` filename only after verification. A failed upgrade keeps an already verified snapshot and rolls back metadata changes.
