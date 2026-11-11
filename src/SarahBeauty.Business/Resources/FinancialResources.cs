@@ -26,6 +26,7 @@ public sealed record Asset : BusinessRecord
     public string SerialNumber { get; init; } = "";
     public string EvidenceId { get; init; } = "";
     public DateOnly? DisposedDate { get; init; }
+    public string DisposalMovementId {get;init;}="";
 }
 
 public sealed record Supplier : BusinessRecord

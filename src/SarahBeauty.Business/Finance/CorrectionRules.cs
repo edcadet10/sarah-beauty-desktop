@@ -56,6 +56,6 @@ internal static class CorrectionRules
         if (draft.Kind == FinancialKind.Reversal)
             return db.Read("SELECT AccountId,CreditCents,DebitCents FROM JournalLines WHERE MovementId=$id;",
                 r => new JournalLine(r.GetString(0), r.GetInt64(1), r.GetInt64(2)), ("$id", draft.OriginalId));
-        throw new ArgumentException("Use the asset disposal workflow to calculate its exact carrying value.");
+        return AssetDisposals.Lines(db,owner,draft,accounts);
     }
 }

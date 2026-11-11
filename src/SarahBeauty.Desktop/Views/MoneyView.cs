@@ -28,7 +28,7 @@ internal sealed class MoneyView
     internal UIElement Build()
     {
         var panel=Form.Panel();
-        var kinds=Form.Select("Movement",Enum.GetNames<FinancialKind>().Where(k=>k!=nameof(FinancialKind.AssetDisposal)).ToArray(),"Expense");
+        var kinds=Form.Select("Movement",Enum.GetNames<FinancialKind>(),"Expense");
         panel.Add(Form.Title("Money and approvals"),Form.Text("Drafts do not change the books. Review and approve a saved draft to post it."),
             kinds,Form.Action("Prepare movement",_status,()=>
             {

@@ -11,7 +11,7 @@ internal static class BalanceGuards
         if (draft.AssetId.Length > 0) Nonnegative(db, owner, "A.Type='Asset' AND A.CashKind='None'", "M.AssetId=$dimension", draft.AssetId, false, "Asset carrying value");
         if (draft.EconomicOwnerId.Length > 0 && draft.Kind is FinancialKind.OwnerPaidExpense or FinancialKind.OwnerReimbursement or FinancialKind.Reversal)
             Nonnegative(db, owner, "A.Code='2100'", "M.OwnerId=$dimension", draft.EconomicOwnerId, true, "Owner reimbursement payable");
-        if (draft.Kind is FinancialKind.TaxRemittance or FinancialKind.Refund)
+        if (draft.Kind is FinancialKind.TaxRemittance or FinancialKind.Refund or FinancialKind.Reversal)
             Nonnegative(db, owner, "A.Code='2000'", "1=1", "", true, "Tax liability");
     }
 
