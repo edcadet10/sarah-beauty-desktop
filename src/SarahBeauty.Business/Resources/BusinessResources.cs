@@ -27,12 +27,15 @@ public sealed class BusinessResources(BusinessStore store)
             throw new ArgumentException("Check the asset's values and business-use fraction. Unknown values may stay blank.");
         if (value.DisposedDate != previous?.DisposedDate || value.DisposalMovementId!=(previous?.DisposalMovementId??""))
             throw new ArgumentException("Use an approved disposal or its reversal to change disposal details.");
+        if(!value.FactHistory.SequenceEqual(previous?.FactHistory??[]))throw new ArgumentException("Registered asset fact reviews cannot be overwritten.");
+        if(previous?.FactHistory.Length>0 && (value.CostCents!=previous.CostCents || value.TaxBasisCents!=previous.TaxBasisCents))
+            throw new ArgumentException("Use an evidenced asset fact review to update the registered cost or tax basis. Approved book values require their separate financial workflow.");
         if(!new[]{"Undecided","Purchased","Contributed","Borrowed"}.Contains(value.Funding) || value.InServiceDate<value.AcquisitionDate)
             throw new ArgumentException("Choose the asset funding and an in-service date on or after acquisition.");
         if(previous is not null && (value.CostCents!=previous.CostCents || value.TaxBasisCents!=previous.TaxBasisCents
             || value.BusinessUseFraction!=previous.BusinessUseFraction || value.AcquisitionDate!=previous.AcquisitionDate || value.InServiceDate!=previous.InServiceDate)
-            && db.Scalar("SELECT Id FROM JournalLines WHERE AssetId=$id LIMIT 1;",("$id",value.Id)) is not null)
-            throw new ArgumentException("An asset with posted movements needs a reviewed value or business-use correction. Its original basis cannot be overwritten.");
+            && AssetFacts.HasBookHistory(db,value.Id))
+            throw new ArgumentException("Review registered cost and tax basis through asset fact review. Changes to posted book values or business use require their financial correction workflow.");
     });
 
     public Supplier SaveSupplier(OwnerSession owner, Supplier value) => Save(owner, "Supplier", value, (_, _) =>
