@@ -9,6 +9,7 @@ internal static class LocalBackupDetailView
     {
         var panel=Form.Panel();var result=job.Result;
         panel.Add(ReportTable.Build(["Archive fact","Recorded value"],[["Job identity",job.Id],["Last reported status",job.Status],["Destination",job.Destination],["Started / finished",job.StartedAtUtc+" / "+job.FinishedAtUtc],
+            ["Source instance",job.InstanceId??"Unconfirmed historical instance"],["Automatic schedule / revision",job.AutomaticScheduleId is null?"Manual":job.AutomaticScheduleId+" / "+job.AutomaticScheduleRevision],
             ["Requested watermark",job.RequestedWatermark.ToString()],["Captured watermark",result?.Manifest.Watermark.ToString()??"Not completed"],["Recipient fingerprint",job.RecipientFingerprint],
             ["Encrypted bytes / SHA-256",result is null?"Not completed":result.ByteLength+" / "+result.Sha256],["Manifest SHA-256",result?.ManifestHash??"Not completed"],["Failure code",job.FailureCode??"None"]]));
         if(result is not null)

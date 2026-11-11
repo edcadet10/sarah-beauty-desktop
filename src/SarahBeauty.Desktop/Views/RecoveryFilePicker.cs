@@ -5,6 +5,10 @@ namespace SarahBeauty_Desktop.Views;
 
 internal static class RecoveryFilePicker
 {
+    internal static async Task<string?> Folder()
+    {
+        var window=((App)Application.Current).ActiveWindow;var picker=new FolderPicker(window.AppWindow.Id){SuggestedStartLocation=PickerLocationId.DocumentsLibrary};return(await picker.PickSingleFolderAsync())?.Path;
+    }
     internal static async Task<string?> Save(string name,string extension,string label)
     {
         var window=((App)Application.Current).ActiveWindow;var picker=new FileSavePicker(window.AppWindow.Id){SuggestedStartLocation=PickerLocationId.DocumentsLibrary,SuggestedFileName=name,DefaultFileExtension=extension};
