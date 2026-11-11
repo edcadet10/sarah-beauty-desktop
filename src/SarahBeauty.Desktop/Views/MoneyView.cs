@@ -62,6 +62,7 @@ internal sealed class MoneyView
         _detail.Children.Clear();
         var status=Form.Text();
         _detail.Add(Form.Title(draft.Status=="Posted"?"Posted movement":"Review saved draft"),Form.Text(draft.ToString()));
+        if(draft.LoanLender is { } lender)_detail.Add(Form.Text("Captured loan lender: "+lender.LenderName+" • "+(lender.OwnerLenderId.Length>0?"Owner lender: "+lender.OwnerLenderName:"No owner-lender link recorded")));
         if(draft.PurchaseId.Length>0)_detail.Add(Form.Text("Bill: "+new PurchaseBook(_store).List(_owner).Single(p=>p.Id==draft.PurchaseId).Name+" • Funding: "+draft.PurchaseFunding));
         if(draft.Kind==FinancialKind.PurchaseRefund)_detail.Add(Form.Text("Refund destination: "+draft.SupplierRefundDestination));
         if(draft.Kind==FinancialKind.SupplierCreditUse)_detail.Add(Form.Text("Credit treatment: "+draft.SupplierCreditTreatment+" • Transfers existing supplier credit."));
