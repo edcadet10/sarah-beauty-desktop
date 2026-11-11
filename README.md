@@ -28,7 +28,7 @@ The full build is in progress in small GitHub pull requests. The app remains in 
 
 The implemented local core includes two-owner sign-in and approvals, customers, service prices, bookings and recipient places, appointment planning and calendar review, combined cancellation decisions and history, versioned client documents and PDFs, bookkeeping, payment applications and funded credits, resource registers, supplier bills and refunds, statements, bank matching, reconciliation, and retained period close/reopen reports.
 
-The latest complete automated suite has 522 passing cases, and the Windows Debug build succeeds with no warnings or errors. Fictional desktop walkthroughs cover selected workflows and restart persistence. These checks do not establish full release acceptance or current Surface compatibility.
+The latest complete .NET suite has 527 passing cases, with four separate recovery-crypto test groups. The Windows Debug build succeeds with no warnings or errors. Fictional desktop walkthroughs cover selected workflows and restart persistence. These checks do not establish full release acceptance or current Surface compatibility.
 
 Remaining work includes managed-evidence selection within entry forms, portable encrypted backup/restore, the app's own Google authorization and exports, separate LIVE setup, owner-access and unsaved-work hardening, an installer, and full release/device checks. There is no published installer yet.
 
@@ -38,11 +38,12 @@ The project targets $0 in required recurring software subscriptions. Available s
 
 ## Run the development preview
 
-The current development setup uses Windows, the .NET 10 SDK, and Windows Developer Mode. The first build needs internet access to restore the project's packages.
+The current development setup uses Windows, the .NET 10 SDK, Go 1.27.4, and Windows Developer Mode. The first build needs internet access to restore the project's packages and pinned encryption library.
 
 From the repository root, run:
 
 ```powershell
+./tools/build-recovery.ps1
 dotnet run --project .\src\SarahBeauty.Desktop\SarahBeauty.Desktop.csproj
 ```
 
@@ -58,7 +59,7 @@ Run the automated checks with:
 dotnet test .\tests\SarahBeauty.Storage.Tests\SarahBeauty.Storage.Tests.csproj -c Release
 ```
 
-The tests use temporary fictional SQLite stores and the same business assembly as the desktop app. They include historical balance limits, concurrent/stale decisions, interrupted transactions, migrations, document integrity, and scheduling boundaries. Local upgrade snapshots contain only the database. Complete encrypted archives, managed attachments, restore, LIVE setup, and Google backups remain pending.
+The tests use temporary fictional SQLite stores and the same business assembly as the desktop app. They include historical balance limits, concurrent/stale decisions, interrupted transactions, migrations, document integrity, scheduling boundaries, and the real recovery helper. Build the helper before running the checks. Local upgrade snapshots contain only the database. Complete archive assembly, restore, LIVE setup, and Google backups remain pending.
 
 An earlier welcome-screen preview launched on the Surface Pro 7. The current business workflows, touch interaction, offline behavior, and restore on a second Windows device still need explicit device checks.
 

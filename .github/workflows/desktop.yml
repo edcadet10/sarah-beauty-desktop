@@ -18,6 +18,12 @@ jobs:
       - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '10.0.x'
+      - uses: actions/setup-go@v7
+        with:
+          go-version: '1.27.4'
+          cache-dependency-path: tools/SarahBeauty.Recovery/go.sum
+      - name: Build the bundled recovery helper
+        run: ./tools/build-recovery.ps1
       - name: Test storage with fictional databases
         run: dotnet test tests/SarahBeauty.Storage.Tests/SarahBeauty.Storage.Tests.csproj --configuration Release --verbosity minimal
       - name: Build the Windows app
