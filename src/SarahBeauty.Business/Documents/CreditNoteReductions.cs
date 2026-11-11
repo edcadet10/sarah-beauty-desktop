@@ -6,11 +6,11 @@ namespace SarahBeauty.Business.Documents;
 
 internal static class CreditNoteReductions
 {
-    internal static List<ClientLine> Lines(DbWork db,string invoiceId,string? chargeId=null)=>db.Read("""
+    internal static List<ClientLine> Lines(DbWork db,string invoiceId,string? chargeId=null,DateOnly? through=null)=>db.Read("""
         SELECT L.ChargeId,L.Quantity,L.NetCents,L.TaxCents,L.DiscountCents FROM CreditNoteLines L
-        JOIN CreditNoteHeaders H ON H.VersionId=L.NoteVersionId WHERE H.InvoiceVersionId=$invoice AND ($charge IS NULL OR L.ChargeId=$charge);
+        JOIN CreditNoteHeaders H ON H.VersionId=L.NoteVersionId WHERE H.InvoiceVersionId=$invoice AND ($charge IS NULL OR L.ChargeId=$charge) AND ($through IS NULL OR H.Date<=$through);
         """,r=>new ClientLine(r.GetString(0),"","",decimal.Parse(r.GetString(1),CultureInfo.InvariantCulture),0,r.GetInt64(4),
-            r.GetInt64(2),r.GetInt64(3),checked(r.GetInt64(2)+r.GetInt64(3))), ("$invoice",invoiceId),("$charge",chargeId));
+            r.GetInt64(2),r.GetInt64(3),checked(r.GetInt64(2)+r.GetInt64(3))), ("$invoice",invoiceId),("$charge",chargeId),("$through",through?.ToString("yyyy-MM-dd")));
 
     internal static ValueBalance Milestone(DbWork db,string milestoneId,DateOnly date)
     {
