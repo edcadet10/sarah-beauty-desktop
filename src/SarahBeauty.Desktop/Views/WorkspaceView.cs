@@ -1,6 +1,5 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using SarahBeauty.Business.Customers;
 using SarahBeauty.Business.Security;
 using SarahBeauty.Business.Storage;
 
@@ -13,6 +12,7 @@ internal sealed class WorkspaceView(BusinessStore store,OwnerSession session,Act
     private readonly TextBlock _status=Form.Text();
     private string _current="Dashboard";
     private readonly Dictionary<string,Func<UIElement>> _routes=new();
+    private NavigationView? _navigation;
 
     internal UIElement Build()
     {
@@ -24,6 +24,7 @@ internal sealed class WorkspaceView(BusinessStore store,OwnerSession session,Act
         header.Margin=new Thickness(24,12,24,8);
         header.Add(Form.Title(store.BusinessName(session)),Form.Text($"TEST • Signed in as {session.OwnerName}"),_status);
         var nav=new NavigationView{IsSettingsVisible=false,PaneDisplayMode=NavigationViewPaneDisplayMode.Auto,IsPaneOpen=true};
+        _navigation=nav;
         foreach(string label in _routes.Keys)nav.MenuItems.Add(new NavigationViewItem{Content=label,Tag=label,Icon=new SymbolIcon(Symbol.Document)});
         nav.Content=new ScrollViewer{Padding=new Thickness(24),Content=_content};
         nav.PaneFooter=Footer(root);
@@ -42,7 +43,7 @@ internal sealed class WorkspaceView(BusinessStore store,OwnerSession session,Act
 
     private void Routes()
     {
-        _routes["Dashboard"]=Dashboard;
+        _routes["Dashboard"]=()=>new DashboardView(store,session,SelectRoute).Build();
         _routes["Customers"]=()=>new CustomerView(store,session).Build();
         _routes["Bookings"]=()=>new BookingView(store,session).Build();
         _routes["Calendar"]=()=>new ScheduleView(store,session).Build();
@@ -90,11 +91,10 @@ internal sealed class WorkspaceView(BusinessStore store,OwnerSession session,Act
         return panel;
     }
 
-    private UIElement Dashboard()
+    private void SelectRoute(string key)
     {
-        var panel=Form.Panel();
-        panel.Add(Form.Title("Dashboard"),Form.Text($"Active customers: {new CustomerBook(store).Search(session).Count}"),
-            Form.Text("Cloud export: Never completed. Recovery upload: Never completed."));
-        return panel;
+        if(_navigation is null)return;
+        var target=_navigation.MenuItems.OfType<NavigationViewItem>().Single(i=>i.Tag as string==key);
+        if(ReferenceEquals(_navigation.SelectedItem,target))Navigate(key);else _navigation.SelectedItem=target;
     }
 }

@@ -1,6 +1,14 @@
 # Review the business dashboard
 
-Status: Consistent financial, confirmed-event, and operational datasets are implemented. Charts and the desktop dashboard follow separately.
+Status: The desktop dashboard, source review, and consistent datasets are implemented. Charts follow separately.
+
+Open **Dashboard** after signing in. It captures local records automatically. Expand **Dashboard dates** to choose the financial period, planning business date, and upcoming event window, then select **Refresh dashboard**. The captured dates, mode, and watermark identify the displayed result. Invalid dates or dates changed during loading do not replace the previous capture.
+
+Cards show posted income, expenses, result, cash by account, customer/supplier balances, tax liability, known loan principal, confirmed wedding count/value, pending work, and supply alerts. Cash cards identify unconfirmed openings and the latest applicable reconciliation. Unknown loan bases and agreement values remain separate from known subtotals.
+
+Expand the source lists below the cards to review supporting balances, aging milestones, upcoming agreements/artists/payers, pending work, supplies, and debt/tax/owner schedules. Select a supporting account to see its captured entries: cash accounts use all entries through the financial as-of date; other accounts use the selected financial period. Section buttons update the navigation selection and preserve cached section editors. They open the relevant section; use the displayed name/identity to select its record there.
+
+Backup health currently states that Sheets export, full recovery archives, and restore tests have never completed. Local database upgrade snapshots do not establish portable recovery.
 
 Financial datasets use one captured database snapshot and the same business/mode, dates, and committed-data watermark as the underlying reports. The financial window supports up to 120 calendar months. Partial months use only the selected transaction dates.
 
