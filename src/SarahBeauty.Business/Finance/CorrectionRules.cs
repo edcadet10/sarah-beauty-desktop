@@ -38,7 +38,8 @@ internal static class CorrectionRules
         return draft with { AmountCents = original.AmountCents, CustomerId = original.CustomerId,
             EconomicOwnerId = original.EconomicOwnerId, BookingId = original.BookingId, LoanId = original.LoanId,
             AssetId = original.AssetId, SupplierId = original.SupplierId, CreditId=original.CreditId,
-            PurchaseId=original.PurchaseId,PurchaseFunding=original.PurchaseFunding,SupplierRefundDestination=original.SupplierRefundDestination };
+            PurchaseId=original.PurchaseId,PurchaseFunding=original.PurchaseFunding,SupplierRefundDestination=original.SupplierRefundDestination,
+            SupplierCreditTreatment=original.SupplierCreditTreatment };
     }
 
     private static void CheckRefundLimit(DbWork db, OwnerSession owner, FinancialDraft draft, FinancialDraft original)

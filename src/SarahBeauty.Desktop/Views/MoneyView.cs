@@ -63,10 +63,12 @@ internal sealed class MoneyView
         _detail.Add(Form.Title(draft.Status=="Posted"?"Posted movement":"Review saved draft"),Form.Text(draft.ToString()));
         if(draft.PurchaseId.Length>0)_detail.Add(Form.Text("Bill: "+new PurchaseBook(_store).List(_owner).Single(p=>p.Id==draft.PurchaseId).Name+" • Funding: "+draft.PurchaseFunding));
         if(draft.Kind==FinancialKind.PurchaseRefund)_detail.Add(Form.Text("Refund destination: "+draft.SupplierRefundDestination));
+        if(draft.Kind==FinancialKind.SupplierCreditUse)_detail.Add(Form.Text("Credit treatment: "+draft.SupplierCreditTreatment+" • Transfers existing supplier credit."));
         try
         {
+            if(draft.EconomicOwnerId.Length>0)_detail.Add(Form.Text("Owner involved: "+(new OwnerAccess(_store).Owners().FirstOrDefault(o=>o.Id==draft.EconomicOwnerId).Name??"Owner unavailable")));
             var lines=draft.Status=="Posted"?_book.Journal(_owner,draft.PostedBatchId):_book.Preview(_owner,draft);
-            if(lines.Count==0)_detail.Add(Form.Text("This owner-funded installment has no business journal effect. Its supplier payment remains in the bill settlement history."));
+            if(lines.Count==0)_detail.Add(Form.Text("This action has no business journal effect. Its supplier settlement history is retained."));
             _detail.Add(Form.Text(string.Join("\n",lines.Select(l=>$"{_accounts.Single(a=>a.Id==l.AccountId).Name} • Debit {Money.Display(l.DebitCents)} • Credit {Money.Display(l.CreditCents)}"))));
         }
         catch(Exception error){status.Text=error.Message;}
