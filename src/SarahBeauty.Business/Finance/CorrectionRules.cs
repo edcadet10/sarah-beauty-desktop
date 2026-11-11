@@ -1,4 +1,5 @@
 using System.Text.Json;
+using SarahBeauty.Business.Banking;
 using SarahBeauty.Business.Security;
 using SarahBeauty.Business.Storage;
 
@@ -37,6 +38,7 @@ internal static class CorrectionRules
             """, ("$original", draft.OriginalId)) is not null)
             throw new ArgumentException("Resolve dependent refunds or corrections before reversing this movement.");
         AssetRetirements.ValidateReversal(db,owner,draft.OriginalId,draft.Date!.Value);
+        BankMatchRules.ValidateMovementReversal(db,owner,draft.OriginalId,draft.Date.Value);
         return draft with { AmountCents = original.AmountCents, CustomerId = original.CustomerId,
             EconomicOwnerId = original.EconomicOwnerId, BookingId = original.BookingId, LoanId = original.LoanId,
             AssetId = original.AssetId, SupplierId = original.SupplierId, CreditId=original.CreditId,

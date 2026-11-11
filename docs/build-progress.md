@@ -11,7 +11,7 @@ This file tracks the full application build requested on November 10, 2026. A co
 | Client documents | Implemented core | Quote versions, bounded payer invoices, dated credit notes, approved-payment receipts, and saved PDFs; full release walkthrough pending |
 | Books and approvals | In progress | Core posting/reports, receipt/credit applications, funded credits, cash refunds and dated reversals implemented; period-close UI and remaining workflows pending |
 | Resources | In progress | Registers, supplies, trips, openings, disposals, reviewed bills, mixed supplier payments/refunds, bill credits, and credit use implemented; complete trip reimbursement pending |
-| Reconciliation and reports | In progress | Date-filtered financial reports, customer aging, tax activity, and source entries implemented; statements, matches, closing, full dashboard pending |
+| Reconciliation and reports | In progress | Financial reports, aging, tax, statement import/review, and matching commands implemented; matching UI, reconciliation completion, closing, and full dashboard pending |
 | Recovery and Google | Pending | Attachments, portable encrypted archive, Sheets export, Drive authorization/readback |
 | Release | Pending | Installer, full fictional walkthrough, actual Surface and second-device checks |
 
@@ -236,3 +236,11 @@ Eleven new SQLite cases cover restart persistence, exact retries and conflicting
 Statements now confirms the account, period, and balances, captures a review, and shows every source row through pages of 25. Duplicate decisions stay in the review when changing pages. Owners can search existing candidates, explicitly retain a distinct transaction, or link matching unique references with date/amount agreement. Replacing a pending review asks before discarding its decisions. Imported history retains source descriptions, review reasons, transaction codes, owner, and time.
 
 The Windows Debug build passes. An isolated fictional desktop run imported a balanced three-row statement, explicitly retained both identical real purchases, recognized the same CSV on a second review, then reopened the saved statement and its three source rows after app restart. This UI change uses the 257-case tested import command. Bank matching, reconciliation completion, correction of an erroneous import, file chooser runtime, and actual Surface acceptance remain pending.
+
+## Partial and combined bank matching
+
+Schema 21 retains immutable match approval groups, bounded bank/journal portions, and dated partial unmatches. Each pair must use the same cash account and direction, with an effective date on or after both source dates. One bank line can match several cash entries and several bank lines can match one entry. Review generations protect both sides, and historical checks prevent a backdated action from consuming value reserved by a later match. Matching changes no ledger money.
+
+An original cash movement cannot be reversed while its matches remain active at any affected date. Unmatching restores each source once and cannot exceed the original match. Source amounts use actual cash journal cents, including the net receipt after processor fees. Approval owner, time, reason, and exact retry identity remain available.
+
+Thirteen new SQLite cases cover partial/combined matches, grouped excess, direction/account mismatches, partial unmatches, stale and conflicting retries, future reservations, financial-reversal dependencies, actual net cash, all write-stage failures, closed/source dates, repeated maximum-cent match/unmatch cycles, and the version-20 upgrade snapshot with immutable history. All 270 automated cases and the Windows Debug build pass. The matching command is implemented; matching controls and complete reconciliation remain separate work.
