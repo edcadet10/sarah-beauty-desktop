@@ -5,6 +5,21 @@ namespace SarahBeauty.Storage.Tests;
 
 public sealed class PurchaseTests
 {
+    [Fact]
+    public void ClosedDatesBlockUnpaidBillApprovalAndPreviewWhilePreservingExactRetries()
+    {
+        using var f=new LedgerFixture();var book=new PurchaseBook(f.Business.Store);
+        var draft=book.SaveDraft(f.Business.Owner,Draft(f));
+        f.Business.Files.Execute($"UPDATE BookSettings SET ClosedThrough='{f.Date:yyyy-MM-dd}';");
+        Assert.Throws<ArgumentException>(()=>book.Preview(f.Business.Owner,draft));
+        Assert.Throws<ArgumentException>(()=>book.Approve(f.Business.Owner,draft.Id,draft.Revision,BusinessFixture.Phrase));
+        Assert.Equal("Draft",book.List(f.Business.Owner).Single().Status);
+        f.Business.Files.Execute("UPDATE BookSettings SET ClosedThrough=NULL;");
+        var approved=book.Approve(f.Business.Owner,draft.Id,draft.Revision,BusinessFixture.Phrase);
+        f.Business.Files.Execute($"UPDATE BookSettings SET ClosedThrough='{f.Date:yyyy-MM-dd}';");
+        Assert.Equal(approved.Revision,book.Approve(f.Business.Owner,draft.Id,draft.Revision,BusinessFixture.Phrase).Revision);
+    }
+
     internal static Purchase Draft(LedgerFixture f)
     {
         var supplier=new BusinessResources(f.Business.Store).SaveSupplier(f.Business.Owner,new Supplier{Name="Fictional purchase supplier"});

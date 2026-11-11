@@ -12,6 +12,7 @@ internal static class PurchaseValidation
     {
         if(string.IsNullOrWhiteSpace(value.Name) || value.PurchaseDate is null || value.DueDate<value.PurchaseDate || value.Lines.Length==0)
             throw new ArgumentException("Enter a bill description, actual purchase date, valid due date, and at least one line.");
+        PostingValidation.CheckClosedPeriod(db,owner,value.PurchaseDate.Value);
         var supplier=new RecordStore<Supplier>(store,"Supplier").Get(db,owner,value.SupplierId);
         if(supplier.Archived)throw new ArgumentException("Choose an active supplier for this bill.");
         if(value.Lines.Select(l=>l.Id).Distinct().Count()!=value.Lines.Length || value.Lines.Any(l=>!Guid.TryParse(l.Id,out _)))

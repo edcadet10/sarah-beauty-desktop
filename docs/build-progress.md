@@ -310,3 +310,9 @@ The same CSV and reliable references can then be imported with corrected mapping
 Imported statements now show their withdrawal state, owner, time, reason, evidence, and original source rows. The correction form captures the account generation and shows how many unshared lines still have matching dependencies. Withdrawn imports are excluded from the reconciliation selector; matching history labels withdrawn sources while keeping their original decisions available.
 
 The Windows Debug build and all nine withdrawal cases pass; the latest full suite has 320 passing cases. An isolated fictional desktop run loaded a CSV through the actual Windows file chooser, imported it with deliberately inverted signs, withdrew it with evidence, and reimported the same CSV with corrected signs and the same reliable reference. Both sources and the withdrawal reason survived restart. The chooser automation initially targeted a different control with the same numeric ID; narrowing it to the named Open action completed the real chooser check without an application change. This development-machine evidence does not replace Surface acceptance.
+
+## Closed dates for invoices and supplier bills
+
+Two falsification cases showed that invoice issuance and approval of an unpaid supplier bill could change historical customer, tax, or payable reports despite the existing closed-through lock. Both initially failed because the expected rejection did not occur. Invoice and supplier-bill preview/approval now check their actual financial dates. Drafts remain editable, and an exact retry of an already issued or approved record still returns the original result.
+
+All twelve invoice and supplier-bill cases pass with these guards, and the Windows Debug build has no warnings or errors. The latest full suite before this two-case addition had 320 passing cases. Owner-controlled period close/reopen commands and retained report snapshots follow separately.
