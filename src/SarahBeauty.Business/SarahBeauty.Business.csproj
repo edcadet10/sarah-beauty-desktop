@@ -11,6 +11,10 @@
     <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.15" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="../../.artifacts/recovery-helper/SarahBeauty.Recovery.exe" Link="SarahBeauty.Recovery.exe"
+             CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" Condition="Exists('../../.artifacts/recovery-helper/SarahBeauty.Recovery.exe')" />
+    <Content Include="../../.artifacts/recovery-helper/ThirdParty/*" Link="ThirdParty/Recovery/%(Filename)%(Extension)"
+             CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <Content Include="../../docs/third-party/pdfsharp-6.2.4-license.txt" Link="ThirdParty/PDFsharp/LICENSE.txt"
              CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
