@@ -8,7 +8,7 @@ This file tracks the full application build requested on November 10, 2026. A co
 | Owner setup and sign-in | Implemented | Two owners, salted PBKDF2-SHA256 hashes, short lockout after failed attempts, expiring store-bound sessions, transaction audit |
 | Customers | Implemented | Name-only save, contact warning, validated optional contact fields, search/edit/archive, permission history, stale-edit guard |
 | Bookings | In progress | Persistent charges, places, recipient links, exact plans, and appointments implemented; confirmation awaits approved-payment workflow |
-| Client documents | In progress | Quote versions/acceptance and bounded single/split-payer invoice conversion implemented; PDFs, receipts, and credits pending |
+| Client documents | In progress | Quote versions, bounded payer invoices, and saved PDF artifacts implemented; receipts and credit notes pending |
 | Books and approvals | In progress | Atomic balanced posting, authenticated approvals, core receipts/expenses/transfers, financing, bounded refunds/reversals, historical reports; applications/credits and period-close UI pending |
 | Resources | Pending | Supplies, suppliers, assets, loans, owner movements, mileage |
 | Reconciliation and reports | Pending | Statements, bounded matches, reports, dashboard |
@@ -56,3 +56,11 @@ Three additional cases verify frozen customer/event/pricing data, exclusion of p
 Schema 7 adds source coverage, explicit payer headers, invoice milestones, and a billing generation guard. Single-payer decisions cover all charges including travel; split-payer travel needs an explicit charge payer. Unpaid-share responsibility cannot remain undecided at issuance. Partial invoices consume accepted quantities and cents once; their milestone shares sum to the accepted booking plan. Retried/concurrent issuance cannot duplicate coverage.
 
 Five new cases cover full and split-payer conversion, racing requests, tiny fractional-cent allocation, and rejection of an accepted amendment that would reprice billed charges. The fractional-cent probe initially stopped a valid later portion when repeated rounding exhausted the source cents; individual allocations are now capped at their remaining source cents, with an explicit rounding adjustment and final residual. Issued invoice data stays immutable. Applications, credit adjustments, and PDF output remain separate work.
+
+## PDF checks
+
+Issued versions render to private managed PDF files. Rendering has independent Pending/Failed/Succeeded state and can retry without issuing another number. Successful reprints verify and reuse the original file/hash. A missing or changed original is rejected; it is not silently replaced. If file publication succeeds but the database commit fails, an unreferenced file can remain for later maintenance; the operation does not report success.
+
+Four new cases check actual extracted PDF text for totals/privacy, repeated TEST labels and final content across multiple pages, retry after blocked file storage, and rejection of changed/unsafe artifact paths. A fictional six-page quote and invoice were also generated through `tools/SarahBeauty.Demo` and reviewed visually. The renderer uses the pinned MIT-licensed dependency and Windows font resolver documented in [Document dependencies](third-party/dependencies.md).
+
+To create an isolated fictional document rehearsal, run `dotnet run --project tools/SarahBeauty.Demo -- --output NEW_EMPTY_DIRECTORY`. The tool refuses a nonempty destination. Its database, PDFs, and owner fixture are TEST data only. The app still needs full interface, actual Surface, backup/restore, and complete business workflow checks.

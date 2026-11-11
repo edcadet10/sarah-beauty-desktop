@@ -79,6 +79,6 @@ internal sealed class InvoiceView(BusinessStore store,OwnerSession owner)
     private void ShowIssued(DocumentVersion version)
     {
         _detail.Children.Clear();
-        _detail.Add(Form.Title(version.ToString()),QuoteView.Snapshot(version.Snapshot),Form.Text("PDF: Pending. No invoice has been automatically sent."));
+        _detail.Add(Form.Title(version.ToString()),QuoteView.Snapshot(version.Snapshot),PdfArtifactView.Build(store,owner,version.Id));
     }
 }
