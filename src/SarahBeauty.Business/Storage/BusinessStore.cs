@@ -31,6 +31,12 @@ public sealed class BusinessStore
         return read(new DbWork(connection));
     }
 
+    public string BusinessName(OwnerSession session) => Read(db =>
+    {
+        RequireSession(db, session);
+        return (string)db.Scalar("SELECT DisplayName FROM Business WHERE Id=$id;", ("$id", session.BusinessId))!;
+    });
+
     internal T Transaction<T>(Func<DbWork, T> write)
     {
         using var connection = Open();

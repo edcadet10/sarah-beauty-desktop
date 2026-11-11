@@ -39,9 +39,6 @@ public sealed partial class MainPage : Page
     private void ShowWorkspace()
     {
         Host.Children.Clear();
-        var status = Form.Text();
-        Host.Add(Form.Title("Sarah Beauty"), Form.Text($"TEST • Signed in as {_session!.OwnerName}"),
-            Form.Action("Lock / switch owner", status, () => { ShowSignIn(); return Task.CompletedTask; }),
-            Form.Text("Your business is saved locally. Cloud backup has not been connected."), status);
+        Host.Add(new WorkspaceView(_store!, _session!, ShowSignIn).Build());
     }
 }

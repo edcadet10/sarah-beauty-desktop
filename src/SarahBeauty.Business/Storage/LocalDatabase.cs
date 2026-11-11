@@ -78,8 +78,7 @@ public static class LocalDatabase
             }
 
             if (version == 0) DatabaseMetadata.SaveTestMode(command);
-            command.CommandText = BusinessSchema.Sql;
-            command.ExecuteNonQuery();
+            SchemaMigrations.Apply(command, version);
             command.CommandText = $"PRAGMA user_version = {BusinessSchema.Version};";
             command.ExecuteNonQuery();
             return BusinessSchema.Version;
