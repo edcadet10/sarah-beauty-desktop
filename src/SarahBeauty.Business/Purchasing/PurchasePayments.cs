@@ -46,6 +46,7 @@ public sealed class PurchasePayments(BusinessStore store)
         foreach(var date in Rows(db,bill.Id).Select(r=>r.Date).Distinct())
             ValidateHistory(db,bill,date);
         PurchaseRefundPlan.ValidateHistory(db,bill.Id);
+        PurchaseCredits.ValidateHistory(db,store,owner,bill.Id);
         ValueState.Advance(db,owner,"Purchase",bill.Id);
     }
 

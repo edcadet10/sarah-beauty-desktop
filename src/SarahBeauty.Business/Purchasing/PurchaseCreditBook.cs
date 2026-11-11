@@ -53,7 +53,7 @@ public sealed class PurchaseCreditBook(BusinessStore store)
             if(value.Status!="Draft" || value.Revision!=revision)throw new ArgumentException("Reload the changed supplier credit.");
             value=Prepare(db,owner,value);
             var result=_records.Save(db,owner,value with{Status="Approved",ApprovedBy=owner.OwnerId,ApprovedAtUtc=DateTimeOffset.UtcNow.ToString("O")});
-            ValidateHistory(db,owner,value.PurchaseId);
+            PurchaseCredits.ValidateHistory(db,store,owner,value.PurchaseId);
             ValueState.Advance(db,owner,"Purchase",value.PurchaseId);
             FailurePoint?.Invoke("supplier-credit");
             BusinessStore.Audit(db,owner,"Approve supplier bill credit",id);
@@ -76,8 +76,10 @@ public sealed class PurchaseCreditBook(BusinessStore store)
         var remaining=PurchaseCredits.Remaining(db,store,owner,bill);
         if(value.ReversesId.Length>0)return PrepareReversal(db,owner,value);
         if(value.Sign!=1)throw new ArgumentException("Choose a valid supplier credit action.");
+        var paid=PurchasePayments.Rows(db,bill.Id).Where(p=>p.Date<=value.Date).ToList();
         return value with{Lines=value.Lines.Select(l=>PrepareLine(l,remaining.SingleOrDefault(r=>r.LineId==l.LineId)
-            ??throw new ArgumentException("A credit line does not belong to the original bill."))).ToArray()};
+            ??throw new ArgumentException("A credit line does not belong to the original bill."),paid.Where(p=>p.LineId==l.LineId).Sum(p=>p.Sign*p.Cents),
+            paid.Where(p=>p.LineId==l.LineId).Sum(p=>p.Sign*p.BusinessCents))).ToArray()};
     }
 
     private PurchaseCredit PrepareReversal(DbWork db,OwnerSession owner,PurchaseCredit value)
@@ -89,13 +91,17 @@ public sealed class PurchaseCreditBook(BusinessStore store)
         return value with{Sign=-1,Lines=original.Lines};
     }
 
-    private static PurchaseCreditLine PrepareLine(PurchaseCreditLine line,PurchaseCreditRemaining remaining)
+    private static PurchaseCreditLine PrepareLine(PurchaseCreditLine line,PurchaseCreditRemaining remaining,long paidGross,long paidBusiness)
     {
         if(line.Cents<=0 || line.Cents>remaining.Cents || line.TaxCents is null or <0 || line.TaxCents>line.Cents
             || line.TaxCents>remaining.TaxCents || remaining.TaxCents-line.TaxCents>remaining.Cents-line.Cents)
             throw new ArgumentException("Resolve the supplier credit's gross and included tax within the original remaining line.");
         long business=line.Cents==remaining.Cents?remaining.BusinessCents:Money.Proportion(remaining.BusinessCents,line.Cents,remaining.Cents);
-        return line with{BusinessCents=business};
+        long after=checked(remaining.Cents-line.Cents-paidGross),before=checked(remaining.BusinessCents-paidBusiness);
+        long lower=Math.Max(0,Math.Max(remaining.BusinessCents-(remaining.Cents-line.Cents),before-Math.Max(0,after)));
+        long upper=Math.Min(Math.Min(line.Cents,remaining.BusinessCents),before-Math.Min(0,after));
+        if(lower>upper)throw new ArgumentException("Review the original line's payment and business-share cent allocations before crediting it.");
+        return line with{BusinessCents=Math.Clamp(business,lower,upper)};
     }
 
     private List<PurchaseCredit> ListForSupplier(DbWork db,OwnerSession owner,string supplier)
@@ -104,21 +110,4 @@ public sealed class PurchaseCreditBook(BusinessStore store)
         return _records.List(db,owner).Where(c=>c.Status=="Approved" && bills.Contains(c.PurchaseId)).ToList();
     }
 
-    private void ValidateHistory(DbWork db,OwnerSession owner,string id)
-    {
-        var bill=new RecordStore<Purchase>(store,"Purchase").Get(db,owner,id);
-        var dates=PurchaseCredits.Approved(db,store,owner,id,DateOnly.MaxValue).Select(c=>c.Date!.Value).Distinct();
-        foreach(var date in dates)
-        {
-            var credits=PurchaseCredits.Lines(db,store,owner,id,date);
-            foreach(var line in bill.Lines)
-            {
-                long gross=line.GrossCents!.Value-credits.Where(c=>c.LineId==line.Id).Sum(c=>c.Cents);
-                long tax=line.TaxPaidCents!.Value-credits.Where(c=>c.LineId==line.Id).Sum(c=>c.TaxCents!.Value);
-                long business=line.BusinessCents!.Value-credits.Where(c=>c.LineId==line.Id).Sum(c=>c.BusinessCents);
-                if(gross<0 || gross>line.GrossCents || tax<0 || tax>line.TaxPaidCents || tax>gross || business<0 || business>line.BusinessCents || business>gross)
-                    throw new ArgumentException("The supplier reduction or reversal exceeds an original line at an affected historical date.");
-            }
-        }
-    }
 }

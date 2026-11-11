@@ -131,4 +131,17 @@ public sealed class PurchaseCreditTests
         Assert.Equal(35200,SupplierPaymentTests.Due(f,bill));
         Assert.Empty(f.Book.Posted(f.Business.Owner));
     }
+
+    [Fact]
+    public void AnUnpaidCreditDoesNotConsumeTheBusinessCentAlreadyAssignedToARetainedPayment()
+    {
+        using var f=new LedgerFixture();
+        var value=PurchaseTests.Draft(f);
+        var bill=SupplierPaymentTests.Bill(f,value with{Lines=[new(Guid.NewGuid().ToString(),"Fictional odd-cent purchase",1,2,0,0.5m,f.Accounts["5000"].Id)]});
+        f.Post(SupplierPaymentTests.Payment(f,bill,1));
+        var credit=Approve(f,Draft(f,bill) with{Lines=[new(bill.Lines[0].Id,1,0)]});
+        Assert.Equal(0,credit.Lines.Single().BusinessCents);
+        Assert.Equal(0,SupplierPaymentTests.Due(f,bill));
+        Assert.Equal(1,f.Balance("5000"));
+    }
 }
