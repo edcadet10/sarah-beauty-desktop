@@ -10,6 +10,8 @@ public sealed record Booking : BusinessRecord
     public DateOnly? EventDate { get; init; }
     public string Venue { get; init; } = "";
     public string ReadyBy { get; init; } = "";
+    public string EventTimeZoneId {get;init;}="America/New_York";
+    public string ReadyByUtcOffset {get;init;}="";
     public string Status { get; init; } = "Inquiry";
     public string PayerMode { get; init; } = "Undecided";
     public string SinglePayerCustomerId { get; init; } = "";
@@ -48,6 +50,7 @@ public sealed record Appointment(string Id, string Kind, string ArtistId, DateTi
     string Location, string Status = "Planned", string OverrideReason = "", string ProductsAndShades = "", string PrivateNotes = "")
 {
     public string[] PlaceIds {get;init;}=[];
+    public string TimeZoneId {get;init;}="";
 }
 public sealed record BookingStatusChange(string From, string To, string Reason, string OwnerId, string AtUtc);
 public sealed record BookingReservation(string RequestId,string QuoteVersionId,DateOnly Date,long TrialCents,long DepositCents,

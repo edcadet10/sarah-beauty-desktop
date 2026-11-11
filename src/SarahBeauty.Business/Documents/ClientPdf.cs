@@ -66,7 +66,12 @@ internal static class ClientPdf
             section.AddParagraph(value);
         section.AddParagraph($"{s.Event.Name} • {s.Event.Date?.ToString("yyyy-MM-dd")??"Event date undecided"}");
         if(s.Event.Venue.Length>0)section.AddParagraph(s.Event.Venue);
-        if(s.Event.ReadyBy.Length>0)section.AddParagraph("Ready by "+s.Event.ReadyBy+" (Eastern Time)");
+        if(s.Event.ReadyBy.Length>0)
+        {
+            string zone=s.Event.TimeZoneId is "America/New_York" or "Eastern Standard Time"?"Eastern Time":s.Event.TimeZoneId;
+            string offset=s.Event.ReadyByUtcOffset.Length>0?" • UTC"+s.Event.ReadyByUtcOffset:"";
+            section.AddParagraph("Ready by "+s.Event.ReadyBy+" ("+zone+offset+")");
+        }
     }
 
     private static void Lines(Section section,ClientSnapshot snapshot)
