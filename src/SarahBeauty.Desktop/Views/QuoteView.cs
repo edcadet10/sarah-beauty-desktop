@@ -87,7 +87,7 @@ internal sealed class QuoteView(BusinessStore store,OwnerSession owner)
     private void ShowVersion(DocumentVersion version)
     {
         _detail.Children.Clear();
-        _detail.Add(Form.Title(version.ToString()),Snapshot(version.Snapshot),Form.Text("PDF: Pending. Sending remains a manual owner action."));
+        _detail.Add(Form.Title(version.ToString()),Snapshot(version.Snapshot),PdfArtifactView.Build(store,owner,version.Id));
         var date=Form.Input("Acceptance date",DateOnly.FromDateTime(DateTime.Today).ToString("yyyy-MM-dd"));
         var evidence=Form.Input("Acceptance evidence / reference (private)");
         var status=Form.Text();

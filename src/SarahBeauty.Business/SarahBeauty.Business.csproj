@@ -7,5 +7,11 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.12" />
     <InternalsVisibleTo Include="SarahBeauty.Storage.Tests" />
+    <PackageReference Include="PDFsharp-MigraDoc" Version="6.2.4" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.15" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="../../docs/third-party/pdfsharp-6.2.4-license.txt" Link="ThirdParty/PDFsharp/LICENSE.txt"
+             CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

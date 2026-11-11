@@ -62,5 +62,11 @@ internal sealed class TestStore : IDisposable
         return command.ExecuteScalar();
     }
 
-    public void Dispose() => Directory.Delete(Folder, recursive: true);
+    public void Dispose()
+    {
+        string root=Path.GetFullPath(Path.Combine(Path.GetTempPath(),"SarahBeautyStorageTests"))+Path.DirectorySeparatorChar;
+        string target=Path.GetFullPath(Folder);
+        if(!target.StartsWith(root,StringComparison.OrdinalIgnoreCase))throw new InvalidOperationException("Unsafe fixture cleanup path.");
+        Directory.Delete(target,recursive:true);
+    }
 }
