@@ -1,6 +1,6 @@
 # Encrypt portable recovery data
 
-Status: The encryption helper, desktop process bridge, reference interoperability checks, and [complete local archive creation](archive-package.md) are implemented. Staged restore validation and the desktop recovery interface follow separately.
+Status: The encryption helper, desktop process bridge, reference interoperability checks, [complete local archive creation](archive-package.md), and [staged restore validation](archive-restore.md) are implemented. Restore activation and the desktop recovery interface follow separately.
 
 The selected format is [age v1](https://c2sp.org/age), using the maintained [age 1.3.2 Go library](https://pkg.go.dev/filippo.io/age@v1.3.2). New business recovery keys use its native hybrid ML-KEM-768/X25519 identity. The app uses the library's encryption functions and format directly.
 

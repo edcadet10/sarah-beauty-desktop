@@ -1,6 +1,6 @@
 # Create a complete encrypted archive
 
-Status: Local archive creation is implemented in the business service. Desktop recovery setup, archive history, staged restore, cloud upload, and second-device verification follow separately.
+Status: Local archive creation and [staged restore validation](archive-restore.md) are implemented in the business service. Desktop recovery setup, archive history, restore activation, cloud upload, and second-device verification follow separately.
 
 `FullArchives.CreateAsync` requires a current owner session, a new output filename in an existing folder, and a valid public hybrid recovery recipient. It needs no recovery passphrase or private key to encrypt. See [Encrypt portable recovery data](archive-encryption.md) for the separate protected recovery material.
 
