@@ -46,6 +46,7 @@ internal sealed class WorkspaceView(BusinessStore store,OwnerSession session,Act
         _routes["Customers"]=()=>new CustomerView(store,session).Build();
         _routes["Bookings"]=()=>new BookingView(store,session).Build();
         _routes["Calendar"]=()=>new ScheduleView(store,session).Build();
+        _routes["Cancellation cases"]=()=>new CancellationView(store,session).Build();
         _routes["Service catalog"]=()=>new ServiceCatalogView(store,session).Build();
         _routes["Quotes"]=()=>new QuoteView(store,session).Build();
         _routes["Invoices"]=()=>new InvoiceView(store,session).Build();

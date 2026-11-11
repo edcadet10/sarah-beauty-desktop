@@ -14,7 +14,8 @@ internal static class Program
 
     private static int Main(string[] args)
     {
-        if(args.Length!=2 || args[0]!="--output"){Console.Error.WriteLine("Use --output NEW_EMPTY_DIRECTORY.");return 2;}
+        if(args.Length is not (2 or 3) || args[0]!="--output" || args.Length==3 && args[2]!="--cancellation")
+        {Console.Error.WriteLine("Use --output NEW_EMPTY_DIRECTORY [--cancellation].");return 2;}
         try
         {
             string folder=Path.GetFullPath(args[1]);
@@ -25,6 +26,7 @@ internal static class Program
             var owner=new OwnerAccess(store).Setup("Fictional Sarah Beauty Demo","Alex Example",Phrase,"Morgan Example",Phrase);
             var booking=Wedding(store,owner);
             Documents(store,owner,booking,folder);
+            if(args.Length==3)CancellationDemo.Create(store,owner,Phrase,booking.PrimaryCustomerId);
             Console.WriteLine("Fictional TEST demo created at "+folder);
             return 0;
         }
