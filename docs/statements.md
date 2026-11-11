@@ -1,6 +1,6 @@
 # Preview a statement CSV
 
-The Statements screen currently previews rows. It does not import bank lines, match payments, or complete a reconciliation. Those steps remain in development.
+The Statements screen previews CSV rows, records reviewed transaction identities, and imports statements. Imports do not post cash or income. Bank matching and reconciliation completion remain in development.
 
 1. Open **Statements**, then choose a CSV file or paste its contents. Use UTF-8 text with a header row, at most 4 MB, and at most 10,000 transaction rows.
 2. Expand **Map statement columns and signs**. Enter the actual column headers for the date and description.
@@ -12,6 +12,16 @@ The Statements screen currently previews rows. It does not import bank lines, ma
 The preview shows up to 250 rows; its totals include every parsed row. Identical rows remain separate and are flagged for review. Equal dates and amounts do not establish that a transaction is duplicated.
 
 Amounts use USD with at most two decimal places. Standard grouped amounts such as `1,234.56` and parenthesized negative amounts are supported. Invalid grouping, invalid dates, zero transaction amounts, malformed CSV, and unsupported totals stop the preview with an explanation.
+
+## Import reviewed rows
+
+1. Select the actual statement account. Enter the statement period and its confirmed opening and closing balances. Opening plus the signed source rows must equal closing.
+2. Select **Review statement import**. The review captures those contents, mapping, account, and balances. Form changes require a new review.
+3. Review all source rows using **Next source rows** and **Previous source rows**. Decisions remain in the review when you change pages.
+4. For each repeated or potentially overlapping transaction, choose its existing transaction or **New distinct real transaction**, and enter the reason. Search candidates by description, reference, or record code. **Use matching unique bank references** links only references explicitly marked unique that match date and amount.
+5. Confirm your owner passphrase and select **Import reviewed statement**. The saved statement retains its owner, time, source rows, and decisions. It creates no ledger movement.
+
+Open a saved statement under **Imported statements** to review its original source rows. Overlapping exports can refer to the same bank transaction while retaining both source descriptions. One statement cannot link the same transaction twice. A repeated attempt to import identical CSV contents points you to the existing statement.
 
 ## Development references
 
