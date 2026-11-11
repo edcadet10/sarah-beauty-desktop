@@ -16,8 +16,7 @@
 
   <ItemGroup>
     <Using Include="Xunit" />
-    <!-- Compile the production storage files without loading the WinUI shell. -->
-    <Compile Include="../../src/SarahBeauty.Desktop/Storage/*.cs" Link="Storage/%(Filename)%(Extension)" />
+    <ProjectReference Include="../../src/SarahBeauty.Business/SarahBeauty.Business.csproj" />
   </ItemGroup>
 
 </Project>

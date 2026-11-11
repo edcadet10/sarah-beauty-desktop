@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using Microsoft.Data.Sqlite;
+using SarahBeauty.Business.Storage;
 
 namespace SarahBeauty_Desktop.Storage;
 
@@ -30,7 +31,7 @@ public static class LocalDatabase
         }
         else
         {
-            DatabaseSchema.ValidateMetadataTable(command);
+            DatabaseSchema.ValidateMetadataTable(command, schemaVersion < 2);
         }
 
         string storeId = DatabaseMetadata.ReadStoreId(command);
@@ -68,7 +69,7 @@ public static class LocalDatabase
     private static int UpgradeIfNeeded(
         SqliteCommand command, string databasePath, int version, bool isEmpty)
     {
-        if (version == 0)
+        if (version < BusinessSchema.Version)
         {
             // Keep the write reservation while a separate reader snapshots committed data.
             if (!isEmpty)
@@ -76,10 +77,12 @@ public static class LocalDatabase
                 DatabaseBackup.CreateVerifiedSnapshot(databasePath);
             }
 
-            DatabaseMetadata.SaveTestMode(command);
-            command.CommandText = "PRAGMA user_version = 1;";
+            if (version == 0) DatabaseMetadata.SaveTestMode(command);
+            command.CommandText = BusinessSchema.Sql;
             command.ExecuteNonQuery();
-            return 1;
+            command.CommandText = $"PRAGMA user_version = {BusinessSchema.Version};";
+            command.ExecuteNonQuery();
+            return BusinessSchema.Version;
         }
 
         return version;
