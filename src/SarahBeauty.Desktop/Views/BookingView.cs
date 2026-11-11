@@ -12,6 +12,8 @@ internal sealed partial class BookingView
 {
     private readonly BookingBook _book;
     private readonly BookingReservations _reservations;
+    private readonly ServiceCatalog _catalog;
+    private BookingFields? _fields;
     private readonly OwnerSession _owner;
     private readonly List<Customer> _customers;
     private readonly ListView _list = new() { MaxHeight = 220 };
@@ -21,6 +23,7 @@ internal sealed partial class BookingView
     internal BookingView(BusinessStore store, OwnerSession owner)
     {
         (_book, _owner, _reservations) = (new(store), owner, new(store));
+        _catalog=new(store);_catalog.Initialize(owner);
         _customers = new CustomerBook(store).Search(owner, includeArchived: true);
     }
 
@@ -28,7 +31,7 @@ internal sealed partial class BookingView
     {
         var panel = Form.Panel();
         panel.Add(Form.Title("Bookings"), Form.Action("New wedding", _status,
-            () => { Edit(BookingRules.Wedding("")); return Task.CompletedTask; }),
+            () => { Edit(_catalog.NewWedding(_owner,"")); return Task.CompletedTask; }),
             Form.Action("New booking without a trial", _status,
             () => { Edit(new Booking { HasTrial = false, TrialCents = 0, EventType = "Other" }); return Task.CompletedTask; }),
             _status, _list, _editor);
@@ -41,10 +44,11 @@ internal sealed partial class BookingView
     {
         _editor.Children.Clear();
         var fields = new BookingFields(booking, _customers);
+        _fields=fields;
         var status = Form.Text();
         _editor.Add(Form.Title(booking.Revision == 0 ? "New booking" : booking.Name),
             Form.Text($"Status: {booking.Status}"), fields.Build(), status,
-            Form.Action("Save booking details", status, async () => await Save(fields.Read(booking))));
+            Form.Action("Save booking details", status, async () => await Save(booking)));
         if (booking.Revision == 0) return;
         _editor.Add(Summary(booking), Section("Services and charges", Charges(booking)),
             Section("Party members", Places(booking)), Section("Appointments", Appointments(booking)),
@@ -53,6 +57,7 @@ internal sealed partial class BookingView
 
     private async Task Save(Booking booking)
     {
+        if(_fields is not null)booking=_fields.Read(booking);
         var saved = await Task.Run(() => _book.Save(_owner, booking));
         _list.ItemsSource = _book.List(_owner);
         Edit(saved);

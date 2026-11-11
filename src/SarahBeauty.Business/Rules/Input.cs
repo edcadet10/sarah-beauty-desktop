@@ -26,4 +26,12 @@ public static class Input
             DateTimeStyles.None, out var time)) throw new ArgumentException("Enter a time with an explicit offset, such as 2026-11-10T10:00-05:00.");
         return time;
     }
+
+    public static int? Minutes(string value)
+    {
+        if(string.IsNullOrWhiteSpace(value))return null;
+        if(!int.TryParse(value.Trim(),NumberStyles.None,CultureInfo.InvariantCulture,out int minutes) || minutes is <1 or >1440)
+            throw new ArgumentException("Leave an unknown duration blank, or enter 1 to 1,440 whole minutes.");
+        return minutes;
+    }
 }

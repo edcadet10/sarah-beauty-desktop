@@ -11,6 +11,7 @@ internal sealed class BookingFields
     private readonly TextBox _name, _date, _venue, _ready, _responsibility, _trial, _deposit, _notes, _trialDue, _depositDue, _finalDue;
     private readonly ComboBox _customer, _payers, _singlePayer;
     private readonly CheckBox _hasTrial;
+    private readonly TextBox _trialDuration;
 
     internal BookingFields(Booking booking, List<Customer> customers)
     {
@@ -24,6 +25,7 @@ internal sealed class BookingFields
         _responsibility = Form.Input("Responsibility for unpaid shares (record the agreed decision)", booking.UnpaidResponsibility);
         _hasTrial = new CheckBox { Content = "This booking includes a trial", IsChecked = booking.HasTrial };
         _trial = Form.Input("Trial portion in USD (part of the agreed total)", Money.Input(booking.TrialCents));
+        _trialDuration=Form.Input("Trial duration in minutes (blank means unknown)",booking.TrialDurationMinutes?.ToString()??"");
         _deposit = Form.Input("Deposit in USD for a booking without a trial", booking.CustomDepositCents.HasValue ? Money.Input(booking.CustomDepositCents.Value) : "");
         _trialDue = Form.Input("Trial due date", booking.TrialDue?.ToString("yyyy-MM-dd") ?? "");
         _depositDue = Form.Input("Deposit due date", booking.DepositDue?.ToString("yyyy-MM-dd") ?? "");
@@ -35,7 +37,7 @@ internal sealed class BookingFields
     {
         var panel = Form.Panel();
         panel.Add(_name, _date, _venue, _ready, _customer, _payers, _singlePayer, _responsibility, _hasTrial,
-            _trial, _deposit, _trialDue, _depositDue, _finalDue, _notes);
+            _trial,_trialDuration, _deposit, _trialDue, _depositDue, _finalDue, _notes);
         return panel;
     }
 
@@ -45,7 +47,7 @@ internal sealed class BookingFields
         PrimaryCustomerId = _customer.SelectedId(), PayerMode = (string)_payers.SelectedItem,
         SinglePayerCustomerId = _singlePayer.SelectedId(),
         UnpaidResponsibility = _responsibility.Text.Trim(), HasTrial = _hasTrial.IsChecked == true,
-        TrialCents = Money.Parse(_trial.Text), CustomDepositCents = string.IsNullOrWhiteSpace(_deposit.Text) ? null : Money.Parse(_deposit.Text),
+        TrialCents = Money.Parse(_trial.Text),TrialDurationMinutes=Input.Minutes(_trialDuration.Text), CustomDepositCents = string.IsNullOrWhiteSpace(_deposit.Text) ? null : Money.Parse(_deposit.Text),
         TrialDue = Input.Date(_trialDue.Text), DepositDue = Input.Date(_depositDue.Text), FinalDue = Input.Date(_finalDue.Text),
         PrivateNotes = _notes.Text.Trim()
     };

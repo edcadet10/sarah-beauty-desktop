@@ -64,6 +64,7 @@ public sealed class ServiceCatalogTests
         var line=after.Charges.Single(c=>c.Unit=="Person");Assert.Equal(13500,line.UnitCents);Assert.Equal(45,line.DurationMinutes);Assert.Equal(2,line.ServiceRevision);
         Assert.Equal(2,revised.History.Length);Assert.Equal(12000,revised.History[0].UnitCents);Assert.Equal(f.Owner.OwnerId,revised.History[1].OwnerId);
         Assert.Throws<InvalidOperationException>(()=>book.Save(f.Owner,guest with{UnitCents=14000}));
+        Assert.Throws<InvalidOperationException>(()=>book.AddService(f.Owner,before,guest.Id,1,guest.Revision));
         Assert.Throws<ArgumentException>(()=>book.Save(f.Owner,revised with{History=[]}));
     }
 
