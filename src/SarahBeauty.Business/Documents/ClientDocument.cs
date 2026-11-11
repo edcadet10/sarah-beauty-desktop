@@ -25,7 +25,10 @@ public sealed record ClientLine(string ChargeId,string Description,string Unit,d
 public sealed record ClientMilestone(string Kind,long Cents,DateOnly? DueDate);
 public sealed record ClientSnapshot(DocumentKind Kind,string Number,int Version,string Mode,string BusinessName,
     ClientParty Client,ClientEvent Event,DateOnly IssueDate,DateOnly? DueDate,string Terms,ClientLine[] Lines,
-    long NetCents,long TaxCents,long TotalCents,ClientMilestone[] Milestones);
+    long NetCents,long TaxCents,long TotalCents,ClientMilestone[] Milestones)
+{
+    public string RelatedDocument {get;init;}="";
+}
 public sealed record DocumentVersion(string Id,string DocumentId,string BookingId,ClientSnapshot Snapshot,string Hash,string Status,
     DateOnly? AcceptedDate,string? AcceptanceEvidence)
 {
