@@ -13,7 +13,7 @@ public sealed class BookPeriodTests
 {
     private static BookPeriodDraft Draft(int month=1)=>new(new(2027,month,1),new(2027,month,DateTime.DaysInMonth(2027,month)),"Fictional reviewed book closing","Fictional closing evidence");
 
-    private static void Ready(LedgerFixture f)
+    internal static void Ready(LedgerFixture f)
     {
         new BusinessResources(f.Business.Store).SaveAsset(f.Business.Owner,f.Asset with{Archived=true});
         f.Post(f.Draft(FinancialKind.Receipt,10000));
@@ -23,7 +23,7 @@ public sealed class BookPeriodTests
         ReconcileMonth(f,1);
     }
 
-    private static void ReconcileMonth(LedgerFixture f,int month)
+    internal static void ReconcileMonth(LedgerFixture f,int month)
     {
         var draft=Draft(month);var statements=new StatementBook(f.Business.Store);var recon=new Reconciliations(f.Business.Store);
         foreach(var account in f.Accounts.Values.Where(a=>a.CashKind!="None"))
@@ -42,7 +42,7 @@ public sealed class BookPeriodTests
         }
     }
 
-    private static ClosedBookPeriod Close(LedgerFixture f,BookPeriods book,BookPeriodDraft? draft=null)
+    internal static ClosedBookPeriod Close(LedgerFixture f,BookPeriods book,BookPeriodDraft? draft=null)
     {
         draft??=Draft();var preview=book.Preview(f.Business.Owner,draft);
         Assert.Empty(preview.BlockingIssues);
