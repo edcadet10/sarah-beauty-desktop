@@ -9,4 +9,24 @@
 
 Each saved review retains its actual route, driver, distance, costs, request status, amount, evidence, and archive state. Older records without review history begin retaining reviews when next saved; the app does not invent earlier reviews.
 
-An actual distance correction does not rewrite a customer's travel charge or an earlier review. This log applies no tax mileage rate and posts no expense or reimbursement payment. Actual financial entries require their own review and approval. Links from trip requests to those approved payments are a separate feature still being completed.
+An actual distance correction does not rewrite a customer's travel charge or an earlier review. This log applies no tax mileage rate and posts no expense or reimbursement payment. Actual financial entries require their own review and approval.
+
+## Link an approved payment
+
+1. Approve the actual paid expense or owner reimbursement under **Money**. If an owner-paid expense is already recognized, the later owner reimbursement clears its payable instead of recording that expense again.
+2. Save the trip fields. Expand **Trip reimbursement payments**, enter the payment review date, and select **Load trip reimbursement review**.
+3. Review the saved driver and request. The screen separates payments linked to the current claim from payments belonging to an earlier reviewed basis. Source rows retain their original claim, payment, evidence, approver, and time.
+4. Expand **Link an approved reimbursement payment**. Select the actual approved source, date, and amount. Record how the payment paid the identified driver and its supporting evidence.
+5. Select **Review trip payment link**. Confirm the captured source, amount, payee review, and available value. Enter your owner passphrase and select **Approve trip payment link**. Changed fields require another review.
+
+Partial payments and shared payments are bounded against both the reviewed claim and actual payment. Linking creates no additional expense or cash movement. Unsaved trip fields must be saved first. Active links protect the economic trip details and reviewed claim; changing only decimal precision, such as `24.8` to `24.80`, preserves the same basis.
+
+## Correct payment attribution
+
+1. Load the saved trip's reimbursement review. Expand **Original payment detail and release**, select the original link, and review its retained source details.
+2. Enter the actual release date, amount, reason, and evidence. Select **Review trip payment release**.
+3. Review the captured release, enter your owner passphrase, and select **Approve trip payment release**.
+
+Release corrects attribution and preserves the original link. It does not refund cash or undo an actual expense/payment. Record any actual financial return or correction separately. A payment source return or cancellation requires sufficient dated releases first. Each trip's links and releases proceed in date order.
+
+To change a linked claim's driver, actual basis, or requested amount, release its active attribution, save the explicit reviewed correction, and review any new links. Earlier claim/payment snapshots remain available. **Retained trip payment links** and **Retained trip payment releases** use 100-record pages.

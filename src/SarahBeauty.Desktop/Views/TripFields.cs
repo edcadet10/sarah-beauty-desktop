@@ -2,6 +2,7 @@ using SarahBeauty.Business.Bookings;
 using SarahBeauty.Business.Resources;
 using SarahBeauty.Business.Rules;
 using SarahBeauty.Business.Security;
+using System.Text.Json;
 
 namespace SarahBeauty_Desktop.Views;
 
@@ -28,12 +29,14 @@ internal sealed partial class ResourceView
         var evidence=Form.Input("Trip evidence reference",trip.EvidenceId);
         var archived=Archived(trip.Archived);
         var status=Form.Text();
+        MileageTrip Read()=>trip with{Name=purpose.Text,TripDate=Input.Date(date.Text),DriverOwnerId=driver.SelectedId(),DriverArtistId=artist.SelectedId(),
+            BookingId=booking.SelectedId(),Origin=origin.Text,Destination=destination.Text,ActualMiles=Input.Decimal(miles.Text),ParkingCents=Money.Parse(parking.Text),
+            TollsCents=Money.Parse(tolls.Text),ReimbursementStatus=(string)reimbursement.SelectedItem,RequestedReimbursementCents=OptionalMoney(requested.Text),EvidenceId=evidence.Text.Trim(),Archived=archived.IsChecked==true};
+        bool Changed(){try{return JsonSerializer.Serialize(Read())!=JsonSerializer.Serialize(trip);}catch{return true;}}
         _detail.Add(Form.Title("Actual trip"),Form.Text("Actual mileage is separate from quoted travel. This log does not apply a tax rate, invent a deduction, or post reimbursement. Approve any actual business payment separately."),
             purpose,date,driver,artist,booking,origin,destination,miles,parking,tolls,reimbursement,requested,evidence,archived,status,Form.Action("Save actual trip",status,async()=>
             {
-                var value=trip with{Name=purpose.Text,TripDate=Input.Date(date.Text),DriverOwnerId=driver.SelectedId(),DriverArtistId=artist.SelectedId(),
-                    BookingId=booking.SelectedId(),Origin=origin.Text,Destination=destination.Text,ActualMiles=Input.Decimal(miles.Text),ParkingCents=Money.Parse(parking.Text),
-                    TollsCents=Money.Parse(tolls.Text),ReimbursementStatus=(string)reimbursement.SelectedItem,RequestedReimbursementCents=OptionalMoney(requested.Text),EvidenceId=evidence.Text.Trim(),Archived=archived.IsChecked==true};
+                var value=Read();
                 var saved=await Task.Run(()=>_operations.SaveTrip(owner,value));
                 Refresh();
                 Edit(saved);
@@ -41,5 +44,6 @@ internal sealed partial class ResourceView
                 $"{h.Revision} • {h.AtUtc}\n{Who(h.OwnerId)}",$"{Who(h.DriverOwnerId.Length>0?h.DriverOwnerId:h.DriverArtistId)}\n{h.Origin} → {h.Destination}",
                 $"{h.ActualMiles} miles • Parking {Money.Display(h.ParkingCents)} • Tolls {Money.Display(h.TollsCents)}",
                 $"{h.ReimbursementStatus} • {(h.RequestedReimbursementCents.HasValue?Money.Display(h.RequestedReimbursementCents.Value):"Unknown amount")}\n{h.EvidenceId}"})));
+        if(trip.Revision>0)_detail.Add(new TripPaymentView(store,owner,trip.Id,Changed).Build());
     }
 }
