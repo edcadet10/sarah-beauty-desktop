@@ -39,7 +39,7 @@ public sealed class ChartOfAccounts(BusinessStore store)
         if(value.OpeningConfirmed!=(existing?.OpeningConfirmed??false))
             throw new ArgumentException("Confirm or reverse an opening through the opening-balance workflow.");
         if (existing is not null && (existing.Code!=value.Code || existing.Type != value.Type || existing.CashKind != value.CashKind)
-            && db.Scalar("SELECT Id FROM JournalLines WHERE AccountId=$id LIMIT 1;", ("$id", value.Id)) is not null)
+            && db.Scalar("SELECT Id FROM JournalLines WHERE AccountId=$id UNION ALL SELECT Id FROM StatementImports WHERE AccountId=$id LIMIT 1;", ("$id", value.Id)) is not null)
             throw new ArgumentException("An account with posted movements must keep its accounting type and cash kind.");
         string id = existing?.Id ?? Guid.NewGuid().ToString();
         db.Execute("""
