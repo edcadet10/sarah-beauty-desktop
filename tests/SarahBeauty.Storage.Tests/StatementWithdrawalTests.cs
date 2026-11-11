@@ -24,8 +24,8 @@ public sealed class StatementWithdrawalTests
 
     private static StatementWithdrawal Withdraw(LedgerFixture f,StatementImport statement)
     {
-        long generation=new StatementBook(f.Business.Store).Preview(f.Business.Owner,Draft(f)).Generation;
-        return new StatementWithdrawals(f.Business.Store).Approve(f.Business.Owner,statement.Id,generation,"Fictional wrong import mapping","Fictional corrected source evidence",Guid.NewGuid().ToString(),BusinessFixture.Phrase);
+        var book=new StatementWithdrawals(f.Business.Store);
+        return book.Approve(f.Business.Owner,statement.Id,book.Review(f.Business.Owner,statement.Id).Generation,"Fictional wrong import mapping","Fictional corrected source evidence",Guid.NewGuid().ToString(),BusinessFixture.Phrase);
     }
 
     [Fact]
@@ -90,6 +90,7 @@ public sealed class StatementWithdrawalTests
         var cash=BankMatchingTests.Cash(f,f.Post(f.Draft(FinancialKind.Receipt,10000)));
         var matching=new BankMatching(f.Business.Store);var future=f.Date.AddMonths(1);
         BankMatchingTests.Match(f,matching,future,new MatchPortion(line.Id,cash.Id,10000));
+        Assert.Equal(1,new StatementWithdrawals(f.Business.Store).Review(f.Business.Owner,statement.Id).MatchedLineCount);
         Assert.Throws<ArgumentException>(()=>Withdraw(f,statement));
         var match=matching.History(f.Business.Owner).Single();
         BankMatchingTests.Match(f,matching,future,new MatchPortion(line.Id,cash.Id,10000,match.Id));

@@ -5,11 +5,22 @@ using SarahBeauty.Business.Storage;
 namespace SarahBeauty.Business.Banking;
 
 public sealed record StatementWithdrawal(string Id,string StatementId,string Reason,string EvidenceId,string OwnerId,string AtUtc);
+public sealed record StatementWithdrawalReview(StatementImport Statement,long Generation,int UnsharedLineCount,int MatchedLineCount);
 
 public sealed class StatementWithdrawals(BusinessStore store)
 {
     internal Action<string>? FailurePoint {get;set;}
     public List<StatementWithdrawal> History(OwnerSession owner)=>store.Read(db=>{store.RequireSession(db,owner);return Read(db,owner);});
+
+    public StatementWithdrawalReview Review(OwnerSession owner,string statementId)=>store.ReadSnapshot(db=>
+    {
+        store.RequireSession(db,owner);
+        var statement=StatementQueries.Imports(db,owner,statementId).SingleOrDefault()??throw new ArgumentException("Choose an imported statement from this business.");
+        var orphaned=OrphanedLines(db,statementId);
+        var history=BankMatchQueries.History(db,owner).ToLookup(m=>m.BankLineId);
+        return new StatementWithdrawalReview(statement,ValueState.Generation(db,owner,"StatementImport",statement.AccountId),orphaned.Length,
+            orphaned.Count(id=>BankMatchQueries.Matched(history[id],DateOnly.MaxValue)!=0));
+    });
 
     public StatementWithdrawal Approve(OwnerSession owner,string statementId,long reviewedGeneration,string reason,string evidenceId,string requestId,string phrase)
     {

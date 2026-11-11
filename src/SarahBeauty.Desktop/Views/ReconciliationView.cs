@@ -56,7 +56,7 @@ internal sealed class ReconciliationView
     private void Refresh()
     {
         string selected=_statement.SelectedId();
-        var source=Form.Records("",_statements.List(_owner).OrderByDescending(s=>s.Through).Select(s=>(s.Id,$"{_accounts[s.AccountId]} • {s.From:yyyy-MM-dd} – {s.Through:yyyy-MM-dd} • {s.RowCount} source rows")),selected);
+        var source=Form.Records("",_statements.List(_owner).Where(s=>!s.Withdrawn).OrderByDescending(s=>s.Through).Select(s=>(s.Id,$"{_accounts[s.AccountId]} • {s.From:yyyy-MM-dd} – {s.Through:yyyy-MM-dd} • {s.RowCount} source rows")),selected);
         _statement.ItemsSource=source.ItemsSource;_statement.SelectedItem=source.SelectedItem;
         _history.ItemsSource=_book.History(_owner).OrderByDescending(h=>h.AsOfDate).ThenByDescending(h=>h.AtUtc).Select(h=>new HistoryItem(h,
             $"{_accounts[h.AccountId]} • {h.AsOfDate:yyyy-MM-dd} • {(h.Reopened?"Reopened":"Completed")} • {h.Id[..8]}")).ToArray();

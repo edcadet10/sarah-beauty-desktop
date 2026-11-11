@@ -74,13 +74,15 @@ internal sealed class StatementPreviewView
     }
 
     private void Refresh()=>_history.ItemsSource=_book.List(_owner).OrderByDescending(s=>s.Through).Select(s=>new ImportItem(s,
-        $"{_accounts.Single(a=>a.Id==s.AccountId).Name} • {s.From:yyyy-MM-dd} – {s.Through:yyyy-MM-dd} • {s.RowCount} source rows • Closing {Money.Display(s.ClosingCents)}")).ToList();
+        $"{_accounts.Single(a=>a.Id==s.AccountId).Name} • {s.From:yyyy-MM-dd} – {s.Through:yyyy-MM-dd} • {s.RowCount} source rows • Closing {Money.Display(s.ClosingCents)}{(s.Withdrawn?" • Withdrawn":"")}")).ToList();
 
     private void Imported(StatementImport saved)
     {
+        saved=_book.List(_owner).Single(s=>s.Id==saved.Id);
         var rows=_book.SourceRows(_owner,saved.Id);
         string actor=new OwnerAccess(_store).Owners().FirstOrDefault(o=>o.Id==saved.ApprovedBy).Name??"Former owner";
         _review.Children.Clear();
+        _review.Add(StatementWithdrawalView.Build(_store,_owner,saved,()=>Imported(saved)));
         _review.Add(StatementImportHistory.Build(saved,rows,_accounts.Single(a=>a.Id==saved.AccountId).ToString(),actor));
         _pendingReview=false;
         Refresh();
