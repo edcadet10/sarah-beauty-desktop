@@ -12,7 +12,7 @@ internal sealed class ReportsView(BusinessStore store,OwnerSession owner)
     private readonly FinancialReports _reports=new(store);
     private readonly StackPanel _result=Form.Panel();
     private readonly TextBlock _status=Form.Text();
-    private readonly ComboBox _kind=Form.Select("Report",["Profit and loss","Balance sheet","Trial balance","Cash movements","Customer aging","Supplier balances","Tax activity"],"Profit and loss");
+    private readonly ComboBox _kind=Form.Select("Report",["Profit and loss","Balance sheet","Trial balance","Cash movements","Customer aging","Supplier balances","Tax activity","Asset schedule"],"Profit and loss");
 
     internal UIElement Build()
     {
@@ -53,6 +53,7 @@ internal sealed class ReportsView(BusinessStore store,OwnerSession owner)
         "Customer aging"=>ReportTable.Build(["Payer","Open","Overdue","Due today","Future","Date unknown","Unallocated income receipts","Held deposits","Unused credits"],r.Customers.Select(c=>new[]{c.Name,Money.Display(c.OpenCents),Money.Display(c.OverdueCents),Money.Display(c.DueTodayCents),Money.Display(c.FutureCents),Money.Display(c.UnknownDueCents),Money.Display(c.UnallocatedReceiptsCents),Money.Display(c.HeldReceiptsCents),Money.Display(c.UnusedCreditCents)})),
         "Supplier balances"=>ReportTable.Build(["Supplier","Unpaid","Overdue","Due today","Future","Date unknown","Supplier credit"],r.Suppliers.Select(s=>new[]{s.Name,Money.Display(s.OpenCents),Money.Display(s.OverdueCents),Money.Display(s.DueTodayCents),Money.Display(s.FutureCents),Money.Display(s.UnknownDueCents),Money.Display(s.CreditCents)})),
         "Tax activity"=>TaxTable(r.Tax),
+        "Asset schedule"=>AssetScheduleView.Build(r),
         _=>ReportTable.Build(["Period result","USD"],[["Income",Money.Display(r.ProfitLoss.IncomeCents)],["Expenses",Money.Display(r.ProfitLoss.ExpenseCents)],["Result",Money.Display(r.ProfitLoss.ResultCents)]])
     };
 
