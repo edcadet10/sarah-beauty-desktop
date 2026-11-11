@@ -15,14 +15,19 @@ internal static class ArchiveExtraction
             if(!entries.TryAdd(entry.FullName,entry) || mode is not(0 or 0x8000) || (entry.ExternalAttributes&(int)FileAttributes.ReparsePoint)!=0)throw new InvalidDataException("Recovery entries cannot be duplicated or use links.");
             if(entry.FullName!="manifest.json" && ArchivePaths.Normalize(entry.FullName)!=entry.FullName)throw new InvalidDataException("A recovery entry path is not canonical.");
         }
-        if(!entries.TryGetValue("manifest.json",out var manifestEntry) || manifestEntry.FullName!="manifest.json" || manifestEntry.Length is <1 or >ArchivePackage.MaximumManifestBytes)throw new InvalidDataException("The recovery manifest is missing or too large.");
-        using var raw=new MemoryStream();string manifestHash=ArchiveEntryCopy.Copy(manifestEntry,raw,manifestEntry.Length,cancellation);var manifest=ArchiveManifestChecks.Read(raw.ToArray());
+        var extracted=ReadManifest(zip,cancellation);var manifest=extracted.Manifest;
         if(entries.Count!=manifest.Files.Length+1)throw new InvalidDataException("The recovery files differ from the manifest.");
         foreach(var file in manifest.Files)
         {
             cancellation.ThrowIfCancellationRequested();if(!entries.TryGetValue(file.RelativePath,out var entry) || entry.FullName!=file.RelativePath)throw new InvalidDataException("A manifest file is missing or uses different path casing.");
             ArchiveEntryCopy.File(entry,workspace.FilePath(file.RelativePath),file,cancellation);stage?.Invoke("File extracted");
         }
-        return new(manifest,manifestHash);
+        return extracted;
+    }
+    internal static ExtractedArchive ReadManifest(ZipArchive zip,CancellationToken cancellation)
+    {
+        var candidates=zip.Entries.Where(e=>string.Equals(e.FullName,"manifest.json",StringComparison.OrdinalIgnoreCase)).ToArray();
+        if(candidates.Length!=1 || candidates[0].FullName!="manifest.json" || candidates[0].Length is <1 or >ArchivePackage.MaximumManifestBytes)throw new InvalidDataException("The recovery manifest is missing, duplicated, or too large.");
+        using var raw=new MemoryStream();var entry=candidates[0];string hash=ArchiveEntryCopy.Copy(entry,raw,entry.Length,cancellation);return new(ArchiveManifestChecks.Read(raw.ToArray()),hash);
     }
 }

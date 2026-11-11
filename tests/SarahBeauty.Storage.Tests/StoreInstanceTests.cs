@@ -85,7 +85,16 @@ public sealed class StoreInstanceTests
     [Fact]
     public async Task EarlierCompleteSchemaThirtyOneArchivesRemainReviewableWithoutUpgradingTheirStagedDatabase()
     {
-        using var f=new BusinessFixture();using var legacy=new TestStore();DatabaseBackup.CreateVerifiedSnapshotAt(f.Files.DatabasePath,legacy.DatabasePath);legacy.Execute("DELETE FROM AppMetadata WHERE Key IN ('WritableInstanceId','WritableInstanceState'); PRAGMA user_version=31;");
+        using var f=new BusinessFixture();using var legacy=new TestStore();var older=await EarlierArchive(f,legacy);
+        using(var review=await new ArchiveRestores().StageAsync(older.Archive,legacy.Folder,older.Key.ProtectedIdentity,BusinessFixture.Phrase))
+        {
+            Assert.Equal(31,review.Manifest.SchemaVersion);Assert.Equal(31L,TestStore.Scalar(review.FilePath("sarahbeauty.db"),"PRAGMA user_version;"));Assert.Null(TestStore.Scalar(review.FilePath("sarahbeauty.db"),"SELECT Value FROM AppMetadata WHERE Key='WritableInstanceId';"));
+        }
+        Assert.Equal("Fictional Beauty",f.Store.BusinessName(f.Owner));
+    }
+    internal static async Task<(RecoveryMaterial Key,string Archive)> EarlierArchive(BusinessFixture f,TestStore legacy)
+    {
+        DatabaseBackup.CreateVerifiedSnapshotAt(f.Files.DatabasePath,legacy.DatabasePath);legacy.Execute("DELETE FROM AppMetadata WHERE Key IN ('WritableInstanceId','WritableInstanceState'); PRAGMA user_version=31;");
         ArchiveDatabaseFacts facts;using(var connection=legacy.Open())facts=ArchiveDatabaseChecks.Read(new DbWork(connection));
         byte[] bytes=File.ReadAllBytes(legacy.DatabasePath);var file=new ArchiveFile("sarahbeauty.db","Database",bytes.Length,Convert.ToHexString(SHA256.HashData(bytes)));
         var manifest=new ArchiveManifest(1,f.Owner.BusinessId,"Fictional Beauty",f.Store.StoreId,"TEST",31,(long)TestStore.Scalar(legacy.DatabasePath,"SELECT Watermark FROM Business;")!,DateTimeOffset.UtcNow.ToString("O"),"Fictional earlier archive",[file],facts);
@@ -95,10 +104,6 @@ public sealed class StoreInstanceTests
             using(var output=zip.CreateEntry("manifest.json").Open())output.Write(JsonSerializer.SerializeToUtf8Bytes(manifest));using(var output=zip.CreateEntry("sarahbeauty.db").Open())output.Write(bytes);
         }
         var cipher=new RecoveryCipher();var key=await cipher.CreateAsync(BusinessFixture.Phrase);await cipher.EncryptAsync(package,encrypted,key.Recipient);
-        using(var review=await new ArchiveRestores().StageAsync(encrypted,legacy.Folder,key.ProtectedIdentity,BusinessFixture.Phrase))
-        {
-            Assert.Equal(31,review.Manifest.SchemaVersion);Assert.Equal(31L,TestStore.Scalar(review.FilePath("sarahbeauty.db"),"PRAGMA user_version;"));Assert.Null(TestStore.Scalar(review.FilePath("sarahbeauty.db"),"SELECT Value FROM AppMetadata WHERE Key='WritableInstanceId';"));
-        }
-        Assert.Equal("Fictional Beauty",f.Store.BusinessName(f.Owner));
+        return(key,encrypted);
     }
 }
