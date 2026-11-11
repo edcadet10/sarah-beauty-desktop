@@ -1,6 +1,6 @@
 # Prepare a recovered working copy
 
-Status: The business service and desktop review can prepare an isolated TEST working copy. The service also supports [controlled activation](active-test-store.md) and [local retirement](retire-local-instance.md). Desktop activation/retirement and second-device acceptance follow separately.
+Status: The business service and desktop review can prepare an isolated TEST working copy, with [controlled desktop activation](active-test-store.md) and [local retirement](retire-local-instance.md). Second-device acceptance follows separately.
 
 ## Required decisions
 

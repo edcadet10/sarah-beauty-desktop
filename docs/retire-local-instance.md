@@ -1,6 +1,6 @@
 # Retire this local writable instance
 
-Status: Owner-confirmed local retirement is implemented in the business service. Desktop retirement, active-store switching, and actual device acceptance follow separately.
+Status: Owner-confirmed local retirement and [desktop activation/retirement controls](active-test-store.md) are implemented. Actual device acceptance follows separately.
 
 Retirement preserves the local database and archive. It sets this instance's metadata to Retired, records its reason and source archive, and blocks new business access through the app. It does not delete records, post money, or retire another computer.
 
