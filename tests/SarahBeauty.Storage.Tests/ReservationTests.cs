@@ -6,7 +6,7 @@ namespace SarahBeauty.Storage.Tests;
 
 public sealed class ReservationTests
 {
-    private static (Booking Booking,DocumentVersion Invoice) Setup(LedgerFixture f,bool resolved=true,bool hasTrial=true,bool late=false)
+    internal static (Booking Booking,DocumentVersion Invoice) Setup(LedgerFixture f,bool resolved=true,bool hasTrial=true,bool late=false)
     {
         var book=new BookingBook(f.Business.Store);
         var artist=book.SaveArtist(f.Business.Owner,new Artist{Name="Fictional reservation artist"});
@@ -27,7 +27,7 @@ public sealed class ReservationTests
         return(book.List(f.Business.Owner).Single(),invoices.Issue(f.Business.Owner,invoice.Id,invoice.Revision,BusinessFixture.Phrase));
     }
 
-    private static void Pay(LedgerFixture f,DocumentVersion invoice,long cents,DateOnly? date=null,bool credit=false)
+    internal static void Pay(LedgerFixture f,DocumentVersion invoice,long cents,DateOnly? date=null,bool credit=false)
     {
         var receipt=f.Post(f.Draft(FinancialKind.Receipt,cents) with{Date=date??f.Date});
         string creditId="";
@@ -43,7 +43,7 @@ public sealed class ReservationTests
         apps.Approve(f.Business.Owner,draft.Id,draft.Revision,BusinessFixture.Phrase);
     }
 
-    private static Booking Confirm(LedgerFixture f,Booking booking,string? request=null,DateOnly? date=null)=>
+    internal static Booking Confirm(LedgerFixture f,Booking booking,string? request=null,DateOnly? date=null)=>
         new BookingReservations(f.Business.Store).Confirm(f.Business.Owner,booking.Id,booking.Revision,request??Guid.NewGuid().ToString(),
             date??f.Date,"Fictional recorded reservation",BusinessFixture.Phrase);
 

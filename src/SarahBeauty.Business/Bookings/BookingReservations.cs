@@ -58,7 +58,7 @@ public sealed class BookingReservations(BusinessStore store)
         return true;
     }
 
-    private static (long Trial,long Deposit) PaidMilestones(DbWork db,OwnerSession owner,string bookingId,DateOnly date)
+    internal static (long Trial,long Deposit) PaidMilestones(DbWork db,OwnerSession owner,string bookingId,DateOnly date)
     {
         var rows=db.Read("""
             SELECT M.Kind,A.Cents,A.ReversesId FROM PaymentApplications A

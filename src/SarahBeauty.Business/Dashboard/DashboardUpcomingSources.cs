@@ -1,0 +1,54 @@
+using SarahBeauty.Business.Bookings;
+using SarahBeauty.Business.Documents;
+using SarahBeauty.Business.Security;
+using SarahBeauty.Business.Storage;
+
+namespace SarahBeauty.Business.Dashboard;
+
+public sealed class DashboardUpcomingSources(BusinessStore store)
+{
+    internal Action? AfterBookingsRead {get;set;}
+    public DashboardUpcomingSnapshot Load(OwnerSession owner,DateOnly asOf,DateOnly from,DateOnly through)=>store.ReadSnapshot(db=>Load(db,owner,asOf,from,through));
+
+    internal DashboardUpcomingSnapshot Load(DbWork db,OwnerSession owner,DateOnly asOf,DateOnly from,DateOnly through)
+    {
+        store.RequireSession(db,owner);int count=(through.Year-from.Year)*12+through.Month-from.Month+1;
+        if(from<asOf || through<from || count>120)throw new ArgumentException("Choose a confirmed-event window starting on or after its planning as-of date and spanning at most 120 calendar months.");
+        var candidates=new RecordStore<Booking>(store,"Booking").List(db,owner).Where(b=>!b.Archived && b.Status=="Confirmed" && b.EventType=="Wedding"
+            && (b.EventDate is null || b.EventDate>=from && b.EventDate<=through)).ToArray();AfterBookingsRead?.Invoke();
+        var documents=DocumentVersions.List(db,owner);var artists=new RecordStore<Artist>(store,"Artist").List(db,owner).ToDictionary(a=>a.Id);
+        var billing=new BookingBillingSources(store);
+        var rows=candidates.Select(b=>Position(db,owner,b,documents,artists,billing.Load(db,owner,b.Id,asOf,documents),asOf)).ToArray();
+        var dated=rows.Where(b=>b.EventDate.HasValue).OrderBy(b=>b.EventDate).ThenBy(b=>b.Name).ToArray();
+        var groups=dated.ToLookup(b=>new DateOnly(b.EventDate!.Value.Year,b.EventDate.Value.Month,1));DateOnly first=new(from.Year,from.Month,1);
+        var months=Enumerable.Range(0,count).Select(i=>Month(first.AddMonths(i),groups)).ToArray();
+        return new((string)db.Scalar("SELECT DisplayName FROM Business WHERE Id=$id;",("$id",owner.BusinessId))!,
+            (string)db.Scalar("SELECT Value FROM AppMetadata WHERE Key='StoreMode';")!,ReceiptSnapshot.Watermark(db,owner),DateTimeOffset.UtcNow.ToString("O"),asOf,from,through,
+            dated,rows.Where(b=>b.EventDate is null).ToArray(),months);
+    }
+
+    private static DashboardUpcomingBooking Position(DbWork db,OwnerSession owner,Booking booking,List<DocumentVersion> documents,IReadOnlyDictionary<string,Artist> artists,
+        BookingBillingSnapshot billing,DateOnly asOf)
+    {
+        var quote=documents.SingleOrDefault(d=>d.Id==booking.AcceptedQuoteVersionId && d.Snapshot.Kind==DocumentKind.Quote);
+        var issues=new List<string>();long? amount=null;
+        if(quote is null || quote.Status!="Accepted" || quote.AcceptedDate is null || quote.AcceptedDate>asOf)
+            issues.Add("The current agreement has no confirmed acceptance on or before the planning as-of date.");
+        else
+        {
+            amount=DashboardAgreementValue.Read(quote,billing,issues);
+            DashboardReservationReview.Check(db,owner,booking,quote,asOf,issues);
+        }
+        var staff=booking.Appointments.Where(a=>a.Status!="Cancelled" && a.Kind=="Wedding").Select(a=>a.ArtistId).Distinct().Select(id=>
+            artists.TryGetValue(id,out var artist)?new DashboardUpcomingArtist(id,artist.Name,artist.Archived?"Archived":"Active"):new(id,"Artist unavailable","Unavailable")).ToArray();
+        if(staff.Any(a=>a.State!="Active"))issues.Add("An event artist is archived or unavailable. Review the current assignment.");
+        return new(booking.Id,booking.Name,booking.EventDate,booking.Venue,booking.ReadyBy,booking.EventTimeZoneId,staff,
+            quote?.Id??"",quote is null?"Unconfirmed agreement":$"{quote.Snapshot.Number} v{quote.Snapshot.Version}",quote?.Hash??"",amount,issues.Distinct().ToArray(),billing);
+    }
+
+    private static DashboardUpcomingMonth Month(DateOnly month,ILookup<DateOnly,DashboardUpcomingBooking> groups)
+    {
+        var rows=groups[month].ToArray();return new(month,rows.Length,rows.Where(r=>r.AgreementGrossCents.HasValue).Sum(r=>r.AgreementGrossCents!.Value),
+            rows.Count(r=>!r.AgreementGrossCents.HasValue),rows.Select(r=>r.BookingId).ToArray());
+    }
+}
