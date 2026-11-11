@@ -9,10 +9,17 @@ Cancellation outcomes depend on the actual agreement. The app supplies no defaul
 5. Under **Cancellation value decisions**, select the actual receipt or funded credit. Enter the reviewed retained, refunded, and transferred portions. An actual refund needs its account, method, evidence, included tax, and explicit tax review. Review a separate refunded-tax split if needed.
 6. Select an optional different active destination booking for transferred credit. Transfer reserves previously received value; invoice application is a separate explicit decision. Held or suspense value keeps its source treatment until reviewed reclassification.
 7. Select **Save cancellation draft for review**. Review the proposed actions, journal, remaining invoice obligations, and before/after source balances. Changing the effective date recalculates these checks during review.
+8. Confirm that you reviewed the agreement, effects, and remaining obligations. Enter your local owner passphrase and select **Approve combined cancellation**. Changed sources or unsaved decisions require another saved review.
 
-Saving and previewing a draft leaves actual booked work, cash, credit, and invoice balances unchanged. The current desktop screen prepares this review; permanent approval and retained history controls are the next desktop step. Their business commands already require owner confirmation and one complete transaction.
+Saving and previewing a draft leaves actual booked work, cash, credit, and invoice balances unchanged. Approval records all selected effects and the cancellation together. It records actual refund evidence; it does not send a bank payment or contact the customer.
 
 Selecting another case or preparing a new case asks before discarding unsaved fields. Date-specific availability and later dated commitments remain separate. Shared receipts show other-booking applications so their value stays identifiable.
+
+## Review an approved decision
+
+Select an entry under **Approved cancellation history**. It retains the original reviewed terms, before/after source balances, actions, approver, and time. Expand a linked cancellation credit note to create or reopen its saved PDF. Sending remains a manual owner action.
+
+A later refund or use of the transferred credit changes current availability and keeps the earlier decision intact. Use the original receipt and funded credit when recording a later credit refund. The source balances captured in an approved case describe that decision's date and watermark. To inspect newer balances, prepare a case for the actual review date and open its captured sources; reading them does not approve another decision.
 
 ## Create a fictional rehearsal
 
