@@ -17,7 +17,7 @@ internal static class SchemaMigrations
             (18,SarahBeauty.Business.Purchasing.SupplierTransferSchema.Sql),(19,TaxRecoverySchema.Sql),(20,SarahBeauty.Business.Banking.StatementSchema.Sql),
             (21,SarahBeauty.Business.Banking.BankMatchSchema.Sql),(22,SarahBeauty.Business.Banking.StatementEvidenceSchema.Sql),
             (23,SarahBeauty.Business.Banking.ReconciliationSchema.Sql),(24,SarahBeauty.Business.Banking.StatementErrorSchema.Sql),
-            (25,SarahBeauty.Business.Banking.StatementWithdrawalSchema.Sql)];
+            (25,SarahBeauty.Business.Banking.StatementWithdrawalSchema.Sql),(26,BookPeriodSchema.Sql)];
         foreach (var migration in migrations.Where(m => m.Version > fromVersion))
         {
             command.CommandText = migration.Sql;

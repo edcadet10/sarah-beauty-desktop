@@ -23,8 +23,13 @@ internal static class ReconciliationLocks
 
     internal static void Import(DbWork db,OwnerSession owner,StatementImportPreview preview,StatementRowChoice[] choices)
     {
+        PostingValidation.CheckClosedPeriod(db,owner,preview.Draft.Through);
         RequireWritable(db,owner,preview.Draft.AccountId,preview.Draft.Through);
         var existing=choices.Where(c=>c.ExistingLineId.Length>0).Select(c=>c.SourceRow).ToHashSet();
-        foreach(var row in preview.Rows.Where(r=>!existing.Contains(r.Row.SourceRow)))RequireWritable(db,owner,preview.Draft.AccountId,row.Row.Date);
+        foreach(var row in preview.Rows.Where(r=>!existing.Contains(r.Row.SourceRow)))
+        {
+            PostingValidation.CheckClosedPeriod(db,owner,row.Row.Date);
+            RequireWritable(db,owner,preview.Draft.AccountId,row.Row.Date);
+        }
     }
 }
