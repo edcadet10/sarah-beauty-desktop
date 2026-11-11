@@ -59,7 +59,7 @@ internal sealed class DashboardView(BusinessStore store,OwnerSession owner,Actio
         panel.Add(Form.Text($"{report.BusinessName} • {report.Mode} • Watermark {report.Watermark}\nCaptured {report.GeneratedAtUtc}\n"
             +$"Financial period {report.From:yyyy-MM-dd} through {report.Through:yyyy-MM-dd}\n"
             +$"Planning date {snapshot.Upcoming.PlanningAsOf:yyyy-MM-dd} • Upcoming window {snapshot.Upcoming.From:yyyy-MM-dd} through {snapshot.Upcoming.Through:yyyy-MM-dd}"),
-            DashboardCardsView.Build(snapshot),DashboardFinanceView.Build(snapshot.Finance,navigate),DashboardUpcomingView.Build(snapshot.Upcoming,navigate),
+            DashboardCardsView.Build(snapshot),DashboardChartsView.Build(snapshot),DashboardFinanceView.Build(snapshot.Finance,navigate),DashboardUpcomingView.Build(snapshot.Upcoming,navigate),
             DashboardOperationsView.Build(snapshot.Operations,navigate),
             Form.Title("Backup health"),Form.Text("Sheets export: Never completed. Full recovery archive: Never completed. Restore test: Never completed. Google connection and portable recovery are not configured."));
         return panel;
