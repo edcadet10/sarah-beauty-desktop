@@ -81,13 +81,14 @@ internal static class PostingValidation
         if (draft.Kind is FinancialKind.LoanProceeds or FinancialKind.LoanPayment)
         {
             var loan = new RecordStore<Loan>(store, "Loan").Get(db, owner, draft.LoanId);
+            if(loan.Archived)throw new ArgumentException("Choose an active loan.");
             if (!loan.OpeningPrincipalCents.HasValue) throw new ArgumentException("Confirm this loan's opening principal before posting.");
             if (loan.OpeningDate.HasValue && draft.Date < loan.OpeningDate) throw new ArgumentException("This movement precedes the loan opening date.");
         }
         if (draft.Kind is FinancialKind.AssetPurchase or FinancialKind.AssetContribution or FinancialKind.Depreciation or FinancialKind.AssetDisposal)
         {
             var asset = new RecordStore<Asset>(store, "Asset").Get(db, owner, draft.AssetId);
-            if (asset.DisposedDate.HasValue || asset.BusinessUseFraction is null)
+            if (asset.Archived || asset.DisposedDate.HasValue || asset.BusinessUseFraction is null)
                 throw new ArgumentException("Confirm business use and use an asset that has not been disposed of.");
         }
     }

@@ -12,19 +12,33 @@ public sealed class BusinessResources(BusinessStore store)
     public Loan SaveLoan(OwnerSession owner, Loan value) => Save(owner, "Loan", value, (db, previous) =>
     {
         if (value.OpeningPrincipalCents is < 0) throw new ArgumentException("Opening principal cannot be negative; leave it blank when unknown.");
+        if(value.OpeningPrincipalCents>0 && value.OpeningDate is null)throw new ArgumentException("A known nonzero opening principal needs its opening date.");
+        if(value.DueDate<value.OpeningDate)throw new ArgumentException("The loan due date cannot precede its opening date.");
+        if(value.OwnerLenderId.Length>0 && db.Scalar("SELECT Id FROM Owners WHERE BusinessId=$business AND Id=$id;",("$business",owner.BusinessId),("$id",value.OwnerLenderId)) is null)
+            throw new ArgumentException("Choose the actual owner lender from this business.");
         if (previous is not null && (previous.OpeningPrincipalCents != value.OpeningPrincipalCents || previous.OpeningDate != value.OpeningDate)
             && db.Scalar("SELECT Id FROM Movements WHERE LoanId=$id LIMIT 1;", ("$id", value.Id)) is not null)
             throw new ArgumentException("A loan with posted movements needs an approved opening correction.");
     });
 
-    public Asset SaveAsset(OwnerSession owner, Asset value) => Save(owner, "Asset", value, (_, previous) =>
+    public Asset SaveAsset(OwnerSession owner, Asset value) => Save(owner, "Asset", value, (db, previous) =>
     {
         if (value.CostCents is < 0 || value.TaxBasisCents is < 0 || value.BusinessUseFraction is < 0 or > 1)
             throw new ArgumentException("Check the asset's values and business-use fraction. Unknown values may stay blank.");
         if (value.DisposedDate != previous?.DisposedDate) throw new ArgumentException("Use an approved disposal to change the disposal date.");
+        if(!new[]{"Undecided","Purchased","Contributed","Borrowed"}.Contains(value.Funding) || value.InServiceDate<value.AcquisitionDate)
+            throw new ArgumentException("Choose the asset funding and an in-service date on or after acquisition.");
+        if(previous is not null && (value.CostCents!=previous.CostCents || value.TaxBasisCents!=previous.TaxBasisCents
+            || value.BusinessUseFraction!=previous.BusinessUseFraction || value.AcquisitionDate!=previous.AcquisitionDate || value.InServiceDate!=previous.InServiceDate)
+            && db.Scalar("SELECT Id FROM Movements WHERE AssetId=$id LIMIT 1;",("$id",value.Id)) is not null)
+            throw new ArgumentException("An asset with posted movements needs a reviewed value or business-use correction. Its original basis cannot be overwritten.");
     });
 
-    public Supplier SaveSupplier(OwnerSession owner, Supplier value) => Save(owner, "Supplier", value, (_, _) => { });
+    public Supplier SaveSupplier(OwnerSession owner, Supplier value) => Save(owner, "Supplier", value, (_, _) =>
+    {
+        if(value.Email.Length>0 && (!System.Net.Mail.MailAddress.TryCreate(value.Email,out var address) || address.Address!=value.Email))
+            throw new ArgumentException("Enter a supplier email address or leave it blank.");
+    });
 
     private T Save<T>(OwnerSession owner, string kind, T value, Action<DbWork,T?> validate) where T : BusinessRecord
     {

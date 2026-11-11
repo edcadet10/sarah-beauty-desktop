@@ -4,6 +4,7 @@ namespace SarahBeauty.Business.Resources;
 
 public sealed record Loan : BusinessRecord
 {
+    public override string ToString()=>$"{Name} • {(Archived?"Archived":OpeningPrincipalCents.HasValue?"Opening specified":"Opening unknown")}";
     public DateOnly? OpeningDate { get; init; }
     public long? OpeningPrincipalCents { get; init; }
     public string Terms { get; init; } = "";
@@ -14,6 +15,7 @@ public sealed record Loan : BusinessRecord
 
 public sealed record Asset : BusinessRecord
 {
+    public override string ToString()=>$"{Name} • {(Archived?"Archived":DisposedDate.HasValue?"Disposed":CostCents.HasValue?"Cost specified":"Cost unknown")}";
     public string LegalOwner { get; init; } = "";
     public DateOnly? AcquisitionDate { get; init; }
     public DateOnly? InServiceDate { get; init; }
@@ -28,6 +30,7 @@ public sealed record Asset : BusinessRecord
 
 public sealed record Supplier : BusinessRecord
 {
+    public override string ToString()=>$"{Name} • {(Archived?"Archived":"Active")}";
     public string Phone { get; init; } = "";
     public string Email { get; init; } = "";
     public string Address { get; init; } = "";
