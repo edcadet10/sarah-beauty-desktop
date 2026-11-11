@@ -4,6 +4,7 @@ namespace SarahBeauty.Business.Security;
 
 public sealed class OwnerAccess(BusinessStore store)
 {
+    internal Action? AfterCredentialsRead {get;set;}
     public bool NeedsSetup => store.Read(db => db.Scalar("SELECT Id FROM Business;") is null);
 
     public List<(string Id, string Name)> Owners() => store.Read(db => db.Read(
@@ -35,7 +36,11 @@ public sealed class OwnerAccess(BusinessStore store)
 
     public OwnerSession SignIn(string ownerId, string phrase)
     {
-        var result = store.Transaction(db => Authenticate(db, ownerId, phrase));
+        var credential=store.Read(db=>ReadCredential(db,ownerId));
+        if(!MayAuthenticate(credential))throw new UnauthorizedAccessException("The passphrase was not accepted, or sign-in is temporarily locked.");
+        AfterCredentialsRead?.Invoke();
+        bool valid=Passphrase.Verify(phrase,credential!.Salt,credential.Hash,credential.Iterations);
+        var result = store.Transaction(db => CompleteAuthentication(db,ownerId,credential,valid));
         return result ?? throw new UnauthorizedAccessException("The passphrase was not accepted, or sign-in is temporarily locked.");
     }
 
@@ -48,17 +53,18 @@ public sealed class OwnerAccess(BusinessStore store)
         session.Touch();
     }
 
-    private OwnerSession? Authenticate(DbWork db, string id, string phrase)
+    private static OwnerCredential? ReadCredential(DbWork db,string id)=>db.Read("""
+        SELECT BusinessId,Name,Salt,Hash,Iterations,FailedAttempts,LockedUntil
+        FROM Owners WHERE Id=$id AND Active=1;
+        """,r=>new OwnerCredential(r.GetString(0),r.GetString(1),r.GetString(2),r.GetString(3),r.GetInt32(4),r.GetInt32(5),r.IsDBNull(6)?null:r.GetString(6)),("$id",id)).SingleOrDefault();
+
+    private static bool MayAuthenticate(OwnerCredential? owner)=>owner is not null && (owner.LockedUntil is null || DateTimeOffset.Parse(owner.LockedUntil)<=DateTimeOffset.UtcNow);
+
+    private OwnerSession? CompleteAuthentication(DbWork db,string id,OwnerCredential reviewed,bool valid)
     {
-        var owner = db.Read("""
-            SELECT BusinessId,Name,Salt,Hash,Iterations,FailedAttempts,LockedUntil
-            FROM Owners WHERE Id=$id AND Active=1;
-            """, r => new OwnerCredential(r.GetString(0), r.GetString(1), r.GetString(2),
-                r.GetString(3), r.GetInt32(4), r.GetInt32(5), r.IsDBNull(6) ? null : r.GetString(6)), ("$id", id))
-            .SingleOrDefault();
-        if (owner is null || (owner.LockedUntil is not null
-            && DateTimeOffset.Parse(owner.LockedUntil) > DateTimeOffset.UtcNow)) return null;
-        bool valid = Passphrase.Verify(phrase, owner.Salt, owner.Hash, owner.Iterations);
+        // Expensive verification ran without a writer reservation. Recheck the actual credential and current lockout before recording its result.
+        var owner=ReadCredential(db,id);
+        if(!MayAuthenticate(owner) || owner!.BusinessId!=reviewed.BusinessId || owner.Salt!=reviewed.Salt || owner.Hash!=reviewed.Hash || owner.Iterations!=reviewed.Iterations)return null;
         RecordAttempt(db, id, valid, owner.Failures);
         return valid ? new OwnerSession(id, owner.Name, owner.BusinessId, store.StoreId) : null;
     }
