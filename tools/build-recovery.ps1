@@ -19,6 +19,6 @@ try {
 $taskNotices=Join-Path $taskOutput 'ThirdParty'
 New-Item -ItemType Directory -Path $taskNotices -Force | Out-Null
 foreach($taskNotice in @('age-1.3.2-license.txt','hpke-0.4.0-license.txt','golang-crypto-0.55.0-license.txt','golang-sys-0.47.0-license.txt','go-1.27.4-license.txt')){
-    Copy-Item -LiteralPath (Join-Path $taskRepository ('docs/third-party/'+$taskNotice)) -Destination (Join-Path $taskNotices $taskNotice)
+    Copy-Item -LiteralPath (Join-Path $taskRepository ('docs/third-party/'+$taskNotice)) -Destination (Join-Path $taskNotices $taskNotice) -Force
 }
 Write-Output 'Built the recovery helper with its third-party notices in .artifacts/recovery-helper.'

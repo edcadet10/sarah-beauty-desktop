@@ -1,10 +1,10 @@
 # Backup and Recovery
 
-Status: Verified local database upgrade snapshots and the [managed evidence workspace](managed-evidence.md) are implemented. Automated fictional fixtures cover committed WAL data, invalid sources, failed verification, migration rollback, managed-file versions/integrity, and pinned record links. Complete archives, cloud backups, and a restore interface remain in progress. The procedure below is the contract for those future features.
+Status: Verified local database upgrade snapshots, the [managed evidence workspace](managed-evidence.md), and [complete local encrypted archives](archive-package.md) are implemented. Automated fictional fixtures cover committed WAL data, invalid sources, failed verification, migration rollback, managed-file versions/integrity, pinned record links, archive contents, and interrupted encryption. Cloud backups and a restore interface remain in progress. The procedure below includes the contract for those future features.
 
-The [portable encryption helper](archive-encryption.md) now uses the published age format and passes reference interoperability and failure checks. Archive assembly and staged restore verification remain separate work.
+The [portable encryption helper](archive-encryption.md) uses the published age format and passes reference interoperability and failure checks. Staged restore verification remains separate work.
 
-The [recovery source capture](archive-snapshot.md) also retains a verified standalone database and all required managed file versions from that same snapshot, with exact metadata and journal checks. Packaging and desktop restore remain in progress.
+The [recovery source capture](archive-snapshot.md) retains a verified standalone database and all required managed file versions from that same snapshot, with exact metadata and journal checks. The package service encrypts that capture and publishes only verified completed output. Desktop restore remains in progress.
 
 ## Local upgrade snapshots
 

@@ -4,5 +4,6 @@ internal sealed class ArchiveCapture(ArchiveWorkspace workspace,ArchiveManifest 
 {
     internal ArchiveManifest Manifest {get;}=manifest;
     internal string FilePath(string relative)=>new ArchivePaths(workspace.Root).Resolve(relative);
+    internal string PackagePath()=>workspace.PackagePath();
     public void Dispose()=>workspace.Dispose();
 }
