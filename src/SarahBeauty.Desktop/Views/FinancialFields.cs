@@ -82,6 +82,7 @@ internal sealed class FinancialFields
         if(_kind is FinancialKind.PurchasePayment or FinancialKind.PurchaseRefund or FinancialKind.SupplierCreditUse)panel.Add(_supplierPayment.Build());
         if(_kind==FinancialKind.Transfer)panel.Add(_to);
         if(_kind is FinancialKind.Receipt or FinancialKind.Refund or FinancialKind.AssetDisposal or FinancialKind.ReceiptClassification)panel.Add(_customer,_tax,_taxResolved);
+        if(_kind==FinancialKind.UnclassifiedReceipt)panel.Add(_customer);
         if(_kind is FinancialKind.Receipt or FinancialKind.LoanPayment)panel.Add(_fee);
         if(_kind==FinancialKind.LoanPayment)panel.Add(_principal,_interest);
         if(_kind is FinancialKind.Contribution or FinancialKind.Withdrawal or FinancialKind.OwnerPaidExpense or FinancialKind.OwnerReimbursement or FinancialKind.AssetContribution or FinancialKind.Opening)panel.Add(_economicOwner);

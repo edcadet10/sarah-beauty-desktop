@@ -44,7 +44,7 @@ internal sealed class CreditView(BusinessStore store,OwnerSession owner)
         var reason=Form.Input("Explicit decision / reason",draft.Name);
         var date=Form.Input("Effective date",draft.Date?.ToString("yyyy-MM-dd")??"");
         var amount=Form.Input("Amount in USD",Money.Input(draft.Cents));
-        var payment=Form.Records("Original approved receipt",new FinanceBook(store).Posted(owner).Where(p=>p.Source.Kind is FinancialKind.Receipt or FinancialKind.ReceiptClassification).Select(p=>(p.Id,$"{p.Source} • {p.Id[..8]}")),draft.PaymentId);
+        var payment=Form.Records("Original approved receipt",new FinanceBook(store).Posted(owner).Where(p=>p.Source.Kind is FinancialKind.Receipt or FinancialKind.ReceiptClassification or FinancialKind.UnclassifiedReceipt).Select(p=>(p.Id,$"{p.Source} • {p.Id[..8]}")),draft.PaymentId);
         var credit=Form.Records("Customer credit",_book.Credits(owner).Select(c=>(c.Id,$"{c.CustomerName} • {c.Id[..8]}")),draft.CreditId);
         var status=Form.Text();
         _detail.Add(Form.Title(draft.Action==CreditAction.Issue?"Funded credit draft":"Return unused credit"),reason,date,amount);
@@ -66,7 +66,7 @@ internal sealed class CreditView(BusinessStore store,OwnerSession owner)
         try
         {
             var preview=_book.Preview(owner,draft);
-            _detail.Add(Form.Text($"{preview.CustomerName} • Amount {Money.Display(preview.Cents)} including tax {Money.Display(preview.TaxCents)}\n"+
+            _detail.Add(Form.Text($"{preview.CustomerName} • {preview.SourceTreatment} • Amount {Money.Display(preview.Cents)} including tax {Money.Display(preview.TaxCents)}\n"+
                 $"Receipt available afterward: {Money.Display(preview.ReceiptAfter.Cents)}\nCredit available afterward: {Money.Display(preview.CreditAfter.Cents)}"));
         }
         catch(Exception error){status.Text=error.Message;}
@@ -90,7 +90,9 @@ internal sealed class CreditView(BusinessStore store,OwnerSession owner)
         _detail.Add(Form.Title(credit.CustomerName),Form.Text($"Issued {Money.Display(credit.IssuedCents)} on {credit.IssueDate:yyyy-MM-dd}\n"+
             $"Available as of {date:yyyy-MM-dd}: {Money.Display(available.Cents)} including tax {Money.Display(available.TaxCents)}"),
             Form.Text($"Original receipt reference: {credit.PaymentId[..8]}"),
-            Form.Text(credit.Reason),Form.Text("Use Apply payments to allocate this credit to an invoice or reverse an earlier allocation."));
+            Form.Text(credit.Reason),Form.Text($"Source treatment: {credit.SourceTreatment}. Issuing credit does not change that classification."),
+            Form.Text(credit.SourceTreatment=="Recognized income"?"Use Apply payments to allocate this credit to an invoice or reverse an earlier allocation.":
+                "Held or suspense credit needs an explicit return to receipt availability and reviewed reclassification before invoice use. Refunding unused credit retains its original source classification."));
     }
 
     private sealed record CreditChoice(CustomerCredit Credit,string Label){public override string ToString()=>Label;}
