@@ -48,7 +48,12 @@ internal sealed class LocalBackupView(BusinessStore store,OwnerSession owner)
     }
     private void TryRefresh(){try{Refresh();}catch(Exception){}}
     private LocalBackupJob Selected()=>_jobs.SingleOrDefault(j=>j.Id==_history.SelectedId)??throw new ArgumentException("Choose a local archive attempt.");
-    private Task Show(){_detail.Content=LocalBackupDetailView.Build(Selected());return Task.CompletedTask;}
+    private Task Show()
+    {
+        var selected=Selected();var panel=Form.Panel();panel.Add(LocalBackupDetailView.Build(selected));
+        if(selected.Result is not null)panel.Add(new Expander{Header="Decrypt and review this recorded archive",Content=new RestoreReviewView(selected.Destination,selected.Result).Build(),HorizontalAlignment=HorizontalAlignment.Stretch});
+        _detail.Content=panel;return Task.CompletedTask;
+    }
     private async Task Verify()
     {
         var selected=Selected();var result=selected.Result??throw new ArgumentException("Choose a completed archive with recorded file facts.");

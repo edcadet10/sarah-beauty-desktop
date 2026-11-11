@@ -1,6 +1,6 @@
 # Create an archive from the desktop
 
-Status: The Backups and recovery workspace supports protected recovery-file setup, manual local encrypted archives, persistent history, and ciphertext verification. Scheduling, Google delivery, restore activation, and second-device acceptance follow separately.
+Status: The Backups and recovery workspace supports protected recovery-file setup, manual local encrypted archives, persistent history, ciphertext verification, and [staged restore review](archive-restore.md). Scheduling, Google delivery, restore activation, and second-device acceptance follow separately.
 
 ## Save and confirm recovery material
 

@@ -15,4 +15,9 @@ internal static class RecoveryFilePicker
         var window=((App)Application.Current).ActiveWindow;var picker=new FileOpenPicker(window.AppWindow.Id){SuggestedStartLocation=PickerLocationId.DocumentsLibrary};
         foreach(string extension in new[]{".sbrecovery",".age",".txt",".agekey"})picker.FileTypeFilter.Add(extension);return(await picker.PickSingleFileAsync())?.Path;
     }
+    internal static async Task<string?> OpenArchive()
+    {
+        var window=((App)Application.Current).ActiveWindow;var picker=new FileOpenPicker(window.AppWindow.Id){SuggestedStartLocation=PickerLocationId.DocumentsLibrary};
+        picker.FileTypeFilter.Add(".age");return(await picker.PickSingleFileAsync())?.Path;
+    }
 }
