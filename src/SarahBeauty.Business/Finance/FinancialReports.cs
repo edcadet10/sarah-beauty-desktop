@@ -9,7 +9,9 @@ namespace SarahBeauty.Business.Finance;
 public sealed class FinancialReports(BusinessStore store)
 {
     internal Action? AfterTrialRead {get;set;}
-    public ReportSnapshot Load(OwnerSession owner,DateOnly from,DateOnly through)=>store.ReadSnapshot(db=>
+    public ReportSnapshot Load(OwnerSession owner,DateOnly from,DateOnly through)=>store.ReadSnapshot(db=>Load(db,owner,from,through));
+
+    internal ReportSnapshot Load(DbWork db,OwnerSession owner,DateOnly from,DateOnly through)
     {
         store.RequireSession(db,owner);
         var confirmed=ConfirmedOpenings(db,owner,through);
@@ -25,10 +27,11 @@ public sealed class FinancialReports(BusinessStore store)
         var entries=Activity(db,owner,from,through);
         var cashAccounts=trial.Where(r=>r.Account.CashKind!="None").Select(r=>r.Account.Id).ToHashSet();
         var bills=PurchasePayments.Outstanding(db,store,owner,through);
-        return new ReportSnapshot(business,"TEST",watermark,DateTimeOffset.UtcNow.ToString("O"),from,through,trial,pnl,balance,entries.Where(e=>cashAccounts.Contains(e.AccountId)).ToList(),
+        string mode=(string)db.Scalar("SELECT Value FROM AppMetadata WHERE Key='StoreMode';")!;
+        return new ReportSnapshot(business,mode,watermark,DateTimeOffset.UtcNow.ToString("O"),from,through,trial,pnl,balance,entries.Where(e=>cashAccounts.Contains(e.AccountId)).ToList(),
             CustomerPositions.Read(db,owner,through,versions),Tax(db,owner,from,through,trial,versions),OpeningWarnings(db,owner,trial))
             {Entries=entries,SupplierBills=bills,Suppliers=SupplierPositions(db,owner,through,bills)};
-    });
+    }
 
     private static List<CashActivity> Activity(DbWork db,OwnerSession owner,DateOnly from,DateOnly through)=>db.Read("""
         SELECT M.Id,M.Date,M.Kind,M.Memo,A.Id,A.Name,J.DebitCents,J.CreditCents FROM JournalLines J JOIN Movements M ON M.Id=J.MovementId

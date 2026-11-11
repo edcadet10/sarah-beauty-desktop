@@ -45,8 +45,9 @@ internal sealed class TestStore : IDisposable
 
     internal void PrepareBankingVersion(int version)
     {
-        if(version is <18 or >24)throw new ArgumentOutOfRangeException(nameof(version));
-        var tables=new List<string>{"StatementWithdrawals"};
+        if(version is <18 or >25)throw new ArgumentOutOfRangeException(nameof(version));
+        var tables=new List<string>{"BookPeriodReopens","BookPeriodCloses"};
+        if(version<25)tables.Add("StatementWithdrawals");
         if(version<24)tables.AddRange(["StatementErrorResolutions","StatementErrors"]);
         if(version<23)tables.AddRange(["ReconciliationBankCoverage","ReconciliationReopens","Reconciliations"]);
         if(version<21)tables.AddRange(["BankMatches","BankMatchGroups"]);
@@ -64,7 +65,7 @@ internal sealed class TestStore : IDisposable
             CREATE UNIQUE INDEX StatementImports_Content ON StatementImports(AccountId,ContentHash) WHERE ContentHash IS NOT NULL;
             CREATE UNIQUE INDEX BankLines_Reference ON BankLines(AccountId,Reference) WHERE ReliableReference=1;
             """;
-        Execute($"BEGIN IMMEDIATE; {oldIndexes} {drops} {(dropEvidence?"ALTER TABLE StatementImports DROP COLUMN EvidenceId;":"")} PRAGMA user_version={version}; COMMIT;");
+        Execute($"BEGIN IMMEDIATE; {(version<25?oldIndexes:"")} {drops} {(dropEvidence?"ALTER TABLE StatementImports DROP COLUMN EvidenceId;":"")} PRAGMA user_version={version}; COMMIT;");
     }
 
     internal string Hash() => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(DatabasePath)));
