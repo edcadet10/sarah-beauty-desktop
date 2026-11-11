@@ -56,4 +56,14 @@ public sealed class ResourceTests
         Assert.Equal(supplier.Id,archived.Id);
         Assert.Equal(archived,Assert.Single(resources.Suppliers(f.Business.Owner)));
     }
+
+    [Fact]
+    public void PostedLoanCannotBeReassignedToAnOwnerByEditingItsRegister()
+    {
+        using var f=new LedgerFixture();
+        f.Post(f.Draft(FinancialKind.LoanProceeds,10000));
+        Assert.Throws<ArgumentException>(()=>new BusinessResources(f.Business.Store).SaveLoan(f.Business.Owner,
+            f.Loan with{OwnerLenderId=f.Business.Owner.OwnerId}));
+        Assert.Equal(-10000,f.Balance("2300"));
+    }
 }

@@ -29,6 +29,8 @@ public sealed class FinanceBook(BusinessStore store)
         draft = CorrectionRules.Prepare(db, owner, draft);
         draft=PurchasePayments.Prepare(db,store,owner,draft);
         draft=ReceiptClassifications.Prepare(db,owner,draft);
+        if(draft.Revision==0 && draft.Kind!=FinancialKind.Reversal)draft=LoanLenderFacts.Capture(db,store,owner,draft);
+        LoanLenderFacts.Validate(db,store,owner,draft);
         PostingValidation.Validate(db, owner, store, draft, accounts);
         OpeningRules.Validate(db,store,owner,draft,accounts);
         CreditRefundRules.Validate(db,owner,draft);
@@ -58,6 +60,7 @@ public sealed class FinanceBook(BusinessStore store)
             value=value with{AssetAdjustments=value.AssetAdjustments.Select(c=>c with{Generation=ValueState.Generation(db,owner,"Asset",c.AssetId)}).ToArray()};
             if(value.Kind==FinancialKind.TaxRecovery)value=value with{TaxRecoveryGeneration=ValueState.Generation(db,owner,"TaxRecovery",value.OriginalId)};
             if(value.Kind==FinancialKind.ReceiptClassification)value=ReceiptClassifications.Review(db,owner,value);
+            value=LoanLenderFacts.Capture(db,store,owner,value);
             return _drafts.Save(db, owner, value);
         });
     }
@@ -83,6 +86,7 @@ public sealed class FinanceBook(BusinessStore store)
         draft = CorrectionRules.Prepare(db, owner, draft);
         draft=PurchasePayments.Prepare(db,store,owner,draft);
         draft=ReceiptClassifications.Prepare(db,owner,draft);
+        LoanLenderFacts.Validate(db,store,owner,draft);
         PostingValidation.Validate(db, owner, store, draft, accounts);
         OpeningRules.Validate(db,store,owner,draft,accounts);
         CreditRefundRules.Validate(db,owner,draft);

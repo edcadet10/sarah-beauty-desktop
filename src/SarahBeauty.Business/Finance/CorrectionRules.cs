@@ -40,7 +40,7 @@ internal static class CorrectionRules
         AssetRetirements.ValidateReversal(db,owner,draft.OriginalId,draft.Date!.Value);
         BankMatchRules.ValidateMovementReversal(db,owner,draft.OriginalId,draft.Date.Value);
         return draft with { AmountCents = original.AmountCents, CustomerId = original.CustomerId,
-            EconomicOwnerId = original.EconomicOwnerId, BookingId = original.BookingId, LoanId = original.LoanId,
+            EconomicOwnerId = original.EconomicOwnerId, BookingId = original.BookingId, LoanId = original.LoanId,LoanLender=original.LoanLender,
             AssetId = original.AssetId, SupplierId = original.SupplierId, CreditId=original.CreditId,
             PurchaseId=original.PurchaseId,PurchaseFunding=original.PurchaseFunding,SupplierRefundDestination=original.SupplierRefundDestination,
             SupplierCreditTreatment=original.SupplierCreditTreatment,AssetAdjustments=original.AssetAdjustments,

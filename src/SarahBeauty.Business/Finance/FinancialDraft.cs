@@ -27,6 +27,7 @@ public sealed record FinancialDraft : BusinessRecord
     public string EconomicOwnerId { get; init; } = "";
     public string BookingId { get; init; } = "";
     public string LoanId { get; init; } = "";
+    public LoanLenderSnapshot? LoanLender {get;init;}
     public string AssetId { get; init; } = "";
     public string SupplierId { get; init; } = "";
     public string OriginalId { get; init; } = "";

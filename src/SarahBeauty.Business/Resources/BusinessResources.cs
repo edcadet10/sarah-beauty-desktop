@@ -8,6 +8,8 @@ public sealed class BusinessResources(BusinessStore store)
     public List<Loan> Loans(OwnerSession owner) => new RecordStore<Loan>(store, "Loan").List(owner);
     public List<Asset> Assets(OwnerSession owner) => new RecordStore<Asset>(store, "Asset").List(owner);
     public List<Supplier> Suppliers(OwnerSession owner) => new RecordStore<Supplier>(store, "Supplier").List(owner);
+    public bool LoanLenderLocked(OwnerSession owner,string id)=>store.Read(db=>{store.RequireSession(db,owner);return HasLoanHistory(db,owner,id);});
+    private static bool HasLoanHistory(DbWork db,OwnerSession owner,string id)=>db.Scalar("SELECT Id FROM Movements WHERE BusinessId=$business AND LoanId=$id LIMIT 1;",("$business",owner.BusinessId),("$id",id)) is not null;
 
     public Loan SaveLoan(OwnerSession owner, Loan value) => Save(owner, "Loan", value, (db, previous) =>
     {
@@ -16,6 +18,8 @@ public sealed class BusinessResources(BusinessStore store)
         if(value.DueDate<value.OpeningDate)throw new ArgumentException("The loan due date cannot precede its opening date.");
         if(value.OwnerLenderId.Length>0 && db.Scalar("SELECT Id FROM Owners WHERE BusinessId=$business AND Id=$id;",("$business",owner.BusinessId),("$id",value.OwnerLenderId)) is null)
             throw new ArgumentException("Choose the actual owner lender from this business.");
+        if(previous is not null && previous.OwnerLenderId!=value.OwnerLenderId && HasLoanHistory(db,owner,value.Id))
+            throw new ArgumentException("A posted loan's owner lender cannot be reassigned by editing its register. Retain its approved source identity.");
         if (previous is not null && (previous.OpeningPrincipalCents != value.OpeningPrincipalCents || previous.OpeningDate != value.OpeningDate)
             && db.Scalar("SELECT Id FROM Movements WHERE LoanId=$id LIMIT 1;", ("$id", value.Id)) is not null)
             throw new ArgumentException("A loan with posted movements needs an approved opening correction.");
