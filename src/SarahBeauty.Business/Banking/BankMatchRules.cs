@@ -43,8 +43,7 @@ internal static class BankMatchRules
                 throw new ArgumentException("The unmatch must retain its source lines and stay within the original match's remaining amount.");
             return;
         }
-        if(cash.ReversesMovementId.Length>0 || cash.ReversedDate.HasValue && draft.Date>=cash.ReversedDate.Value)
-            throw new ArgumentException("Match an active actual cash source. A posting cancellation is not an additional bank transaction; an actual cash return needs its refund record.");
+        if(!cash.IsMatchableAt(draft.Date))throw new ArgumentException("Match an active actual cash source. Opening balances and posting cancellations do not represent new bank transactions.");
         if(p.Cents>Math.Abs(bank.SignedCents)-BankMatchQueries.Matched(history.Where(r=>r.BankLineId==bank.Id),draft.Date)
             || p.Cents>Math.Abs(cash.SignedCents)-BankMatchQueries.Matched(history.Where(r=>r.JournalLineId==cash.Id),draft.Date))
             throw new ArgumentException("The match exceeds a remaining bank or cash-journal amount.");
@@ -59,7 +58,7 @@ internal static class BankMatchRules
         {
             var line=cash[id];
             var rows=all.Where(r=>r.JournalLineId==id).ToList();
-            Check(rows,rows.Select(r=>r.Date).Concat(line.ReversedDate.HasValue?[line.ReversedDate.Value]:[]),d=>line.Date>d || line.ReversesMovementId.Length>0 || line.ReversedDate<=d?0:Math.Abs(line.SignedCents));
+            Check(rows,rows.Select(r=>r.Date).Concat(line.ReversedDate.HasValue?[line.ReversedDate.Value]:[]),d=>line.IsMatchableAt(d)?Math.Abs(line.SignedCents):0);
         }
         foreach(string id in portions.Select(p=>p.BankLineId).Distinct())
         {

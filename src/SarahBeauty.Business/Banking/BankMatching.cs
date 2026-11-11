@@ -32,16 +32,16 @@ public sealed class BankMatching(BusinessStore store)
     public List<MatchPosition> BankPositions(OwnerSession owner,string account,DateOnly date)=>LoadSources(owner,account,date).BankPositions;
     public List<MatchPosition> CashPositions(OwnerSession owner,string account,DateOnly date)=>LoadSources(owner,account,date).CashPositions;
 
-    private static List<MatchPosition> BankPositions(List<BankLine> bank,List<BankMatch> history,DateOnly date)
+    internal static List<MatchPosition> BankPositions(List<BankLine> bank,List<BankMatch> history,DateOnly date)
     {
         var lookup=history.ToLookup(r=>r.BankLineId);
         return bank.Where(b=>b.Date<=date).Select(b=>new MatchPosition(b.Id,b.SignedCents,BankMatchQueries.Matched(lookup[b.Id],date))).ToList();
     }
 
-    private static List<MatchPosition> CashPositions(List<CashMatchLine> cash,List<BankMatch> history,DateOnly date)
+    internal static List<MatchPosition> CashPositions(List<CashMatchLine> cash,List<BankMatch> history,DateOnly date)
     {
         var lookup=history.ToLookup(r=>r.JournalLineId);
-        return cash.Where(c=>c.Date<=date).Select(c=>new MatchPosition(c.Id,c.ReversesMovementId.Length>0 || c.ReversedDate<=date?0:c.SignedCents,BankMatchQueries.Matched(lookup[c.Id],date))).ToList();
+        return cash.Where(c=>c.Date<=date).Select(c=>new MatchPosition(c.Id,c.IsMatchableAt(date)?c.SignedCents:0,BankMatchQueries.Matched(lookup[c.Id],date))).ToList();
     }
 
     public BankMatchGroup Approve(OwnerSession owner,BankMatchDraft draft,Dictionary<string,long> expectedGenerations,string requestId,string phrase)
