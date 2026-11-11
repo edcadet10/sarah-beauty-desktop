@@ -57,6 +57,7 @@ public sealed class BookPeriodTests
         Assert.Equal(new DateOnly(2027,1,31),book.ClosedThrough(f.Business.Owner));
         Assert.Equal(10000,saved.Snapshot.Reports.ProfitLoss.IncomeCents);
         Assert.Equal(1,saved.Snapshot.Reports.Assets!.Version);
+        Assert.Equal(1,saved.Snapshot.Reports.Debts!.Version);
         Assert.True(Assert.Single(saved.Snapshot.Reports.Assets.Positions).CurrentFacts.Archived);
         Assert.Equal(3,saved.Snapshot.Reconciliations.Length);
         Assert.Equal(f.Business.Owner.OwnerId,saved.ApprovedBy);
