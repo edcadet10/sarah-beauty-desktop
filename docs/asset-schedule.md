@@ -1,6 +1,11 @@
 # Review the asset schedule
 
-Status: The report snapshot and automated checks are implemented. Desktop report selection follows separately.
+1. Open **Reports** and choose **Asset schedule**.
+2. Enter the movement period start and the period end/as-of date, then select **Run report**.
+3. Expand **Asset book values** and **Asset period movements** to review the captured amounts. Each table uses pages of 100 records.
+4. Choose a **Supporting asset** and select **Show captured asset facts and sources**. Review current register facts separately from the book values, then expand its supporting entries and events.
+
+The same schedule is available under **Captured financial reports** when reviewing a saved book-period closing. It uses the retained snapshot rather than today's business records. Earlier report versions without this schedule display that it was not captured.
 
 Choose a movement period and an as-of date. The schedule retains each asset's posted opening cost and accumulated depreciation, period increases and reductions, and closing cost, accumulated depreciation, and carrying value. Cost increases include evidenced opening entries and reversals; they do not all represent new purchases. Accumulated depreciation added or cleared can include disposal reversals; it is not a tax deduction calculation.
 
