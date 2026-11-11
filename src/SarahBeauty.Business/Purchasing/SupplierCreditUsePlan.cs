@@ -26,12 +26,10 @@ internal static class SupplierCreditUsePlan
     internal static List<JournalLine> Lines(DbWork db,BusinessStore store,OwnerSession owner,FinancialDraft draft,List<Account> accounts)
     {
         var plan=Build(db,store,owner,draft);
+        if(draft.AssetAdjustments.Where(c=>c.Treatment==AssetValueChoice.Retire).Any(c=>plan.In.Any(r=>r.BusinessCents>0 && plan.Target.Lines.Single(l=>l.Id==r.LineId).AssetId==c.AssetId)))
+            throw new ArgumentException("A returned asset cannot also receive the replacement purchase value. Use the replacement asset's own record.");
         var lines=PurchasePaymentPlan.BusinessLines(db,store,owner,plan.Target,draft,accounts,plan.In);
-        foreach(var row in plan.Out.Where(r=>r.BusinessCents>0))
-        {
-            var line=plan.Source.Lines.Single(l=>l.Id==row.LineId);
-            lines.Add(new(line.AccountId,0,row.BusinessCents,line.AssetId));
-        }
+        lines.AddRange(PurchaseCostReturns.Lines(db,owner,plan.Source,draft,accounts,plan.Out));
         long drawChange=plan.In.Sum(r=>r.DrawCents)-plan.Out.Sum(r=>r.DrawCents);
         long fundingChange=plan.In.Sum(r=>checked(r.BusinessCents+r.DrawCents))-plan.Out.Sum(r=>checked(r.BusinessCents+r.DrawCents));
         if((drawChange!=0 || fundingChange!=0) && db.Scalar("SELECT Id FROM Owners WHERE Id=$id AND BusinessId=$business AND Active=1;",

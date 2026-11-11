@@ -31,20 +31,40 @@ internal static class PurchaseRefundPlan
     {
         if(draft.PurchaseGeneration!=ValueState.Generation(db,owner,"Purchase",draft.PurchaseId))
             throw new ArgumentException("The supplier balance changed. Save and review this refund again.");
-        var all=PurchasePayments.Rows(db,draft.PurchaseId);
-        var remaining=all.Where(r=>r.MovementId==draft.OriginalId && r.Sign==1 && r.ReversesId is null).Select(r=>new{Row=r,
-            Gross=r.Cents+all.Where(f=>(f.RefundsId==r.Id || f.ConsumesId==r.Id) && f.Date<=draft.Date).Sum(f=>f.Sign*f.Cents),
-            Business=r.BusinessCents+all.Where(f=>(f.RefundsId==r.Id || f.ConsumesId==r.Id) && f.Date<=draft.Date).Sum(f=>f.Sign*f.BusinessCents),
-            Draw=r.DrawCents+all.Where(f=>(f.RefundsId==r.Id || f.ConsumesId==r.Id) && f.Date<=draft.Date).Sum(f=>f.Sign*f.DrawCents)}).ToList();
-        if(remaining.Count==0 || remaining.Any(r=>r.Gross<0 || r.Business<0 || r.Draw<0 || r.Business>r.Gross || r.Draw>r.Gross-r.Business) || draft.AmountCents>remaining.Sum(r=>r.Gross))
+        var remaining=Available(db,draft);
+        if(remaining.Count==0 || draft.AmountCents>remaining.Sum(r=>r.Share.Gross))
             throw new ArgumentException("The refund exceeds the original supplier payment's remaining gross or business share.");
-        long[] shares=PaymentPlan.Allocate(draft.AmountCents,remaining.Select(r=>r.Gross).ToArray());
+        long[] shares=Allocate(draft,remaining);
         return remaining.Select((r,i)=>
         {
-            var share=new SupplierFundingShare(r.Gross,r.Business,r.Draw).Portion(shares[i]);
+            var share=r.Share.Portion(shares[i]);
             return new PurchaseSettlement(Guid.NewGuid().ToString(),"",draft.PurchaseId,r.Row.LineId,draft.Date!.Value,share.Gross,share.Business,null,-1,r.Row.Id,share.Draw);
         }).Where(r=>r.Cents>0).ToList();
     }
+
+    internal static List<RefundAvailable> Available(DbWork db,FinancialDraft draft)
+    {
+        var all=PurchasePayments.Rows(db,draft.PurchaseId);
+        return all.Where(r=>r.MovementId==draft.OriginalId && r.Sign==1 && r.ReversesId is null).Select(r=>
+        {
+            var used=all.Where(f=>(f.RefundsId==r.Id || f.ConsumesId==r.Id) && f.Date<=draft.Date).ToList();
+            var share=new SupplierFundingShare(r.Cents+used.Sum(f=>f.Sign*f.Cents),r.BusinessCents+used.Sum(f=>f.Sign*f.BusinessCents),r.DrawCents+used.Sum(f=>f.Sign*f.DrawCents));
+            _=share.Portion(0);
+            return new RefundAvailable(r,share);
+        }).ToList();
+    }
+
+    private static long[] Allocate(FinancialDraft draft,List<RefundAvailable> available)
+    {
+        var selected=draft.SupplierRefundPortions;
+        if(selected.Length==0)return PaymentPlan.Allocate(draft.AmountCents,available.Select(a=>a.Share.Gross).ToArray());
+        if(selected.Select(p=>p.LineId).Distinct().Count()!=selected.Length || selected.Any(p=>p.GrossCents<=0)
+            || selected.Sum(p=>p.GrossCents)!=draft.AmountCents || selected.Any(p=>!available.Any(a=>a.Row.LineId==p.LineId && p.GrossCents<=a.Share.Gross)))
+            throw new ArgumentException("Choose distinct original payment lines whose available refund amounts add up to the total refund.");
+        return available.Select(a=>selected.SingleOrDefault(p=>p.LineId==a.Row.LineId)?.GrossCents??0).ToArray();
+    }
+
+    internal sealed record RefundAvailable(PurchaseSettlement Row,SupplierFundingShare Share);
 
     internal static List<JournalLine> Lines(DbWork db,BusinessStore store,OwnerSession owner,FinancialDraft draft,List<Account> accounts)
     {
@@ -53,11 +73,7 @@ internal static class PurchaseRefundPlan
         long gross=rows.Sum(r=>r.Cents),business=rows.Sum(r=>r.BusinessCents),draw=rows.Sum(r=>r.DrawCents),personal=checked(gross-business-draw);
         if(draft.SupplierRefundDestination!="Business cash" && business>0 && db.Scalar("SELECT Id FROM Owners WHERE Id=$id AND BusinessId=$business AND Active=1;",
             ("$id",draft.EconomicOwnerId),("$business",owner.BusinessId)) is null)throw new ArgumentException("Identify the owner involved in this refund.");
-        var lines=rows.Where(r=>r.BusinessCents>0).Select(r=>
-        {
-            var original=purchase.Lines.Single(l=>l.Id==r.LineId);
-            return new JournalLine(original.AccountId,0,r.BusinessCents,original.AssetId);
-        }).ToList();
+        var lines=PurchaseCostReturns.Lines(db,owner,purchase,draft,accounts,rows);
         string Code(string code)=>accounts.Single(a=>a.Code==code && a.Active).Id;
         if(draft.SupplierRefundDestination=="Business cash")
         {

@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using SarahBeauty.Business.Finance;
+using SarahBeauty.Business.Purchasing;
 using SarahBeauty.Business.Resources;
 using SarahBeauty.Business.Security;
 using SarahBeauty.Business.Storage;
@@ -16,18 +17,27 @@ internal sealed class AssetRefundFields(BusinessStore store,OwnerSession owner,F
     {
         var panel=Form.Panel();
         var status=Form.Text();
-        panel.Add(Form.Text("For an original asset purchase, review whether the refund reduces cost, recovers more than the remaining book value, or accompanies the actual return of the asset. A return decision also retires the tracked asset."),
+        panel.Add(Form.Text("Review whether the refunded business asset value reduces cost, recovers more than the remaining book value, or accompanies the actual return of the asset. A return decision also retires the tracked asset. Only choose an adjustment for an asset included in the refund or source credit being used."),
             Form.Action("Load original asset treatment",status,()=>
             {
                 var source=new FinanceBook(store).Posted(owner).SingleOrDefault(p=>p.Id==original.SelectedId())
                     ??throw new ArgumentException("Choose the original asset purchase first.");
-                if(source.Source.Kind!=FinancialKind.AssetPurchase || source.Source.AssetId.Length==0)throw new ArgumentException("This original payment is not an individual asset purchase.");
+                var ids=AssetIds(source.Source);
                 _choices.Clear();_assets.Children.Clear();
-                Add(source.Source.AssetId,AssetValueChoice.Reduce);
+                foreach(string id in ids)Add(id,AssetValueChoice.Reduce);
                 return Task.CompletedTask;
             }),status,_assets);
         foreach(var choice in draft.AssetAdjustments)Add(choice.AssetId,choice.Treatment);
+        original.SelectionChanged+=(_,_)=>{_choices.Clear();_assets.Children.Clear();};
         return new Expander{Header="Asset return or basis recovery",Content=panel,HorizontalAlignment=HorizontalAlignment.Stretch};
+    }
+
+    private string[] AssetIds(FinancialDraft source)
+    {
+        if(source.Kind==FinancialKind.AssetPurchase && source.AssetId.Length>0)return [source.AssetId];
+        if(source.Kind is not (FinancialKind.PurchasePayment or FinancialKind.SupplierCreditUse))throw new ArgumentException("Choose an original payment containing an individual asset.");
+        return new PurchaseBook(store).List(owner).Single(p=>p.Id==source.PurchaseId).Lines
+            .Where(l=>l.AssetId.Length>0).Select(l=>l.AssetId).Distinct().ToArray();
     }
 
     private void Add(string id,string selected)
@@ -38,6 +48,6 @@ internal sealed class AssetRefundFields(BusinessStore store,OwnerSession owner,F
         _assets.Add(choice);
     }
 
-    internal FinancialDraft Read(FinancialDraft value)=>value.Kind!=FinancialKind.SupplierRefund?value:value with
+    internal FinancialDraft Read(FinancialDraft value)=>value.Kind is not (FinancialKind.SupplierRefund or FinancialKind.PurchaseRefund or FinancialKind.SupplierCreditUse)?value:value with
     {AssetAdjustments=_choices.Where(c=>(string)c.Treatment.SelectedItem!=AssetValueChoice.Reduce).Select(c=>new AssetValueChoice(c.Id,(string)c.Treatment.SelectedItem)).ToArray()};
 }
