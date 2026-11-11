@@ -28,6 +28,8 @@ public sealed class BookingBook(BusinessStore store)
             if ((previous is not null && !previous.History.SequenceEqual(booking.History))
                 || (previous is null && booking.History.Length > 0))
                 throw new ArgumentException("Booking history cannot be overwritten.");
+            if(!booking.Reservations.SequenceEqual(previous?.Reservations??[]))
+                throw new ArgumentException("Use the reservation action to record a confirmation.");
             if (previous is not null) PreserveLinks(previous, booking);
             if(booking.AcceptedQuoteVersionId!=(previous?.AcceptedQuoteVersionId??""))
                 throw new ArgumentException("Record quote acceptance through the document workflow.");

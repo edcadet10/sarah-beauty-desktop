@@ -26,6 +26,7 @@ public sealed record Booking : BusinessRecord
     public BookingPlace[] Places { get; init; } = [];
     public Appointment[] Appointments { get; init; } = [];
     public BookingStatusChange[] History { get; init; } = [];
+    public BookingReservation[] Reservations { get; init; } = [];
     public override string ToString() => $"{Name} • {EventDate?.ToString("yyyy-MM-dd") ?? "Date undecided"} • {Status}";
 }
 
@@ -42,4 +43,6 @@ public sealed record Artist : BusinessRecord { public string Notes { get; init; 
 public sealed record Appointment(string Id, string Kind, string ArtistId, DateTimeOffset? Start, DateTimeOffset? End,
     string Location, string Status = "Planned", string OverrideReason = "", string ProductsAndShades = "", string PrivateNotes = "");
 public sealed record BookingStatusChange(string From, string To, string Reason, string OwnerId, string AtUtc);
+public sealed record BookingReservation(string RequestId,string QuoteVersionId,DateOnly Date,long TrialCents,long DepositCents,
+    string Reason,string OwnerId,string AtUtc);
 public sealed record BookingTotals(long NetCents, long? TaxCents, long? TotalCents, PaymentPlan? Plan);
