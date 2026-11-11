@@ -14,7 +14,7 @@ public sealed class PurchasePayments(BusinessStore store)
 
     internal static List<PurchaseDue> Outstanding(DbWork db,BusinessStore store,OwnerSession owner,DateOnly date)=>
         new RecordStore<Purchase>(store,"Purchase").List(db,owner).Where(p=>p.Status=="Approved" && p.PurchaseDate<=date)
-            .Select(p=>new PurchaseDue(p.Id,p.SupplierId,p.Name,p.PurchaseDate!.Value,p.DueDate,Remaining(db,p,date))).ToList();
+            .Select(p=>new PurchaseDue(p.Id,p.SupplierId,p.Name,p.PurchaseDate!.Value,p.DueDate,Remaining(db,store,owner,p,date))).ToList();
 
     internal static FinancialDraft Prepare(DbWork db,BusinessStore store,OwnerSession owner,FinancialDraft draft)
     {
@@ -34,7 +34,7 @@ public sealed class PurchasePayments(BusinessStore store)
         if(draft.Kind==FinancialKind.PurchasePayment)
         {
             var purchase=new RecordStore<Purchase>(store,"Purchase").Get(db,owner,draft.PurchaseId);
-            rows=PurchasePaymentPlan.Rows(db,owner,purchase,draft);
+            rows=PurchasePaymentPlan.Rows(db,store,owner,purchase,draft);
         }
         else if(draft.Kind==FinancialKind.PurchaseRefund)rows=PurchaseRefundPlan.Rows(db,owner,draft);
         else if(draft.Kind==FinancialKind.Reversal && draft.PurchaseId.Length>0)
@@ -46,6 +46,7 @@ public sealed class PurchasePayments(BusinessStore store)
         foreach(var date in Rows(db,bill.Id).Select(r=>r.Date).Distinct())
             ValidateHistory(db,bill,date);
         PurchaseRefundPlan.ValidateHistory(db,bill.Id);
+        PurchaseCredits.ValidateHistory(db,store,owner,bill.Id);
         ValueState.Advance(db,owner,"Purchase",bill.Id);
     }
 
@@ -54,8 +55,8 @@ public sealed class PurchasePayments(BusinessStore store)
         || draft.Kind==FinancialKind.PurchaseRefund && draft.SupplierRefundDestination!="Business cash"
         || draft.Kind==FinancialKind.Reversal && draft.PurchaseId.Length>0 && CorrectionRules.Original(db,owner,draft.OriginalId).Kind is FinancialKind.PurchasePayment or FinancialKind.PurchaseRefund;
 
-    private static long Remaining(DbWork db,Purchase bill,DateOnly date)=>checked(bill.Lines.Sum(l=>l.GrossCents!.Value)
-        -Rows(db,bill.Id).Where(r=>r.Date<=date).Sum(r=>r.Sign*r.Cents));
+    private static long Remaining(DbWork db,BusinessStore store,OwnerSession owner,Purchase bill,DateOnly date)=>checked(bill.Lines.Sum(l=>l.GrossCents!.Value)
+        -Rows(db,bill.Id).Where(r=>r.Date<=date).Sum(r=>r.Sign*r.Cents)-PurchaseCredits.Lines(db,store,owner,bill.Id,date).Sum(c=>c.Cents));
 
     private static void ValidateHistory(DbWork db,Purchase bill,DateOnly date)
     {

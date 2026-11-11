@@ -63,8 +63,8 @@ public sealed class FinancialReports(BusinessStore store)
     {
         var suppliers=new RecordStore<Supplier>(store,"Supplier").List(db,owner);
         return bills.GroupBy(b=>b.SupplierId).Select(group=>new SupplierPosition(group.Key,suppliers.Single(s=>s.Id==group.Key).Name,
-            group.Sum(b=>b.Cents),group.Where(b=>b.DueDate<through).Sum(b=>b.Cents),group.Where(b=>b.DueDate==through).Sum(b=>b.Cents),
-            group.Where(b=>b.DueDate>through).Sum(b=>b.Cents),group.Where(b=>b.DueDate is null).Sum(b=>b.Cents))).ToList();
+            group.Sum(b=>Math.Max(0,b.Cents)),group.Where(b=>b.DueDate<through).Sum(b=>Math.Max(0,b.Cents)),group.Where(b=>b.DueDate==through).Sum(b=>Math.Max(0,b.Cents)),
+            group.Where(b=>b.DueDate>through).Sum(b=>Math.Max(0,b.Cents)),group.Where(b=>b.DueDate is null).Sum(b=>Math.Max(0,b.Cents)),group.Sum(b=>Math.Max(0,-b.Cents)))).ToList();
     }
 
     private static HashSet<string> ConfirmedOpenings(DbWork db,OwnerSession owner,DateOnly through)=>db.Read("""

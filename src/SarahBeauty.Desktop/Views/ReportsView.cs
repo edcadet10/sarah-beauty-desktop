@@ -39,7 +39,7 @@ internal sealed class ReportsView(BusinessStore store,OwnerSession owner)
         if(report.OpeningWarnings.Length>0)_result.Add(Form.Text("Unconfirmed inputs: "+string.Join("; ",report.OpeningWarnings)));
         _result.Add(Table(report));
         if(_kind.SelectedItem as string=="Supplier balances")_result.Add(Form.Text("Supporting supplier bills"),
-            ReportTable.Build(["Bill","Purchase date","Due date","Unpaid"],report.SupplierBills.Select(b=>new[]{b.Name,b.PurchaseDate.ToString("yyyy-MM-dd"),b.DueDate?.ToString("yyyy-MM-dd")??"Unknown",Money.Display(b.Cents)})));
+            ReportTable.Build(["Bill","Purchase date","Due date","Unpaid","Supplier credit"],report.SupplierBills.Select(b=>new[]{b.Name,b.PurchaseDate.ToString("yyyy-MM-dd"),b.DueDate?.ToString("yyyy-MM-dd")??"Unknown",Money.Display(Math.Max(0,b.Cents)),Money.Display(Math.Max(0,-b.Cents))})));
         if(_kind.SelectedItem as string=="Balance sheet")_result.Add(Form.Text(report.BalanceSheet.Balances?"Assets equal liabilities plus equity including result.":"Balance-sheet equality failed. Review the source ledger."));
         SupportingEntries(report);
     }
@@ -51,7 +51,7 @@ internal sealed class ReportsView(BusinessStore store,OwnerSession owner)
         "Trial balance"=>ReportTable.Build(["Account","Opening D−C","Debits","Credits","Ending D−C"],r.TrialBalance.Select(a=>new[]{a.Account.ToString(),Money.Display(a.Opening),Money.Display(a.Debits),Money.Display(a.Credits),Money.Display(a.Ending)})),
         "Cash movements"=>ActivityTable(r.Cash),
         "Customer aging"=>ReportTable.Build(["Payer","Open","Overdue","Due today","Future","Date unknown","Unallocated receipts","Unused credits"],r.Customers.Select(c=>new[]{c.Name,Money.Display(c.OpenCents),Money.Display(c.OverdueCents),Money.Display(c.DueTodayCents),Money.Display(c.FutureCents),Money.Display(c.UnknownDueCents),Money.Display(c.UnallocatedReceiptsCents),Money.Display(c.UnusedCreditCents)})),
-        "Supplier balances"=>ReportTable.Build(["Supplier","Unpaid","Overdue","Due today","Future","Date unknown"],r.Suppliers.Select(s=>new[]{s.Name,Money.Display(s.OpenCents),Money.Display(s.OverdueCents),Money.Display(s.DueTodayCents),Money.Display(s.FutureCents),Money.Display(s.UnknownDueCents)})),
+        "Supplier balances"=>ReportTable.Build(["Supplier","Unpaid","Overdue","Due today","Future","Date unknown","Supplier credit"],r.Suppliers.Select(s=>new[]{s.Name,Money.Display(s.OpenCents),Money.Display(s.OverdueCents),Money.Display(s.DueTodayCents),Money.Display(s.FutureCents),Money.Display(s.UnknownDueCents),Money.Display(s.CreditCents)})),
         "Tax activity"=>ReportTable.Build(["Tax measure","USD"],[["Charged on issued invoices",Money.Display(r.Tax.ChargedCents)],["Charge reductions",Money.Display(r.Tax.ChargeReductionCents)],["Collected, net of reversals",Money.Display(r.Tax.CollectedCents)],["Refunded, net of reversals",Money.Display(r.Tax.RefundedCents)],["Remitted, net of reversals",Money.Display(r.Tax.RemittedCents)],["Liability as of end",Money.Display(r.Tax.LiabilityCents)]]),
         _=>ReportTable.Build(["Period result","USD"],[["Income",Money.Display(r.ProfitLoss.IncomeCents)],["Expenses",Money.Display(r.ProfitLoss.ExpenseCents)],["Result",Money.Display(r.ProfitLoss.ResultCents)]])
     };

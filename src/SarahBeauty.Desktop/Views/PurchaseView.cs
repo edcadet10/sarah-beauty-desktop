@@ -61,7 +61,8 @@ internal sealed class PurchaseView(BusinessStore store,OwnerSession owner)
         {
             var today=DateOnly.FromDateTime(DateTime.Today);
             var due=new PurchasePayments(store).Outstanding(owner,today).SingleOrDefault(p=>p.PurchaseId==value.Id);
-            _detail.Add(Form.Text(due is null?"This bill is outside today's balances.":$"Unpaid as of {today:yyyy-MM-dd}: {Money.Display(due.Cents)}"),
+            string balance=due is null?"This bill is outside today's balances.":due.Cents<0?$"Supplier credit as of {today:yyyy-MM-dd}: {Money.Display(-due.Cents)}":$"Unpaid as of {today:yyyy-MM-dd}: {Money.Display(due.Cents)}";
+            _detail.Add(Form.Text(balance),
                 Form.Text("Prepare the actual PurchasePayment movement in Money and choose this approved bill. Payment is reviewed and approved separately."));
             return;
         }

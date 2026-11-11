@@ -12,7 +12,8 @@ internal static class SchemaMigrations
         (int Version, string Sql)[] migrations = [(2, BusinessSchema.Sql), (3, CustomerSchema.Sql),
             (4, RecordStoreSchema.Sql), (5, FinanceSchema.Sql), (6, DocumentSchema.Sql), (7, InvoiceSchema.Sql),
             (8, ApplicationSchema.Sql),(9, CreditSchema.Sql),(10,CreditNoteSchema.Sql),(11,ReceiptSchema.Sql),(12,OpeningSchema.Sql),(13,JournalAssetSchema.Sql),
-            (14,SarahBeauty.Business.Purchasing.PurchasePaymentSchema.Sql),(15,SarahBeauty.Business.Purchasing.PurchaseRefundSchema.Sql)];
+            (14,SarahBeauty.Business.Purchasing.PurchasePaymentSchema.Sql),(15,SarahBeauty.Business.Purchasing.PurchaseRefundSchema.Sql),
+            (16,SarahBeauty.Business.Purchasing.PurchaseCreditSchema.Sql)];
         foreach (var migration in migrations.Where(m => m.Version > fromVersion))
         {
             command.CommandText = migration.Sql;

@@ -8,13 +8,14 @@ namespace SarahBeauty.Business.Purchasing;
 
 internal static class PurchasePaymentPlan
 {
-    internal static List<PurchaseSettlement> Rows(DbWork db,OwnerSession owner,Purchase purchase,FinancialDraft draft)
+    internal static List<PurchaseSettlement> Rows(DbWork db,BusinessStore store,OwnerSession owner,Purchase purchase,FinancialDraft draft)
     {
         if(purchase.Status!="Approved" || draft.Date<purchase.PurchaseDate || draft.PurchaseGeneration!=ValueState.Generation(db,owner,"Purchase",purchase.Id))
             throw new ArgumentException("Choose an approved bill, a valid payment date, and review its current unpaid balance.");
         var previous=PurchasePayments.Rows(db,purchase.Id).Where(r=>r.Date<=draft.Date).ToList();
-        var available=purchase.Lines.Select(l=>new{Line=l,Gross=l.GrossCents!.Value-previous.Where(p=>p.LineId==l.Id).Sum(p=>p.Sign*p.Cents),
-            Business=l.BusinessCents!.Value-previous.Where(p=>p.LineId==l.Id).Sum(p=>p.Sign*p.BusinessCents)}).ToList();
+        var credits=PurchaseCredits.Lines(db,store,owner,purchase.Id,draft.Date!.Value);
+        var available=purchase.Lines.Select(l=>new{Line=l,Gross=l.GrossCents!.Value-previous.Where(p=>p.LineId==l.Id).Sum(p=>p.Sign*p.Cents)-credits.Where(c=>c.LineId==l.Id).Sum(c=>c.Cents),
+            Business=l.BusinessCents!.Value-previous.Where(p=>p.LineId==l.Id).Sum(p=>p.Sign*p.BusinessCents)-credits.Where(c=>c.LineId==l.Id).Sum(c=>c.BusinessCents)}).ToList();
         if(draft.AmountCents>available.Sum(a=>a.Gross) || available.Any(a=>a.Gross<0 || a.Business<0 || a.Business>a.Gross))
             throw new ArgumentException("The payment exceeds the supplier bill's unpaid value.");
         long[] shares=PaymentPlan.Allocate(draft.AmountCents,available.Select(a=>a.Gross).ToArray());
@@ -24,7 +25,7 @@ internal static class PurchasePaymentPlan
 
     internal static List<JournalLine> Lines(DbWork db,BusinessStore store,OwnerSession owner,Purchase purchase,FinancialDraft draft,List<Account> accounts)
     {
-        var rows=Rows(db,owner,purchase,draft);
+        var rows=Rows(db,store,owner,purchase,draft);
         if(!new[]{"Business cash","Owner contribution","Owner reimbursable"}.Contains(draft.PurchaseFunding))throw new ArgumentException("Choose how this supplier payment was actually funded.");
         long gross=rows.Sum(r=>r.Cents),business=rows.Sum(r=>r.BusinessCents),personal=gross-business;
         if((draft.PurchaseFunding!="Business cash" || personal>0) && db.Scalar("SELECT Id FROM Owners WHERE Id=$id AND BusinessId=$business AND Active=1;",
