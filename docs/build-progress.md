@@ -11,7 +11,7 @@ This file tracks the full application build requested on November 10, 2026. A co
 | Client documents | Implemented core | Quote versions, bounded payer invoices, dated credit notes, approved-payment receipts, and saved PDFs; full release walkthrough pending |
 | Books and approvals | In progress | Core posting/reports, receipt/credit applications, funded credits, cash refunds and dated reversals implemented; period-close UI and remaining workflows pending |
 | Resources | In progress | Registers, supplies, trips, openings, disposals, reviewed bills, mixed supplier payments/refunds, bill credits, and credit use implemented; complete trip reimbursement pending |
-| Reconciliation and reports | In progress | Financial reports, aging, tax, statement import/review, and matching commands implemented; matching UI, reconciliation completion, closing, and full dashboard pending |
+| Reconciliation and reports | In progress | Financial reports, aging, tax, statement import/review, and matching controls implemented; reconciliation completion, closing, and full dashboard pending |
 | Recovery and Google | Pending | Attachments, portable encrypted archive, Sheets export, Drive authorization/readback |
 | Release | Pending | Installer, full fictional walkthrough, actual Surface and second-device checks |
 
@@ -246,3 +246,11 @@ An original cash movement cannot be reversed while its matches remain active at 
 Thirteen new SQLite cases cover partial/combined matches, grouped excess, direction/account mismatches, partial unmatches, stale and conflicting retries, future reservations, financial-reversal dependencies, actual net cash, all write-stage failures, closed/source dates, repeated maximum-cent match/unmatch cycles, and the version-20 upgrade snapshot with immutable history. All 270 automated cases and the Windows Debug build pass. The matching command is implemented; matching controls and complete reconciliation remain separate work.
 
 A subsequent preview check exposed a review gap: two $70 portions against a $100 bank line passed preview individually even though approval rejected their combined $140. The added preview assertion failed because no exception was raised. Preview now checks the whole proposed dated history as well as each portion. All thirteen matching cases pass with that assertion. The fix is included in the matching PR before merging.
+
+## Desktop bank matching
+
+Bank matching now loads bank/cash sources and their match balances from one database snapshot. Owners can search sources, prepare combined portions, review the captured account/date/reason, approve matching, and partially unmatch an original approval. Source balances refresh after approval, and retained actor/reason history is paged. Source lists include the actual net cash amount rather than customer gross.
+
+A new falsification case showed that a cancellation reversal could be selected as another bank transaction. Matching now excludes both a cancelled cash posting and its cancellation entry, while actual receipts and actual refunds remain independently matchable. The new case passes. All 271 automated cases and the Windows Debug build pass.
+
+An isolated fictional desktop run matched $150 against a $250 bank deposit, then unmatched $50 and verified the $150 bank remainder and $50 cash-entry remainder. A later run through the searchable controls matched $25 and unmatched $10, yielding the expected $135 and $35 remainders. These checks do not complete reconciliation or replace Surface acceptance. Reconciliation completion, erroneous-import correction, period closing, and release work continue separately.

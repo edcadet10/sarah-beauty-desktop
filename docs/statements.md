@@ -1,6 +1,6 @@
 # Preview a statement CSV
 
-The Statements screen previews CSV rows, records reviewed transaction identities, and imports statements. Imports do not post cash or income. Bank matching and reconciliation completion remain in development.
+The Statements screen previews CSV rows, records reviewed transaction identities, and imports statements. Imports do not post cash or income. Bank matching is available separately; reconciliation completion remains in development.
 
 1. Open **Statements**, then choose a CSV file or paste its contents. Use UTF-8 text with a header row, at most 4 MB, and at most 10,000 transaction rows.
 2. Expand **Map statement columns and signs**. Enter the actual column headers for the date and description.
@@ -22,6 +22,18 @@ Amounts use USD with at most two decimal places. Standard grouped amounts such a
 5. Confirm your owner passphrase and select **Import reviewed statement**. The saved statement retains its owner, time, source rows, and decisions. It creates no ledger movement.
 
 Open a saved statement under **Imported statements** to review its original source rows. Overlapping exports can refer to the same bank transaction while retaining both source descriptions. One statement cannot link the same transaction twice. A repeated attempt to import identical CSV contents points you to the existing statement.
+
+## Match bank transactions to cash entries
+
+1. Open **Bank matching**. Select the account, effective matching date, and reason, then select **Load matching source balances**.
+2. Search for a bank transaction and its actual cash journal entry. Both must use the same account and cash direction. A $120 receipt with a $3.60 processor fee has $116.40 in its cash entry.
+3. Enter the positive amount to match and select **Add matching portion**. Add other portions to combine bank transactions or cash entries. Prepared portions are checked together for excess amounts.
+4. Select **Review prepared matching**. Check the captured date, account, sources, amounts, and reason. Confirm your passphrase and approve the matching.
+5. To undo all or part of a match, choose **Original match to undo**, enter the amount and reason, then select **Review unmatch** and approve it. The remaining source amounts refresh after approval.
+
+Match and unmatch history retains the effective date, approver, approval time, and reason. A cash movement with active matches requires the matching dependencies to be undone before its posting can be cancelled. A cancellation reversal does not represent another bank transaction. Record an actual cash return through its refund workflow.
+
+Matching does not complete a reconciliation. Zero net difference alone does not explain unmatched deposits and payments.
 
 ## Development references
 
