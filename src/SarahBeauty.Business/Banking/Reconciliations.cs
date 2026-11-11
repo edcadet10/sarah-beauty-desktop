@@ -18,6 +18,15 @@ public sealed class Reconciliations(BusinessStore store)
     public CompletedReconciliation Open(OwnerSession owner,string id)=>store.ReadSnapshot(db=>
     {store.RequireSession(db,owner);return ReconciliationQueries.List(db,owner,id).SingleOrDefault()??throw new ArgumentException("Choose a saved reconciliation from this business.");});
 
+    public List<ReconciliationReopen> ReopenHistory(OwnerSession owner,string id)=>store.Read(db=>
+    {
+        store.RequireSession(db,owner);
+        return db.Read("""
+            SELECT R.Id,R.ReconciliationId,R.Reason,R.OwnerId,R.AtUtc FROM ReconciliationReopens R JOIN Reconciliations C ON C.Id=R.ReconciliationId
+            WHERE C.BusinessId=$business AND R.ReconciliationId=$id ORDER BY R.AtUtc;
+            """,r=>new ReconciliationReopen(r.GetString(0),r.GetString(1),r.GetString(2),r.GetString(3),r.GetString(4)),("$business",owner.BusinessId),("$id",id));
+    });
+
     public ReconciliationSources Sources(OwnerSession owner,string statement)=>store.ReadSnapshot(db=>
     {store.RequireSession(db,owner);return ReconciliationSourcesReader.Read(db,owner,statement);});
 

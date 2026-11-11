@@ -57,6 +57,7 @@ internal sealed class WorkspaceView(BusinessStore store,OwnerSession session,Act
         _routes["Reports"]=()=>new ReportsView(store,session).Build();
         _routes["Statements"]=()=>new StatementPreviewView(store,session).Build();
         _routes["Bank matching"]=()=>new BankMatchingView(store,session).Build();
+        _routes["Reconciliation"]=()=>new ReconciliationView(store,session).Build();
         _routes["Tax periods"]=()=>new TaxPeriodView(store,session).Build();
         _routes["Supplier bills"]=()=>new PurchaseView(store,session).Build();
         _routes["Supplier credits"]=()=>new PurchaseCreditView(store,session).Build();

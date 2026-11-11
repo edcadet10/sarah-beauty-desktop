@@ -122,6 +122,8 @@ public sealed class ReconciliationCloseTests
         Assert.Throws<ArgumentException>(()=>book.Reopen(f.Business.Owner,january.Id,"Fictional earlier correction",Guid.NewGuid().ToString(),BusinessFixture.Phrase));
         string request=Guid.NewGuid().ToString();
         var reopen=book.Reopen(f.Business.Owner,feb.Id,"Fictional later review",request,BusinessFixture.Phrase);
+        Assert.Equal("Fictional later review",book.ReopenHistory(f.Business.Owner,feb.Id).Single().Reason);
+        Assert.Equal(f.Business.Owner.OwnerId,book.ReopenHistory(f.Business.Owner,feb.Id).Single().OwnerId);
         Assert.Equal(reopen.Id,book.Reopen(f.Business.Owner,feb.Id,"Fictional later review",request,BusinessFixture.Phrase).Id);
         book.Reopen(f.Business.Owner,january.Id,"Fictional earlier correction",Guid.NewGuid().ToString(),BusinessFixture.Phrase);
         Assert.All(book.History(f.Business.Owner),h=>Assert.True(h.Reopened));
