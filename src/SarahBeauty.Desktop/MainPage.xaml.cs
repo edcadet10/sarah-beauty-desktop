@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml.Controls;
 using SarahBeauty.Business.Security;
+using SarahBeauty.Business.Recovery;
 using SarahBeauty.Business.Storage;
 using SarahBeauty_Desktop.Storage;
 using SarahBeauty_Desktop.Views;
@@ -15,17 +16,20 @@ public sealed partial class MainPage : Page
     public MainPage()
     {
         InitializeComponent();
+        OpenCurrentStore();
+    }
+    private void OpenCurrentStore()
+    {
+        _session?.Lock();_session=null;_store=null;_access=null;
         try
         {
-            _store = new BusinessStore(System.IO.Path.Combine(AppDataPaths.EnsureTestFolderExists(), "sarahbeauty.db"));
+            _store = new BusinessStore(new ActiveTestStores(AppDataPaths.EnsureTestFolderExists()).ResolveDatabase());
             _access = new OwnerAccess(_store);
             ShowSignIn();
         }
         catch (Exception error)
         {
-            var panel=Form.Panel();var status=Form.Text();
-            panel.Add(Form.Title("Storage could not open"),Form.Text(error.Message),Form.Action("Review an encrypted recovery archive",status,()=>{ShowArchiveReview();return Task.CompletedTask;}),status);
-            Host.Content=panel;
+            var panel=Form.Panel();panel.Add(Form.Title("Storage could not open"),Form.Text(error.Message),RecoveryActions());ShowPanel(panel);
         }
     }
 
@@ -34,22 +38,35 @@ public sealed partial class MainPage : Page
         _session?.Lock();
         _session = null;
         var panel=Form.Panel();
-        var recoveryStatus=Form.Text();panel.Add(Form.Text("TEST • Local business records"), OwnerView.Build(_access!, session =>
+        panel.Add(Form.Text("TEST • Local business records"), OwnerView.Build(_access!, session =>
         {
             _session = session;
             ShowWorkspace();
-        }),Form.Action("Review an encrypted recovery archive",recoveryStatus,()=>{ShowArchiveReview();return Task.CompletedTask;}),recoveryStatus);
-        Host.Content=new ScrollViewer{Padding=new Microsoft.UI.Xaml.Thickness(24),Content=panel};
+        }),RecoveryActions());ShowPanel(panel);
     }
 
     private void ShowWorkspace()
     {
-        Host.Content=new WorkspaceView(_store!,_session!,ShowSignIn).Build();
+        Host.Content=new WorkspaceView(_store!,_session!,OpenCurrentStore,ShowRetired).Build();
     }
     private void ShowArchiveReview()
     {
         _session?.Lock();_session=null;var panel=Form.Panel();var status=Form.Text();
-        if(_access is not null)panel.Add(Form.Action("Back to owner sign-in",status,()=>{ShowSignIn();return Task.CompletedTask;}),status);
-        panel.Add(new RestoreReviewView().Build());Host.Content=new ScrollViewer{Padding=new Microsoft.UI.Xaml.Thickness(24),Content=panel};
+        panel.Add(Form.Action("Back to owner sign-in",status,()=>{OpenCurrentStore();return Task.CompletedTask;}),status,new RestoreReviewView().Build());ShowPanel(panel);
     }
+    private StackPanel RecoveryActions()
+    {
+        var panel=Form.Panel();var status=Form.Text();panel.Add(Form.Action("Review an encrypted recovery archive",status,()=>{ShowArchiveReview();return Task.CompletedTask;}),
+            Form.Action("Activate a prepared recovered copy",status,()=>{ShowActivation();return Task.CompletedTask;}),status);return panel;
+    }
+    private void ShowActivation()
+    {
+        _session?.Lock();_session=null;var panel=Form.Panel();var status=Form.Text();panel.Add(Form.Action("Back to owner sign-in",status,()=>{OpenCurrentStore();return Task.CompletedTask;}),status,
+            new ActivateStoreView(AppDataPaths.EnsureTestFolderExists(),result=>{_session?.Lock();_store=result.Store;_access=new OwnerAccess(_store);_session=result.Owner;ShowWorkspace();}).Build());ShowPanel(panel);
+    }
+    private void ShowRetired()
+    {
+        _session?.Lock();_session=null;_store=null;_access=null;var panel=Form.Panel();panel.Add(Form.Title("This local instance is retired"),Form.Text("Saved records and the verified archive are preserved. Activate a prepared recovered copy to continue."),RecoveryActions());ShowPanel(panel);
+    }
+    private void ShowPanel(StackPanel panel)=>Host.Content=new ScrollViewer{Padding=new Microsoft.UI.Xaml.Thickness(24),Content=panel};
 }
