@@ -1,6 +1,6 @@
 # Acceptance Criteria
 
-Status: Required behavior for the future application. All application scenarios below are pending implementation and execution. Documentation review and arithmetic checks do not mark these scenarios passed.
+Status: Required behavior for release. Component tests and fictional development-computer walkthroughs cover parts of these scenarios; [Build progress](build-progress.md) records the evidence and remaining work. Full scenario, Surface, offline, LIVE, and second-device recovery acceptance remain pending. Documentation review or arithmetic checks alone do not mark a scenario passed.
 
 ## Initial agreed scenarios
 

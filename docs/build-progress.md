@@ -7,7 +7,7 @@ This file tracks the full application build requested on November 10, 2026. A co
 | Local storage | Implemented | Verified pre-upgrade snapshots, atomic migrations, explicit TEST mode |
 | Owner setup and sign-in | Implemented | Two owners, salted PBKDF2-SHA256 hashes, short lockout after failed attempts, expiring store-bound sessions, transaction audit |
 | Customers | Implemented | Name-only save, contact warning, validated optional contact fields, search/edit/archive, permission history, stale-edit guard |
-| Bookings | In progress | Charges, places, recipient links, exact plans, appointments, and explicit paid reservation implemented; full cancellation workflow and calendar refinements pending |
+| Bookings | In progress | Services, recipient places, exact plans, appointments, calendar, and paid reservation implemented; combined cancellation backend implemented, desktop controls pending |
 | Client documents | Implemented core | Quote versions, bounded payer invoices, dated credit notes, approved-payment receipts, and saved PDFs; full release walkthrough pending |
 | Books and approvals | In progress | Posting/reports, applications, funded credits, cash refunds, dated reversals, and retained period close/reopen implemented; remaining workflows and release checks pending |
 | Resources | In progress | Registers, supplies, trips, openings, disposals, reviewed bills, mixed supplier payments/refunds, bill credits, and credit use implemented; complete trip reimbursement pending |
