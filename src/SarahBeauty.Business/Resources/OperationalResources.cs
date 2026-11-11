@@ -32,18 +32,27 @@ public sealed class OperationalResources(BusinessStore store)
     {
         if(string.IsNullOrWhiteSpace(value.Name) || value.TripDate is null || string.IsNullOrWhiteSpace(value.Origin)
             || string.IsNullOrWhiteSpace(value.Destination) || value.ActualMiles<=0 || value.ActualMiles>100000 || value.ParkingCents<0 || value.TollsCents<0
+            || value.RequestedReimbursementCents<0 || value.ReimbursementStatus=="Requested" && value.RequestedReimbursementCents==0
+            || value.ReimbursementStatus=="Not requested" && value.RequestedReimbursementCents>0
             || !new[]{"Unreviewed","Not requested","Requested"}.Contains(value.ReimbursementStatus))
             throw new ArgumentException("Enter the actual trip date, purpose, route, distance, costs, and reimbursement review status.");
         if((value.DriverOwnerId.Length>0)==(value.DriverArtistId.Length>0))throw new ArgumentException("Identify exactly one driver: an owner or an artist.");
-        value=value with{Id=value.Id.Length==0?Guid.NewGuid().ToString():value.Id,Name=value.Name.Trim()};
+        value=value with{Id=value.Id.Length==0?Guid.NewGuid().ToString():value.Id,Name=value.Name.Trim(),Origin=value.Origin.Trim(),Destination=value.Destination.Trim()};
         return store.Write(owner,"Save actual trip",value.Id,db=>
         {
-            if(value.DriverOwnerId.Length>0 && db.Scalar("SELECT Id FROM Owners WHERE Id=$id AND BusinessId=$business AND Active=1;",
-                ("$id",value.DriverOwnerId),("$business",owner.BusinessId)) is null)throw new ArgumentException("Choose an owner driver from this business.");
-            if(value.DriverArtistId.Length>0 && !new RecordStore<Artist>(store,"Artist").List(db,owner).Any(a=>a.Id==value.DriverArtistId && !a.Archived))
+            var previous=value.Revision==0?null:_trips.Get(db,owner,value.Id);
+            if(!value.History.SequenceEqual(previous?.History??[]))throw new ArgumentException("Trip review history cannot be overwritten.");
+            if(value.DriverOwnerId.Length>0 && db.Scalar("SELECT Id FROM Owners WHERE Id=$id AND BusinessId=$business AND (Active=1 OR $retained=1);",
+                ("$id",value.DriverOwnerId),("$business",owner.BusinessId),("$retained",previous?.DriverOwnerId==value.DriverOwnerId?1:0)) is null)throw new ArgumentException("Choose an owner driver from this business.");
+            if(value.DriverArtistId.Length>0 && !new RecordStore<Artist>(store,"Artist").List(db,owner).Any(a=>a.Id==value.DriverArtistId && (!a.Archived || previous?.DriverArtistId==a.Id)))
                 throw new ArgumentException("Choose an active artist driver from this business.");
             if(value.BookingId.Length>0)_=new RecordStore<Booking>(store,"Booking").Get(db,owner,value.BookingId);
+            value=value with{History=[..value.History,Review(value,owner)]};
             return _trips.Save(db,owner,value);
         });
     }
+
+    private static TripReview Review(MileageTrip value,OwnerSession owner)=>new(checked(value.Revision+1),value.Name,value.TripDate!.Value,value.DriverOwnerId,value.DriverArtistId,
+        value.BookingId,value.Origin,value.Destination,value.ActualMiles,value.ParkingCents,value.TollsCents,value.ReimbursementStatus,value.RequestedReimbursementCents,
+        value.EvidenceId,value.Archived,owner.OwnerId,DateTimeOffset.UtcNow.ToString("O"));
 }

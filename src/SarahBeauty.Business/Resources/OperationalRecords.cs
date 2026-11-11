@@ -1,3 +1,4 @@
+using SarahBeauty.Business.Rules;
 using SarahBeauty.Business.Storage;
 
 namespace SarahBeauty.Business.Resources;
@@ -29,6 +30,10 @@ public sealed record MileageTrip : BusinessRecord
     public long ParkingCents {get;init;}
     public long TollsCents {get;init;}
     public string ReimbursementStatus {get;init;}="Unreviewed";
+    public long? RequestedReimbursementCents {get;init;}
     public string EvidenceId {get;init;}="";
-    public override string ToString()=>$"{TripDate:yyyy-MM-dd} • {Name} • {ActualMiles} actual miles • {ReimbursementStatus}";
+    public TripReview[] History {get;init;}=[];
+    public override string ToString()=>$"{TripDate:yyyy-MM-dd} • {Name} • {ActualMiles} actual miles • {ReimbursementStatus} • Requested amount {(RequestedReimbursementCents.HasValue?Money.Display(RequestedReimbursementCents.Value):"Unknown")}";
 }
+public sealed record TripReview(int Revision,string Purpose,DateOnly TripDate,string DriverOwnerId,string DriverArtistId,string BookingId,string Origin,string Destination,
+    decimal ActualMiles,long ParkingCents,long TollsCents,string ReimbursementStatus,long? RequestedReimbursementCents,string EvidenceId,bool Archived,string OwnerId,string AtUtc);
