@@ -1,0 +1,13 @@
+Google.Apis, Google.Apis.Auth, and Google.Apis.Core 1.78.0
+Copyright 2021 Google LLC
+Apache License 2.0; see LICENSE.txt in this directory.
+Source: https://github.com/googleapis/google-api-dotnet-client
+NuGet repository commit: e14fc8a0671f76b040b726b29b4a77a0e13760af
+
+The restored transitive packages include Newtonsoft.Json 13.0.4,
+System.Management 7.0.2, and System.CodeDom 7.0.0. Their applicable
+license and notice files are copied from the restored NuGet packages
+to this directory alongside these credits.
+
+Google authentication library logging uses its default NullLogger.
+The app does not configure Google SDK debug logging.

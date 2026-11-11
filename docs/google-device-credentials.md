@@ -1,6 +1,6 @@
 # Protect Google device credentials
 
-Status: The internal Windows credential-file component is implemented. Google OAuth, connection controls, uploads, and readable exports follow separately. No actual Google authorization was performed in this change.
+Status: The internal Windows credential-file component and [consent protocol](google-oauth-protocol.md) are implemented. Owner-authorized connection storage/controls, real Google consent, uploads, and readable exports follow separately. No actual Google authorization was performed.
 
 Credentials use Microsoft's Windows DPAPI through pinned `System.Security.Cryptography.ProtectedData` 10.0.15 with CurrentUser protection. The additional context binds version, logical store, business, writable instance, TEST/LIVE mode, and client/token purpose. The file contains protected bytes. Secret payloads do not enter SQLite, business directories, archive manifests, logs, or repository examples.
 

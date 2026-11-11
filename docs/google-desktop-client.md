@@ -1,6 +1,6 @@
 # Validate the app's Google desktop client
 
-Status: The bounded desktop-client JSON parser is implemented. Import controls, saved configuration, OAuth, and delivery follow separately. No actual Google client was imported or authorized in this change.
+Status: The bounded desktop-client JSON parser and [consent protocol](google-oauth-protocol.md) are implemented. Import controls, saved configuration, real consent, and delivery follow separately. No actual Google client was imported or authorized.
 
 The parser accepts downloaded `installed` configuration for a Google Desktop OAuth client. It requires client identity, secret, project, and supported official Google authorization/token endpoints. It rejects Web/service-account configurations, duplicate fields, incomplete values, untrusted endpoints, invalid UTF-8/JSON, and files larger than 64 KiB. Other downloaded fields are not used to choose network endpoints.
 
