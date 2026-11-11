@@ -41,7 +41,7 @@ public sealed class LocalBackups(BusinessStore store)
     private (LocalBackupJob Job,RecoveryProfile Profile) Start(OwnerSession owner,string destination)=>store.Transaction(db=>
     {
         store.RequireSession(db,owner);var profile=RecoveryProfiles.Read(db,owner.BusinessId)??throw new ArgumentException("Save and confirm portable recovery material before creating an archive.");
-        var job=new LocalBackupJob(1,Guid.NewGuid().ToString(),owner.BusinessId,"Running",destination,profile.RecipientFingerprint,(long)db.Scalar("SELECT Watermark FROM Business WHERE Id=$id;",("$id",owner.BusinessId))!,DateTimeOffset.UtcNow.ToString("O"));BackupJobRecords.Insert(db,job);return(job,profile);
+        var job=new LocalBackupJob(1,Guid.NewGuid().ToString(),owner.BusinessId,"Running",destination,profile.RecipientFingerprint,(long)db.Scalar("SELECT Watermark FROM Business WHERE Id=$id;",("$id",owner.BusinessId))!,DateTimeOffset.UtcNow.ToString("O"),InstanceId:store.InstanceId);BackupJobRecords.Insert(db,job);return(job,profile);
     });
     private void Finish(LocalBackupJob job)=>store.Transaction(db=>{BackupJobRecords.Complete(db,job);return true;});
     private static string Code(Exception error)=>error switch{OperationCanceledException=>"Cancelled",RecoveryFailure failure=>failure.Code,InvalidDataException=>"VerificationFailed",IOException=>"LocalFileUnavailable",UnauthorizedAccessException=>"AccessUnavailable",_=>"OperationFailed"};
