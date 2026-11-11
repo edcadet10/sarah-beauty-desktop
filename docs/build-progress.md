@@ -216,3 +216,9 @@ The classified share can pay invoices, fund customer credit, receive its own bou
 Nine new integration cases cover invoice and credit funding, held tax and fees, direct unknown-payment returns, source and child refund bounds, stale/backdated approvals, rollback/retry, historical income dates, client-safe receipt content, and a tax-only classification with no invented journal. All 235 automated cases and the Windows Debug build pass. Full cancellation decisions and remaining release workflows continue separately.
 
 An isolated fictional desktop run approved an actual $150 unclassified receipt and then classified $75 through the saved review form. The P&L screen showed $325 income and a $317.50 result, including the earlier $250 demo receipt and $7.50 processor fee. This verifies that form path on the development computer; it does not mark complete Surface or live acceptance.
+
+## Statement CSV preview
+
+Statements now opens or pastes UTF-8 CSV data and previews its mapped dates, descriptions, signs, references, source row numbers, and totals. It supports an explicit signed amount column or separate debit/credit columns, selected date formats, comma/semicolon/tab delimiters, quoted commas, and multiline descriptions. Identical transactions remain separate for review. Malformed quoting, unsupported dates, invalid currency grouping/precision, zero transaction amounts, oversized files/row counts, and amount/total overflow fail before import.
+
+Eleven parser cases pass, and the full suite now has 246 passing cases. The Windows Debug build is clean. An isolated desktop preview retained three fictional rows, flagged two identical rows, and showed the expected $250 inflow, $150 outflow, and $100 net change. File chooser runtime, persistent import duplicate review, matching, and reconciliation completion remain separate work. See [Preview a statement CSV](statements.md).
