@@ -254,3 +254,9 @@ Bank matching now loads bank/cash sources and their match balances from one data
 A new falsification case showed that a cancellation reversal could be selected as another bank transaction. Matching now excludes both a cancelled cash posting and its cancellation entry, while actual receipts and actual refunds remain independently matchable. The new case passes. All 271 automated cases and the Windows Debug build pass.
 
 An isolated fictional desktop run matched $150 against a $250 bank deposit, then unmatched $50 and verified the $150 bank remainder and $50 cash-entry remainder. A later run through the searchable controls matched $25 and unmatched $10, yielding the expected $135 and $35 remainders. These checks do not complete reconciliation or replace Surface acceptance. Reconciliation completion, erroneous-import correction, period closing, and release work continue separately.
+
+## Confirmed no-activity statements
+
+Schema 22 retains statement evidence references. A manually confirmed no-activity statement can have zero bank rows when evidence and explicit equal opening/closing balances are provided. It creates no bank or ledger transaction. The desktop form requires empty CSV contents for this choice, so a populated net-zero export cannot be hidden by its checkbox.
+
+Three new SQLite cases cover evidenced no-activity and confirmed zero balances, missing/unbalanced inputs, absence of invented money, exact retries, and a version-21 upgrade that preserves legacy request payload hashes. All 274 automated cases and the Windows build pass. An actual fictional desktop run rejected a no-activity claim while CSV rows were present, then saved an evidenced statement with zero source rows and equal balances. Reconciliation closing remains the next separate feature.

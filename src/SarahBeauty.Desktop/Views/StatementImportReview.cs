@@ -15,6 +15,7 @@ internal static class StatementImportReview
         var d=preview.Draft;
         panel.Add(Form.Title("Review statement import"),Form.Text($"{accountName} • {d.From:yyyy-MM-dd} – {d.Through:yyyy-MM-dd} • Opening {Money.Display(d.OpeningCents!.Value)} • Closing {Money.Display(d.ClosingCents!.Value)} • {preview.Rows.Length} source rows"),
             Form.Text("This review uses the source, mapping, account, and balances captured when you selected Review statement import. Changes in the form require a new review."));
+        if(d.EvidenceId.Length>0)panel.Add(Form.Text("Statement evidence: "+d.EvidenceId));
         if(preview.ExistingImportId.Length>0)
         {
             panel.Add(Form.Text("This CSV content is already imported. Open the existing statement below to review its retained source rows."));

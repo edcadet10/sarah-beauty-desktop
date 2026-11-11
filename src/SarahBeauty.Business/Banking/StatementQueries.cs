@@ -8,9 +8,9 @@ internal static class StatementQueries
 {
     internal static List<StatementImport> Imports(DbWork db,OwnerSession owner,string? id=null)=>db.Read("""
         SELECT S.Id,S.AccountId,S.PeriodStart,S.PeriodEnd,S.OpeningCents,S.ClosingCents,COALESCE(S.ContentHash,''),S.ApprovedBy,S.AtUtc,
-            (SELECT COUNT(*) FROM StatementRows R WHERE R.StatementId=S.Id) FROM StatementImports S
+            (SELECT COUNT(*) FROM StatementRows R WHERE R.StatementId=S.Id),S.EvidenceId FROM StatementImports S
         WHERE S.BusinessId=$business AND ($id IS NULL OR S.Id=$id) ORDER BY S.PeriodEnd,S.Id;
-        """,r=>new StatementImport(r.GetString(0),r.GetString(1),DateOnly.Parse(r.GetString(2)),DateOnly.Parse(r.GetString(3)),r.GetInt64(4),r.GetInt64(5),r.GetString(6),r.GetString(7),r.GetString(8),r.GetInt32(9)),
+        """,r=>new StatementImport(r.GetString(0),r.GetString(1),DateOnly.Parse(r.GetString(2)),DateOnly.Parse(r.GetString(3)),r.GetInt64(4),r.GetInt64(5),r.GetString(6),r.GetString(7),r.GetString(8),r.GetInt32(9),r.GetString(10)),
         ("$business",owner.BusinessId),("$id",id));
 
     internal static List<BankLine> Lines(DbWork db,OwnerSession owner,string account)=>db.Read("""

@@ -23,6 +23,8 @@ Amounts use USD with at most two decimal places. Standard grouped amounts such a
 
 Open a saved statement under **Imported statements** to review its original source rows. Overlapping exports can refer to the same bank transaction while retaining both source descriptions. One statement cannot link the same transaction twice. A repeated attempt to import identical CSV contents points you to the existing statement.
 
+If a statement confirms no transactions, leave CSV contents empty, select **The statement confirms no transactions**, and enter its evidence reference. Confirm equal opening and closing balances, then review and approve it. The saved statement contains zero transaction rows and creates no ledger money. A populated CSV cannot be hidden by selecting no activity.
+
 ## Match bank transactions to cash entries
 
 1. Open **Bank matching**. Select the account, effective matching date, and reason, then select **Load matching source balances**.
