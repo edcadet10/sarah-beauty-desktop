@@ -25,6 +25,8 @@ internal static class BankMatchRules
             generations["Bank:"+bank.Id]=ValueState.Generation(db,owner,"BankMatchBank",bank.Id);
             generations["Journal:"+journal.Id]=ValueState.Generation(db,owner,"BankMatchJournal",journal.Id);
         }
+        var proposed=draft.Portions.Select((p,i)=>new BankMatch("preview-"+i,"",p.BankLineId,p.JournalLineId,p.Cents,draft.Date,p.ReversesId));
+        ValidateHistory(db,owner,draft.Portions,proposed);
         return new(draft,generations);
     }
 
@@ -47,9 +49,9 @@ internal static class BankMatchRules
             throw new ArgumentException("The match exceeds a remaining bank or cash-journal amount.");
     }
 
-    internal static void ValidateHistory(DbWork db,OwnerSession owner,IEnumerable<MatchPortion> portions)
+    internal static void ValidateHistory(DbWork db,OwnerSession owner,IEnumerable<MatchPortion> portions,IEnumerable<BankMatch>? proposed=null)
     {
-        var all=BankMatchQueries.History(db,owner);
+        var all=BankMatchQueries.History(db,owner).Concat(proposed??[]).ToList();
         var cash=BankMatchQueries.CashLines(db,owner).ToDictionary(c=>c.Id);
         var bankLines=BankSources(db,owner,portions.Select(p=>cash[p.JournalLineId]));
         foreach(string id in portions.Select(p=>p.JournalLineId).Distinct())

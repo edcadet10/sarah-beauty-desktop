@@ -59,6 +59,7 @@ public sealed class BankMatchingTests
         var expense=Cash(f,f.Post(f.Draft(FinancialKind.Expense,1000)));
         var clearing=Cash(f,f.Post(f.Draft(FinancialKind.Receipt,1000) with{CashAccountId=f.Accounts["1020"].Id}),"1020");
         var book=new BankMatching(f.Business.Store);
+        Assert.Throws<ArgumentException>(()=>book.Preview(f.Business.Owner,new(f.Date,"Fictional grouped excess",[new(bank.Id,one.Id,7000),new(bank.Id,two.Id,7000)])));
         Assert.Throws<ArgumentException>(()=>Match(f,book,f.Date,new(bank.Id,one.Id,7000),new(bank.Id,two.Id,7000)));
         Assert.Throws<ArgumentException>(()=>Match(f,book,f.Date,new MatchPortion(bank.Id,expense.Id,1)));
         Assert.Throws<ArgumentException>(()=>Match(f,book,f.Date,new MatchPortion(bank.Id,clearing.Id,1)));
