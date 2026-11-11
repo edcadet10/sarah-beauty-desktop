@@ -185,7 +185,7 @@ public sealed class TaxRecoveryTests
     {
         using var f=new LedgerFixture();
         TaxedReceipt(f);
-        f.Business.Files.Execute("DROP TABLE StatementRows; DROP TABLE BankLines; DROP TABLE StatementImports; DELETE FROM Accounts WHERE Code IN('1250','5050'); PRAGMA user_version=18;");
+        f.Business.Files.Execute("DROP TABLE BankMatches; DROP TABLE BankMatchGroups; DROP TABLE StatementRows; DROP TABLE BankLines; DROP TABLE StatementImports; DELETE FROM Accounts WHERE Code IN('1250','5050'); PRAGMA user_version=18;");
         var upgraded=LocalDatabase.InitializeTestDatabaseAt(f.Business.Files.DatabasePath);
         Assert.Equal(BusinessSchema.Version,upgraded.SchemaVersion);
         Assert.Single(f.Business.Files.Snapshots());
