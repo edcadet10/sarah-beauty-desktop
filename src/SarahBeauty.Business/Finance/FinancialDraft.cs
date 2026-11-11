@@ -37,6 +37,8 @@ public sealed record FinancialDraft : BusinessRecord
     public string PaymentMethod {get;init;}="";
     public bool ReliableReference { get; init; }
     public string EvidenceId { get; init; } = "";
+    [System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public SarahBeauty.Business.Attachments.ManagedEvidenceFile? EvidenceFile {get;init;}
     public string Status { get; init; } = "Draft";
     public string PostedBatchId { get; init; } = "";
     public bool OpeningCredit { get; init; }

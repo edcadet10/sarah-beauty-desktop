@@ -48,6 +48,7 @@ public sealed class FinanceBook(BusinessStore store)
             if (value.Status != "Draft" || value.PostedBatchId.Length != 0 || (value.Revision > 0
                 && _drafts.Get(db, owner, value.Id).Status != "Draft"))
                 throw new ArgumentException("Posted financial records cannot be edited. Prepare a linked correction.");
+            FinancialEvidence.Validate(db,store,owner,value.EvidenceFile,verifyContents:false);
             if(value.Kind==FinancialKind.AssetDisposal)value=value with{AssetGeneration=ValueState.Generation(db,owner,"Asset",value.AssetId)};
             if(value.Kind is FinancialKind.PurchaseRefund or FinancialKind.SupplierCreditUse)value=PurchasePayments.Prepare(db,store,owner,value);
             if(value.Kind is FinancialKind.PurchasePayment or FinancialKind.PurchaseRefund or FinancialKind.SupplierCreditUse)

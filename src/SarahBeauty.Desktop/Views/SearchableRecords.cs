@@ -3,7 +3,7 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace SarahBeauty_Desktop.Views;
 
-internal sealed class SearchableRecords(string label)
+internal sealed class SearchableRecords(string label,string noneLabel="Choose a source")
 {
     private readonly ComboBox _choice=new(){Header=label,MinWidth=200};
     private readonly TextBox _search=Form.Input("Search "+label.ToLowerInvariant());
@@ -24,7 +24,7 @@ internal sealed class SearchableRecords(string label)
         var matches=_choices.Where(c=>c.Label.Contains(_search.Text,StringComparison.OrdinalIgnoreCase)).Take(50).ToList();
         var kept=_choices.FirstOrDefault(c=>c.Id==selected);
         if(kept.Id is not null && matches.All(c=>c.Id!=selected))matches.Add(kept);
-        var source=Form.Records(label,matches,selected,"Choose a source");
+        var source=Form.Records(label,matches,selected,noneLabel);
         _choice.ItemsSource=source.ItemsSource;_choice.SelectedItem=source.SelectedItem;
     }
 }
