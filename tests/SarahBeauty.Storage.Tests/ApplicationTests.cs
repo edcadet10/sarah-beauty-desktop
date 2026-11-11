@@ -6,7 +6,7 @@ namespace SarahBeauty.Storage.Tests;
 
 public sealed class ApplicationTests
 {
-    private static DocumentVersion Invoice(LedgerFixture f,long net=12000,decimal taxRate=0m,string? payer=null)
+    internal static DocumentVersion Invoice(LedgerFixture f,long net=12000,decimal taxRate=0m,string? payer=null)
     {
         payer??=f.CustomerId;
         var booking=BookingRules.AddCharge(new Booking{Name="Fictional invoice booking",HasTrial=false,TrialCents=0,
