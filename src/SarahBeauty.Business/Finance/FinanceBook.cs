@@ -75,7 +75,7 @@ public sealed class FinanceBook(BusinessStore store)
         });
     }
 
-    private PostedMovement Post(DbWork db, OwnerSession owner, FinancialDraft draft)
+    internal PostedMovement Post(DbWork db, OwnerSession owner, FinancialDraft draft)
     {
         var accounts = ChartOfAccounts.List(db, owner);
         draft = CorrectionRules.Prepare(db, owner, draft);

@@ -64,7 +64,7 @@ public sealed class CreditBook(BusinessStore store)
         });
     }
 
-    private CustomerCredit Approve(DbWork db,OwnerSession owner,CreditDraft draft)
+    internal CustomerCredit Approve(DbWork db,OwnerSession owner,CreditDraft draft)
     {
         var preview=Preview(db,owner,draft);
         string creditId=draft.Action==CreditAction.Issue?draft.Id:draft.CreditId;
