@@ -15,25 +15,34 @@ public sealed class BankMatching(BusinessStore store)
     public List<BankMatchGroup> Approvals(OwnerSession owner)=>store.Read(db=>
     {
         store.RequireSession(db,owner);
-        return db.Read("SELECT Id,ApprovedBy,AtUtc,DataJson FROM BankMatchGroups WHERE BusinessId=$business ORDER BY AtUtc,Id;",
-            r=>new BankMatchGroup(r.GetString(0),r.GetString(1),r.GetString(2),JsonSerializer.Deserialize<BankMatchDraft>(r.GetString(3))!), ("$business",owner.BusinessId));
+        return BankMatchQueries.Approvals(db,owner);
     });
     public BankMatchPreview Preview(OwnerSession owner,BankMatchDraft draft)=>store.ReadSnapshot(db=>
     {store.RequireSession(db,owner);return BankMatchRules.Preview(db,owner,Normalize(draft));});
 
-    public List<MatchPosition> BankPositions(OwnerSession owner,string account,DateOnly date)=>store.ReadSnapshot(db=>
+    public BankMatchingSources LoadSources(OwnerSession owner,string account,DateOnly date)=>store.ReadSnapshot(db=>
     {
         store.RequireSession(db,owner);
-        var history=BankMatchQueries.History(db,owner).ToLookup(r=>r.BankLineId);
-        return StatementQueries.Lines(db,owner,account).Where(b=>b.Date<=date).Select(b=>new MatchPosition(b.Id,b.SignedCents,BankMatchQueries.Matched(history[b.Id],date))).ToList();
+        var bank=StatementQueries.Lines(db,owner,account);
+        var cash=BankMatchQueries.CashLines(db,owner,account);
+        var history=BankMatchQueries.History(db,owner);
+        return new BankMatchingSources(bank,cash,BankPositions(bank,history,date),CashPositions(cash,history,date),history,BankMatchQueries.Approvals(db,owner));
     });
 
-    public List<MatchPosition> CashPositions(OwnerSession owner,string account,DateOnly date)=>store.ReadSnapshot(db=>
+    public List<MatchPosition> BankPositions(OwnerSession owner,string account,DateOnly date)=>LoadSources(owner,account,date).BankPositions;
+    public List<MatchPosition> CashPositions(OwnerSession owner,string account,DateOnly date)=>LoadSources(owner,account,date).CashPositions;
+
+    private static List<MatchPosition> BankPositions(List<BankLine> bank,List<BankMatch> history,DateOnly date)
     {
-        store.RequireSession(db,owner);
-        var history=BankMatchQueries.History(db,owner).ToLookup(r=>r.JournalLineId);
-        return BankMatchQueries.CashLines(db,owner,account).Where(c=>c.Date<=date).Select(c=>new MatchPosition(c.Id,c.ReversedDate<=date?0:c.SignedCents,BankMatchQueries.Matched(history[c.Id],date))).ToList();
-    });
+        var lookup=history.ToLookup(r=>r.BankLineId);
+        return bank.Where(b=>b.Date<=date).Select(b=>new MatchPosition(b.Id,b.SignedCents,BankMatchQueries.Matched(lookup[b.Id],date))).ToList();
+    }
+
+    private static List<MatchPosition> CashPositions(List<CashMatchLine> cash,List<BankMatch> history,DateOnly date)
+    {
+        var lookup=history.ToLookup(r=>r.JournalLineId);
+        return cash.Where(c=>c.Date<=date).Select(c=>new MatchPosition(c.Id,c.ReversesMovementId.Length>0 || c.ReversedDate<=date?0:c.SignedCents,BankMatchQueries.Matched(lookup[c.Id],date))).ToList();
+    }
 
     public BankMatchGroup Approve(OwnerSession owner,BankMatchDraft draft,Dictionary<string,long> expectedGenerations,string requestId,string phrase)
     {

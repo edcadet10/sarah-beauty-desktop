@@ -137,6 +137,24 @@ public sealed class BankMatchingTests
     }
 
     [Fact]
+    public void APostingCancellationIsNotAnotherBankTransactionButActualRefundsCanMatch()
+    {
+        using var f=new LedgerFixture();
+        var bank=Statement(f,10000,-10000);
+        var mistaken=f.Post(f.Draft(FinancialKind.Receipt,10000));
+        var reversal=f.Post(f.Draft(FinancialKind.Reversal,0) with{OriginalId=mistaken.Id});
+        var undoCash=Cash(f,reversal);
+        var book=new BankMatching(f.Business.Store);
+        Assert.Throws<ArgumentException>(()=>Match(f,book,f.Date,new MatchPortion(bank[1].Id,undoCash.Id,10000)));
+        Assert.All(book.CashPositions(f.Business.Owner,undoCash.AccountId,f.Date),p=>Assert.Equal(0,p.RemainingCents));
+        var received=f.Post(f.Draft(FinancialKind.Receipt,10000));
+        var refunded=f.Post(f.Draft(FinancialKind.Refund,10000) with{OriginalId=received.Id});
+        Match(f,book,f.Date,new(bank[0].Id,Cash(f,received).Id,10000),new(bank[1].Id,Cash(f,refunded).Id,10000));
+        Assert.All(book.BankPositions(f.Business.Owner,undoCash.AccountId,f.Date),p=>Assert.Equal(0,p.RemainingCents));
+        Assert.Equal(0,f.Balance("1010"));
+    }
+
+    [Fact]
     public void ProcessorReceiptMatchesItsActualNetCashRatherThanCustomerGross()
     {
         using var f=new LedgerFixture();
