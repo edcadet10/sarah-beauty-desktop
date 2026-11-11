@@ -28,7 +28,11 @@ public sealed record ClientSnapshot(DocumentKind Kind,string Number,int Version,
     long NetCents,long TaxCents,long TotalCents,ClientMilestone[] Milestones)
 {
     public string RelatedDocument {get;init;}="";
+    public ClientReceipt? Receipt {get;init;}
 }
+public sealed record ClientReceiptApplication(string InvoiceNumber,string Milestone,long Cents);
+public sealed record ClientReceipt(DateOnly PaymentDate,string Method,string Reference,ClientReceiptApplication[] Applications,
+    long RefundCents,long PaymentAvailableCents,long UnusedFundedCreditCents,long CustomerInvoiceBalanceCents);
 public sealed record DocumentVersion(string Id,string DocumentId,string BookingId,ClientSnapshot Snapshot,string Hash,string Status,
     DateOnly? AcceptedDate,string? AcceptanceEvidence)
 {

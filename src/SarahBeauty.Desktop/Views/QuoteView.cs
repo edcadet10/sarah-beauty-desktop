@@ -117,6 +117,14 @@ internal sealed class QuoteView(BusinessStore store,OwnerSession owner)
             Form.Text(string.Join("\n",snapshot.Lines.Select(l=>$"{l.Description} • {l.Quantity} × {Money.Display(l.UnitCents)} • {Money.Display(l.TotalCents)}"))),
             Form.Text($"Net {Money.Display(snapshot.NetCents)} • Tax {Money.Display(snapshot.TaxCents)} • Total {Money.Display(snapshot.TotalCents)}"),
             Form.Text(string.Join("\n",snapshot.Milestones.Select(m=>$"{m.Kind}: {Money.Display(m.Cents)} • Due {m.DueDate?.ToString("yyyy-MM-dd")??"Undecided"}"))),Form.Text(snapshot.Terms));
+        if(snapshot.RelatedDocument.Length>0)panel.Add(Form.Text("Related document: "+snapshot.RelatedDocument));
+        if(snapshot.Receipt is ClientReceipt receipt)panel.Add(ReceiptSummary(receipt));
         return panel;
     }
+
+    private static UIElement ReceiptSummary(ClientReceipt receipt)=>Form.Text(
+        $"Received {receipt.PaymentDate:yyyy-MM-dd} • Method: {receipt.Method} • Reference: {receipt.Reference}\n"
+        +string.Join("\n",receipt.Applications.Select(a=>$"{a.InvoiceNumber} • {a.Milestone}: {Money.Display(a.Cents)}"))
+        +$"\nRefunded: {Money.Display(receipt.RefundCents)} • Unallocated: {Money.Display(receipt.PaymentAvailableCents)}"
+        +$"\nUnused funded credit: {Money.Display(receipt.UnusedFundedCreditCents)} • Payer's open invoices: {Money.Display(receipt.CustomerInvoiceBalanceCents)}");
 }

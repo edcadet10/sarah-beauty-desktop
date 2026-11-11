@@ -1,6 +1,7 @@
 using SarahBeauty.Business.Bookings;
 using SarahBeauty.Business.Customers;
 using SarahBeauty.Business.Documents;
+using SarahBeauty.Business.Finance;
 using SarahBeauty.Business.Security;
 using SarahBeauty.Business.Storage;
 
@@ -55,5 +56,38 @@ internal static class Program
         var artifacts=new DocumentArtifacts(store);
         File.Copy(artifacts.Render(owner,quote.Id),Path.Combine(folder,"quote-preview.pdf"));
         File.Copy(artifacts.Render(owner,invoice.Id),Path.Combine(folder,"invoice-preview.pdf"));
+        PaymentDocuments(store,owner,invoice,booking,folder);
+    }
+
+    private static void PaymentDocuments(BusinessStore store,OwnerSession owner,DocumentVersion invoice,Booking booking,string folder)
+    {
+        var notes=new CreditNoteBook(store);
+        var adjustment=notes.SaveDraft(owner,new CreditNoteDraft{Name="Fictional agreed removal of one add-on",InvoiceVersionId=invoice.Id,
+            IssueDate=invoice.Snapshot.IssueDate,Portions=[new(invoice.Snapshot.Lines.Last().ChargeId,1)]});
+        var note=notes.Issue(owner,adjustment.Id,adjustment.Revision,Phrase);
+        var payment=Payment(store,owner,booking,invoice.Snapshot.IssueDate);
+        var applications=new PaymentApplications(store);
+        var allocation=applications.SaveDraft(owner,new PaymentApplicationDraft{Name="Fictional invoice allocation",PaymentId=payment.Id,
+            InvoiceVersionId=invoice.Id,Date=invoice.Snapshot.IssueDate,Cents=20000});
+        applications.Approve(owner,allocation.Id,allocation.Revision,Phrase);
+        var receipts=new ReceiptBook(store);
+        var draft=receipts.SaveDraft(owner,new ReceiptDraft{Name="Fictional payment receipt",PaymentId=payment.Id,
+            IssueDate=invoice.Snapshot.IssueDate,ClientReference="Fictional payment reference"});
+        var receipt=receipts.Issue(owner,draft.Id,draft.Revision,Phrase);
+        var artifacts=new DocumentArtifacts(store);
+        File.Copy(artifacts.Render(owner,note.Id),Path.Combine(folder,"credit-note-preview.pdf"));
+        File.Copy(artifacts.Render(owner,receipt.Id),Path.Combine(folder,"receipt-preview.pdf"));
+    }
+
+    private static PostedMovement Payment(BusinessStore store,OwnerSession owner,Booking booking,DateOnly date)
+    {
+        var chart=new ChartOfAccounts(store);
+        chart.Initialize(owner);
+        var accounts=chart.List(owner).ToDictionary(a=>a.Code);
+        var money=new FinanceBook(store);
+        var draft=money.SaveDraft(owner,new FinancialDraft{Name="Fictional card payment",Kind=FinancialKind.Receipt,Date=date,
+            AmountCents=25000,FeeCents=750,TaxResolved=true,CashAccountId=accounts["1020"].Id,CounterAccountId=accounts["4000"].Id,
+            CustomerId=booking.PrimaryCustomerId,BookingId=booking.Id,PaymentMethod="Card"});
+        return money.Approve(owner,draft.Id,draft.Revision,Phrase);
     }
 }
