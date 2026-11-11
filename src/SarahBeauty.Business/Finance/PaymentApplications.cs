@@ -31,9 +31,10 @@ public sealed class PaymentApplications(BusinessStore store)
             if(draft.ReversesId.Length>0)
             {
                 var original=ApplicationWriter.Original(db,owner,draft.ReversesId);
-                draft=draft with{PaymentId=original.PaymentId??"",InvoiceVersionId=original.InvoiceVersionId,MilestoneId=original.MilestoneId};
+                draft=draft with{PaymentId=original.PaymentId??"",CreditId=original.CreditId??"",InvoiceVersionId=original.InvoiceVersionId,MilestoneId=original.MilestoneId};
             }
-            return _drafts.Save(db,owner,draft with{PaymentGeneration=ValueState.Generation(db,owner,"Payment",draft.PaymentId),
+            var key=ApplicationSource.Key(draft);
+            return _drafts.Save(db,owner,draft with{SourceGeneration=ValueState.Generation(db,owner,key.Kind,key.Id),
                 InvoiceGeneration=ValueState.Generation(db,owner,"Invoice",draft.InvoiceVersionId)});
         });
     }
@@ -58,9 +59,11 @@ public sealed class PaymentApplications(BusinessStore store)
     private List<PaymentApplication> Approve(DbWork db,OwnerSession owner,PaymentApplicationDraft draft)
     {
         var rows=ApplicationWriter.Save(db,owner,draft,ApplicationPlan.Build(db,owner,draft),FailurePoint);
-        ValueAvailability.ValidatePaymentHistory(db,owner,draft.PaymentId);
+        if(draft.CreditId.Length>0)CreditValues.ValidateHistory(db,owner,draft.CreditId);
+        else ValueAvailability.ValidatePaymentHistory(db,owner,draft.PaymentId);
         ValueAvailability.ValidateInvoiceHistory(db,owner,draft.InvoiceVersionId);
-        ValueState.Advance(db,owner,"Payment",draft.PaymentId);
+        var key=ApplicationSource.Key(draft);
+        ValueState.Advance(db,owner,key.Kind,key.Id);
         ValueState.Advance(db,owner,"Invoice",draft.InvoiceVersionId);
         _drafts.Save(db,owner,draft with{Status="Posted",GroupId=rows[0].GroupId});
         BusinessStore.Audit(db,owner,draft.ReversesId.Length==0?"Apply receipt":"Reverse application",draft.Id);

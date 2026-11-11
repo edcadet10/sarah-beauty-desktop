@@ -9,7 +9,7 @@ This file tracks the full application build requested on November 10, 2026. A co
 | Customers | Implemented | Name-only save, contact warning, validated optional contact fields, search/edit/archive, permission history, stale-edit guard |
 | Bookings | In progress | Persistent charges, places, recipient links, exact plans, and appointments implemented; confirmation awaits approved-payment workflow |
 | Client documents | In progress | Quote versions, bounded payer invoices, and saved PDF artifacts implemented; receipts and credit notes pending |
-| Books and approvals | In progress | Core posting, reports, and bounded receipt-to-invoice/milestone applications with dated reversal implemented; customer credits and period-close UI pending |
+| Books and approvals | In progress | Core posting/reports, receipt/credit applications, funded credits and dated reversals implemented; credit-funded refunds, period-close UI and remaining workflows pending |
 | Resources | Pending | Supplies, suppliers, assets, loans, owner movements, mileage |
 | Reconciliation and reports | Pending | Statements, bounded matches, reports, dashboard |
 | Recovery and Google | Pending | Attachments, portable encrypted archive, Sheets export, Drive authorization/readback |
@@ -76,3 +76,9 @@ An actual developer-computer preview was launched against the fictional demo sto
 Schema 8 adds immutable application history, approval groups, source/target generations, and funding records for the upcoming credit workflow. Saved application drafts require review and owner confirmation. Applications bind approved receipts to invoices and milestones, with explicit decisions when paying on another customer's behalf. Partial application and reversal keep gross and tax components bounded. Source/target changes invalidate stale drafts.
 
 Eight new integration cases cover one receipt across invoices, multiple receipts against one invoice, over-application, dated unapplication before refund, rollback at three write stages, retry identity, concurrent source consumption, tax mismatch, and on-behalf decisions. Historical receipt and invoice balances are checked after each write. A receipt refund or reversal cannot consume value that is still allocated or reserved. Customer credit issuance/application, receipt/credit documents, and booking reservation checks remain subsequent work.
+
+## Funded customer credit checks
+
+Schema 9 makes issued credit/funding history immutable and gives each funding movement an idempotent source draft. A reviewed credit action reserves actual unused receipt value or returns unused credit to the same receipt. Credit applications use the shared allocation/reversal service. Applying or unapplying a credit leaves its underlying receipt reservation in place, preventing use as both customer credit and unused cash.
+
+Seven new cases cover reserve/retry without a second receipt or income entry, two competing $200 uses against $326.65, a single release of unused funding, restored credit after unapplication, rollback at credit/funding stages, and retained tax components. Income and tax are not posted again when credit is used. Cash refunds from reserved credit and charge-adjustment documents remain separate follow-up work.

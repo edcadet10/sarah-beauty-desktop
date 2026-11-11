@@ -5,13 +5,14 @@ namespace SarahBeauty.Business.Finance;
 public sealed record PaymentApplicationDraft : BusinessRecord
 {
     public string PaymentId {get;init;}="";
+    public string CreditId {get;init;}="";
     public string InvoiceVersionId {get;init;}="";
     public string MilestoneId {get;init;}="";
     public long Cents {get;init;}
     public DateOnly? Date {get;init;}
     public string OnBehalfReason {get;init;}="";
     public string ReversesId {get;init;}="";
-    public long PaymentGeneration {get;init;}
+    public long SourceGeneration {get;init;}
     public long InvoiceGeneration {get;init;}
     public string Status {get;init;}="Draft";
     public string GroupId {get;init;}="";
