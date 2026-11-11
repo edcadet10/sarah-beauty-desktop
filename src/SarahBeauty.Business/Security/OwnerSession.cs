@@ -6,11 +6,12 @@ public sealed class OwnerSession
     public string OwnerName { get; }
     public string BusinessId { get; }
     public string StoreId { get; }
+    public string InstanceId {get;}
     internal DateTimeOffset ExpiresAt { get; private set; }
 
-    internal OwnerSession(string ownerId, string name, string businessId, string storeId)
+    internal OwnerSession(string ownerId, string name, string businessId, string storeId,string instanceId)
     {
-        (OwnerId, OwnerName, BusinessId, StoreId) = (ownerId, name, businessId, storeId);
+        (OwnerId, OwnerName, BusinessId, StoreId,InstanceId) = (ownerId, name, businessId, storeId,instanceId);
         Touch();
     }
 

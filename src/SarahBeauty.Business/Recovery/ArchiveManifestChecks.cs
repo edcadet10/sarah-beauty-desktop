@@ -13,7 +13,7 @@ internal static class ArchiveManifestChecks
         ArchiveManifest manifest;
         try{manifest=JsonSerializer.Deserialize<ArchiveManifest>(bytes,new JsonSerializerOptions{UnmappedMemberHandling=JsonUnmappedMemberHandling.Disallow,RespectRequiredConstructorParameters=true,MaxDepth=32})??throw new InvalidDataException("The recovery manifest is empty.");}
         catch(JsonException error){throw new InvalidDataException("The recovery manifest is not supported.",error);}
-        if(manifest.Version!=1 || manifest.SchemaVersion!=BusinessSchema.Version || manifest.Mode is not("TEST" or "LIVE"))throw new InvalidDataException("The recovery format, schema, or mode is not supported by this app.");
+        if(manifest.Version!=1 || manifest.SchemaVersion<31 || manifest.SchemaVersion>BusinessSchema.Version || manifest.Mode is not("TEST" or "LIVE"))throw new InvalidDataException("The recovery format, schema, or mode is not supported by this app.");
         if(!Guid.TryParse(manifest.BusinessId,out _) || !Guid.TryParse(manifest.StoreId,out _) || string.IsNullOrWhiteSpace(manifest.BusinessName) || manifest.Watermark<0 || !DateTimeOffset.TryParse(manifest.CreatedAtUtc,CultureInfo.InvariantCulture,DateTimeStyles.RoundtripKind,out _) || string.IsNullOrWhiteSpace(manifest.AppVersion))throw new InvalidDataException("The recovery manifest identity or capture facts are incomplete.");
         if(manifest.Files is not{Length:>0 and <=100000} || manifest.Facts is null || manifest.Facts.Tables is null)throw new InvalidDataException("The recovery manifest has no supported file and database facts.");
         var paths=new HashSet<string>(StringComparer.OrdinalIgnoreCase);long total=0;

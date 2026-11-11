@@ -28,7 +28,7 @@ public sealed class OwnerAccess(BusinessStore store)
                 ("$id", businessId), ("$name", businessName.Trim()));
             string ownerId = AddOwner(db, businessId, firstName.Trim(), first);
             AddOwner(db, businessId, secondName.Trim(), second);
-            var session = new OwnerSession(ownerId, firstName.Trim(), businessId, store.StoreId);
+            var session = new OwnerSession(ownerId, firstName.Trim(), businessId, store.StoreId,store.InstanceId);
             BusinessStore.Audit(db, session, "Business setup", businessId);
             return session;
         });
@@ -46,7 +46,7 @@ public sealed class OwnerAccess(BusinessStore store)
 
     public void Confirm(OwnerSession session, string phrase)
     {
-        if (session.StoreId != store.StoreId || session.ExpiresAt <= DateTimeOffset.UtcNow)
+        if (session.StoreId != store.StoreId || session.InstanceId!=store.InstanceId || session.ExpiresAt <= DateTimeOffset.UtcNow)
             throw new UnauthorizedAccessException("Sign in to this business to continue.");
         var verified = SignIn(session.OwnerId, phrase);
         if (verified.BusinessId != session.BusinessId) throw new UnauthorizedAccessException();
@@ -66,7 +66,7 @@ public sealed class OwnerAccess(BusinessStore store)
         var owner=ReadCredential(db,id);
         if(!MayAuthenticate(owner) || owner!.BusinessId!=reviewed.BusinessId || owner.Salt!=reviewed.Salt || owner.Hash!=reviewed.Hash || owner.Iterations!=reviewed.Iterations)return null;
         RecordAttempt(db, id, valid, owner.Failures);
-        return valid ? new OwnerSession(id, owner.Name, owner.BusinessId, store.StoreId) : null;
+        return valid ? new OwnerSession(id, owner.Name, owner.BusinessId, store.StoreId,store.InstanceId) : null;
     }
 
     private static void RecordAttempt(DbWork db, string id, bool valid, int failures)

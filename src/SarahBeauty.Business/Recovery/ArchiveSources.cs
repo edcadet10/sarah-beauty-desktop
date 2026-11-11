@@ -31,6 +31,7 @@ internal sealed class ArchiveSources(BusinessStore store)
     }
     private ArchiveManifest Header(DbWork db,OwnerSession owner,ArchiveDatabaseFacts facts)
     {
+        StoreInstanceGuard.Require(db,store.StoreId,store.InstanceId);
         string id=(string)db.Scalar("SELECT Value FROM AppMetadata WHERE Key='StoreId';")!,mode=(string)db.Scalar("SELECT Value FROM AppMetadata WHERE Key='StoreMode';")!;
         int schema=Convert.ToInt32(db.Scalar("PRAGMA user_version;"));if(id!=store.StoreId || mode is not("TEST" or "LIVE") || schema!=BusinessSchema.Version)throw new InvalidDataException("The recovery snapshot identity, mode, or schema does not match its source.");
         string name=(string?)db.Scalar("SELECT DisplayName FROM Business WHERE Id=$id;",("$id",owner.BusinessId))??throw new InvalidDataException("The recovery business was not found.");

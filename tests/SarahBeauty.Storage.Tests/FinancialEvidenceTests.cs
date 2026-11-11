@@ -77,7 +77,7 @@ public sealed class FinancialEvidenceTests
     public void VersionThirtyUpgradeRetainsFilesAndRaisesTheMinimumFinancialWriterContract()
     {
         using var f=new LedgerFixture();var file=Import(f);var draft=f.Book.SaveDraft(f.Business.Owner,f.Draft(FinancialKind.Expense,1000));f.Business.Files.PrepareBankingVersion(30);
-        var store=new BusinessStore(f.Business.Files.DatabasePath);Assert.Equal(31L,TestStore.Scalar(f.Business.Files.DatabasePath,"PRAGMA user_version;"));Assert.Single(f.Business.Files.Snapshots());
+        var store=new BusinessStore(f.Business.Files.DatabasePath);Assert.Equal((long)BusinessSchema.Version,TestStore.Scalar(f.Business.Files.DatabasePath,"PRAGMA user_version;"));Assert.Single(f.Business.Files.Snapshots());
         Assert.Equal(file,new ManagedAttachments(store).Get(f.Business.Owner,file.Version.Id));var book=new FinanceBook(store);
         var saved=book.SaveDraft(f.Business.Owner,book.Drafts(f.Business.Owner).Single() with{EvidenceFile=ManagedEvidenceFile.From(file)});
         var posted=book.Approve(f.Business.Owner,saved.Id,saved.Revision,BusinessFixture.Phrase);Assert.Equal(draft.Id,posted.Source.Id);Assert.Equal(file.Version.Id,posted.Source.EvidenceFile!.VersionId);Assert.Equal(1000,f.Balance("5010"));
