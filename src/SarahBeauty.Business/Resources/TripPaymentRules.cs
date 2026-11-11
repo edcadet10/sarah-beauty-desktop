@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Globalization;
 using SarahBeauty.Business.Finance;
 using SarahBeauty.Business.Rules;
 using SarahBeauty.Business.Security;
@@ -11,9 +12,11 @@ internal static class TripPaymentRules
     internal static TripPaymentBasis Basis(MileageTrip trip)
     {
         string json=JsonSerializer.Serialize(new{trip.Name,trip.TripDate,trip.DriverOwnerId,trip.DriverArtistId,trip.BookingId,trip.Origin,trip.Destination,
-            trip.ActualMiles,trip.ParkingCents,trip.TollsCents,trip.ReimbursementStatus,trip.RequestedReimbursementCents});
+            ActualMiles=CanonicalMiles(trip.ActualMiles),trip.ParkingCents,trip.TollsCents,trip.ReimbursementStatus,trip.RequestedReimbursementCents});
         return new("1:"+TripPaymentQueries.Hash(json),trip.TripDate??DateOnly.MinValue,trip.RequestedReimbursementCents??0,trip.DriverOwnerId,trip.DriverArtistId);
     }
+
+    private static decimal CanonicalMiles(decimal miles)=>decimal.Parse(miles.ToString("G29",CultureInfo.InvariantCulture),NumberStyles.Float,CultureInfo.InvariantCulture);
 
     internal static TripPaymentPreview Preview(DbWork db,BusinessStore store,OwnerSession owner,TripPaymentDraft draft)
     {

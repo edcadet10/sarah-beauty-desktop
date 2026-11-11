@@ -67,7 +67,7 @@ public sealed class TripPaymentStorageTests
     public void ActiveClaimBasisIsProtectedAndAReleasedClaimCanBeReviewedWithoutRewritingHistory()
     {
         using var f=new LedgerFixture();var trip=Trip(f);var payment=f.Post(f.Draft(FinancialKind.Expense,10000));var book=new TripPayments(f.Business.Store);var link=Link(f,book,Draft(f,trip,payment,5000));
-        var operations=new OperationalResources(f.Business.Store);trip=operations.SaveTrip(f.Business.Owner,trip with{EvidenceId="Fictional added receipt evidence"});
+        var operations=new OperationalResources(f.Business.Store);trip=operations.SaveTrip(f.Business.Owner,trip with{ActualMiles=18.40m,EvidenceId="Fictional added receipt evidence"});
         Assert.Contains("Release",Assert.Throws<ArgumentException>(()=>operations.SaveTrip(f.Business.Owner,trip with{ActualMiles=30.1m})).Message);
         Assert.Throws<ArgumentException>(()=>operations.SaveTrip(f.Business.Owner,trip with{RequestedReimbursementCents=7000}));
         Release(f,book,link,5000);trip=operations.SaveTrip(f.Business.Owner,trip with{ActualMiles=30.1m,RequestedReimbursementCents=7000});
