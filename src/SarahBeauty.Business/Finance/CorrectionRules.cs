@@ -9,6 +9,7 @@ internal static class CorrectionRules
     internal static FinancialDraft Prepare(DbWork db, OwnerSession owner, FinancialDraft draft)
     {
         if (draft.Kind is not (FinancialKind.Reversal or FinancialKind.Refund or FinancialKind.SupplierRefund)) return draft;
+        if(draft.Date is null)throw new ArgumentException("Choose a correction date.");
         var original = Original(db, owner, draft.OriginalId);
         if (draft.Date < original.Date) throw new ArgumentException("A correction cannot precede its original movement.");
         if (db.Scalar("SELECT Id FROM Movements WHERE ReversesId=$original;", ("$original", draft.OriginalId)) is not null)
@@ -35,11 +36,12 @@ internal static class CorrectionRules
             AND NOT EXISTS(SELECT 1 FROM Movements R WHERE R.ReversesId=M.Id) LIMIT 1;
             """, ("$original", draft.OriginalId)) is not null)
             throw new ArgumentException("Resolve dependent refunds or corrections before reversing this movement.");
+        AssetRetirements.ValidateReversal(db,owner,draft.OriginalId,draft.Date!.Value);
         return draft with { AmountCents = original.AmountCents, CustomerId = original.CustomerId,
             EconomicOwnerId = original.EconomicOwnerId, BookingId = original.BookingId, LoanId = original.LoanId,
             AssetId = original.AssetId, SupplierId = original.SupplierId, CreditId=original.CreditId,
             PurchaseId=original.PurchaseId,PurchaseFunding=original.PurchaseFunding,SupplierRefundDestination=original.SupplierRefundDestination,
-            SupplierCreditTreatment=original.SupplierCreditTreatment };
+            SupplierCreditTreatment=original.SupplierCreditTreatment,AssetAdjustments=original.AssetAdjustments };
     }
 
     private static void CheckRefundLimit(DbWork db, OwnerSession owner, FinancialDraft draft, FinancialDraft original)

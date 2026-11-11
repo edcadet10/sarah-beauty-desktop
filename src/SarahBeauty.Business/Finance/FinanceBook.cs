@@ -49,6 +49,7 @@ public sealed class FinanceBook(BusinessStore store)
                 var source=CorrectionRules.Original(db,owner,value.OriginalId);
                 value=value with{SourcePurchaseGeneration=ValueState.Generation(db,owner,"Purchase",source.PurchaseId)};
             }
+            value=value with{AssetAdjustments=value.AssetAdjustments.Select(c=>c with{Generation=ValueState.Generation(db,owner,"Asset",c.AssetId)}).ToArray()};
             return _drafts.Save(db, owner, value);
         });
     }
@@ -78,13 +79,16 @@ public sealed class FinanceBook(BusinessStore store)
         CreditRefundRules.Validate(db,owner,draft);
         CheckReference(db, owner, draft);
         var lines=BuildLines(db,owner,draft,accounts);
-        PostingRules.ValidateBalance(lines,PurchasePayments.AllowsEmpty(db,owner,draft));
+        PostingRules.ValidateBalance(lines,PurchasePayments.AllowsEmpty(db,owner,draft) || AssetDisposals.AllowsEmpty(db,owner,draft));
         var posted = PostingWriter.Save(db, owner, draft, lines, FailurePoint);
         OpeningRules.AfterPosting(db,owner,draft,posted.Id,accounts);
         AssetDisposals.AfterPosting(db,store,owner,draft,posted.Id);
+        AssetRetirements.AfterPosting(db,store,owner,draft,posted.Id);
+        if(draft.AssetAdjustments.Any(c=>c.Treatment==AssetValueChoice.Retire))FailurePoint?.Invoke("asset-refund-retirement");
         PurchasePayments.AfterPosting(db,store,owner,draft,posted.Id);
         if(draft.Kind is FinancialKind.PurchasePayment or FinancialKind.PurchaseRefund or FinancialKind.SupplierCreditUse)FailurePoint?.Invoke("purchase-settlement");
-        JournalAssets.AfterPosting(db,owner,lines);
+        var retired=draft.AssetAdjustments.Where(c=>c.Treatment==AssetValueChoice.Retire).Select(c=>c.AssetId);
+        JournalAssets.AfterPosting(db,owner,lines,retired.Concat(draft.AssetId.Length>0?[draft.AssetId]:[]));
         if(draft.Kind==FinancialKind.AssetDisposal)FailurePoint?.Invoke("asset-disposal-record");
         FailurePoint?.Invoke("opening-record");
         if(CreditRefundRules.AfterPosting(db,owner,draft,posted.Id))FailurePoint?.Invoke("credit-refund-funding");
@@ -98,8 +102,10 @@ public sealed class FinanceBook(BusinessStore store)
 
     private List<JournalLine> BuildLines(DbWork db,OwnerSession owner,FinancialDraft draft,List<Account> accounts)
     {
+        AssetRefunds.ValidateContext(draft);
         var lines=draft.Kind switch
         {
+            FinancialKind.SupplierRefund=>AssetRefunds.ClassicLines(db,owner,draft,accounts),
             FinancialKind.PurchasePayment=>PurchasePayments.Lines(db,store,owner,draft,accounts),
             FinancialKind.PurchaseRefund=>PurchaseRefundPlan.Lines(db,store,owner,draft,accounts),
             FinancialKind.SupplierCreditUse=>SupplierCreditUsePlan.Lines(db,store,owner,draft,accounts),
