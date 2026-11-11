@@ -8,10 +8,11 @@ internal static class BankMatchQueries
     internal static List<BankMatchGroup> Approvals(DbWork db,OwnerSession owner)=>db.Read("SELECT Id,ApprovedBy,AtUtc,DataJson FROM BankMatchGroups WHERE BusinessId=$business ORDER BY AtUtc,Id;",
         r=>new BankMatchGroup(r.GetString(0),r.GetString(1),r.GetString(2),System.Text.Json.JsonSerializer.Deserialize<BankMatchDraft>(r.GetString(3))!), ("$business",owner.BusinessId));
 
-    internal static List<BankMatch> History(DbWork db,OwnerSession owner)=>db.Read("""
+    internal static List<BankMatch> History(DbWork db,OwnerSession owner,bool activeOnly=false)=>db.Read("""
         SELECT M.Id,M.GroupId,M.BankLineId,M.JournalLineId,M.Cents,M.Date,COALESCE(M.ReversesId,'') FROM BankMatches M
-        JOIN BankMatchGroups G ON G.Id=M.GroupId WHERE G.BusinessId=$business ORDER BY M.Date,M.Id;
-        """,r=>new BankMatch(r.GetString(0),r.GetString(1),r.GetString(2),r.GetString(3),r.GetInt64(4),DateOnly.Parse(r.GetString(5)),r.GetString(6)),("$business",owner.BusinessId));
+        JOIN BankMatchGroups G ON G.Id=M.GroupId WHERE G.BusinessId=$business AND ($active=0 OR EXISTS(
+            SELECT 1 FROM StatementRows R WHERE R.BankLineId=M.BankLineId AND NOT EXISTS(SELECT 1 FROM StatementWithdrawals W WHERE W.StatementId=R.StatementId))) ORDER BY M.Date,M.Id;
+        """,r=>new BankMatch(r.GetString(0),r.GetString(1),r.GetString(2),r.GetString(3),r.GetInt64(4),DateOnly.Parse(r.GetString(5)),r.GetString(6)),("$business",owner.BusinessId),("$active",activeOnly?1:0));
 
     internal static List<CashMatchLine> CashLines(DbWork db,OwnerSession owner,string? account=null)=>db.Read("""
         SELECT J.Id,M.Id,J.AccountId,M.Date,J.DebitCents-J.CreditCents,M.Memo,R.Date,COALESCE(M.ReversesId,''),M.Kind FROM JournalLines J JOIN Movements M ON M.Id=J.MovementId

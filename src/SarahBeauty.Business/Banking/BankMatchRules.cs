@@ -12,7 +12,7 @@ internal static class BankMatchRules
         if(string.IsNullOrWhiteSpace(draft.Reason) || draft.Portions.Length is <1 or >1000 || draft.Portions.Any(p=>p.Cents<=0)
             || draft.Portions.Select(p=>(p.BankLineId,p.JournalLineId,p.ReversesId)).Distinct().Count()!=draft.Portions.Length)
             throw new ArgumentException("Review 1 to 1,000 distinct match portions with positive amounts and a reason.");
-        var history=BankMatchQueries.History(db,owner);
+        var history=BankMatchQueries.History(db,owner,activeOnly:true);
         var cash=BankMatchQueries.CashLines(db,owner).ToDictionary(c=>c.Id);
         var bankLines=BankSources(db,owner,draft.Portions.Where(p=>cash.ContainsKey(p.JournalLineId)).Select(p=>cash[p.JournalLineId]));
         foreach(string account in draft.Portions.Where(p=>cash.ContainsKey(p.JournalLineId)).Select(p=>cash[p.JournalLineId].AccountId).Distinct())
@@ -53,7 +53,7 @@ internal static class BankMatchRules
 
     internal static void ValidateHistory(DbWork db,OwnerSession owner,IEnumerable<MatchPortion> portions,IEnumerable<BankMatch>? proposed=null)
     {
-        var all=BankMatchQueries.History(db,owner).Concat(proposed??[]).ToList();
+        var all=BankMatchQueries.History(db,owner,activeOnly:true).Concat(proposed??[]).ToList();
         var cash=BankMatchQueries.CashLines(db,owner).ToDictionary(c=>c.Id);
         var bankLines=BankSources(db,owner,portions.Select(p=>cash[p.JournalLineId]));
         var reservations=bankLines.Values.Select(b=>b.AccountId).Distinct().SelectMany(a=>StatementErrorHistory.Reservations(db,owner,a)).ToLookup(r=>r.BankLineId);
@@ -92,7 +92,7 @@ internal static class BankMatchRules
 
     internal static void ValidateMovementReversal(DbWork db,OwnerSession owner,string movement,DateOnly date)
     {
-        var history=BankMatchQueries.History(db,owner);
+        var history=BankMatchQueries.History(db,owner,activeOnly:true);
         foreach(var line in BankMatchQueries.CashLines(db,owner).Where(c=>c.MovementId==movement))
         {
             var matches=history.Where(r=>r.JournalLineId==line.Id).ToList();

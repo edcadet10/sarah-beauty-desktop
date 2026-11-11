@@ -54,7 +54,7 @@ internal static class StatementErrorHistory
     internal static void CheckProposed(DbWork db,OwnerSession owner,ReconciliationPreview preview)
     {
         if(preview.BankErrorClaims.Count==0)return;
-        var history=BankMatchQueries.History(db,owner).ToLookup(m=>m.BankLineId);
+        var history=BankMatchQueries.History(db,owner,activeOnly:true).ToLookup(m=>m.BankLineId);
         var bank=preview.Sources.Bank.ToDictionary(b=>b.Id);
         foreach(var claim in preview.BankErrorClaims)
         {
