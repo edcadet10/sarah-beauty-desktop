@@ -52,7 +52,7 @@ public sealed class CreditNoteBook(BusinessStore store)
         });
     }
 
-    private DocumentVersion Issue(DbWork db,OwnerSession owner,CreditNoteDraft draft)
+    internal DocumentVersion Issue(DbWork db,OwnerSession owner,CreditNoteDraft draft)
     {
         string number=DocumentVersions.AllocateNumber(db,owner,DocumentKind.CreditNote);
         var (invoice,snapshot,reductions)=CreditNotePlan.Build(db,owner,draft,number);

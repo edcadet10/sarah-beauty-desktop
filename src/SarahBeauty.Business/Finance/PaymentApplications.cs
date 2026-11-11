@@ -56,7 +56,7 @@ public sealed class PaymentApplications(BusinessStore store)
         });
     }
 
-    private List<PaymentApplication> Approve(DbWork db,OwnerSession owner,PaymentApplicationDraft draft)
+    internal List<PaymentApplication> Approve(DbWork db,OwnerSession owner,PaymentApplicationDraft draft)
     {
         var rows=ApplicationWriter.Save(db,owner,draft,ApplicationPlan.Build(db,owner,draft),FailurePoint);
         if(draft.CreditId.Length>0)CreditValues.ValidateHistory(db,owner,draft.CreditId);
