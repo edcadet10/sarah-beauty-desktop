@@ -13,8 +13,7 @@ public static class DatabaseBackup
             ?? throw new InvalidOperationException(
                 "The database folder could not be determined.");
 
-        using var source = CreateConnection(sourcePath, SqliteOpenMode.ReadOnly);
-        source.Open();
+        using var source=CreateConnection(sourcePath,SqliteOpenMode.ReadOnly);source.Open();
 
         string backupFolder = Path.Combine(sourceFolder, "Backups");
         Directory.CreateDirectory(backupFolder);
@@ -22,7 +21,21 @@ public static class DatabaseBackup
         string fileName =
             $"sarahbeauty-{DateTime.UtcNow:yyyyMMdd-HHmmssfff}-{Guid.NewGuid():N}.db";
         string backupPath = Path.Combine(backupFolder, fileName);
-        string partialPath = backupPath + ".partial";
+        WriteVerifiedSnapshot(source,backupPath);
+        return backupPath;
+    }
+
+    internal static void CreateVerifiedSnapshotAt(string databasePath,string snapshotPath)
+    {
+        string sourcePath=Path.GetFullPath(databasePath),backupPath=Path.GetFullPath(snapshotPath);
+        if(string.Equals(sourcePath,backupPath,StringComparison.OrdinalIgnoreCase))throw new ArgumentException("A snapshot needs a separate destination.");
+        using var source=CreateConnection(sourcePath,SqliteOpenMode.ReadOnly);source.Open();
+        WriteVerifiedSnapshot(source,backupPath);
+    }
+
+    private static void WriteVerifiedSnapshot(SqliteConnection source,string backupPath)
+    {
+        string partialPath = backupPath + "."+Guid.NewGuid().ToString("N")+".partial";
 
         using (new FileStream(partialPath, FileMode.CreateNew, FileAccess.Write, FileShare.None))
         {
@@ -33,7 +46,6 @@ public static class DatabaseBackup
             CopySnapshot(source, partialPath);
             VerifySnapshot(partialPath);
             File.Move(partialPath, backupPath);
-            return backupPath;
         }
         finally
         {
