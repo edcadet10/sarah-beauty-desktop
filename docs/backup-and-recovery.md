@@ -2,6 +2,8 @@
 
 Status: Verified local database upgrade snapshots and the [managed evidence workspace](managed-evidence.md) are implemented. Automated fictional fixtures cover committed WAL data, invalid sources, failed verification, migration rollback, managed-file versions/integrity, and pinned record links. Complete archives, cloud backups, and a restore interface remain in progress. The procedure below is the contract for those future features.
 
+The [portable encryption helper](archive-encryption.md) now uses the published age format and passes reference interoperability and failure checks. Archive assembly and staged restore verification remain separate work.
+
 ## Local upgrade snapshots
 
 Before upgrading an existing version-0 TEST store, the app saves a database snapshot in `Backups` beside `sarahbeauty.db`. The filename includes a UTC timestamp and random ID. The app uses [Microsoft.Data.Sqlite's backup API](https://learn.microsoft.com/en-us/dotnet/standard/data/sqlite/backup), converts the destination to rollback-journal mode so it can open without WAL sidecars, and checks database integrity and foreign-key references. It publishes the `.db` filename only after verification. A failed upgrade keeps an already verified snapshot and rolls back metadata changes.

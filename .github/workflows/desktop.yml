@@ -22,3 +22,26 @@ jobs:
         run: dotnet test tests/SarahBeauty.Storage.Tests/SarahBeauty.Storage.Tests.csproj --configuration Release --verbosity minimal
       - name: Build the Windows app
         run: dotnet build src/SarahBeauty.Desktop/SarahBeauty.Desktop.csproj --configuration Debug --verbosity minimal
+  recovery-crypto:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    env:
+      GOTOOLCHAIN: local
+      CGO_ENABLED: '0'
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: '1.27.4'
+          cache-dependency-path: tools/SarahBeauty.Recovery/go.sum
+      - name: Build the pinned reference encryption tool
+        run: |
+          $env:GOBIN=Join-Path $env:RUNNER_TEMP 'age-reference'
+          go install filippo.io/age/cmd/age@v1.3.2
+          if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}
+          "SARAHBEAUTY_AGE_CLI=$(Join-Path $env:GOBIN 'age.exe')" >> $env:GITHUB_ENV
+      - name: Verify recovery and reference interoperability
+        working-directory: tools/SarahBeauty.Recovery
+        run: go test -count=1 -v ./...
+      - name: Build the recovery helper with notices
+        run: ./tools/build-recovery.ps1
