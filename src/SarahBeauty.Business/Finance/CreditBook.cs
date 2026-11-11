@@ -37,16 +37,18 @@ public sealed class CreditBook(BusinessStore store)
             throw new ArgumentException("Available value changed. Save and review the credit draft again.");
         var source=CorrectionRules.Original(db,owner,draft.PaymentId);
         string? accountType=db.Scalar("SELECT Type FROM Accounts WHERE Id=$id;",("$id",source.CounterAccountId)) as string;
-        if(source.Kind is not (FinancialKind.Receipt or FinancialKind.ReceiptClassification) || source.Date>draft.Date
-            || accountType!="Income")
-            throw new ArgumentException("Choose an approved income receipt dated on or before this credit action.");
+        bool income=(source.Kind is FinancialKind.Receipt or FinancialKind.ReceiptClassification) && accountType=="Income";
+        bool held=ReceiptClassifications.IsHeld(db,source);
+        if((!income && !held) || source.Date>draft.Date)
+            throw new ArgumentException("Choose an approved income, held deposit, or identified suspense receipt dated on or before this credit action.");
         var receipt=ValueAvailability.Payment(db,owner,draft.PaymentId,draft.Date.Value);
         var available=draft.Action==CreditAction.Issue?receipt:CreditValues.Available(db,owner,draft.CreditId,draft.Date.Value);
         if(draft.Cents>available.Cents)throw new ArgumentException("This action exceeds the available funded value.");
         long tax=Money.Proportion(available.TaxCents,draft.Cents,available.Cents);
-        string customer=CustomerBook.Find(db,owner,source.CustomerId)!.FullName;
-        return draft.Action==CreditAction.Issue?new(customer,draft.Cents,tax,new(receipt.Cents-draft.Cents,receipt.TaxCents-tax),new(draft.Cents,tax))
-            :new(customer,draft.Cents,tax,new(receipt.Cents+draft.Cents,receipt.TaxCents+tax),new(available.Cents-draft.Cents,available.TaxCents-tax));
+        string customer=CustomerBook.Find(db,owner,source.CustomerId)?.FullName??throw new ArgumentException("Identify the actual payer before creating customer credit from suspense value.");
+        string treatment=source.Kind==FinancialKind.UnclassifiedReceipt?"Unclassified suspense":income?"Recognized income":"Held customer deposit";
+        return draft.Action==CreditAction.Issue?new(customer,draft.Cents,tax,new(receipt.Cents-draft.Cents,receipt.TaxCents-tax),new(draft.Cents,tax)){SourceTreatment=treatment}
+            :new(customer,draft.Cents,tax,new(receipt.Cents+draft.Cents,receipt.TaxCents+tax),new(available.Cents-draft.Cents,available.TaxCents-tax)){SourceTreatment=treatment};
     }
 
     public CustomerCredit Approve(OwnerSession owner,string draftId,int expectedRevision,string phrase)

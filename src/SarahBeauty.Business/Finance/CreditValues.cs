@@ -9,9 +9,12 @@ internal static class CreditValues
         ??throw new ArgumentException("Choose a credit from this business.");
 
     internal static List<CustomerCredit> List(DbWork db,OwnerSession owner,string? id=null)=>db.Read("""
-        SELECT C.Id,C.CustomerId,json_extract(P.DataJson,'$.FullName'),C.PaymentId,C.IssueDate,C.IssuedCents,C.IssuedTaxCents,C.Reason
-        FROM CustomerCredits C JOIN Customers P ON P.Id=C.CustomerId WHERE C.BusinessId=$business AND ($id IS NULL OR C.Id=$id) ORDER BY C.IssueDate,C.Id;
-        """,r=>new CustomerCredit(r.GetString(0),r.GetString(1),r.GetString(2),r.GetString(3),DateOnly.Parse(r.GetString(4)),r.GetInt64(5),r.GetInt64(6),r.GetString(7)),("$business",owner.BusinessId),("$id",id));
+        SELECT C.Id,C.CustomerId,json_extract(P.DataJson,'$.FullName'),C.PaymentId,C.IssueDate,C.IssuedCents,C.IssuedTaxCents,C.Reason,
+            CASE WHEN M.Kind='UnclassifiedReceipt' THEN 'Unclassified suspense' WHEN A.Code='2200' THEN 'Held customer deposit' ELSE 'Recognized income' END
+        FROM CustomerCredits C JOIN Customers P ON P.Id=C.CustomerId JOIN Movements M ON M.Id=C.PaymentId
+        LEFT JOIN Accounts A ON A.Id=json_extract(M.DataJson,'$.CounterAccountId')
+        WHERE C.BusinessId=$business AND ($id IS NULL OR C.Id=$id) ORDER BY C.IssueDate,C.Id;
+        """,r=>new CustomerCredit(r.GetString(0),r.GetString(1),r.GetString(2),r.GetString(3),DateOnly.Parse(r.GetString(4)),r.GetInt64(5),r.GetInt64(6),r.GetString(7)){SourceTreatment=r.GetString(8)},("$business",owner.BusinessId),("$id",id));
 
     internal static ValueBalance Available(DbWork db,OwnerSession owner,string id,DateOnly date)
     {
