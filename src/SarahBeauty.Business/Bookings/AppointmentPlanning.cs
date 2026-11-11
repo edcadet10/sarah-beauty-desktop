@@ -1,3 +1,5 @@
+using SarahBeauty.Business.Rules;
+
 namespace SarahBeauty.Business.Bookings;
 
 public static class AppointmentPlanning
@@ -16,7 +18,12 @@ public static class AppointmentPlanning
     {
         if(appointment.Start is null)throw new ArgumentException("Enter the appointment start before calculating its end.");
         int minutes=DurationMinutes(booking,appointment)??throw new ArgumentException("Resolve the selected recipients and their service durations, or enter the actual end time explicitly.");
-        try{return appointment.Start.Value.AddMinutes(minutes);}
+        if(!string.IsNullOrWhiteSpace(appointment.TimeZoneId))ZonedTime.Validate(appointment.Start.Value,appointment.TimeZoneId);
+        try
+        {
+            var end=appointment.Start.Value.AddMinutes(minutes);
+            return string.IsNullOrWhiteSpace(appointment.TimeZoneId)?end:TimeZoneInfo.ConvertTime(end,ZonedTime.Zone(appointment.TimeZoneId));
+        }
         catch(ArgumentOutOfRangeException){throw new ArgumentException("The planned duration exceeds the supported appointment date range.");}
     }
 }

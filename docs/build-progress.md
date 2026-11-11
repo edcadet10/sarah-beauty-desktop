@@ -356,3 +356,11 @@ Appointments can retain permanent named or unnamed recipient-place links. Active
 A cancellation falsification case initially failed because a cancelled booking still occupied its artist's time. Schedule checks now exclude cancelled bookings while retaining their original appointment records. Historical completed/cancelled work can retain an archived artist; new planned work needs an active artist. Duration planning uses copied service durations for selected places and keeps unknown durations and no-trial plans distinct.
 
 Six new SQLite cases cover cancellation, recipient overlap, named/unnamed identities, foreign/duplicate/retired places, duration planning, and archived artist history. All 351 automated cases pass, and the Windows Debug build has no warnings or errors. Recipient controls, time-zone validation, and calendar review follow separately.
+
+## Event and appointment time zones
+
+Event ready-by times now retain their time zone and any explicitly selected UTC offset. A repeated local time requires its actual offset; a nonexistent clock-change time is rejected. Appointment times with a stated zone must use an offset valid for that date and local time. Legacy offset-only appointments retain their exact instants and an unconfirmed zone rather than gaining an invented zone. Proposed ends use elapsed service duration and convert back through the selected zone across clock changes.
+
+Issued quotes retain the event zone and selected offset. Changing that zone requires a revised accepted agreement before reservation. Client PDFs show the captured zone. Legacy event snapshots retain their original hash and known Eastern label. Implementation follows Microsoft's [ambiguous-time guidance](https://learn.microsoft.com/en-us/dotnet/standard/datetime/let-users-resolve-ambiguous-times) and [invalid-time API](https://learn.microsoft.com/en-us/dotnet/api/system.timezoneinfo.isinvalidtime?view=net-10.0).
+
+Ten new cases cover both fall offsets, missing/incorrect offsets, nonexistent times, both duration clock changes, non-hour offsets, saved appointment validation, ambiguous ready-by times, accepted quote changes, PDF labels, and legacy JSON/render hashes. All 361 automated cases pass, and the Windows Debug build has no warnings or errors. Appointment recipient/time-zone controls and calendar review follow separately.

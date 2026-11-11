@@ -19,7 +19,11 @@ public sealed record DocumentDraft : BusinessRecord
 }
 
 public sealed record ClientParty(string Name,string BillingName,string BillingAddress,string Phone,string Email);
-public sealed record ClientEvent(string Name,DateOnly? Date,string Venue,string ReadyBy);
+public sealed record ClientEvent(string Name,DateOnly? Date,string Venue,string ReadyBy)
+{
+    public string TimeZoneId {get;init;}="America/New_York";
+    public string ReadyByUtcOffset {get;init;}="";
+}
 public sealed record ClientLine(string ChargeId,string Description,string Unit,decimal Quantity,long UnitCents,
     long DiscountCents,long NetCents,long TaxCents,long TotalCents,long RoundingCents=0);
 public sealed record ClientMilestone(string Kind,long Cents,DateOnly? DueDate);

@@ -24,12 +24,15 @@ internal static class QuoteSnapshot
             new("Deposit",plan.DepositCents,booking.DepositDue),new("Final",plan.FinalCents,booking.FinalDue)];
         string name=(string)db.Scalar("SELECT DisplayName FROM Business WHERE Id=$id;",("$id",owner.BusinessId))!;
         return new(DocumentKind.Quote,number,version,"TEST",name,Party(customer),
-            new(booking.Name,booking.EventDate,booking.Venue,booking.ReadyBy),draft.IssueDate.Value,draft.DueDate,draft.Terms,
+            Event(booking),draft.IssueDate.Value,draft.DueDate,draft.Terms,
             lines,totals.NetCents,totals.TaxCents!.Value,totals.TotalCents.Value,milestones.Where(m=>m.Cents>0).ToArray());
     }
 
     internal static ClientParty Party(Customer customer)=>new(customer.FullName,customer.BillingName,
         customer.BillingAddress,customer.Phone,customer.Email);
+
+    internal static ClientEvent Event(Booking booking)=>new(booking.Name,booking.EventDate,booking.Venue,booking.ReadyBy)
+        {TimeZoneId=booking.EventTimeZoneId,ReadyByUtcOffset=booking.ReadyByUtcOffset};
 
     internal static ClientLine Line(BookingCharge charge)
     {

@@ -1,3 +1,5 @@
+using SarahBeauty.Business.Rules;
+
 namespace SarahBeauty.Business.Bookings;
 
 internal static class AppointmentRules
@@ -17,6 +19,12 @@ internal static class AppointmentRules
             if (appointment.Start.HasValue != appointment.End.HasValue || appointment.End <= appointment.Start
                 || (appointment.Status == "Completed" && !appointment.Start.HasValue))
                 throw new ArgumentException("Enter valid start and end times. Completed work needs both times.");
+            if(!string.IsNullOrWhiteSpace(appointment.TimeZoneId))
+            {
+                _=ZonedTime.Zone(appointment.TimeZoneId);
+                if(appointment.Start.HasValue)ZonedTime.Validate(appointment.Start.Value,appointment.TimeZoneId);
+                if(appointment.End.HasValue)ZonedTime.Validate(appointment.End.Value,appointment.TimeZoneId);
+            }
             AppointmentRecipients.Places(booking,appointment.PlaceIds,requireActive:appointment.Status!="Cancelled");
             ValidateConflicts(booking,appointment,scheduled);
         }

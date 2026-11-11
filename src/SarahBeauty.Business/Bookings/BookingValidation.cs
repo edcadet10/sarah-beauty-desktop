@@ -11,6 +11,7 @@ internal static class BookingValidation
     {
         if (string.IsNullOrWhiteSpace(booking.Name) || booking.Name.Length > 200) throw new ArgumentException("Enter a booking name of up to 200 characters.");
         if(booking.TrialDurationMinutes is <=0 or >1440)throw new ArgumentException("Leave an unknown trial duration blank, or use 1 to 1,440 minutes.");
+        BookingSchedule.Validate(booking);
         if (!new[] { "Undecided", "Single", "Split" }.Contains(booking.PayerMode)) throw new ArgumentException("Choose a payer arrangement.");
         Customer(db, owner, booking.PrimaryCustomerId);
         Customer(db, owner, booking.SinglePayerCustomerId);
