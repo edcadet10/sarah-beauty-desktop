@@ -45,8 +45,9 @@ internal sealed class TestStore : IDisposable
 
     internal void PrepareBankingVersion(int version)
     {
-        if(version is <18 or >28)throw new ArgumentOutOfRangeException(nameof(version));
-        var tables=new List<string>{"AttachmentVersions"};
+        if(version is <18 or >29)throw new ArgumentOutOfRangeException(nameof(version));
+        var tables=new List<string>{"AttachmentLinkReleases","AttachmentLinks"};
+        if(version<29)tables.Add("AttachmentVersions");
         if(version<28)tables.AddRange(["TripPaymentReleases","TripPaymentLinks"]);
         if(version<27)tables.Add("CancellationDecisions");
         if(version<26)tables.AddRange(["BookPeriodReopens","BookPeriodCloses"]);

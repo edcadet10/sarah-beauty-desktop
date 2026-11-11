@@ -32,7 +32,7 @@ public sealed class ManagedAttachments(BusinessStore store)
     {
         store.RequireSession(db,owner);cancellation.ThrowIfCancellationRequested();
         string payload=AttachmentQueries.Hash(JsonSerializer.Serialize(new{Draft=draft,staged.OriginalFileName,staged.ByteLength,staged.Sha256}));
-        var prior=AttachmentQueries.Prior(db,owner,request,payload);if(prior is not null){AttachmentRules.MayRead(db,owner,prior.Version);using var verified=Open(prior.Version);return prior;}
+        var prior=AttachmentQueries.Prior(db,owner,request,payload);if(prior is not null){AttachmentRules.MayRead(db,owner,prior.Version);using var verified=OpenVerified(prior.Version);return prior;}
         string permission=AttachmentRules.Permission(db,owner,draft);var previous=draft.AttachmentId.Length==0?null:AttachmentQueries.List(db,owner,draft.AttachmentId).LastOrDefault()?.Version;
         AttachmentRules.Replacement(draft,previous);
         if(draft.Category=="Customer photo" && !staged.MediaType.StartsWith("image/",StringComparison.Ordinal))throw new ArgumentException("A customer photo must be a JPEG or PNG image.");
@@ -50,10 +50,10 @@ public sealed class ManagedAttachments(BusinessStore store)
     public Stream OpenRead(OwnerSession owner,string versionId)
     {
         FileStream? stream=null;
-        try{return store.ReadSnapshot(db=>{store.RequireSession(db,owner);var version=AttachmentQueries.Get(db,owner,versionId).Version;AttachmentRules.MayRead(db,owner,version);return stream=Open(version);});}
+        try{return store.ReadSnapshot(db=>{store.RequireSession(db,owner);var version=AttachmentQueries.Get(db,owner,versionId).Version;AttachmentRules.MayRead(db,owner,version);return stream=OpenVerified(version);});}
         catch{stream?.Dispose();throw;}
     }
-    private FileStream Open(AttachmentVersion version)
+    internal FileStream OpenVerified(AttachmentVersion version)
     {
         FileStream stream;
         try{stream=new FileStream(_paths.Resolve(version.RelativePath),FileMode.Open,FileAccess.Read,FileShare.Read);}
