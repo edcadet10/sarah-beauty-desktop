@@ -1,6 +1,6 @@
 # Prepare a recovered working copy
 
-Status: The business service can prepare an isolated TEST working copy from a validated review. Desktop preparation, active-store switching, explicit local retirement, and second-device acceptance follow separately.
+Status: The business service and desktop review can prepare an isolated TEST working copy. Active-store switching, explicit local retirement, and second-device acceptance follow separately.
 
 ## Required decisions
 
@@ -26,6 +26,18 @@ Cancellation and ordinary failures clean the preparation's known workspace witho
 
 Activation and retirement controls must complete the one-primary workflow before this copy becomes the application's working store. Existing archives can omit later changes; their exact captured watermark remains visible.
 
+## Prepare from desktop review
+
+1. Complete [staged archive review](archive-restore.md), then expand **Prepare a recovered TEST working copy**.
+2. Choose the active owner whose access will be reestablished. Enter a recovery reason and repeat that owner's new word passphrase.
+3. Acknowledge that the previous primary is retired or permanently unavailable and that you will not continue posting in it. This acknowledgement records your decision; it does not perform remote retirement.
+4. Select **Prepare separate recovered TEST copy**. Review the prepared folder, logical and new instance identities, captured watermark, source hashes, owner, reason, and known source instance.
+5. Keep the prepared folder under the TEST data parent's `RestoredStores` directory for the separate activation step. Closing the temporary review preserves it. The app continues using its previous working store.
+
+The interface blocks another preparation from that same completed form, clears passphrase fields after the attempt/unload, and supports cancellation. Preparation uses a stable generated request identity for its form, so a repeated request preserves an already published destination.
+
 ## Verification
 
 Fictional cases check preserved financial JSON/files and source balances, changed selected-owner credentials with other-owner preservation, fresh-instance sessions, provenance without passphrases, independent later postings, repeated/concurrent destinations, changed staged bytes/manifest, mutable display facts, disposed reviews, incomplete decisions, staged failure/cancellation, and older-schema preparation without changing the reviewed database. These checks run on the development computer and do not establish second-device recovery.
+
+A native fictional desktop check rejected the missing acknowledgement, then prepared exactly one current-schema copy from the earlier archive and retained it after closing review. Read-only comparisons found identical movement/document/attachment-version source rows, two movements/five journal lines, three managed versions, the same logical Store ID, a different instance, and only the selected owner's changed credential. The copied recovery audit advanced its watermark once; the original stayed unchanged. The acknowledgement was part of a fictional rehearsal and does not establish retirement of a real device.
