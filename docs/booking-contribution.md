@@ -1,6 +1,11 @@
 # Review booking charges and contribution
 
-Status: Consistent billing and financial source snapshots are implemented. Combined contribution calculation and the desktop report follow separately.
+1. Open **Reports** and choose **Booking contribution**.
+2. Enter the financial period start and end/as-of date, then select **Run report**.
+3. Expand **Booking issued-charge estimates** and **Booking period activity**. Review unassigned direct costs separately; they are not allocated automatically.
+4. Choose a **Supporting booking** and select **Show captured booking facts and sources**. Review current operational facts, issued invoice/credit lines and payer balances, and financial entries separately. Tables use pages of 100 records.
+
+The same report appears under **Captured financial reports** in a retained book-period review. Older versions without a booking report display that it was not captured.
 
 Booking billing sources retain each issued invoice's payer, original lines, source quote version, and document hash. Credit notes reduce only their linked invoice. Replacing an older fully credited invoice under a revised agreement therefore does not subtract the older credit from the replacement again.
 
@@ -10,6 +15,8 @@ Recorded direct costs use approved expense lines explicitly linked to the bookin
 
 Recognized service income remains separate from held deposits and invoice charges. Receipt/refund source amounts retain gross, tax, fees, and net cash separately, including dated posting corrections. Receipt classification and invoice/credit applications create no additional receipt. A posting reversal corrects the books; it is not another physical customer payment. Shared receipts without a booking tag are not automatically assigned in full to every booking they pay.
 
-The planned contribution estimate will use issued net charges after their linked reductions, excluding sales tax, less explicitly assigned direct costs. It will identify the issued-charge basis rather than call an accepted quote received income. Unissued work and unassigned costs cannot establish exact profit. Cash received and invoice value applied need separate measures and date labels.
+The contribution estimate uses issued net charges after their linked reductions, excluding sales tax, less explicitly assigned direct costs through the as-of date. A booking without issued charges has no estimate. A fully credited invoice has known zero remaining charges and can still have recorded costs. Cancelling work without a charge adjustment does not erase its invoice balance. Unissued work and unassigned costs cannot establish exact profit.
+
+Period activity reports invoice issues less credit notes in that period, recorded direct costs, recognized service income, and receipt/refund source amounts. These measures have separate date labels and do not all describe the same accounting basis. The known estimate subtotal excludes bookings without an estimate. Current service charges, recipient places, and appointments describe the records at capture time; their private work notes and products/shades are excluded.
 
 Reading billing sources creates no invoice, application, receipt, journal, or audit movement. The source snapshot retains its business/mode, as-of date, generation time, and committed-data watermark. Private booking notes are excluded.
