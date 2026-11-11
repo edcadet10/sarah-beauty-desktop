@@ -31,7 +31,7 @@ internal static class QuoteSnapshot
     internal static ClientParty Party(Customer customer)=>new(customer.FullName,customer.BillingName,
         customer.BillingAddress,customer.Phone,customer.Email);
 
-    private static ClientLine Line(BookingCharge charge)
+    internal static ClientLine Line(BookingCharge charge)
     {
         long tax=Money.Multiply(charge.TaxRate!.Value,charge.NetCents);
         return new(charge.Id,charge.Description,charge.Unit,charge.Quantity,charge.UnitCents,charge.DiscountCents,

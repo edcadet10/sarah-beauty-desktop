@@ -11,6 +11,7 @@ namespace SarahBeauty_Desktop.Views;
 internal sealed partial class BookingView
 {
     private readonly BookingBook _book;
+    private readonly BookingReservations _reservations;
     private readonly OwnerSession _owner;
     private readonly List<Customer> _customers;
     private readonly ListView _list = new() { MaxHeight = 220 };
@@ -19,7 +20,7 @@ internal sealed partial class BookingView
 
     internal BookingView(BusinessStore store, OwnerSession owner)
     {
-        (_book, _owner) = (new(store), owner);
+        (_book, _owner, _reservations) = (new(store), owner, new(store));
         _customers = new CustomerBook(store).Search(owner, includeArchived: true);
     }
 
@@ -74,6 +75,14 @@ internal sealed partial class BookingView
         var panel = Form.Panel();
         var reason = Form.Input("Reason for status change");
         var status = Form.Text();
+        if(booking.Status=="Awaiting deposit")panel.Add(Reservation(booking));
+        if(booking.Status=="Confirmed")panel.Add(Form.Action("Mark booking completed",status,async()=>
+        {
+            string explanation=reason.Text;
+            var changed=await Task.Run(()=>_book.ChangeStatus(_owner,booking,"Completed",explanation));
+            _list.ItemsSource=_book.List(_owner);
+            Edit(changed);
+        }));
         panel.Add(reason, Form.Action("Cancel booking", status, async () =>
         {
             string explanation = reason.Text;
