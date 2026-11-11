@@ -15,7 +15,7 @@ internal static class StatementPlan
         var counts=draft.Source.Rows.GroupBy(r=>(r.Date,r.SignedCents)).ToDictionary(g=>g.Key,g=>g.Count());
         var rows=draft.Source.Rows.Select(row=>new StatementRowReview(row,
             Candidates(row,amounts,references),counts[(row.Date,row.SignedCents)]>1)).ToArray();
-        string existing=draft.Source.ContentHash.Length==0?"":db.Scalar("SELECT Id FROM StatementImports WHERE BusinessId=$business AND AccountId=$account AND ContentHash=$hash;",
+        string existing=draft.Source.ContentHash.Length==0?"":db.Scalar("SELECT Id FROM StatementImports S WHERE BusinessId=$business AND AccountId=$account AND ContentHash=$hash AND NOT EXISTS(SELECT 1 FROM StatementWithdrawals W WHERE W.StatementId=S.Id);",
             ("$business",owner.BusinessId),("$account",draft.AccountId),("$hash",draft.Source.ContentHash)) as string??"";
         return new(draft,ValueState.Generation(db,owner,"StatementImport",draft.AccountId),rows,existing);
     }

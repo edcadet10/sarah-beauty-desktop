@@ -45,8 +45,9 @@ internal sealed class TestStore : IDisposable
 
     internal void PrepareBankingVersion(int version)
     {
-        if(version is <18 or >23)throw new ArgumentOutOfRangeException(nameof(version));
-        var tables=new List<string>{"StatementErrorResolutions","StatementErrors"};
+        if(version is <18 or >24)throw new ArgumentOutOfRangeException(nameof(version));
+        var tables=new List<string>{"StatementWithdrawals"};
+        if(version<24)tables.AddRange(["StatementErrorResolutions","StatementErrors"]);
         if(version<23)tables.AddRange(["ReconciliationBankCoverage","ReconciliationReopens","Reconciliations"]);
         if(version<21)tables.AddRange(["BankMatches","BankMatchGroups"]);
         if(version<20)tables.AddRange(["StatementRows","BankLines","StatementImports"]);
@@ -57,7 +58,13 @@ internal sealed class TestStore : IDisposable
         if(dropEvidence && Convert.ToInt64(Scalar(DatabasePath,"SELECT COUNT(*) FROM StatementImports WHERE EvidenceId<>'';"))>0)
             throw new InvalidOperationException("An older-layout fixture cannot discard newer statement evidence.");
         string drops=string.Join(" ",tables.Select(t=>$"DROP TABLE {t};"));
-        Execute($"BEGIN IMMEDIATE; {drops} {(dropEvidence?"ALTER TABLE StatementImports DROP COLUMN EvidenceId;":"")} PRAGMA user_version={version}; COMMIT;");
+        string oldIndexes="""
+            DROP TRIGGER IF EXISTS StatementImports_ActiveContent; DROP TRIGGER IF EXISTS BankLines_ActiveReference;
+            DROP INDEX IF EXISTS StatementImports_Content; DROP INDEX IF EXISTS BankLines_Reference;
+            CREATE UNIQUE INDEX StatementImports_Content ON StatementImports(AccountId,ContentHash) WHERE ContentHash IS NOT NULL;
+            CREATE UNIQUE INDEX BankLines_Reference ON BankLines(AccountId,Reference) WHERE ReliableReference=1;
+            """;
+        Execute($"BEGIN IMMEDIATE; {oldIndexes} {drops} {(dropEvidence?"ALTER TABLE StatementImports DROP COLUMN EvidenceId;":"")} PRAGMA user_version={version}; COMMIT;");
     }
 
     internal string Hash() => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(DatabasePath)));

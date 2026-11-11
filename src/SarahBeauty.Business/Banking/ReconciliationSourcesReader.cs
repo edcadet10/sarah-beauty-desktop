@@ -9,10 +9,11 @@ internal static class ReconciliationSourcesReader
     internal static ReconciliationSources Read(DbWork db,OwnerSession owner,string statementId)
     {
         var statement=StatementQueries.Imports(db,owner,statementId).SingleOrDefault()??throw new ArgumentException("Choose an imported statement from this business.");
+        if(statement.Withdrawn)throw new ArgumentException("This statement import was withdrawn. Review the retained source and import the corrected statement.");
         var account=ChartOfAccounts.List(db,owner).Single(a=>a.Id==statement.AccountId && a.CashKind!="None");
         var bank=StatementQueries.Lines(db,owner,account.Id).Where(b=>b.Date<=statement.Through).ToDictionary(b=>b.Id);
         var cash=BankMatchQueries.CashLines(db,owner,account.Id).Where(c=>c.Date<=statement.Through).ToList();
-        var history=BankMatchQueries.History(db,owner);
+        var history=BankMatchQueries.History(db,owner,activeOnly:true);
         var bankPositions=BankMatching.BankPositions(bank.Values.ToList(),history,statement.Through,StatementErrorHistory.Reservations(db,owner,account.Id));
         var cashPositions=BankMatching.CashPositions(cash,history,statement.Through);
         var cashById=cash.ToDictionary(c=>c.Id);
