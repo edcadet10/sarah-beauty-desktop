@@ -30,6 +30,7 @@ public sealed record FinancialDraft : BusinessRecord
     public string AssetId { get; init; } = "";
     public string SupplierId { get; init; } = "";
     public string OriginalId { get; init; } = "";
+    public string CreditId { get; init; } = "";
     public string ExternalReference { get; init; } = "";
     public string Provider { get; init; } = "";
     public bool ReliableReference { get; init; }

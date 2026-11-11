@@ -13,7 +13,7 @@ namespace SarahBeauty_Desktop.Views;
 internal sealed class FinancialFields
 {
     private readonly TextBox _memo,_date,_amount,_tax,_fee,_principal,_interest,_reference,_provider,_evidence;
-    private readonly ComboBox _cash,_counter,_to,_customer,_economicOwner,_booking,_loan,_asset,_supplier,_original;
+    private readonly ComboBox _cash,_counter,_to,_customer,_economicOwner,_booking,_loan,_asset,_supplier,_original,_credit;
     private readonly CheckBox _taxResolved,_reliable,_openingCredit;
     private readonly FinancialKind _kind;
 
@@ -34,6 +34,7 @@ internal sealed class FinancialFields
         _asset=Form.Records("Asset",resources.Assets(owner).Select(a=>(a.Id,a.Name)),d.AssetId);
         _supplier=Form.Records("Supplier",resources.Suppliers(owner).Select(s=>(s.Id,s.Name)),d.SupplierId);
         _original=Form.Records("Original posted movement",new FinanceBook(store).Posted(owner).Select(p=>(p.Id,p.Source.ToString())),d.OriginalId);
+        _credit=Form.Records("Linked funded credit (for a refund from reserved value)",new CreditBook(store).Credits(owner).Select(c=>(c.Id,$"{c.CustomerName} • {c.Id[..8]}")),d.CreditId);
         _tax=Form.Input("Included sales tax in USD",Money.Input(d.TaxCents));
         _taxResolved=new CheckBox{Content="I have explicitly resolved the tax treatment",IsChecked=d.TaxResolved};
         _fee=Form.Input("Processor / loan fee in USD",Money.Input(d.FeeCents));
@@ -59,6 +60,7 @@ internal sealed class FinancialFields
         if(_kind is FinancialKind.AssetPurchase or FinancialKind.AssetContribution or FinancialKind.Depreciation or FinancialKind.Opening)panel.Add(_asset);
         if(_kind is FinancialKind.Expense or FinancialKind.SupplierRefund)panel.Add(_supplier);
         if(_kind is FinancialKind.Refund or FinancialKind.SupplierRefund or FinancialKind.Reversal)panel.Add(_original);
+        if(_kind==FinancialKind.Refund)panel.Add(_credit);
         if(_kind==FinancialKind.Opening)panel.Add(_openingCredit);
         panel.Add(_booking,_reference,_provider,_reliable,_evidence,Form.Text("Missing evidence remains visible for review. It does not prove that a payment or expense occurred."));
         return panel;
@@ -71,6 +73,7 @@ internal sealed class FinancialFields
         CashAccountId=_cash.SelectedId(),CounterAccountId=_counter.SelectedId(),ToAccountId=_to.SelectedId(),
         CustomerId=_customer.SelectedId(),EconomicOwnerId=_economicOwner.SelectedId(),BookingId=_booking.SelectedId(),
         LoanId=_loan.SelectedId(),AssetId=_asset.SelectedId(),SupplierId=_supplier.SelectedId(),OriginalId=_original.SelectedId(),
+        CreditId=_kind==FinancialKind.Refund?_credit.SelectedId():d.CreditId,
         ExternalReference=_reference.Text,Provider=_provider.Text,ReliableReference=_reliable.IsChecked==true,
         OpeningCredit=_openingCredit.IsChecked==true,EvidenceId=_evidence.Text.Trim()
     };
