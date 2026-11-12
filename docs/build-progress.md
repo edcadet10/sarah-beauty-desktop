@@ -1049,3 +1049,9 @@ Six Arabic/Thai calendar cases now pass for full financial reports, saved close/
 ## Verify readable table content before assembly
 
 A small verifier now rebuilds source-bound tables through the bounded scalar builder, checks their digests, rejects empty/duplicate/oversized sets, and freezes copies against mutable aliases. Ten new cases plus nine existing builder cases pass in Debug for changed source generation/watermark, altered names/headers/values/order/width/missing rows, literal exact amounts, immutable copies, and aggregate cell/byte limits. This verifies table integrity only; required-group completeness, dictionary, workbook creation/readback, and publication remain separate work. Latest complete suite is 952 while the calendar-fix run continues. See [Verify readable table content before assembly](readable-table-verification.md).
+
+The calendar-fix complete Release suite passed all 958 cases in 2 minutes 25 seconds. Windows Debug had zero warnings/errors.
+
+## Assemble all current readable table groups
+
+One captured source now composes all 29 existing groups into 155 tables, with shared bounded financial/planning windows, a group inventory, aggregate budgets, row/group cancellation checks, and final source/hash verification. No partial assembly returns when a required group fails. Four new cases plus sixteen verifier/calendar cases pass in Release for complete Arabic/Thai source equality after later edits/lock, private-field exclusion, actual paid/confirmed wedding facts, invalid windows, cancellation, and a deliberately corrupted required group. A fixture lookup compile was corrected to existing authorized search. Latest complete suite is 958 before the verifier/assembly additions. This is table assembly only; Start Here/dictionary, ownership settings, durable artifacts, verified Sheets delivery/UI, and remaining full-build work continue. See [Assemble readable export table groups](readable-export-assembly.md).
