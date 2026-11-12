@@ -29,7 +29,7 @@ internal sealed class GoogleOAuthProtocol(Func<ICodeReceiver>? receivers=null,IH
         catch(GoogleConnectionFailure){throw;}
         catch(Exception error) when(error is IOException or InvalidOperationException or FormatException or Newtonsoft.Json.JsonException){throw new GoogleConnectionFailure("InvalidGoogleResponse","Google authorization returned an incomplete response. Start a new connection.");}
     }
-    private static void Validate(TokenResponse token)
+    internal static void Validate(TokenResponse token)
     {
         if(string.IsNullOrWhiteSpace(token.AccessToken)||token.AccessToken.Length>16384||token.AccessToken.Any(c=>char.IsWhiteSpace(c)||char.IsControl(c))||string.IsNullOrWhiteSpace(token.RefreshToken)||token.RefreshToken.Length>16384||token.RefreshToken.Any(char.IsControl)||!string.Equals(token.TokenType,"Bearer",StringComparison.OrdinalIgnoreCase)||token.ExpiresInSeconds is null or <1 or >604800)throw new GoogleConnectionFailure("IncompleteGrant","Google did not return a complete offline connection. Start a new connection and review consent.");
         if(token.Scope is not null && !token.Scope.Split(' ',StringSplitOptions.RemoveEmptyEntries).ToHashSet(StringComparer.Ordinal).SetEquals([DriveFileScope]))throw new GoogleConnectionFailure("UnexpectedScope","Google returned permissions outside this app's file access. Review the app grant and start a new connection.");
