@@ -54,7 +54,8 @@ public sealed partial class MainPage : Page
 
     private void ShowWorkspace()
     {
-        Host.Content=new WorkspaceView(_store!,_session!,LockOwner,ShowRetired,()=>_backupRuntime?.Status??"Stopped",()=>_googleRuntime?.Status??"Stopped",()=>_sheetsRuntime?.Status??"Stopped").Build();
+        var owner=_session!;
+        Host.Content=new WorkspaceView(_store!,owner,LockOwner,ShowRetired,()=>_backupRuntime?.Status??"Stopped",()=>_googleRuntime?.Status??"Stopped",()=>_sheetsRuntime?.Status??"Stopped",()=>{if(ReferenceEquals(_session,owner))ShowSignIn("Passphrase changed. Sign in with your new passphrase.");}).Build();
     }
     private void ShowArchiveReview()
     {
