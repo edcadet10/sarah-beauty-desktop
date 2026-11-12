@@ -13,18 +13,22 @@ public sealed class BookingBillingSources(BusinessStore store)
     internal BookingBillingSnapshot Load(DbWork db,OwnerSession owner,string bookingId,DateOnly asOf,List<DocumentVersion>? versions=null)
     {
         store.RequireSession(db,owner);var booking=new RecordStore<Booking>(store,"Booking").Get(db,owner,bookingId);AfterBookingRead?.Invoke();
-        versions??=DocumentVersions.List(db,owner);
+        return Read(db,owner.BusinessId,booking,asOf,versions??DocumentVersions.List(db,owner),DateTimeOffset.UtcNow.ToString("O"));
+    }
+
+    internal static BookingBillingSnapshot Read(DbWork db,string businessId,Booking booking,DateOnly asOf,List<DocumentVersion> versions,string generatedAtUtc)
+    {
         var invoices=versions.Where(v=>v.BookingId==booking.Id && v.Snapshot.Kind==DocumentKind.Invoice && v.Snapshot.IssueDate<=asOf && v.Status!="Void").ToArray();
-        var credits=Credits(db,owner,booking.Id,asOf,versions).Where(c=>invoices.Any(i=>i.Id==c.InvoiceVersionId)).ToArray();
-        var headers=Headers(db,owner,booking.Id);
-        var dues=invoices.SelectMany(i=>ValueAvailability.Invoice(db,owner,i.Id,asOf)).ToArray();
-        var rows=invoices.Select(i=>Invoice(db,owner,i,headers[i.Id],credits.Where(c=>c.InvoiceVersionId==i.Id).ToArray(),dues,asOf)).ToArray();
-        return new((string)db.Scalar("SELECT DisplayName FROM Business WHERE Id=$id;",("$id",owner.BusinessId))!,
-            (string)db.Scalar("SELECT Value FROM AppMetadata WHERE Key='StoreMode';")!,ReceiptSnapshot.Watermark(db,owner),DateTimeOffset.UtcNow.ToString("O"),
+        var credits=Credits(db,businessId,booking.Id,asOf,versions).Where(c=>invoices.Any(i=>i.Id==c.InvoiceVersionId)).ToArray();
+        var headers=Headers(db,businessId,booking.Id);
+        var dues=invoices.SelectMany(i=>ValueAvailability.Invoice(db,businessId,i.Id,asOf)).ToArray();
+        var rows=invoices.Select(i=>Invoice(db,i,headers[i.Id],credits.Where(c=>c.InvoiceVersionId==i.Id).ToArray(),dues,asOf)).ToArray();
+        return new((string)db.Scalar("SELECT DisplayName FROM Business WHERE Id=$id;",("$id",businessId))!,
+            (string)db.Scalar("SELECT Value FROM AppMetadata WHERE Key='StoreMode';")!,Convert.ToInt64(db.Scalar("SELECT Watermark FROM Business WHERE Id=$id;",("$id",businessId))),generatedAtUtc,
             asOf,booking.Id,booking.Name,booking.Revision,rows,credits,dues);
     }
 
-    private static BookingBillingInvoice Invoice(DbWork db,OwnerSession owner,DocumentVersion invoice,(string Payer,string Quote) header,
+    private static BookingBillingInvoice Invoice(DbWork db,DocumentVersion invoice,(string Payer,string Quote) header,
         BookingBillingCredit[] credits,InvoiceDue[] dues,DateOnly asOf)
     {
         var applied=ValueAvailability.ApplicationSum(db,"InvoiceVersionId",invoice.Id,asOf);
@@ -39,20 +43,20 @@ public sealed class BookingBillingSources(BusinessStore store)
         return result;
     }
 
-    private static Dictionary<string,(string Payer,string Quote)> Headers(DbWork db,OwnerSession owner,string booking)=>db.Read("""
+    private static Dictionary<string,(string Payer,string Quote)> Headers(DbWork db,string businessId,string booking)=>db.Read("""
         SELECT H.VersionId,H.CustomerId,H.SourceQuoteVersionId FROM InvoiceHeaders H JOIN DocumentVersions V ON V.Id=H.VersionId
         JOIN Documents D ON D.Id=V.DocumentId WHERE D.BusinessId=$business AND D.BookingId=$booking;
-        """,r=>(Id:r.GetString(0),Payer:r.GetString(1),Quote:r.GetString(2)),("$business",owner.BusinessId),("$booking",booking))
+        """,r=>(Id:r.GetString(0),Payer:r.GetString(1),Quote:r.GetString(2)),("$business",businessId),("$booking",booking))
         .ToDictionary(h=>h.Id,h=>(h.Payer,h.Quote));
 
-    private static BookingBillingCredit[] Credits(DbWork db,OwnerSession owner,string booking,DateOnly asOf,List<DocumentVersion> versions)
+    private static BookingBillingCredit[] Credits(DbWork db,string businessId,string booking,DateOnly asOf,List<DocumentVersion> versions)
     {
         var sources=versions.ToDictionary(v=>v.Id);
         return db.Read("""
             SELECT H.VersionId,H.InvoiceVersionId,H.Date FROM CreditNoteHeaders H JOIN DocumentVersions V ON V.Id=H.VersionId
             JOIN Documents D ON D.Id=V.DocumentId WHERE D.BusinessId=$business AND D.BookingId=$booking AND H.Date<=$date ORDER BY H.Date,V.rowid;
             """,r=>(Id:r.GetString(0),Invoice:r.GetString(1),Date:DateOnly.Parse(r.GetString(2))),
-            ("$business",owner.BusinessId),("$booking",booking),("$date",asOf.ToString("yyyy-MM-dd")))
+            ("$business",businessId),("$booking",booking),("$date",asOf.ToString("yyyy-MM-dd")))
             .Select(h=>new BookingBillingCredit(h.Id,h.Invoice,sources[h.Id].Snapshot.Number,h.Date,sources[h.Id].Snapshot.NetCents,
                 sources[h.Id].Snapshot.TaxCents,sources[h.Id].Hash,sources[h.Id].Snapshot.Lines)).ToArray();
     }

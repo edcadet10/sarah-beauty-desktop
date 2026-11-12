@@ -8,9 +8,10 @@ namespace SarahBeauty.Business.Finance;
 
 internal static class BookingReportFactsReader
 {
-    internal static BookingReportFacts Read(DbWork db,OwnerSession owner,Booking booking,IReadOnlyDictionary<string,string> artists)
+    internal static BookingReportFacts Read(DbWork db,OwnerSession owner,Booking booking,IReadOnlyDictionary<string,string> artists)=>Read(db,owner.BusinessId,booking,artists);
+    internal static BookingReportFacts Read(DbWork db,string businessId,Booking booking,IReadOnlyDictionary<string,string> artists)
     {
-        string Name(string id)=>id.Length==0?"Unnamed recipient":CustomerBook.Find(db,owner,id)?.FullName??"Customer unavailable";
+        string Name(string id)=>id.Length==0?"Unnamed recipient":CustomerBook.Find(db,businessId,id)?.FullName??"Customer unavailable";
         var charges=booking.Charges.Select(c=>new BookingReportCharge(c.Id,c.Description,c.Unit,c.Quantity,c.UnitCents,c.DiscountCents,c.NetCents,c.TaxRate,c.Active,c.DurationMinutes)).ToArray();
         var places=booking.Places.Select(p=>new BookingReportPlace(p.Id,p.ChargeId,p.Ordinal,p.CustomerId,Name(p.CustomerId),p.Active)).ToArray();
         var appointments=booking.Appointments.Select(a=>new BookingReportAppointment(a.Id,a.Kind,a.ArtistId,artists.GetValueOrDefault(a.ArtistId,"Artist unavailable"),
