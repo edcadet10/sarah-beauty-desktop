@@ -9,7 +9,7 @@ internal static class AssetRetirements
     internal static void CheckLaterMovement(DbWork db,OwnerSession owner,string asset,DateOnly date)
     {
         if(db.Scalar("SELECT M.Id FROM Movements M JOIN JournalLines J ON J.MovementId=M.Id WHERE M.BusinessId=$business AND J.AssetId=$asset AND M.Date>$date LIMIT 1;",
-            ("$business",owner.BusinessId),("$asset",asset),("$date",date.ToString("yyyy-MM-dd"))) is not null)
+            ("$business",owner.BusinessId),("$asset",asset),("$date",date.ToStorageDate())) is not null)
             throw new ArgumentException("This retirement date precedes another asset movement. Review the asset history first.");
     }
 
@@ -22,7 +22,7 @@ internal static class AssetRetirements
                 SELECT M.Id FROM Movements M JOIN JournalLines J ON J.MovementId=M.Id WHERE M.BusinessId=$business AND J.AssetId=$asset
                 AND M.rowid>(SELECT rowid FROM Movements WHERE Id=$original) AND M.Kind<>'Reversal'
                 AND NOT EXISTS(SELECT 1 FROM Movements R WHERE R.ReversesId=M.Id AND R.Date<=$date) LIMIT 1;
-                """,("$business",owner.BusinessId),("$asset",asset),("$original",original),("$date",date.ToString("yyyy-MM-dd"))) is not null)
+                """,("$business",owner.BusinessId),("$asset",asset),("$original",original),("$date",date.ToStorageDate())) is not null)
                 throw new ArgumentException("Reverse or reclassify later asset recovery movements before reversing this retirement.");
     }
 
