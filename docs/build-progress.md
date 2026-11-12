@@ -1,5 +1,9 @@
 # Build progress
 
+## Dashboard layout — November 12, 2026
+
+The dashboard brings its primary financial summary and review links forward, retains detailed sources in expandable sections, and reflows cards for available width. Native checks verify three/two/one columns at 1280/900/500 pixels, correct detail actions, unchanged figures and issued PDFs, and a clean Debug build. See [dashboard layout checks](dashboard-layout.md). A hard-coded Google-disconnection claim was removed. Owner/device, keyboard, larger-text, and runtime theme acceptance remain pending.
+
 ## Grouped workspace menu — November 12, 2026
 
 Five daily sections remain prominent, with 25 tools in four expandable groups and searchable section names. Native checks reach all 30 sections, preserve nested dashboard shortcuts, and verify the menu closes after navigation at 900 × 900. Financial history and issued PDFs remain unchanged. See [workspace menu checks](workspace-menu.md). Larger text, keyboard traversal, owner testing, and physical device acceptance remain pending.
