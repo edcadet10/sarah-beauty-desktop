@@ -4,7 +4,7 @@ namespace SarahBeauty.Business.Recovery;
 
 internal static class RecoveredTableInventory
 {
-    private static readonly (int Introduced,string Table)[] AddedTables=[(33,"OwnerInterestVersions"),(33,"OwnerInterestShares"),(36,"DocumentDecisions")];
+    private static readonly (int Introduced,string Table)[] AddedTables=[(33,"OwnerInterestVersions"),(33,"OwnerInterestShares"),(36,"DocumentDecisions"),(39,"BusinessProfileVersions")];
     internal static void Verify(ArchiveDatabaseFacts current,ArchiveManifest source)
     {
         var expected=source.Facts.Tables.ToDictionary(t=>t.Table,t=>t.Rows,StringComparer.Ordinal);

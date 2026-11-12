@@ -10,11 +10,11 @@ public sealed class RecoveredUpgradeInventoryTests
 {
     private const string NewPhrase="fictional orchard lantern river";
     [Theory]
-    [InlineData(31)][InlineData(35)]
+    [InlineData(31)][InlineData(35)][InlineData(38)]
     public async Task FaithfulOlderArchiveCanUpgradeAndActivateWithOnlyKnownEmptyNewTables(int version)
     {
         using var ledger=new LedgerFixture();var f=ledger.Business;ledger.Post(ledger.Draft(FinancialKind.Receipt,12345));using var legacy=new TestStore();using var target=new TestStore();var older=await StoreInstanceTests.EarlierArchive(f,legacy,version);
-        Assert.Equal(0L,TestStore.Scalar(legacy.DatabasePath,"SELECT count(*) FROM sqlite_schema WHERE name='DocumentDecisions';"));
+        Assert.Equal(version<36?0L:1L,TestStore.Scalar(legacy.DatabasePath,"SELECT count(*) FROM sqlite_schema WHERE name='DocumentDecisions';"));Assert.Equal(0L,TestStore.Scalar(legacy.DatabasePath,"SELECT count(*) FROM sqlite_schema WHERE name='BusinessProfileVersions';"));
         if(version==31)Assert.Equal(0L,TestStore.Scalar(legacy.DatabasePath,"SELECT count(*) FROM sqlite_schema WHERE name IN ('OwnerInterestVersions','OwnerInterestShares');"));
         using var review=await new ArchiveRestores().StageAsync(older.Archive,legacy.Folder,older.Key.ProtectedIdentity,BusinessFixture.Phrase);string request=Guid.NewGuid().ToString();
         var prepared=await new RecoveredStores().PrepareAsync(review,target.Folder,new(f.Owner.OwnerId,"Fictional earlier-schema activation review",true),NewPhrase,request);

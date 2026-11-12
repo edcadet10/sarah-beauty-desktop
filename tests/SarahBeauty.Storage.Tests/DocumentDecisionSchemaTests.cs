@@ -10,7 +10,7 @@ public sealed class DocumentDecisionSchemaTests
     public void UpgradeKeepsIssuedVersionsAndSnapshotWithoutInventingADecision()
     {
         using var f=new BusinessFixture();var issued=Issue(f);long watermark=Watermark(f);string instance=f.Store.InstanceId;
-        f.Files.Execute("DROP TABLE DocumentDecisions; DROP INDEX DocumentDecisionDocumentScope; DROP INDEX DocumentDecisionVersionScope; DROP INDEX DocumentDecisionEvidenceScope; PRAGMA user_version=35;");
+        BusinessProfileSchemaTests.RemoveEmpty(f);f.Files.Execute("DROP TABLE DocumentDecisions; DROP INDEX DocumentDecisionDocumentScope; DROP INDEX DocumentDecisionVersionScope; DROP INDEX DocumentDecisionEvidenceScope; PRAGMA user_version=35;");
         var upgraded=new BusinessStore(f.Store.DatabasePath);Assert.Equal((long)BusinessSchema.Version,TestStore.Scalar(upgraded.DatabasePath,"PRAGMA user_version;"));Assert.Equal(instance,upgraded.InstanceId);Assert.Equal(watermark,Watermark(f));
         var retained=Assert.Single(new QuoteBook(upgraded).Versions(f.Owner));Assert.Equal(issued.Id,retained.Id);Assert.Equal(issued.Hash,retained.Hash);Assert.Equal("Issued",retained.Status);Assert.Equal(0L,TestStore.Scalar(upgraded.DatabasePath,"SELECT count(*) FROM DocumentDecisions;"));
         string snapshot=Assert.Single(f.Files.Snapshots());Assert.Equal(35L,TestStore.Scalar(snapshot,"PRAGMA user_version;"));Assert.Equal(0L,TestStore.Scalar(snapshot,"SELECT count(*) FROM sqlite_schema WHERE name='DocumentDecisions';"));Assert.Equal(issued.Hash,TestStore.Scalar(snapshot,"SELECT SnapshotHash FROM DocumentVersions;"));new BusinessStore(upgraded.DatabasePath);Assert.Single(f.Files.Snapshots());
@@ -33,7 +33,7 @@ public sealed class DocumentDecisionSchemaTests
     public void UnsupportedEarlierTableCannotBeSilentlyAdoptedByTheUpgrade()
     {
         using var f=new BusinessFixture();var issued=Issue(f);
-        f.Files.Execute("DROP TABLE DocumentDecisions; CREATE TABLE DocumentDecisions(Id TEXT); INSERT INTO DocumentDecisions VALUES('Fictional unsupported retained row'); PRAGMA user_version=35;");
+        BusinessProfileSchemaTests.RemoveEmpty(f);f.Files.Execute("DROP TABLE DocumentDecisions; CREATE TABLE DocumentDecisions(Id TEXT); INSERT INTO DocumentDecisions VALUES('Fictional unsupported retained row'); PRAGMA user_version=35;");
         Assert.Throws<SqliteException>(()=>new BusinessStore(f.Store.DatabasePath));Assert.Equal(35L,TestStore.Scalar(f.Store.DatabasePath,"PRAGMA user_version;"));Assert.Equal("Fictional unsupported retained row",TestStore.Scalar(f.Store.DatabasePath,"SELECT Id FROM DocumentDecisions;"));
         string snapshot=Assert.Single(f.Files.Snapshots());Assert.Equal(35L,TestStore.Scalar(snapshot,"PRAGMA user_version;"));Assert.Equal("Fictional unsupported retained row",TestStore.Scalar(snapshot,"SELECT Id FROM DocumentDecisions;"));Assert.Equal(issued.Hash,TestStore.Scalar(f.Store.DatabasePath,"SELECT SnapshotHash FROM DocumentVersions;"));
     }

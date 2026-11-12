@@ -2,7 +2,7 @@
 
 This file tracks the full application build requested on November 10, 2026. A component marked implemented still needs the release checks applicable to it. The app is not ready for live business use.
 
-Current feature head: private business-profile contract, schema 38, following complete format-3 document-decision coverage and the quote-date guard through PR #248. The full local format-3 suite passes 1,353 cases; 19 later quote-date cases, 14 profile cases and six existing customer cases pass separately. Hosted schema-37 verification passes all 1,345 cases, Windows Debug and recovery cryptography. Profile persistence/UI, isolated LIVE creation, remaining workflows and release acceptance continue. Main merges remain incremental and are behind this feature stack. Historical sections below retain the results measured at their own step.
+Current feature head: append-only private business-profile storage, schema 39, following the profile contract through PR #249. Sixteen initial storage/recovery cases and 20 expanded upgrade/contract/workbook cases pass. The full local format-3 suite through #247 passes 1,353 cases; later quote/profile/customer checks pass separately. Hosted schema-37 verification passes all 1,345 cases, Windows Debug and recovery cryptography. Typed profile verification, authenticated saves/UI, isolated LIVE creation, remaining workflows and release acceptance continue. Main merges remain incremental and are behind this feature stack. Historical sections below retain the results measured at their own step.
 
 | Area | Current state | Evidence or remaining work |
 |---|---|---|
@@ -1298,3 +1298,7 @@ A future-dated quote decision initially changed today's terminal state. The writ
 ## Private business-profile foundation
 
 The pure contract now represents private legal/contact/address/EIN facts, optional explicit USD/time-zone/start settings, a separate new-business-only acknowledgment, and formation/EIN/banking/tax review states with private reasons and optional evidence descriptors. Unknown values remain unconfirmed; no legal, tax, ownership or opening fact is inferred. Fourteen profile cases and six existing customer cases pass after sharing contact validation. This step adds no persistence, physical-file validation, LIVE authority or opening posting. Authenticated revisioned storage and native review controls follow. See [Prepare private business setup facts](business-profile-contract.md).
+
+## Append-only private profile storage and older-archive migration
+
+Schema 39 adds empty private profile history with business-scoped owner/revision/request constraints and immutable rows, without inferring setup or money. Readable conventions explicitly omit private profile facts/reasons. Sixteen initial storage/ownership/recovery cases and 20 expanded upgrade/contract/workbook cases pass, including genuine schema-38 encrypted restore/activation and an openable pre-upgrade snapshot. Earlier-layout fixtures refuse to discard newer rows and now faithfully preserve decision tables for schemas 36–38. Typed profile verification, authenticated saving and UI follow separately; the full regression is starting. PR #172 passed both checks and merged; #173 is undergoing main-targeted checks at cb343ac. See [Prepare append-only private profile history](business-profile-schema.md).
