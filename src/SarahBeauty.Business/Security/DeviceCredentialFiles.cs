@@ -41,10 +41,10 @@ internal sealed class DeviceCredentialFiles
         }
         finally{try{File.Delete(temporary);}catch(IOException){}catch(UnauthorizedAccessException){}}
     }
-    internal void Delete(DeviceCredentialKind kind)
+    internal void Delete(DeviceCredentialKind kind,Action<DbWork>? authorize=null)
     {
         RequireCurrent();string path=FilePath(kind);RejectLinks(path);if(!Directory.Exists(DirectoryPath))return;using var gate=Gate();
-        _store.Transaction(db=>{RequireScope(db);File.Delete(path);return true;});
+        _store.Transaction(db=>{RequireScope(db);authorize?.Invoke(db);File.Delete(path);return true;});
     }
     private string FilePath(DeviceCredentialKind kind)
     {
