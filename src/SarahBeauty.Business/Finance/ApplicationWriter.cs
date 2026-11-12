@@ -23,7 +23,7 @@ internal static class ApplicationWriter
                 INSERT INTO PaymentApplications (Id,GroupId,PaymentId,CreditId,InvoiceVersionId,MilestoneId,Cents,TaxCents,Date,ReversesId)
                 VALUES ($id,$group,$payment,$credit,$invoice,$milestone,$cents,$tax,$date,$reverses);
                 """,("$id",row.Id),("$group",id),("$payment",row.PaymentId),("$credit",row.CreditId),("$invoice",row.InvoiceVersionId),
-                ("$milestone",row.MilestoneId),("$cents",row.Cents),("$tax",row.TaxCents),("$date",row.Date.ToString("yyyy-MM-dd")),("$reverses",row.ReversesId));
+                ("$milestone",row.MilestoneId),("$cents",row.Cents),("$tax",row.TaxCents),("$date",row.Date.ToStorageDate()),("$reverses",row.ReversesId));
             failure?.Invoke("application");
         }
         return saved;
@@ -37,6 +37,6 @@ internal static class ApplicationWriter
         FROM PaymentApplications A JOIN ApplicationGroups G ON G.Id=A.GroupId
         WHERE G.BusinessId=$business AND ($group IS NULL OR A.GroupId=$group) ORDER BY A.Date,A.rowid;
         """,r=>new PaymentApplication(r.GetString(0),r.GetString(1),r.IsDBNull(2)?null:r.GetString(2),r.IsDBNull(3)?null:r.GetString(3),
-            r.GetString(4),r.GetString(5),r.GetInt64(6),r.GetInt64(7),DateOnly.Parse(r.GetString(8)),r.IsDBNull(9)?null:r.GetString(9)),
+            r.GetString(4),r.GetString(5),r.GetInt64(6),r.GetInt64(7),StoredDates.Parse(r.GetString(8)),r.IsDBNull(9)?null:r.GetString(9)),
         ("$business",owner.BusinessId),("$group",groupId));
 }
