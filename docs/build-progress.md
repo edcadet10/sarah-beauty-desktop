@@ -1,5 +1,9 @@
 # Build progress
 
+## Packaged pricing acceptance — November 12, 2026
+
+A fresh native TEST fixture in the bundled current app matches all three agreed standard, odd-cent, and custom pricing plans. Independent decimal recomputation, ten-to-four active place counts with retained IDs, unchanged catalog prices, second-owner restart, integrity, and zero financial movement checks pass. See [packaged pricing evidence](native-pricing-acceptance.md). Reservation/deposit, split payer, full device, and complete release acceptance remain separate work.
+
 ## Current bundled and installed UI — November 12, 2026
 
 The current emerald UI publishes as an untrimmed self-contained Windows x64 bundle. Native bundled/installed checks retain customer details, cancellation/PDF and reopened reconciliation, exact balances, charts, and second-owner restart. All 574 installed file hashes match; install/uninstall preserve business bytes and unrelated files. See [current preview evidence](current-release-preview.md). This unsigned private preview is not released; full acceptance, clean-machine/device, signing, recovery, and real Google checks remain pending.
