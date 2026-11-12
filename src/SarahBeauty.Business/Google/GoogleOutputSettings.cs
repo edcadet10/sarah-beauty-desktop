@@ -29,7 +29,9 @@ public sealed class GoogleOutputSettings
     {
         cancellation.ThrowIfCancellationRequested();var prior=_store.Read(db=>{_store.RequireSession(db,owner);var value=GoogleOutputRecords.Read(db,owner.BusinessId,_store.InstanceId)??throw new ArgumentException("Create and verify a private Google output folder first.");GoogleOutputRecords.RequireRevision(value,draft.ExpectedRevision);return value;});
         GoogleDriveFolder? verified=null;GoogleAccessGrant? grant=null;
-        if(draft.DriveArchivesEnabled || draft.SheetsExportEnabled)
+        bool expands=draft.DriveArchivesEnabled && !prior.DriveArchivesEnabled || draft.SheetsExportEnabled && !prior.SheetsExportEnabled;
+        bool reduces=!draft.DriveArchivesEnabled && prior.DriveArchivesEnabled || !draft.SheetsExportEnabled && prior.SheetsExportEnabled;
+        if((draft.DriveArchivesEnabled || draft.SheetsExportEnabled) && (expands || !reduces))
         {
             grant=await _connections.AccessAsync(cancellation).ConfigureAwait(false);if(grant.Connection.Id!=prior.ConnectionId)throw ChangedConnection();_connections.RequireAccess(grant);
             try{verified=await VerifyFolder(grant,prior,cancellation).ConfigureAwait(false);}catch(GoogleConnectionFailure error){_connections.ObserveFailure(grant,error);throw;}

@@ -819,3 +819,9 @@ The complete .NET suite now passes all 830 cases, including the final writer-can
 The queue engine now selects the newest eligible completed local archive for current instance/recovery material, coalesces verified coverage without network requests, and retains observed/delivered watermarks. Offline/quota failures keep fixed error/backoff state across restart, bounded from one to sixty minutes. A separate lease serializes queue decisions while the worker retains its delivery lease. Changed policy/account/folder scope resets retry state. Disabled permission starts no request; later changes wait honestly for a newer local archive. This engine does not create archives or start a timer by itself.
 
 Five new cases pass and Windows Debug has no warnings/errors. They cover signed-out restart/no repeated calls or session/watermark renewal, persisted offline/quota delays, later pending changes without older reupload, lease exclusion, copied-source rejection, and withdrawn permission. The latest complete suite is 830 before these five additions. Desktop polling/controls, Google archive creation integration, Sheets export, real account/device acceptance, and remaining full-build work continue. See [Keep saved-archive delivery pending](google-archive-queue.md).
+
+The complete .NET suite now passes all 835 cases, including the five queue cases.
+
+## Offline withdrawal of either Google output
+
+Two failing-before regressions showed that disabling only Drive or only Sheets while preserving the other saved choice attempted remote verification. Pure permission reductions now save locally without a usable Google request; adding permission or re-saving unchanged enabled choices still verifies the connection/folder. Existing owner, reviewed-policy, final cancellation, and consent checks remain in place for their applicable operations. All nine policy cases pass. Desktop controls and remaining full-build work continue.
