@@ -24,6 +24,11 @@ public sealed partial class MainWindow : Window
 
         // Navigate the root frame to the main page on startup.
         RootFrame.Navigate(typeof(MainPage));
+        Activated+=(_,args)=>
+        {
+            if(RootFrame.Content is not MainPage page||args.WindowActivationState==WindowActivationState.Deactivated)return;
+            if(args.WindowActivationState==WindowActivationState.PointerActivated)page.RecordOwnerActivity();else page.CheckOwnerAccess();
+        };
         AppWindow.Closing+=CloseAfterBackups;
     }
     private async void CloseAfterBackups(Microsoft.UI.Windowing.AppWindow sender,Microsoft.UI.Windowing.AppWindowClosingEventArgs args)
