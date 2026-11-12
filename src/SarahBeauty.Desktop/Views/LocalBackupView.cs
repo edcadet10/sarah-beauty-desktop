@@ -20,7 +20,7 @@ internal sealed class LocalBackupView(BusinessStore store,OwnerSession owner,Act
     internal UIElement Build()
     {
         _panel.Add(Form.Title("Backups and recovery"),Form.Text("Create a complete encrypted copy of the local database, issued PDFs, and managed evidence versions. Keep a copy on another device or private storage to protect against loss of this computer."),
-            _profile,new RecoverySetupView(store,owner,Refresh).Build(),new BackupScheduleView(store,owner,runtime).Build(),new GoogleConnectionView(store,owner).Build(),new GoogleArchiveView(store,owner,googleRuntime).Build(),Form.Action("Refresh backup health",_status,()=>{Refresh();return Task.CompletedTask;}),_health,
+            _profile,new RecoverySetupView(store,owner,Refresh).Build(),new BackupScheduleView(store,owner,runtime).Build(),new GoogleConnectionView(store,owner).Build(),new GoogleArchiveView(store,owner,googleRuntime).Build(),new GoogleSheetsView(store,owner,sheetsRuntime).Build(),Form.Action("Refresh backup health",_status,()=>{Refresh();return Task.CompletedTask;}),_health,
             Form.Action("Create encrypted archive now",_status,Create),Form.Action("Cancel local archive",_status,()=>{_cancellation?.Cancel();return Task.CompletedTask;}),_status,
             _sheets,Form.Text("Second-device restore test: Never completed. Google delivery does not establish this restore check."),
             _history.Build(),Form.Action("Show selected archive attempt",_status,Show),Form.Action("Verify selected encrypted file",_status,Verify),_detail);
