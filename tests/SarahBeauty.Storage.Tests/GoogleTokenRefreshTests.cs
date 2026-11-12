@@ -60,7 +60,8 @@ public sealed class GoogleTokenRefreshTests
     {
         using var f=new LedgerFixture();using var files=new TestStore();var config=GoogleConnectionsTests.Configure(f,files);var connections=GoogleConnectionsTests.Service(f.Business.Store,files.Folder);await connections.ConnectAsync(f.Business.Owner,config.Id);Expire(f.Business.Store,files.Folder);
         connections.Renew=(_,_,_)=>Task.FromResult(Renewed());connections.VerifyAccount=(_,_)=>Task.FromResult(GoogleConnectionsTests.Account() with{Account=new("fictional-other-account","other@example.invalid","Fictional other")});
-        Assert.Equal("GoogleAccountChanged",(await Assert.ThrowsAsync<GoogleConnectionFailure>(()=>connections.AccessAsync())).Code);Assert.Equal("Fictional-TEST-access-token",connections.Load()!.Token.AccessToken);
+        Assert.Equal("GoogleAccountChanged",(await Assert.ThrowsAsync<GoogleConnectionFailure>(()=>connections.AccessAsync())).Code);Assert.Equal("Reconnect required",connections.Current(f.Business.Owner).Status);
+        byte[] prior=new DeviceCredentialFiles(f.Business.Store,files.Folder).Read(DeviceCredentialKind.GoogleToken)!;try{Assert.Equal("Fictional-TEST-access-token",JsonSerializer.Deserialize<GoogleGrantPayload>(prior)!.AccessToken);}finally{CryptographicOperations.ZeroMemory(prior);}
     }
     [Fact]
     public async Task CancellationReleasesTheLeaseAndPreservesEarlierTokenMaterial()

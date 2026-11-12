@@ -46,7 +46,7 @@ public sealed partial class GoogleConnections
             _files.Write(DeviceCredentialKind.GoogleToken,encoded,db=>
             {
                 cancellation.ThrowIfCancellationRequested();_store.RequireSession(db,owner);GoogleClientRecords.RequireExpected(db,_business,_store.InstanceId,expectedConfigurationId);GoogleConnectionRecords.RequireExpected(db,_business,_store.InstanceId,expectedConnectionId);
-                GoogleConnectionRecords.Save(db,saved);BusinessStore.Audit(db,owner,"Connected Google account",saved.Id);FailurePoint?.Invoke("Connection recorded");
+                GoogleConnectionRecords.Save(db,saved);GoogleConnectionIssues.Clear(db,_business,_store.InstanceId);BusinessStore.Audit(db,owner,"Connected Google account",saved.Id);FailurePoint?.Invoke("Connection recorded");
             });return saved;
         }
         catch(GoogleConnectionFailure){throw;}

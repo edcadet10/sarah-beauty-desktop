@@ -1,6 +1,6 @@
 # Renew Google access without unlocking an owner
 
-Status: Cached/renewed access and protected refresh publication are implemented. Persistent reconnect/error state, remote revocation, desktop controls, real Google acceptance, and cloud delivery follow separately. Tests use fictional grants/responses.
+Status: Cached/renewed access, protected refresh publication, and [persistent reconnect state](google-reconnect-state.md) are implemented. Desktop controls, real Google acceptance, and cloud delivery follow separately. Tests use fictional grants/responses.
 
 An internal access request loads the current protected grant and saved consent. A token with more than two minutes remaining is reused without a network request. Expiring tokens renew under an exclusive file lease outside database writer reservations. Other readers reload after obtaining the lease, so one completed renewal serves concurrent callers.
 
