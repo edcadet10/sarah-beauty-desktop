@@ -31,5 +31,9 @@ internal static class OwnerInterestSchema
             FOREIGN KEY(VersionId,BusinessId) REFERENCES OwnerInterestVersions(Id,BusinessId),
             FOREIGN KEY(OwnerId,BusinessId) REFERENCES Owners(Id,BusinessId)
         );
+        CREATE TRIGGER IF NOT EXISTS OwnerInterestVersions_NoUpdate BEFORE UPDATE ON OwnerInterestVersions BEGIN SELECT RAISE(ABORT,'Ownership confirmations are immutable'); END;
+        CREATE TRIGGER IF NOT EXISTS OwnerInterestVersions_NoDelete BEFORE DELETE ON OwnerInterestVersions BEGIN SELECT RAISE(ABORT,'Ownership confirmations are immutable'); END;
+        CREATE TRIGGER IF NOT EXISTS OwnerInterestShares_NoUpdate BEFORE UPDATE ON OwnerInterestShares BEGIN SELECT RAISE(ABORT,'Confirmed ownership shares are immutable'); END;
+        CREATE TRIGGER IF NOT EXISTS OwnerInterestShares_NoDelete BEFORE DELETE ON OwnerInterestShares BEGIN SELECT RAISE(ABORT,'Confirmed ownership shares are immutable'); END;
         """;
 }

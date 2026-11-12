@@ -32,6 +32,15 @@ public sealed class OwnerInterestSchemaTests
         Assert.Throws<SqliteException>(()=>f.Store.Transaction(db=>db.Execute("INSERT INTO OwnerInterestShares(VersionId,BusinessId,OwnerId,OwnerNameAtConfirmation,FractionText) VALUES($version,$business,$owner,'Fictional owner','0.5');",("$version",version),("$business",f.Owner.BusinessId),("$owner",foreignOwner))));
         Assert.Equal(0L,TestStore.Scalar(f.Store.DatabasePath,"SELECT count(*) FROM OwnerInterestShares;"));
     }
+    [Fact]
+    public void ConfirmationsAndSharesRejectUpdatesAndDeletes()
+    {
+        using var f=new BusinessFixture();string version=Guid.NewGuid().ToString();Insert(f,version,f.Owner.OwnerId);
+        f.Store.Transaction(db=>db.Execute("INSERT INTO OwnerInterestShares(VersionId,BusinessId,OwnerId,OwnerNameAtConfirmation,FractionText) VALUES($version,$business,$owner,'Fictional owner','1');",("$version",version),("$business",f.Owner.BusinessId),("$owner",f.Owner.OwnerId)));
+        foreach(string statement in new[]{"UPDATE OwnerInterestVersions SET SnapshotJson='changed';","DELETE FROM OwnerInterestVersions;","UPDATE OwnerInterestShares SET FractionText='0';","DELETE FROM OwnerInterestShares;"})
+            Assert.Throws<SqliteException>(()=>f.Store.Transaction(db=>db.Execute(statement)));
+        Assert.Equal("1",TestStore.Scalar(f.Store.DatabasePath,"SELECT FractionText FROM OwnerInterestShares;"));Assert.Equal("{}",TestStore.Scalar(f.Store.DatabasePath,"SELECT SnapshotJson FROM OwnerInterestVersions;"));
+    }
     private static void Insert(BusinessFixture f,string id,string owner)=>f.Store.Transaction(db=>db.Execute("INSERT INTO OwnerInterestVersions(Id,BusinessId,Revision,EffectiveFrom,RecordedByOwnerId,RecordedAtUtc,SnapshotJson,SnapshotHash) VALUES($id,$business,1,'2027-01-01',$owner,$now,'{}',$hash);",
         ("$id",id),("$business",f.Owner.BusinessId),("$owner",owner),("$now",DateTimeOffset.UtcNow.ToString("O")),("$hash",new string('A',64))));
     private static void Downgrade(BusinessFixture f)=>f.Files.Execute("DROP TABLE OwnerInterestShares; DROP TABLE OwnerInterestVersions; DROP INDEX OwnerInterestOwnerScope; PRAGMA user_version=32;");
