@@ -1,11 +1,14 @@
 using SarahBeauty.Business.Recovery;
 using SarahBeauty.Business.Security;
 using SarahBeauty.Business.Storage;
+using System.Collections.Concurrent;
 
 namespace SarahBeauty.Business.Google;
 
 public sealed class GoogleArchiveDeliveryWorker
 {
+    private static readonly ConcurrentDictionary<string,byte> ActiveAttempts=new();
+    internal static bool IsActive(string attemptId)=>ActiveAttempts.ContainsKey(attemptId);
     private readonly BusinessStore _store;
     private readonly GoogleConnections _connections;
     private readonly GoogleOutputSettings _settings;
@@ -29,7 +32,7 @@ public sealed class GoogleArchiveDeliveryWorker
         async Task Folder()=>await _folders.VerifyAsync(await Access(cancellation).ConfigureAwait(false),permit.Policy.FolderId,permit.Connection.Account.Account.PermissionId,permit.Policy.FolderBinding,cancellation).ConfigureAwait(false);
         try
         {
-            await Folder().ConfigureAwait(false);string id=await _uploads.GenerateIdAsync(await Access(cancellation).ConfigureAwait(false),cancellation).ConfigureAwait(false);var delivery=_deliveries.Reserve(permit,localArchiveJobId,id);active=delivery;_deliveries.InterruptRunning(delivery);attempt=_deliveries.Begin(permit,delivery);var spec=GoogleArchiveDeliveryRecords.Spec(delivery);
+            await Folder().ConfigureAwait(false);string id=await _uploads.GenerateIdAsync(await Access(cancellation).ConfigureAwait(false),cancellation).ConfigureAwait(false);var delivery=_deliveries.Reserve(permit,localArchiveJobId,id);active=delivery;_deliveries.InterruptRunning(delivery);attempt=_deliveries.Begin(permit,delivery);ActiveAttempts.TryAdd(attempt.Id,0);var spec=GoogleArchiveDeliveryRecords.Spec(delivery);
             async Task<GoogleUploadedArchive?> Verify()=>await _uploads.FindVerifiedAsync(spec,permit.Connection.Account.Account.PermissionId,Access,cancellation).ConfigureAwait(false);
             var remote=await Verify().ConfigureAwait(false);if(remote is null)
             {
@@ -46,6 +49,7 @@ public sealed class GoogleArchiveDeliveryWorker
             if(attempt is not null)try{_deliveries.Fail(attempt,failure);}catch(Exception recordError) when(recordError is IOException or InvalidDataException or UnauthorizedAccessException or Microsoft.Data.Sqlite.SqliteException){throw new GoogleConnectionFailure("GoogleDeliveryStateUnconfirmed","The archive attempt ended, but its local outcome could not be saved. Review delivery history and the reserved Google file before retrying.");}
             if(!ReferenceEquals(failure,error))throw failure;throw;
         }
+        finally{if(attempt is not null)ActiveAttempts.TryRemove(attempt.Id,out _);}
     }
     private void Require(GoogleOutputPermit permit,GoogleArchiveDelivery? delivery)=>_store.Read(db=>{if(delivery is null)_settings.Require(db,permit);else _deliveries.Require(db,permit,delivery);return true;});
 }
