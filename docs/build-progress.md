@@ -2,7 +2,7 @@
 
 This file tracks the full application build requested on November 10, 2026. A component marked implemented still needs the release checks applicable to it. The app is not ready for live business use.
 
-Current feature head: complete readable decision coverage, projection format 3/schema 38, following native document decisions and isolated tables through PR #246. The complete local parent Release suite passes 1,345 cases; 39 generation/compatibility and 33 additional delivery/readback/preview cases pass separately. Windows Debug and native upgrade/history/preview checks pass; the new full regression is starting. LIVE setup, remaining workflows and release acceptance continue. Main merges remain incremental and are behind this feature stack. Historical sections below retain the results measured at their own step.
+Current feature head: complete readable decision coverage, projection format 3/schema 38, following native document decisions and isolated tables through PR #246. The complete local Release suite passes all 1,353 cases in 6m34. Windows Debug and native upgrade/history/preview checks pass. Hosted schema-37 verification passes all 1,345 cases, Windows Debug and recovery cryptography. LIVE setup, remaining workflows and release acceptance continue. Main merges remain incremental and are behind this feature stack. Historical sections below retain the results measured at their own step.
 
 | Area | Current state | Evidence or remaining work |
 |---|---|---|
@@ -1288,6 +1288,8 @@ Two isolated tables project verified decision identities, dates/states and recor
 ## Complete decision-history generation and compatibility
 
 Format 3/schema 38 now includes 31 groups, 161 business tables, 165 source tabs and one status tab, with complete inventory/dictionary/digests and updated Start Here/conventions/preview notices. Thirty-nine generation/schema/projection/compatibility cases and 33 additional delivery/readback/preview cases pass. Actual posted-cell readback confirms retained decisions before publication, excludes private reasons and preserves money/watermark. Earlier completed jobs remain history without current-coverage/retry authority; rehashed older format/writer manifests fail. Windows Debug has zero warnings/errors. Native upgrade/restart preserves all four decisions; local preview completes with 165 source tables and guards unconfigured Google delivery. One initial preview wait timed out; a fresh run passed. Read-only checks preserve schema 38/watermark 34, seven issued versions, the original $54.50 receipt/application/balanced journal, file hashes and one openable schema-37 snapshot. The full regression is starting. PR #171 passed both checks and merged; #172 contains current main and is next for checks. See [Include retained decisions in complete exports](readable-decision-generation.md).
+
+The complete local format-3/schema-38 Release regression passes all 1,353 tests in 6m34, including archive/recovery cryptography. The earlier schema-37 [hosted run 43228581546](https://github.com/edcadet10/sarah-beauty-desktop/actions/runs/43228581546) passes all 1,345 tests in 14m07, Windows Debug in 54 seconds with zero warnings/errors, and recovery cryptography. The later quote-date guard and business-profile foundation have separate focused checks and are not included in this full result. PR #172 is undergoing main-targeted checks at de59fdf; the LIVE/workflow/device/release requirements remain unfinished.
 
 ## Quote decision date guard
 
