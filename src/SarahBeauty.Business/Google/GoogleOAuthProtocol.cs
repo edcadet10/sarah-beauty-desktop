@@ -5,17 +5,12 @@ using global::Google.Apis.Http;
 
 namespace SarahBeauty.Business.Google;
 
-internal sealed class GoogleOAuthProtocol(Func<ICodeReceiver>? receivers=null,IHttpClientFactory? clients=null,TimeSpan? timeout=null)
+internal sealed partial class GoogleOAuthProtocol(Func<ICodeReceiver>? receivers=null,IHttpClientFactory? clients=null,TimeSpan? timeout=null)
 {
     internal const string DriveFileScope="https://www.googleapis.com/auth/drive.file";
     internal async Task<TokenResponse> AuthorizeAsync(GoogleDesktopClient client,CancellationToken cancellation=default)
     {
-        cancellation.ThrowIfCancellationRequested();using var deadline=CancellationTokenSource.CreateLinkedTokenSource(cancellation);deadline.CancelAfter(timeout??TimeSpan.FromMinutes(5));
-        using var flow=new PkceGoogleAuthorizationCodeFlow(new GoogleAuthorizationCodeFlow.Initializer
-        {
-            ClientSecrets=new(){ClientId=client.ClientId,ClientSecret=client.ClientSecret},ProjectId=client.ProjectId,Scopes=[DriveFileScope],
-            Prompt="consent select_account",IncludeGrantedScopes=false,DataStore=null,HttpClientFactory=clients
-        });
+        cancellation.ThrowIfCancellationRequested();using var deadline=CancellationTokenSource.CreateLinkedTokenSource(cancellation);deadline.CancelAfter(Deadline(true));using var flow=CreateFlow(client,true);
         var receiver=new GoogleCallbackReceiver(receivers?.Invoke()??new GoogleSystemBrowserReceiver());
         try
         {
@@ -29,6 +24,12 @@ internal sealed class GoogleOAuthProtocol(Func<ICodeReceiver>? receivers=null,IH
         catch(GoogleConnectionFailure){throw;}
         catch(Exception error) when(error is IOException or InvalidOperationException or FormatException or Newtonsoft.Json.JsonException){throw new GoogleConnectionFailure("InvalidGoogleResponse","Google authorization returned an incomplete response. Start a new connection.");}
     }
+    private TimeSpan Deadline(bool consent)=>timeout??(consent?TimeSpan.FromMinutes(5):TimeSpan.FromSeconds(60));
+    private PkceGoogleAuthorizationCodeFlow CreateFlow(GoogleDesktopClient client,bool consent)=>new(new GoogleAuthorizationCodeFlow.Initializer
+    {
+        ClientSecrets=new(){ClientId=client.ClientId,ClientSecret=client.ClientSecret},ProjectId=client.ProjectId,Scopes=[DriveFileScope],
+        Prompt=consent?"consent select_account":null,IncludeGrantedScopes=false,DataStore=null,HttpClientFactory=clients??new GoogleOAuthTransport()
+    });
     internal static void Validate(TokenResponse token)
     {
         if(string.IsNullOrWhiteSpace(token.AccessToken)||token.AccessToken.Length>16384||token.AccessToken.Any(c=>char.IsWhiteSpace(c)||char.IsControl(c))||string.IsNullOrWhiteSpace(token.RefreshToken)||token.RefreshToken.Length>16384||token.RefreshToken.Any(char.IsControl)||!string.Equals(token.TokenType,"Bearer",StringComparison.OrdinalIgnoreCase)||token.ExpiresInSeconds is null or <1 or >604800)throw new GoogleConnectionFailure("IncompleteGrant","Google did not return a complete offline connection. Start a new connection and review consent.");

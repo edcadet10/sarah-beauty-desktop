@@ -46,6 +46,12 @@ internal sealed class DeviceCredentialFiles
         RequireCurrent();string path=FilePath(kind);RejectLinks(path);if(!Directory.Exists(DirectoryPath))return;using var gate=Gate();
         _store.Transaction(db=>{RequireScope(db);authorize?.Invoke(db);File.Delete(path);return true;});
     }
+    internal FileStream? TryRefreshLease()
+    {
+        RequireCurrent();string path=Path.Combine(DirectoryPath,"token-refresh.lock");RejectLinks(path);
+        try{return new FileStream(path,FileMode.OpenOrCreate,FileAccess.ReadWrite,FileShare.None);}
+        catch(IOException error) when((error.HResult&0xffff) is 32 or 33){return null;}
+    }
     private string FilePath(DeviceCredentialKind kind)
     {
         if(!Enum.IsDefined(kind))throw new ArgumentOutOfRangeException(nameof(kind));return Path.Combine(DirectoryPath,kind+".dat");

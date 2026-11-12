@@ -1,6 +1,6 @@
 # Save a verified Google connection
 
-Status: The owner-authorized verified-grant and [local disconnect](google-local-disconnect.md) services are implemented. Refresh, desktop controls, remote revocation, real consent/account acceptance, and cloud delivery follow separately. Tests use fictional consent/account responses only.
+Status: The owner-authorized verified-grant, [local disconnect](google-local-disconnect.md), and [token refresh](google-token-refresh.md) services are implemented. Desktop controls, remote revocation, real consent/account acceptance, and cloud delivery follow separately. Tests use fictional consent/account responses only.
 
 Connection requires an active owner and the reviewed current client/connection identities. Consent and account verification run outside database writer reservations. The service checks complete narrow offline material, snapshots its token fields, verifies the authenticated account, and rechecks owner access, cancellation, and unchanged generations before publishing the protected grant with its connection record and audit.
 
