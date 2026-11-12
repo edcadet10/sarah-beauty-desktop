@@ -29,7 +29,7 @@ public sealed class ModeRecoveryTests
     [Fact]
     public void InvalidModeIsRejectedBeforeAnyRecoveryWork()=>Assert.Throws<ArgumentOutOfRangeException>(()=>new RecoveredStores((BusinessMode)99));
 
-    private sealed class Fixture:IDisposable
+    internal sealed class Fixture:IDisposable
     {
         internal TestStore Files {get;}=new();
         internal BusinessStore Store {get;}

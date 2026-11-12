@@ -23,7 +23,7 @@ public sealed class StoreRetirement(BusinessStore store)
     private LocalBackupJob CoveredArchive(DbWork db,OwnerSession owner,string id)
     {
         var job=BackupJobRecords.Get(db,owner.BusinessId,id);long current=(long)db.Scalar("SELECT Watermark FROM Business WHERE Id=$business;",("$business",owner.BusinessId))!;
-        if(job.Status!="Succeeded" || job.Result is null || job.InstanceId!=store.InstanceId || job.Result.Manifest.StoreId!=store.StoreId || job.Result.Manifest.Mode!="TEST" || job.Result.Manifest.Watermark!=current)
+        if(job.Status!="Succeeded" || job.Result is null || job.InstanceId!=store.InstanceId || job.Result.Manifest.StoreId!=store.StoreId || job.Result.Manifest.Mode!=BusinessModes.StoredName(store.Mode) || job.Result.Manifest.Watermark!=current)
             throw new ArgumentException("Create a complete archive of this current writable instance and all pending changes before retiring it.");return job;
     }
     private StoreRetirementReceipt Record(DbWork db,OwnerSession owner,LocalBackupJob reviewed,string reason,CancellationToken cancellation)

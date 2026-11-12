@@ -10,7 +10,8 @@ internal static class ReadyStoreChecks
     {
         string json=db.Scalar("SELECT Value FROM AppMetadata WHERE Key=$key;",("$key","RecoveredStore/"+Guid.Parse(request).ToString())) as string??throw new InvalidDataException("The recovered-copy provenance is unavailable.");
         var receipt=JsonSerializer.Deserialize<RecoveredStoreReceipt>(json)??throw new InvalidDataException("The recovered-copy provenance is incomplete.");
-        if(receipt.Version!=2 || receipt.SourceManifest is null || receipt.RequestId!=Guid.Parse(request).ToString() || !receipt.PreviousPrimaryAcknowledged)throw new InvalidDataException("Prepare a new recovered copy with the current app before activation. Existing copies are preserved.");return receipt;
+        if(receipt.Version!=2 || receipt.SourceManifest is null || receipt.RequestId!=Guid.Parse(request).ToString() || !receipt.PreviousPrimaryAcknowledged)throw new InvalidDataException("Prepare a new recovered copy with the current app before activation. Existing copies are preserved.");
+        if(receipt.Mode!=(string?)db.Scalar("SELECT Value FROM AppMetadata WHERE Key='StoreMode';")||receipt.StoreId!=(string?)db.Scalar("SELECT Value FROM AppMetadata WHERE Key='StoreId';")||receipt.InstanceId!=(string?)db.Scalar("SELECT Value FROM AppMetadata WHERE Key='WritableInstanceId';")||receipt.SourceManifest.Mode!=receipt.Mode||receipt.SourceManifest.StoreId!=receipt.StoreId)throw new InvalidDataException("The recovered-copy provenance does not match this business instance.");return receipt;
     }
     internal static void Verify(DbWork db,string folder,RecoveredStoreReceipt receipt,CancellationToken cancellation,BusinessMode mode=BusinessMode.Test)
     {
