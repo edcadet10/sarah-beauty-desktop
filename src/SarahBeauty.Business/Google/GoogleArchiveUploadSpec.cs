@@ -13,7 +13,10 @@ internal sealed record GoogleArchiveUploadSpec(string FileId,string FolderId,str
     internal object Metadata()=>new{id=FileId,name="SarahBeauty-archive-"+JobId+".age",mimeType="application/octet-stream",parents=new[]{FolderId},appProperties=new Dictionary<string,string>{{"sarahBeautyPurpose","encrypted-archive-v1"},{"sarahBeautyBinding",FolderBinding},{"sarahBeautyArchiveJob",JobId},{"sarahBeautyArchiveSha256",Sha256}}};
     internal GoogleUploadedArchive Completion(byte[] bytes)
     {
-        using var json=JsonDocument.Parse(bytes,new(){MaxDepth=16});var root=json.RootElement;
+        using var json=JsonDocument.Parse(bytes,new(){MaxDepth=16});return Completion(json.RootElement);
+    }
+    internal GoogleUploadedArchive Completion(JsonElement root)
+    {
         if(root.GetProperty("id").GetString()!=FileId || root.GetProperty("size").ValueKind!=JsonValueKind.String || !long.TryParse(root.GetProperty("size").GetString(),NumberStyles.None,CultureInfo.InvariantCulture,out long size) || size!=ByteLength)throw Unconfirmed();
         string? hash=root.TryGetProperty("sha256Checksum",out var checksum)?checksum.GetString():null;if(hash is not{Length:64}||!hash.All(Uri.IsHexDigit)||!string.Equals(hash,Sha256,StringComparison.OrdinalIgnoreCase))throw Unconfirmed();
         return new(FileId,size,hash.ToUpperInvariant());

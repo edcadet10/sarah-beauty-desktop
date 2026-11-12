@@ -10,7 +10,7 @@ internal sealed class GoogleDriveFolders(HttpClient? client=null)
     private const string Root="https://www.googleapis.com/drive/v3/files";
     private const string Mime="application/vnd.google-apps.folder";
     private const string Purpose="private-output-v1";
-    private const string Fields="id,name,mimeType,ownedByMe,shared,trashed,driveId,owners(permissionId),permissions(id,type,role,deleted),appProperties,capabilities(canAddChildren)";
+    private const string Fields=GoogleDrivePrivacy.Fields+",name,appProperties,capabilities(canAddChildren)";
     internal async Task<GoogleDriveFolder> CreateAsync(string accessToken,string accountPermissionId,string binding,string mode,CancellationToken cancellation=default)
     {
         RequireId(accountPermissionId);RequireBinding(binding);if(mode is not("TEST" or "LIVE"))throw new ArgumentException("Choose a supported business mode.");
@@ -27,11 +27,8 @@ internal sealed class GoogleDriveFolders(HttpClient? client=null)
     }
     private static GoogleDriveFolder Project(JsonElement root,string id,string account,string binding)
     {
-        if(Text(root,"id")!=id || Text(root,"mimeType")!=Mime || !Boolean(root,"ownedByMe",true) || !Boolean(root,"shared",false) || !Boolean(root,"trashed",false) || root.TryGetProperty("driveId",out _))throw NotPrivate();
+        if(!GoogleDrivePrivacy.OnlyOwner(root,id,Mime,account))throw NotPrivate();
         var properties=root.GetProperty("appProperties");if(Text(properties,"sarahBeautyPurpose")!=Purpose || Text(properties,"sarahBeautyBinding")!=binding || !Boolean(root.GetProperty("capabilities"),"canAddChildren",true))throw NotPrivate();
-        var owners=root.GetProperty("owners");if(owners.GetArrayLength()!=1 || Text(owners[0],"permissionId")!=account)throw NotPrivate();
-        var permissions=root.GetProperty("permissions");if(permissions.GetArrayLength()!=1)throw NotPrivate();var permission=permissions[0];
-        if(Text(permission,"id")!=account || Text(permission,"type")!="user" || Text(permission,"role")!="owner" || (permission.TryGetProperty("deleted",out var deleted) && deleted.ValueKind!=JsonValueKind.False))throw NotPrivate();
         string name=Text(root,"name");if(string.IsNullOrWhiteSpace(name)||name.Length>256||name.Any(char.IsControl))throw NotPrivate();return new(id,name,binding,DateTimeOffset.UtcNow.ToString("O"));
     }
     private static string Text(JsonElement value,string key)=>value.GetProperty(key).GetString()??throw NotPrivate();
