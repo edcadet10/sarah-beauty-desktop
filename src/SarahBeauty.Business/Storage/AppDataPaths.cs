@@ -18,9 +18,10 @@ public static class AppDataPaths
         return BusinessDataFolders.Resolve(local,mode,preview);
     }
 
-    public static string EnsureTestFolderExists()
+    public static string EnsureTestFolderExists()=>EnsureFolderExists(BusinessMode.Test);
+    public static string EnsureFolderExists(BusinessMode mode)
     {
-        string folderPath = GetTestFolder();
+        string folderPath = Resolve(mode);
 
         Directory.CreateDirectory(folderPath);
         return folderPath;
