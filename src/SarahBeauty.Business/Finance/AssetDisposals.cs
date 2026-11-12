@@ -6,13 +6,14 @@ namespace SarahBeauty.Business.Finance;
 
 internal static class AssetDisposals
 {
-    internal static bool IsDisposed(DbWork db,OwnerSession owner,string asset,DateOnly date)=>db.Scalar("""
+    internal static bool IsDisposed(DbWork db,OwnerSession owner,string asset,DateOnly date)=>IsDisposed(db,owner.BusinessId,asset,date);
+    internal static bool IsDisposed(DbWork db,string businessId,string asset,DateOnly date)=>db.Scalar("""
         SELECT M.Id FROM Movements M WHERE M.BusinessId=$business AND M.Kind<>'Reversal' AND M.Date<=$date
         AND ((M.Kind='AssetDisposal' AND M.AssetId=$asset) OR EXISTS(
             SELECT 1 FROM json_each(M.DataJson,'$.AssetAdjustments') C WHERE json_extract(C.value,'$.AssetId')=$asset
             AND json_extract(C.value,'$.Treatment')='Retire returned asset'))
         AND NOT EXISTS(SELECT 1 FROM Movements R WHERE R.ReversesId=M.Id AND R.Date<=$date) LIMIT 1;
-        """,("$business",owner.BusinessId),("$asset",asset),("$date",date.ToString("yyyy-MM-dd"))) is not null;
+        """,("$business",businessId),("$asset",asset),("$date",date.ToString("yyyy-MM-dd"))) is not null;
 
     internal static List<JournalLine> Lines(DbWork db,OwnerSession owner,FinancialDraft draft,List<Account> accounts)
     {
