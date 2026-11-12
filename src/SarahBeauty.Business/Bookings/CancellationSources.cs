@@ -28,7 +28,7 @@ public sealed class CancellationSources(BusinessStore store)
         return new((string)db.Scalar("SELECT DisplayName FROM Business WHERE Id=$id;",("$id",owner.BusinessId))!,
             (string)db.Scalar("SELECT Value FROM AppMetadata WHERE Key='StoreMode';")!,Convert.ToInt64(db.Scalar("SELECT Watermark FROM Business WHERE Id=$id;",("$id",owner.BusinessId))),
             DateTimeOffset.UtcNow.ToString("O"),asOf,booking.Id,booking.Revision,booking.Name,booking.Status,QuoteSnapshot.Event(booking),booking.AcceptedQuoteVersionId,
-            closed is null?null:DateOnly.Parse(closed),own,sources,creditRows,appRows,dues,Charges(db,invoices,asOf));
+            closed is null?null:StoredDates.Parse(closed),own,sources,creditRows,appRows,dues,Charges(db,invoices,asOf));
     }
 
     private static List<(string Id,FinancialDraft Source)> Payments(DbWork db,OwnerSession owner)=>db.Read("""
@@ -56,7 +56,7 @@ public sealed class CancellationSources(BusinessStore store)
         string classification=db.Scalar("SELECT Name FROM Accounts WHERE Id=$id;",("$id",source.CounterAccountId)) as string??"Unclassified suspense";
         string? cancelled=db.Scalar("SELECT Date FROM Movements WHERE ReversesId=$id;",("$id",id)) as string;
         return new(id,source.Kind,source.BookingId,source.OriginalId,source.CustomerId,name,source.Date!.Value,source.AmountCents,source.TaxCents,
-            ValueAvailability.Payment(db,owner,id,date),ValueAvailability.Payment(db,owner,id,DateOnly.MaxValue),classification,source.EvidenceId,cancelled is null?null:DateOnly.Parse(cancelled));
+            ValueAvailability.Payment(db,owner,id,date),ValueAvailability.Payment(db,owner,id,DateOnly.MaxValue),classification,source.EvidenceId,cancelled is null?null:StoredDates.Parse(cancelled));
     }
 
     private static CancellationApplication Application(PaymentApplication source,List<PaymentApplication> all,List<DocumentVersion> documents,DateOnly date)

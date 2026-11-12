@@ -29,7 +29,7 @@ public sealed class CancellationCases(BusinessStore store)
         return db.Read("""
             SELECT Id,BookingId,RequestedDate,DecisionDate,json_extract(SnapshotJson,'$.Decision.Name'),ApprovedBy,AtUtc
             FROM CancellationDecisions WHERE BusinessId=$business AND ($booking='' OR BookingId=$booking) ORDER BY DecisionDate,AtUtc,Id;
-            """,r=>new CancellationSummary(r.GetString(0),r.GetString(1),DateOnly.Parse(r.GetString(2)),DateOnly.Parse(r.GetString(3)),r.GetString(4),r.GetString(5),r.GetString(6)),
+            """,r=>new CancellationSummary(r.GetString(0),r.GetString(1),StoredDates.Parse(r.GetString(2)),StoredDates.Parse(r.GetString(3)),r.GetString(4),r.GetString(5),r.GetString(6)),
             ("$business",owner.BusinessId),("$booking",bookingId));
     });
 
@@ -71,8 +71,8 @@ public sealed class CancellationCases(BusinessStore store)
         db.Execute("""
             INSERT INTO CancellationDecisions (Id,BusinessId,BookingId,DraftId,RequestedDate,DecisionDate,PayloadHash,SnapshotJson,SnapshotHash,ApprovedBy,AtUtc)
             VALUES ($id,$business,$booking,$draft,$requested,$date,$payload,$snapshot,$hash,$owner,$at);
-            """,("$id",id),("$business",owner.BusinessId),("$booking",draft.BookingId),("$draft",draft.Id),("$requested",draft.RequestedDate!.Value.ToString("yyyy-MM-dd")),
-            ("$date",draft.Date!.Value.ToString("yyyy-MM-dd")),("$payload",payload),("$snapshot",json),("$hash",hash),("$owner",owner.OwnerId),("$at",at));
+            """,("$id",id),("$business",owner.BusinessId),("$booking",draft.BookingId),("$draft",draft.Id),("$requested",draft.RequestedDate!.Value.ToStorageDate()),
+            ("$date",draft.Date!.Value.ToStorageDate()),("$payload",payload),("$snapshot",json),("$hash",hash),("$owner",owner.OwnerId),("$at",at));
         FailurePoint?.Invoke("case-snapshot");
         _drafts.Save(db,owner,draft with{Status="Approved",ApprovedCaseId=id});FailurePoint?.Invoke("case-draft");
         BusinessStore.Audit(db,owner,"Approve cancellation decision",id);FailurePoint?.Invoke("case-audit");
