@@ -1055,3 +1055,11 @@ The calendar-fix complete Release suite passed all 958 cases in 2 minutes 25 sec
 ## Assemble all current readable table groups
 
 One captured source now composes all 29 existing groups into 155 tables, with shared bounded financial/planning windows, a group inventory, aggregate budgets, row/group cancellation checks, and final source/hash verification. No partial assembly returns when a required group fails. Four new cases plus sixteen verifier/calendar cases pass in Release for complete Arabic/Thai source equality after later edits/lock, private-field exclusion, actual paid/confirmed wedding facts, invalid windows, cancellation, and a deliberately corrupted required group. A fixture lookup compile was corrected to existing authorized search. Latest complete suite is 958 before the verifier/assembly additions. This is table assembly only; Start Here/dictionary, ownership settings, durable artifacts, verified Sheets delivery/UI, and remaining full-build work continue. See [Assemble readable export table groups](readable-export-assembly.md).
+
+The complete Release suite now passes all 972 cases in 2 minutes 14 seconds. Windows Debug has zero warnings/errors. PR #141 passed both GitHub checks and merged; #142 is being checked against main.
+
+## Source, conventions, and business table inventory
+
+Three more bounded metadata tables describe the selected source/date windows, literal exact-value conventions, private omissions, retained/current scope, and every business table's group/counts/raw UTF-8 bytes/hash. Combined budgeting includes the 155 business tables before metadata. Local assembly is explicitly separate from remote publication; ownership percentages remain unimplemented, and database-wide recovery statistics are not exported as business facts. Two new Debug cases pass for complete stable inventories/source details and rejected missing mappings/metadata budget overflow. Latest full suite is 972 before these two additions. Column dictionary, durable artifacts, verified Sheets delivery/UI, and remaining full-build work continue. See [Describe the readable export source and table inventory](readable-export-metadata.md).
+
+Metadata, assembly, and verifier checks also pass all sixteen targeted cases in Release.
