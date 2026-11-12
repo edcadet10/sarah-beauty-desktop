@@ -1,0 +1,7 @@
+# Project debt positions and captured lender journal
+
+Three source-bound tables retain registered loan facts at report capture, dated principal/interest/fee roll-forwards, journal sides and effective reversal kinds, original captured lenders, selected-period flags, and explicit snapshot coverage. Report IDs join ledger report dates/mode/observation scope. Unknown posted principal stays blank; actual repaid principal stays `0`.
+
+Current register owner-lender facts remain separate from each movement's captured lender. `LenderFactsCaptured=false` leaves historical lender fields blank even when the current register names an owner. Do not infer the missing attribution. Retained close facts stay original after later repayment/name/archive changes. Missing older snapshots are marked unretained; unsupported versions stop projection. Evidence inputs/raw snapshots stay out; business terms and public movement descriptions remain readable.
+
+Two table cases and two debt kernel cases pass in Release. They cover a controlled older approval lacking lender capture despite current owner-lender facts, exact captured principal, locked access, and actual repayment to zero beside retained unknown principal with old lender names and archived current register. Latest complete suite remains 918 before asset/debt additions; another full run and Windows Debug build are in progress. Other reports and verified Sheets publication remain pending.
