@@ -24,7 +24,11 @@ public sealed class LocalBackups(BusinessStore store)
     internal Task<LocalBackupJob> CreateAutomaticAsync(BackupPermit permit,CancellationToken cancellation=default)
     {
         cancellation.ThrowIfCancellationRequested();var job=StartAutomatic(permit);
-        return Execute(job,()=>new FullArchives(store){FailurePoint=FailurePoint}.CreateAutomaticAsync(permit,job.Destination,cancellation));
+        return Execute(job,()=>
+        {
+            if(new ArchiveCapacity(store).Estimate(permit).HasKnownShortage)throw new RecoveryFailure("InsufficientLocalSpace","The estimated archive work exceeds available local space. Choose another folder or free space before retrying.");
+            return new FullArchives(store){FailurePoint=FailurePoint}.CreateAutomaticAsync(permit,job.Destination,cancellation);
+        });
     }
     private async Task<LocalBackupJob> Execute(LocalBackupJob job,Func<Task<CreatedArchive>> archive)
     {
