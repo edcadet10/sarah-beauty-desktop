@@ -6,7 +6,7 @@ using global::Google.Apis.Auth.OAuth2.Responses;
 
 namespace SarahBeauty.Business.Google;
 
-public sealed class GoogleConnections
+public sealed partial class GoogleConnections
 {
     private readonly BusinessStore _store;
     private readonly DeviceCredentialFiles _files;
@@ -23,7 +23,7 @@ public sealed class GoogleConnections
     }
     public GoogleConnectionHealth Current(OwnerSession owner)
     {
-        var record=_store.Read(db=>{_store.RequireSession(db,owner);return GoogleConnectionRecords.Read(db,_business,_store.InstanceId);});if(record is null)return new("Not connected",null);
+        var record=_store.Read(db=>{_store.RequireSession(db,owner);return GoogleConnectionRecords.Read(db,_business,_store.InstanceId);});if(record is null)return new("Not connected",null);if(record.Status=="Disconnected")return new("Disconnected",record);
         try{var loaded=Load();return loaded is null?new("Not connected",null):new("Connected",loaded.Connection);}
         catch(GoogleConnectionFailure error){return new("Reconnect required",record,error.Code);}
         catch(InvalidDataException){return new("Needs review",record,"DeviceCredentialUnavailable");}
@@ -55,7 +55,7 @@ public sealed class GoogleConnections
     }
     internal LoadedGoogleGrant? Load()
     {
-        var record=_store.ReadSnapshot(db=>{var saved=GoogleConnectionRecords.Read(db,_business,_store.InstanceId);if(saved is not null)GoogleConnectionRecords.RequireConsent(db,saved);return saved;});if(record is null)return null;
+        var record=_store.ReadSnapshot(db=>{var saved=GoogleConnectionRecords.Read(db,_business,_store.InstanceId);if(saved is null || saved.Status=="Disconnected")return null;GoogleConnectionRecords.RequireConsent(db,saved);return saved;});if(record is null)return null;
         var client=_clients.Load()??throw new GoogleConnectionFailure("ClientFileMissing","The configured Google client is unavailable. Reconnect Google.");
         if(client.Configuration.Id!=record.ConfigurationId)throw new GoogleConnectionFailure("GoogleConsentUnavailable","The Google client configuration changed. Reconnect Google.");
         byte[] clear=_files.Read(DeviceCredentialKind.GoogleToken)??throw new GoogleConnectionFailure("GrantFileMissing","The protected Google grant is unavailable. Reconnect Google.");
