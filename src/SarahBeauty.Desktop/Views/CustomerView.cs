@@ -12,7 +12,7 @@ internal sealed class CustomerView
     private readonly OwnerSession _session;
     private readonly TextBox _search = Form.Input("Search by customer name");
     private readonly CheckBox _archived = new() { Content = "Include archived customers" };
-    private readonly ListView _list = new() { MaxHeight = 240, SelectionMode = ListViewSelectionMode.Single };
+    private readonly ListView _list = new() { MaxHeight = 420, SelectionMode = ListViewSelectionMode.Single };
     private readonly StackPanel _editor = Form.Panel();
     private readonly TextBlock _status = Form.Text();
 
@@ -21,21 +21,46 @@ internal sealed class CustomerView
     internal UIElement Build()
     {
         _list.ItemTemplate=(DataTemplate)Application.Current.Resources["CustomerRowTemplate"];
+        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(_list,"Customer list");
         _list.ContainerContentChanging+=(_,args)=>
         {
             if(args.InRecycleQueue||args.Item is not CustomerListChoice choice)return;
             args.ItemContainer.HorizontalContentAlignment=HorizontalAlignment.Stretch;
             Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(args.ItemContainer,choice.ToString());
         };
-        var panel = Form.Panel();
-        panel.Add(Form.Title("Customers"), _search, _archived,
-            Form.Action("Search", _status, Refresh),
-            Form.Action("New customer", _status, () => { Edit(new Customer()); return Task.CompletedTask; }),
-            _status, _list, _editor);
+        var panel = Form.Panel();var browser=Form.Panel();var actions=new StackPanel{Orientation=Orientation.Horizontal,Spacing=8};
+        actions.Add(Form.Action("Search",_status,Refresh),Form.PrimaryAction("New customer",_status,()=>{NewCustomer();return Task.CompletedTask;}));
+        browser.Add(Form.Text("Find a customer"),_search,_archived,actions,_status,_list);
+        panel.Add(Form.Title("Customers"),Form.Muted("Find an existing customer or start a new record."),Workspace(browser));
         _list.SelectionChanged += (_, _) => { if (_list.SelectedItem is CustomerListChoice choice) Edit(choice.Value); };
         Show(_book.Search(_session));
-        Edit(new Customer());
+        _editor.Add(Form.Title("Customer details"),Form.Muted("Choose a customer from the list, or select New customer."));
         return panel;
+    }
+
+    private void NewCustomer(){_list.SelectedItem=null;Edit(new Customer());}
+
+    private UIElement Workspace(UIElement browser)
+    {
+        var grid=new Grid{ColumnSpacing=20,RowSpacing=20};
+        var browse=Form.Card(browser);var edit=Form.Card(_editor);
+        browse.VerticalAlignment=edit.VerticalAlignment=VerticalAlignment.Top;
+        grid.Children.Add(browse);grid.Children.Add(edit);
+        ArrangeWorkspace(grid,edit,0);
+        grid.SizeChanged+=(_,args)=>ArrangeWorkspace(grid,edit,args.NewSize.Width);
+        return grid;
+    }
+
+    private static void ArrangeWorkspace(Grid grid,FrameworkElement editor,double width)
+    {
+        bool wide=width>=860;int columns=wide?2:1;
+        if(grid.ColumnDefinitions.Count==columns)return;
+        grid.ColumnDefinitions.Clear();grid.RowDefinitions.Clear();
+        if(wide)grid.ColumnDefinitions.Add(new(){Width=new GridLength(320)});
+        grid.ColumnDefinitions.Add(new(){Width=new GridLength(1,GridUnitType.Star)});
+        grid.RowDefinitions.Add(new(){Height=GridLength.Auto});
+        if(!wide)grid.RowDefinitions.Add(new(){Height=GridLength.Auto});
+        Grid.SetColumn(editor,wide?1:0);Grid.SetRow(editor,wide?0:1);
     }
 
     private async Task Refresh()

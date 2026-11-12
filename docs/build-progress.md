@@ -1,5 +1,9 @@
 # Build progress
 
+## Customer browser/editor layout — November 12, 2026
+
+The customer screen uses separate browse/edit panels on wider windows and stacked panels on smaller ones. New records explicitly clear the prior selection. Native checks verify 1280/900/500-pixel layouts, retained unsaved text during resize, empty-name rejection, same-name identity, unchanged financial history/PDFs, and a clean Debug build. See [customer workspace layout](customer-workspace-layout.md). Touch, keyboard, larger-text, device, and unsaved-change protection work continues separately.
+
 ## Customer list presentation — November 12, 2026
 
 Customer rows now separate name, contact/warning, and a wrapping complete reference. Native checks retain distinct identities for same-name customers, open the correct archived details, and keep references inside 1280- and 500-pixel windows. Financial history and issued PDF hashes remain unchanged; Debug builds cleanly. See [customer list presentation checks](customer-list-presentation.md).
