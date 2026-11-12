@@ -1,5 +1,7 @@
 using Microsoft.UI.Xaml.Controls;
 using SarahBeauty.Business.Storage;
+using SarahBeauty.Business.Security;
+using SarahBeauty_Desktop.Storage;
 using SarahBeauty_Desktop.Views;
 
 namespace SarahBeauty_Desktop;
@@ -21,6 +23,25 @@ public sealed partial class MainPage
     }
     private void ShowMissingLive()
     {
-        HideOwnerContent();var panel=Form.Panel();var status=Form.Text();panel.Add(Form.Title("Open your LIVE business"),Form.Text("No saved LIVE business was found. Review and activate a complete LIVE recovery archive, or choose TEST for practice."),WorkspaceChoiceAction(status),RecoveryActions(),status);ShowPanel(panel);
+        HideOwnerContent();var panel=Form.Panel();var status=Form.Text();panel.Add(Form.Title("Open your LIVE business"),Form.Text("No saved LIVE business was found. Create a clean new business, review a complete LIVE recovery archive, or choose TEST for practice."),
+            Form.Action("Create a clean LIVE business",status,()=>{ShowLiveCreation();return Task.CompletedTask;}),WorkspaceChoiceAction(status),RecoveryActions(),status);ShowPanel(panel);
+    }
+    private void ShowLiveCreation()
+    {
+        HideOwnerContent();var panel=Form.Panel();var status=Form.Text();panel.Add(Form.Action("Back to LIVE opening",status,()=>{OpenCurrentStore();return Task.CompletedTask;}),new LiveBusinessCreationView(AppDataPaths.GetLiveFolder(),result=>EnterAuthenticatedStore(result.Store,result.Owner)).Build(),status);ShowPanel(panel);
+    }
+    private void EnterAuthenticatedStore(BusinessStore store,OwnerSession owner)
+    {
+        bool retained=false;
+        try
+        {
+            if(_stoppingOwnerActivity||store.Mode!=_mode)return;var access=new OwnerAccess(store);if(!access.IsSessionCurrent(owner))return;
+            StopBackups();HideOwnerContent();_store=store;_access=access;_session=owner;_ownerActivity=new(access,owner);StartBackups();ShowWorkspace();retained=true;
+        }
+        finally{if(!retained){owner.Lock();if(ReferenceEquals(_session,owner)){_session=null;_ownerActivity=null;}}}
+    }
+    private void StartBackups()
+    {
+        _backupRuntime=new(_store!);_googleRuntime=new(_store!);_sheetsRuntime=new(_store!);
     }
 }

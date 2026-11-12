@@ -12,9 +12,7 @@ public sealed partial class LiveBusinesses(string parent)
 
     public CreatedLiveBusiness Create(BusinessProfile profile,string firstName,string firstPhrase,string secondName,string secondPhrase,string reason,CancellationToken cancellation=default)
     {
-        cancellation.ThrowIfCancellationRequested();profile=LiveSetupPolicy.ForCreation(profile);
-        var change=BusinessProfileRules.NormalizeChange(new(0,profile,reason));OwnerAccess.RequireSetup(profile.DisplayName,firstName,firstPhrase,secondName,secondPhrase);
-        if(new[]{profile.Formation,profile.EinReview,profile.Banking,profile.Tax}.Any(r=>r.Evidence is not null))throw new ArgumentException("Add evidence to the new LIVE business after creation. Files from another business cannot be reused.");
+        cancellation.ThrowIfCancellationRequested();var change=LiveBusinessCreationRules.Review(profile,firstName,firstPhrase,secondName,secondPhrase,reason);profile=change.Profile;
         var stage=new LiveCreationStage(parent);OwnerSession? owner=null;bool published=false;
         try
         {
