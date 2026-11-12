@@ -711,3 +711,9 @@ All 678 .NET cases pass, including seven focused credential cases: actual protec
 A bounded, side-effect-free parser now accepts the app's own downloaded Desktop/installed OAuth configuration and requires supported official Google endpoints. It rejects Web/service-account configuration, duplicate/missing fields, untrusted endpoints, malformed/invalid UTF-8 input, and oversized files. Internal display and error messages omit private configuration. It does not import connected-app tokens or perform authorization; PKCE/state/browser consent and connection controls follow separately.
 
 All eleven new parser cases pass. The latest completed full suite has 678 passing cases, including credential protection and the final archive-publication regression; the last Windows Debug build has no warnings/errors. See [Validate the app's Google desktop client](google-desktop-client.md).
+
+## Google PKCE and state-checked browser consent protocol
+
+The internal protocol now uses pinned Google.Apis.Auth 1.78.0 S256 PKCE, narrow drive.file scope, offline consent/account selection, one-use random state, exact 127.0.0.1 callback binding, and a five-minute cancellable deadline. The system browser uses Windows URL handling without a command shell. There is no disk token store in this protocol. Complete offline material and returned scope are checked; fixed errors omit provider/private content. Google SDK logging remains its default NullLogger, with no debug logging configured.
+
+All 700 .NET cases pass, including eleven protocol and eleven parser cases with an independent verifier/challenge comparison and the actual SDK loopback receiver with a fictional callback and no Google browser/account. Windows Debug has no warnings/errors; pinned/transitive license notices are present in output. Owner-authorized configuration/grant storage, UI controls, real consent, and cloud outputs follow separately. See [Authorize a Google desktop connection](google-oauth-protocol.md).
