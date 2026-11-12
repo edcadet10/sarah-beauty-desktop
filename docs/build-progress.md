@@ -2,7 +2,7 @@
 
 This file tracks the full application build requested on November 10, 2026. A component marked implemented still needs the release checks applicable to it. The app is not ready for live business use.
 
-Current feature head: historical invoice-void reads, schema 36, following retained quote decisions and recovery integration through PR #242. The complete local suite through #242 passes 1,323 Release cases. Twenty initial invoice/report cases and eighteen consumer cases pass separately. The public invoice-void command, readable decision history, and desktop controls remain in progress. Main merges remain incremental and are behind this feature stack. Historical sections below retain the results measured at their own step.
+Current feature head: historical invoice-void reads, schema 36, following retained quote decisions and recovery integration through PR #242. The complete local Release suite passes all 1,330 cases in 6m15. The public invoice-void command, readable decision history, and desktop controls remain in progress. Main merges remain incremental and are behind this feature stack. Historical sections below retain the results measured at their own step.
 
 | Area | Current state | Evidence or remaining work |
 |---|---|---|
@@ -1268,3 +1268,5 @@ The full schema-36 regression initially passed 1,321 cases and exposed two outda
 ## Historical invoice-void balances
 
 Three failing-before cases showed a later void erasing earlier customer balances, outstanding amounts and charged tax. Reads now use the retained decision's effective date. The original issued snapshot remains unchanged, and new backdated payment applications still reject a currently voided target. Twenty initial related cases and eighteen consumer cases pass; the latter include booking/captured export boundary agreement, receipt balance at issue date, blocked backdated approval, and missing-decision rejection. This step adds no public invoice-void command or native controls. See [Read balances before an invoice void](invoice-historical-void.md). The complete local regression through the parent decision/recovery step passes 1,323 tests in 5m55 after correcting two outdated migration fixtures; its hosted run is in progress. PR #169 passed both checks and merged; #170 is next against main.
+
+The complete local Release regression through [PR #243](https://github.com/edcadet10/sarah-beauty-desktop/pull/243) passes all 1,330 tests in 6m15, including archive/recovery cryptography. The next invoice-void command step separately rejects used invoices and overlapping replacement dates; it is not included in this result.
