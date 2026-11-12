@@ -1,0 +1,7 @@
+# Read captured tax amounts and filing facts
+
+The existing financial report's tax calculation now lives in a shared internal database/business/date reader. Charged, collected, refunded, remitted, liability, recoverable, cash-recovered, offset, and nonrecoverable amounts use the same formulas and source dates as before. The existing human report calls this reader after its owner check. The filing report also has an internal business-ID path using the shared record query and captured owner names.
+
+Previously authorized captured exports can read these facts without constructing or renewing a human session. Filing status remains a reviewed record; remittance and recovery do not file a return. This refactor does not establish tax eligibility or replace the owner's actual tax review. Other aggregate-range hardening remains separate work.
+
+Two new cases and twenty-one existing tax/recovery/filing/report cases pass in Release (23 targeted). They compare four months of actual invoice/receipt/refund/remittance facts with the human report, retain source figures after later writes/lock, and cover mixed refunded tax, a reviewed recovery write-off, and Not required filing history with unknown details. The initial write-off fixture omitted required evidence and was correctly rejected; it now supplies fictional reviewed evidence without weakening validation. Latest complete suite remains 909 before supplier/tax additions. Table projection follows separately.
