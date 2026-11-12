@@ -11,9 +11,10 @@ internal sealed class RecordStore<T>(BusinessStore store, string kind) where T :
         return List(db, session);
     });
 
-    internal List<T> List(DbWork db, OwnerSession session) => db.Read(
+    internal List<T> List(DbWork db, OwnerSession session) => ReadBusiness(db,session.BusinessId,kind);
+    internal static List<T> ReadBusiness(DbWork db,string businessId,string recordKind) => db.Read(
         "SELECT DataJson FROM Records WHERE BusinessId=$business AND Kind=$kind ORDER BY CreatedAtUtc,Id;",
-        r => JsonSerializer.Deserialize<T>(r.GetString(0))!, ("$business", session.BusinessId), ("$kind", kind));
+        r => JsonSerializer.Deserialize<T>(r.GetString(0))!, ("$business", businessId), ("$kind", recordKind));
 
     internal T Get(DbWork db, OwnerSession session, string id) =>
         db.Scalar("SELECT DataJson FROM Records WHERE Id=$id AND BusinessId=$business AND Kind=$kind;",

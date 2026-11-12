@@ -28,7 +28,7 @@ public sealed class FinancialReports(BusinessStore store)
         var debts=DebtSchedule.Read(db,store,owner,from,through);
         return new ReportSnapshot(business,mode,watermark,DateTimeOffset.UtcNow.ToString("O"),from,through,trial,pnl,balance,entries.Where(e=>cashAccounts.Contains(e.AccountId)).ToList(),
             CustomerPositions.Read(db,owner,through,versions),Tax(db,owner,from,through,trial,versions),OpeningWarnings(db,owner,trial))
-            {Entries=entries,SupplierBills=bills,Suppliers=SupplierPositions(db,owner,through,bills),Assets=AssetSchedule.Read(db,store,owner,from,through),
+            {Entries=entries,SupplierBills=bills,Suppliers=Finance.SupplierPositions.Read(db,owner.BusinessId,through,bills),Assets=AssetSchedule.Read(db,store,owner,from,through),
                 Debts=debts,Owners=OwnerSchedule.Read(db,owner,from,through,debts),Bookings=BookingContributionReports.Read(db,store,owner,from,through,versions),
                 TaxFilings=TaxFilingReports.Read(db,store,owner,from,through)};
     }
@@ -78,14 +78,6 @@ public sealed class FinancialReports(BusinessStore store)
         var loans=new RecordStore<Loan>(store,"Loan").List(db,owner).Where(l=>!l.Archived && l.OpeningPrincipalCents is null).Select(l=>l.Name+": opening principal unknown");
         var assets=new RecordStore<Asset>(store,"Asset").List(db,owner).Where(a=>!a.Archived && (a.CostCents is null || a.TaxBasisCents is null)).Select(a=>a.Name+": cost or tax basis unknown");
         return cash.Concat(loans).Concat(assets).ToArray();
-    }
-
-    private List<SupplierPosition> SupplierPositions(DbWork db,OwnerSession owner,DateOnly through,List<PurchaseDue> bills)
-    {
-        var suppliers=new RecordStore<Supplier>(store,"Supplier").List(db,owner);
-        return bills.GroupBy(b=>b.SupplierId).Select(group=>new SupplierPosition(group.Key,suppliers.Single(s=>s.Id==group.Key).Name,
-            group.Sum(b=>b.PayableCents),group.Where(b=>b.DueDate<through).Sum(b=>b.PayableCents),group.Where(b=>b.DueDate==through).Sum(b=>b.PayableCents),
-            group.Where(b=>b.DueDate>through).Sum(b=>b.PayableCents),group.Where(b=>b.DueDate is null).Sum(b=>b.PayableCents),group.Sum(b=>b.CreditCents))).ToList();
     }
 
 }

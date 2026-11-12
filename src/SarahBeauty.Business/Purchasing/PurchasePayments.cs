@@ -24,9 +24,10 @@ public sealed class PurchasePayments(BusinessStore store)
         return Outstanding(db,store,owner,date);
     });
 
-    internal static List<PurchaseDue> Outstanding(DbWork db,BusinessStore store,OwnerSession owner,DateOnly date)=>
-        new RecordStore<Purchase>(store,"Purchase").List(db,owner).Where(p=>p.Status=="Approved" && p.PurchaseDate<=date)
-            .Select(p=>PurchaseBalances.Due(db,store,owner,p,date)).ToList();
+    internal static List<PurchaseDue> Outstanding(DbWork db,BusinessStore store,OwnerSession owner,DateOnly date)=>Outstanding(db,owner.BusinessId,date);
+    internal static List<PurchaseDue> Outstanding(DbWork db,string businessId,DateOnly date)=>
+        RecordStore<Purchase>.ReadBusiness(db,businessId,"Purchase").Where(p=>p.Status=="Approved" && p.PurchaseDate<=date)
+            .Select(p=>PurchaseBalances.Due(db,businessId,p,date)).ToList();
 
     internal static FinancialDraft Prepare(DbWork db,BusinessStore store,OwnerSession owner,FinancialDraft draft)
     {
