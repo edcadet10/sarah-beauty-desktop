@@ -89,7 +89,7 @@ public sealed class CreditBook(BusinessStore store)
             INSERT INTO CustomerCredits (Id,BusinessId,CustomerId,PaymentId,IssueDate,IssuedCents,IssuedTaxCents,Reason,OwnerId,AtUtc)
             VALUES ($id,$business,$customer,$payment,$date,$cents,$tax,$reason,$owner,$at);
             """,("$id",draft.Id),("$business",owner.BusinessId),("$customer",source.CustomerId),("$payment",draft.PaymentId),
-            ("$date",draft.Date!.Value.ToString("yyyy-MM-dd")),("$cents",draft.Cents),("$tax",tax),("$reason",draft.Name),
+            ("$date",draft.Date!.Value.ToStorageDate()),("$cents",draft.Cents),("$tax",tax),("$reason",draft.Name),
             ("$owner",owner.OwnerId),("$at",DateTimeOffset.UtcNow.ToString("O")));
     }
 }
