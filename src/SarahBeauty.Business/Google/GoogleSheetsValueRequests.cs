@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Security.Cryptography;
 using SarahBeauty.Business.Exports;
 
 namespace SarahBeauty.Business.Google;
@@ -8,6 +9,14 @@ internal static class GoogleSheetsValueRequests
 {
     internal const int MaximumRequestBytes=1_500_000;
     private const int MaximumRanges=100,RangeEnvelopeReserve=512;
+
+    internal static byte[] CopyPayload(GoogleSheetsValueBatch batch,CancellationToken cancellation)
+    {
+        if(!Guid.TryParseExact(batch.GenerationId,"N",out var id)||id==Guid.Empty||batch.Watermark<0||batch.Rectangles.Count is <1 or >MaximumRanges||batch.Json.Length>MaximumRequestBytes)throw Limit();
+        var budget=new ReadableExportBudget(cancellation:cancellation);
+        var rectangles=batch.Rectangles.Select(r=>GoogleSheetsRequestShapes.Copy(r,budget)).ToArray();byte[] bytes=Serialize(rectangles);
+        if(bytes.Length>MaximumRequestBytes||!bytes.AsSpan().SequenceEqual(batch.Json.Span)){CryptographicOperations.ZeroMemory(bytes);throw Limit();}return bytes;
+    }
 
     internal static IEnumerable<GoogleSheetsValueBatch> Build(ReadableExportGeneration generation,CancellationToken cancellation=default)
     {
