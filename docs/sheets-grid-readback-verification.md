@@ -1,0 +1,9 @@
+# Verify the workbook, range, and literal grid contents
+
+The grid verifier requires the requested spreadsheet ID, sheet ID/title, and recorded row/column offsets before comparing cells. It checks every expected cell through the entered/effective literal verifier, rejects extra rows/columns, and preserves the position of omitted empty row/cell objects. Missing trailing content is accepted only where all corresponding expected values are blank.
+
+Unrequested sheet properties can appear without data. Grid data for an unrequested sheet, duplicate target sheets/grid blocks, malformed rows, duplicate known properties, wrong identity/offsets, and invalid expected rectangles fail verification. Omitted zero-valued offsets and sheet IDs follow the API's zero-based representation. Cancellation is checked before work and through the row loop. Errors contain no source cell values.
+
+The contract follows Google's [range-limited spreadsheet reads](https://developers.google.com/workspace/sheets/api/reference/rest/v4/spreadsheets/get), [GridData offsets and rows](https://developers.google.com/workspace/sheets/api/reference/rest/v4/spreadsheets/sheets#GridData), and [entered/effective cell values](https://developers.google.com/workspace/sheets/api/reference/rest/v4/spreadsheets/cells). Each invocation verifies one requested rectangle; HTTP response-size and read-chunk planning remain separate.
+
+Fourteen new Debug cases pass for exact typed grid data, omitted trailing blanks and zero fields, cancellation, changed workbook/sheet/title/offsets, extra rows/cells, formula/numeric types, missing values, foreign/duplicate grid data, and null rows. These are controlled JSON fixtures. No HTTP request or real Google readback occurred. Transport, schema, private creation, permission fences, durable jobs, completion publication, and desktop controls remain unfinished.

@@ -1097,3 +1097,9 @@ The planner verifies the captured generation, covers every header/data cell, use
 ## Typed literal cell verification
 
 Readback now has a small verifier for both entered and effective string values. It rejects formulas even when calculated text matches, numeric/bool/error conversions, changed/missing nonblank values, and ambiguous/duplicate/unexpected fields. Omitted cells are accepted only for expected blanks. Seventeen new Release cases plus four planner cases pass (21 targeted), including the explicit matching-result formula falsifier and fixed errors without cell contents. Latest full suite remains 999 before planner/literal additions. Range/offset/coverage verification, bounded grid reads, private schema/creation, durable jobs/worker/publication, scheduling/UI, and remaining full-build work continue. No HTTP request occurred. See [Verify entered and effective literal cell values](sheets-literal-cell-verification.md).
+
+The complete Release suite passed all 1,020 cases in 2 minutes 18 seconds. Windows Debug has zero warnings/errors. PR #145 passed both GitHub checks and merged; #146 is being checked against main.
+
+## Scoped grid readback verification
+
+The grid verifier now checks spreadsheet/sheet identity, title, expected offsets, rectangular bounds, row/cell coverage, and both entered/effective literal values. Missing trailing cells/rows are accepted only for expected blanks; extra, foreign, duplicate, malformed, shifted, formula, or numeric data is rejected. Fourteen new Debug cases pass; all thirty-five grid/literal/planner cases also pass in Release. Latest complete suite is 1,020 before these fourteen additions. These are controlled JSON fixtures, not real readback. Bounded read requests, transport/schema/private creation, permission/source fences, jobs/worker/publication, scheduling/UI, and remaining full-build work continue. See [Verify the workbook, range, and literal grid contents](sheets-grid-readback-verification.md).
