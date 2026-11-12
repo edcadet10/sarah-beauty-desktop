@@ -69,4 +69,11 @@ public sealed class GoogleOutputSettingsTests
         await Assert.ThrowsAsync<ArgumentException>(()=>f.Settings.SaveAsync(f.Ledger.Business.Owner,new(true,true,1)));var replacement=f.Settings.Current(f.Ledger.Business.Owner)!;Assert.Equal(2,replacement.Revision);Assert.False(replacement.DriveArchivesEnabled);Assert.False(replacement.SheetsExportEnabled);Assert.Equal(watermark+1,f.Watermark);
         f.Settings.VerifyFolder=(_,_,_)=>throw new GoogleConnectionFailure("GrantUnavailable","Fictional fixed rejection");await Assert.ThrowsAsync<GoogleConnectionFailure>(()=>f.Settings.SaveAsync(f.Ledger.Business.Owner,new(true,true,2)));Assert.Equal("Reconnect required",f.Connections.Current(f.Ledger.Business.Owner).Status);Assert.Equal(replacement,f.Settings.Current(f.Ledger.Business.Owner));Assert.Equal(watermark+1,f.Watermark);
     }
+    [Theory]
+    [InlineData(true,false)]
+    [InlineData(false,true)]
+    public async Task WithdrawingEitherOutputOfflineDoesNotRequireReauthorizingTheUnchangedOtherChoice(bool drive,bool sheets)
+    {
+        using var f=new Fixture();var created=await f.Create();var both=await f.Settings.SaveAsync(f.Ledger.Business.Owner,new(true,true,created.Revision));int calls=0;f.Settings.VerifyFolder=(_,_,_)=>{calls++;throw new IOException("Fictional offline verification");};var reduced=await f.Settings.SaveAsync(f.Ledger.Business.Owner,new(drive,sheets,both.Revision));Assert.Equal(drive,reduced.DriveArchivesEnabled);Assert.Equal(sheets,reduced.SheetsExportEnabled);Assert.Equal(0,calls);Assert.Equal(both.Revision+1,reduced.Revision);
+    }
 }
