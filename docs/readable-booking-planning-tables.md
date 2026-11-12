@@ -1,0 +1,7 @@
+# Project planning facts retained with reports
+
+Six source-bound tables retain booking/event facts, planned charges, named/unnamed recipient places, appointments, explicit appointment/place links, and snapshot coverage. Current facts come from the captured database; retained close facts keep their original names, revisions, status, and archive flags. These are recorded plans at capture, not a filter for currently active work or the financial report period.
+
+UTC appointment instants and original offsets remain separate alongside the recorded time zone. Unknown event dates, durations, and tax remain blank. Cancellation status does not erase the configured trial flag or other retained plan facts; assess status separately. Missing older snapshots are marked unretained and unsupported versions stop projection. Private booking/artist/appointment/product notes, override explanations, and raw snapshots stay out.
+
+Two Release cases pass for named/unnamed places, explicit ambiguous-hour offsets and UTC instants, artist names, recipient links, private-field exclusion, locked access, and retained plans beside later cancellation/archive/name changes. The initial fixture assumed cancellation cleared configured trial; the existing transition preserves that fact, and the assertion now matches the real record without changing behavior. Latest complete suite remains 937 before billing/planning additions. Dashboard groups and verified Sheets publication remain pending.
