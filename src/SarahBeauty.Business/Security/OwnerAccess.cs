@@ -10,6 +10,19 @@ public sealed class OwnerAccess(BusinessStore store)
     public List<(string Id, string Name)> Owners() => store.Read(db => db.Read(
         "SELECT Id,Name FROM Owners WHERE Active=1 ORDER BY Name;", r => (r.GetString(0), r.GetString(1))));
 
+    public bool IsSessionCurrent(OwnerSession session)
+    {
+        if(!session.IsActive)return false;
+        try{return store.Read(db=>{store.RequireCurrentSession(db,session);return true;});}
+        catch(UnauthorizedAccessException){return false;}
+    }
+    public bool TryRecordActivity(OwnerSession session)
+    {
+        if(!session.IsActive)return false;
+        try{return store.Read(db=>{store.RequireSession(db,session);return true;});}
+        catch(UnauthorizedAccessException){return false;}
+    }
+
     public OwnerSession Setup(string businessName, string firstName, string firstPhrase,
         string secondName, string secondPhrase)
     {
