@@ -1,3 +1,4 @@
+using System.Numerics;
 using SarahBeauty.Business.Security;
 using SarahBeauty.Business.Storage;
 
@@ -22,16 +23,17 @@ internal static class BalanceGuards
     {
         // Filters are fixed internal SQL fragments; all record values remain parameters.
         var amounts = db.Read($"""
-            SELECT M.Date,SUM(J.DebitCents-J.CreditCents) FROM JournalLines J
+            SELECT M.Date,J.DebitCents,J.CreditCents FROM JournalLines J
             JOIN Movements M ON M.Id=J.MovementId JOIN Accounts A ON A.Id=J.AccountId
             WHERE M.BusinessId=$business AND {accountFilter} AND {dimensionFilter}
-            GROUP BY M.Date ORDER BY M.Date;
-            """, r => (Date: r.GetString(0), Amount: r.GetInt64(1)), ("$business", owner.BusinessId), ("$dimension", dimension));
-        long balance = 0;
-        foreach (var amount in amounts)
+            ORDER BY M.Date;
+            """, r => (Date: r.GetString(0), Debit: r.GetInt64(1), Credit: r.GetInt64(2)), ("$business", owner.BusinessId), ("$dimension", dimension));
+        BigInteger balance = 0;
+        foreach (var day in amounts.GroupBy(v=>v.Date,StringComparer.Ordinal))
         {
-            balance = checked(balance + (creditNormal ? -amount.Amount : amount.Amount));
-            if (balance < 0) throw new ArgumentException($"{label} would become negative on {amount.Date}.");
+            BigInteger amount=day.Aggregate(BigInteger.Zero,(sum,line)=>sum+(BigInteger)line.Debit-line.Credit);
+            balance += creditNormal ? -amount : amount;
+            if (balance < 0) throw new ArgumentException($"{label} would become negative on {day.Key}.");
         }
     }
 }
