@@ -15,7 +15,7 @@ public sealed class GoogleArchiveHealthService(BusinessStore store)
     private readonly GoogleOutputSettings _settings=new(store);
     public GoogleArchiveHealth Current(OwnerSession owner)=>store.ReadSnapshot(db=>{store.RequireSession(db,owner);return Read(db);});
     internal GoogleArchiveHealth Current()=>store.ReadSnapshot(Read);
-    private GoogleArchiveHealth Read(DbWork db)
+    internal GoogleArchiveHealth Read(DbWork db)
     {
         string business=db.Read("SELECT Id FROM Business;",r=>r.GetString(0)).Single();long watermark=(long)db.Scalar("SELECT Watermark FROM Business WHERE Id=$id;",("$id",business))!;var policy=GoogleOutputRecords.Read(db,business,store.InstanceId);if(policy is null)return new("Not configured",watermark,null,null);
         var profile=RecoveryProfiles.Read(db,business);var deliveries=GoogleArchiveDeliveryRecords.Deliveries(db,business).Where(d=>d.InstanceId==store.InstanceId && d.ConnectionId==policy.ConnectionId && d.FolderId==policy.FolderId && d.FolderBinding==policy.FolderBinding && d.RecipientFingerprint==profile?.RecipientFingerprint).ToDictionary(d=>d.Id);
