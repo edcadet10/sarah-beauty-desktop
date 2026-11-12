@@ -6,6 +6,7 @@ namespace SarahBeauty.Business.Google;
 
 public sealed class GoogleArchiveDeliveries(BusinessStore store)
 {
+    private readonly GoogleOutputSettings _settings=new(store);
     public IReadOnlyList<GoogleArchiveDeliveryHistory> History(OwnerSession owner)=>store.ReadSnapshot(db=>
     {
         store.RequireSession(db,owner);var attempts=GoogleArchiveDeliveryRecords.Attempts(db,owner.BusinessId);return GoogleArchiveDeliveryRecords.Deliveries(db,owner.BusinessId).OrderByDescending(d=>d.CreatedAtUtc,StringComparer.Ordinal).ThenBy(d=>d.Id,StringComparer.Ordinal).Select(delivery=>new GoogleArchiveDeliveryHistory(delivery,attempts.Where(a=>a.DeliveryId==delivery.Id).OrderBy(a=>a.StartedAtUtc,StringComparer.Ordinal).ThenBy(a=>a.Id,StringComparer.Ordinal).ToArray())).ToArray();
@@ -21,9 +22,9 @@ public sealed class GoogleArchiveDeliveries(BusinessStore store)
         Require(db,permit,delivery);if(GoogleArchiveDeliveryRecords.Attempts(db,delivery.BusinessId).Any(a=>a.DeliveryId==delivery.Id && a.Status=="Running"))throw new GoogleConnectionFailure("GoogleArchiveBusy","A prior archive attempt is still running or needs interrupted-state review.");
         var attempt=new GoogleArchiveAttempt(1,Guid.NewGuid().ToString("N"),delivery.Id,delivery.BusinessId,store.InstanceId,permit.Policy.Revision,"Running",DateTimeOffset.UtcNow.ToString("O"));GoogleArchiveDeliveryRecords.Insert(db,attempt);return attempt;
     });
-    internal GoogleArchiveAttempt Complete(GoogleOutputPermit permit,GoogleArchiveDelivery delivery,GoogleArchiveAttempt attempt,GoogleUploadedArchive result)=>store.Transaction(db=>
+    internal GoogleArchiveAttempt Complete(GoogleOutputPermit permit,GoogleArchiveDelivery delivery,GoogleArchiveAttempt attempt,GoogleUploadedArchive result,CancellationToken cancellation=default)=>store.Transaction(db=>
     {
-        Require(db,permit,delivery);if(attempt.DeliveryId!=delivery.Id || attempt.PolicyRevision!=permit.Policy.Revision || result.FileId!=delivery.DriveFileId || result.ByteLength!=delivery.ByteLength || result.Sha256!=delivery.Sha256)throw GoogleArchiveUploadSpec.Unconfirmed();return Finish(db,attempt,"Succeeded",null);
+        cancellation.ThrowIfCancellationRequested();Require(db,permit,delivery);if(attempt.DeliveryId!=delivery.Id || attempt.PolicyRevision!=permit.Policy.Revision || result.FileId!=delivery.DriveFileId || result.ByteLength!=delivery.ByteLength || result.Sha256!=delivery.Sha256)throw GoogleArchiveUploadSpec.Unconfirmed();cancellation.ThrowIfCancellationRequested();return Finish(db,attempt,"Succeeded",null);
     });
     internal GoogleArchiveAttempt Fail(GoogleArchiveAttempt attempt,Exception error)=>store.Transaction(db=>Finish(db,attempt,error is OperationCanceledException?"Cancelled":"Failed",GoogleDeliveryFailures.Code(error)));
     internal void InterruptRunning(GoogleArchiveDelivery delivery)=>store.Transaction(db=>
@@ -38,7 +39,7 @@ public sealed class GoogleArchiveDeliveries(BusinessStore store)
     }
     private void RequirePermission(DbWork db,GoogleOutputPermit permit)
     {
-        if(permit.Kind!=GoogleOutputKind.DriveArchive)throw new UnauthorizedAccessException("Drive archive permission is required.");new GoogleOutputSettings(store).Require(db,permit);
+        if(permit.Kind!=GoogleOutputKind.DriveArchive)throw new UnauthorizedAccessException("Drive archive permission is required.");_settings.Require(db,permit);
     }
     private LocalBackupJob Source(DbWork db,GoogleOutputPermit permit,string id)
     {

@@ -3,7 +3,7 @@ namespace SarahBeauty.Business.Google;
 public sealed partial class GoogleConnections
 {
     internal bool ObserveFailure(GoogleAccessGrant grant,GoogleConnectionFailure failure)=>ObserveFailure(grant.Connection,failure);
-    private bool ObserveFailure(GoogleConnectionRecord expected,GoogleConnectionFailure failure)
+    internal bool ObserveFailure(GoogleConnectionRecord expected,GoogleConnectionFailure failure)
     {
         if(expected.BusinessId!=_business || expected.InstanceId!=_store.InstanceId || !GoogleConnectionIssues.RequiresConsent(failure.Code))return false;
         try

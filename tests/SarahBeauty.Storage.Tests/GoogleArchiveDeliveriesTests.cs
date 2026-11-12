@@ -12,13 +12,14 @@ public sealed class GoogleArchiveDeliveriesTests
     {
         internal readonly GoogleOutputSettingsTests.Fixture Google=new();
         internal LocalBackupJob Archive {get;private set;}=null!;
+        internal RecoveryMaterial Material {get;private set;}=null!;
         internal GoogleOutputPermit Permit=>Google.Settings.Authorize(GoogleOutputKind.DriveArchive);
         internal GoogleArchiveDeliveries Deliveries=>new(Google.Ledger.Business.Store);
-        internal static async Task<Fixture> Create()
+        internal static async Task<Fixture> Create(Action<LedgerFixture>? beforeArchive=null)
         {
             var f=new Fixture();try
             {
-                await f.Google.Create();await f.Google.Settings.SaveAsync(f.Google.Ledger.Business.Owner,new(true,false,1));var key=await new RecoveryCipher().CreateAsync(BusinessFixture.Phrase);await new RecoveryProfiles(f.Google.Ledger.Business.Store).RegisterAsync(f.Google.Ledger.Business.Owner,key.ProtectedIdentity,BusinessFixture.Phrase);
+                await f.Google.Create();await f.Google.Settings.SaveAsync(f.Google.Ledger.Business.Owner,new(true,false,1));f.Material=await new RecoveryCipher().CreateAsync(BusinessFixture.Phrase);await new RecoveryProfiles(f.Google.Ledger.Business.Store).RegisterAsync(f.Google.Ledger.Business.Owner,f.Material.ProtectedIdentity,BusinessFixture.Phrase);beforeArchive?.Invoke(f.Google.Ledger);
                 f.Archive=await new LocalBackups(f.Google.Ledger.Business.Store).CreateAsync(f.Google.Ledger.Business.Owner,Path.Combine(f.Google.Ledger.Business.Files.Folder,"fictional-google-source.age"));return f;
             }catch{f.Dispose();throw;}
         }
