@@ -1,6 +1,6 @@
 # Keep local archive history
 
-Status: Confirmed public recovery settings, manual and consent-bound automatic archive jobs, persistent history, coverage checks, and [desktop controls](desktop-local-backups.md) are implemented. The recurring worker and cloud outputs remain pending. Desktop restored-instance activation is documented [separately](active-test-store.md).
+Status: Confirmed public recovery settings, manual and consent-bound automatic archive jobs, persistent history, coverage checks, [desktop controls](desktop-local-backups.md), and [recurring local work](desktop-automatic-backups.md) are implemented. Cloud outputs remain pending. Desktop restored-instance activation is documented [separately](active-test-store.md).
 
 ## Confirm recovery material
 
@@ -24,6 +24,6 @@ Failures store a fixed code rather than private exception details. Failed/cancel
 
 `Health` compares the current business watermark with the greatest successfully captured watermark. Later changes remain Pending. A latest failure/cancellation remains visible alongside the last successful coverage and timestamp. Local archive success does not mark a Google Drive upload, readable Sheets export, or second-device restore test complete.
 
-Running means a job is active in this process. An older persisted Running record for this instance with no matching active job returns Needs review; the service does not claim that interrupted or external work is still executing. Current health counts only this writable instance's attempts. Unknown-instance and copied-instance attempts remain in history for review. Automatic restart recovery/retry and reasoned resolution of unconfirmed attempts follow with the worker/desktop controls. No older archive is automatically deleted.
+Running means a job is active in this process. An older persisted Running record for this instance with no matching active job returns Needs review; the service does not claim that interrupted or external work is still executing. Current health counts only this writable instance's attempts. Unknown-instance and copied-instance attempts remain in history for review. The exclusive automatic worker retains uncertain earlier automatic attempts as Interrupted/CompletionUnconfirmed before retrying. Manual unconfirmed attempts still need separate owner review. No older archive is automatically deleted.
 
 Seven fictional cases cover public-only/idempotent settings, wrong proof and foreign sessions, restart history, exact coverage without a watermark loop, later changes, session locking, failed/cancelled attempts, and published output with interrupted history.

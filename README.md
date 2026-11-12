@@ -28,9 +28,9 @@ The full build is in progress in small GitHub pull requests. The app remains in 
 
 The implemented local core includes two-owner sign-in and approvals, customers, service prices, bookings and recipient places, appointment planning and calendar review, combined cancellation decisions and history, versioned client documents and PDFs, bookkeeping, payment applications and funded credits, resource registers, supplier bills and refunds, statements, bank matching, reconciliation, and retained period close/reopen reports.
 
-The latest complete .NET suite has 667 passing cases, with four separate recovery-crypto test groups. The Windows Debug build succeeds with no warnings or errors. Fictional desktop walkthroughs cover selected workflows, local encrypted backups, and restart persistence. These checks do not establish full release acceptance or current Surface compatibility.
+The latest complete .NET suite has 670 passing cases, with four separate recovery-crypto test groups. The Windows Debug build succeeds with no warnings or errors. Fictional desktop walkthroughs cover selected workflows, manual/scheduled local encrypted backups, controlled TEST recovery activation, and restart persistence. These checks do not establish full release acceptance or current Surface compatibility.
 
-Remaining work includes managed-evidence selection within entry forms, portable encrypted backup/restore, the app's own Google authorization and exports, separate LIVE setup, owner-access and unsaved-work hardening, an installer, and full release/device checks. There is no published installer yet.
+Remaining work includes further managed-evidence selection within entry forms, retention controls and second-device recovery acceptance, the app's own Google authorization and exports, separate LIVE setup, owner-access and unsaved-work hardening, an installer, and full release/device checks. There is no published installer yet.
 
 The first target is a Surface Pro 7. Everyday work will happen locally on Windows. Google Sheets will hold a readable export, and private Google Drive storage will hold recovery backups. These are backups of the desktop records, not a second place to edit the books.
 

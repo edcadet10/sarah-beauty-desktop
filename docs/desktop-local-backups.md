@@ -1,6 +1,6 @@
 # Create an archive from the desktop
 
-Status: The Backups and recovery workspace supports protected recovery-file setup, manual local encrypted archives, persistent history, ciphertext verification, and [staged restore review](archive-restore.md). Scheduling, Google delivery, restore activation, and second-device acceptance follow separately.
+Status: The Backups and recovery workspace supports protected recovery-file setup, manual and [scheduled local archives](desktop-automatic-backups.md), persistent history, ciphertext verification, [staged restore review](archive-restore.md), and [controlled TEST activation](active-test-store.md). Google delivery and second-device acceptance remain pending.
 
 ## Save and confirm recovery material
 
@@ -38,4 +38,4 @@ The picker follows Microsoft's [Windows App SDK save-file guidance](https://lear
 
 Fictional native checks saved and confirmed protected material, validated field clearing, created/verified an archive with its file manifest, and retained history/dashboard coverage after restart. Wrong recovery proof was rejected; the saved file reconfirmed with the correct phrase. Changed ciphertext was rejected and its restored original verified again. An attempted overwrite preserved the earlier archive byte-for-byte, recorded failure, and retained earlier success.
 
-The latest full suite has 584 passing .NET cases and four separately passing Go groups. The Windows Debug build has no warnings/errors. These checks do not replace Surface interaction, offline release acceptance, or a restore on another Windows computer.
+The latest full suite has 670 passing .NET cases and four separately passing Go groups. The Windows Debug build has no warnings/errors. These checks do not replace Surface interaction, offline release acceptance, or a restore on another Windows computer.

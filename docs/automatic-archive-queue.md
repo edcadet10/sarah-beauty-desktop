@@ -1,6 +1,6 @@
 # Keep automatic archive work pending
 
-Status: The durable queue engine is implemented. Desktop scheduling controls and the recurring app-lifetime loop follow separately. This change alone does not start a recurring task.
+Status: The durable queue engine and [desktop app-lifetime scheduling](desktop-automatic-backups.md) are implemented. Explicit saved consent is required. Google delivery remains pending.
 
 ## Observe committed changes
 

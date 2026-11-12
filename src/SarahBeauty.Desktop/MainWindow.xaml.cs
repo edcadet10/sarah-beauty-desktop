@@ -12,6 +12,7 @@ namespace SarahBeauty_Desktop;
 /// </summary>
 public sealed partial class MainWindow : Window
 {
+    private bool _closing,_closeReady;
     public MainWindow()
     {
         InitializeComponent();
@@ -23,5 +24,12 @@ public sealed partial class MainWindow : Window
 
         // Navigate the root frame to the main page on startup.
         RootFrame.Navigate(typeof(MainPage));
+        AppWindow.Closing+=CloseAfterBackups;
+    }
+    private async void CloseAfterBackups(Microsoft.UI.Windowing.AppWindow sender,Microsoft.UI.Windowing.AppWindowClosingEventArgs args)
+    {
+        if(_closeReady)return;args.Cancel=true;if(_closing)return;_closing=true;
+        try{if(RootFrame.Content is MainPage page)await page.StopBackupsAsync();}
+        finally{_closeReady=true;Close();}
     }
 }
