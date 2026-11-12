@@ -1111,3 +1111,5 @@ Per-table read plans now verify/freeze source content, split rows and wide colum
 ## Reject malformed readable Unicode
 
 The shared readable text budget now uses strict UTF-8 byte counting and rejects invalid surrogate sequences before freezing/serialization. Both lone-surrogate cases failed before the fix; a temporary actual JSON experiment also confirmed changed round-trip strings. Three committed cases plus 45 related file/Sheets cases pass in Release (48 targeted), including exact staged emoji/composed/decomposed-accent/replacement-character preservation. Valid text and digests are unchanged; existing records are not rewritten, and other entry/import boundaries remain outside this fix. Latest full suite is 1,020; another complete run and Windows Debug build are running. Google transport/privacy/schema, jobs/worker/publication, scheduling/UI, and remaining full-build work continue. See [Reject malformed Unicode before readable serialization](readable-unicode-validation.md).
+
+The complete Release suite now passes all 1,039 cases in 2 minutes 14 seconds. Windows Debug has zero warnings/errors.
