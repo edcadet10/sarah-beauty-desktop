@@ -14,8 +14,8 @@ internal static class ReadableCustomerReportTables
         var coverage=new ReadableTableBuilder(source,budget,"Customer report detail coverage","ReportId","BusinessId","AggregateBalances","InvoiceMilestoneDetails","PaymentAndCreditDetails");
         var versions=DocumentVersions.List(db,source.BusinessId);
         foreach(var row in CustomerPositions.Read(db,source.BusinessId,through,versions))AddBalance(balances,current,source.BusinessId,row);
-        foreach(var version in versions.Where(v=>v.Snapshot.Kind==DocumentKind.Invoice&&v.Status!="Void").OrderBy(v=>v.Id))
-            foreach(var row in ValueAvailability.Invoice(db,source.BusinessId,version.Id,through))dues.Add(current,source.BusinessId,row.InvoiceVersionId,row.Number,row.CustomerId,row.CustomerName,row.MilestoneId,row.Kind,row.DueDate,row.Cents,row.TaxCents);
+        foreach(var version in versions.Where(v=>v.Snapshot.Kind==DocumentKind.Invoice&&InvoiceVisibility.At(db,source.BusinessId,v,through)).OrderBy(v=>v.Id))
+            foreach(var row in ValueAvailability.InvoiceAsOf(db,source.BusinessId,version.Id,through))dues.Add(current,source.BusinessId,row.InvoiceVersionId,row.Number,row.CustomerId,row.CustomerName,row.MilestoneId,row.Kind,row.DueDate,row.Cents,row.TaxCents);
         ReadableFinancialSources.ForEachPosted(db,source,(value,audit)=>
         {
             if(value.Date>through||value.Kind is not(FinancialKind.Receipt or FinancialKind.UnclassifiedReceipt or FinancialKind.ReceiptClassification))return;

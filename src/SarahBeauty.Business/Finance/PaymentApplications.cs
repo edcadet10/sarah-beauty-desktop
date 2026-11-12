@@ -17,8 +17,8 @@ public sealed class PaymentApplications(BusinessStore store)
     public List<InvoiceDue> Outstanding(OwnerSession owner,DateOnly date)=>store.Read(db=>
     {
         store.RequireSession(db,owner);
-        return DocumentVersions.List(db,owner).Where(v=>v.Snapshot.Kind==DocumentKind.Invoice && v.Status!="Void")
-            .SelectMany(v=>ValueAvailability.Invoice(db,owner,v.Id,date)).ToList();
+        return DocumentVersions.List(db,owner).Where(v=>v.Snapshot.Kind==DocumentKind.Invoice && InvoiceVisibility.At(db,owner.BusinessId,v,date))
+            .SelectMany(v=>ValueAvailability.InvoiceAsOf(db,owner.BusinessId,v.Id,date)).ToList();
     });
 
     public PaymentApplicationDraft SaveDraft(OwnerSession owner,PaymentApplicationDraft draft)
