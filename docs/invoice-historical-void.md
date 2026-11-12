@@ -1,6 +1,6 @@
 # Read balances before an invoice void
 
-An invoice's retained void decision has an effective date. Dated customer balances, charged tax, booking billing, outstanding amounts, readable customer rows, and newly issued receipt balances include the invoice before that date and exclude it on or after that date. The issued snapshot stays unchanged.
+An invoice's retained void decision has an effective date. Dated customer balances, booking billing, outstanding amounts, readable customer rows, and newly issued receipt balances include the invoice before that date and exclude it on or after that date. Tax reports retain the original charge in its issue period and a separate reduction in its void period. The issued snapshot stays unchanged.
 
 A historical read does not authorize a new payment application or credit note against a currently voided invoice. Those write paths continue to require a current issued invoice. A voided invoice without its verified retained decision fails with a review message instead of inventing an effective date.
 

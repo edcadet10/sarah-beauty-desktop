@@ -19,8 +19,8 @@ internal static class TaxReportKernel
             AND (M.Kind='Refund' OR (M.Kind='Reversal' AND O.Kind='Refund'));
             """,r=>r.GetInt64(0),("$business",businessId),("$from",from.ToStorageDate()),("$through",through.ToStorageDate()));
         var recovery=TaxRecoveryActivity(db,businessId,from,through);
-        return new(documents.Where(v=>v.Snapshot.Kind==DocumentKind.Invoice && InvoiceVisibility.At(db,businessId,v,through)).Sum(v=>v.Snapshot.TaxCents),
-            documents.Where(v=>v.Snapshot.Kind==DocumentKind.CreditNote).Sum(v=>v.Snapshot.TaxCents),tax.Where(t=>t.Kind is "Receipt" or "AssetDisposal" or "ReceiptClassification").Sum(t=>t.Cents),
+        return new(documents.Where(v=>v.Snapshot.Kind==DocumentKind.Invoice).Sum(v=>v.Snapshot.TaxCents),
+            checked(documents.Where(v=>v.Snapshot.Kind==DocumentKind.CreditNote).Sum(v=>v.Snapshot.TaxCents)+VoidedInvoiceTax(db,businessId,from,through,versions)),tax.Where(t=>t.Kind is "Receipt" or "AssetDisposal" or "ReceiptClassification").Sum(t=>t.Cents),
             refunds.Sum(),-tax.Where(t=>t.Kind=="TaxRemittance").Sum(t=>t.Cents),
             -trial.Where(r=>r.Account.Code=="2000").Sum(r=>r.Ending))
         {
@@ -30,6 +30,15 @@ internal static class TaxReportKernel
             NonrecoverableCents=trial.Where(r=>r.Account.Code=="5050").Sum(r=>r.Debits-r.Credits)
         };
     }
+
+    private static long VoidedInvoiceTax(DbWork db,string businessId,DateOnly from,DateOnly through,List<DocumentVersion> versions)=>versions
+        .Where(v=>v.Snapshot.Kind==DocumentKind.Invoice&&v.Status=="Void")
+        .Sum(v=>
+        {
+            var decision=DocumentDecisionQueries.Read(db,businessId,v.Id).SingleOrDefault();
+            if(decision is not{Action:DocumentDecisionAction.VoidInvoice})throw new InvalidDataException("Review the invoice's retained void decision before using its tax-charge history.");
+            return decision.DecisionDate>=from&&decision.DecisionDate<=through?v.Snapshot.TaxCents:0;
+        });
 
     private static List<(string Destination,long Cents)> TaxRecoveryActivity(DbWork db,string businessId,DateOnly from,DateOnly through)=>db.Read("""
         SELECT json_extract(CASE WHEN M.Kind='Reversal' THEN O.DataJson ELSE M.DataJson END,'$.TaxRecoveryDestination'),
