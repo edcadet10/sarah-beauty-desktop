@@ -1,5 +1,9 @@
 # Build progress
 
+## Current bundled and installed UI — November 12, 2026
+
+The current emerald UI publishes as an untrimmed self-contained Windows x64 bundle. Native bundled/installed checks retain customer details, cancellation/PDF and reopened reconciliation, exact balances, charts, and second-owner restart. All 574 installed file hashes match; install/uninstall preserve business bytes and unrelated files. See [current preview evidence](current-release-preview.md). This unsigned private preview is not released; full acceptance, clean-machine/device, signing, recovery, and real Google checks remain pending.
+
 ## Chart color and legend checks — November 12, 2026
 
 All four original colored legend labels failed normal-text contrast on the light surface; orange also failed plot contrast. Legends now use readable text/swatches, column series have matching numbers, and shapes/axes use theme resources. All 66 palette checks pass. Native light/dark column, line/point, bar, and owner renders were inspected with unchanged financial history/PDFs. See [chart contrast checks](chart-theme-contrast.md). Runtime theme switching, Windows contrast themes, and broader accessibility/device acceptance remain pending.
