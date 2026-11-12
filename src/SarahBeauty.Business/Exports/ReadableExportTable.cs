@@ -21,16 +21,19 @@ internal sealed class ReadableExportBudget(long maximumCells=1_000_000,long maxi
 }
 internal sealed class ReadableTableBuilder
 {
-    private readonly ReadableExportSource _source;
+    private readonly string _generationId;
+    private readonly long _watermark;
     private readonly ReadableExportBudget _budget;
     private readonly string _name;
     private readonly string[] _columns;
     private readonly List<IReadOnlyList<string>> _rows=[];
     private bool _finished;
     internal ReadableTableBuilder(ReadableExportSource source,ReadableExportBudget budget,string name,params string[] columns)
+        :this(source.GenerationId,source.Watermark,budget,name,columns){}
+    internal ReadableTableBuilder(string generationId,long watermark,ReadableExportBudget budget,string name,params string[] columns)
     {
         if(string.IsNullOrWhiteSpace(name)||name.Length>64||name.Any(c=>!char.IsAsciiLetterOrDigit(c)&&c is not(' ' or '_' or '-')) || columns.Length is <1 or >128 || columns.Any(c=>string.IsNullOrWhiteSpace(c)||c.Length>100||c.Any(char.IsControl)) || columns.Distinct(StringComparer.OrdinalIgnoreCase).Count()!=columns.Length)throw new ArgumentException("Choose a supported unique readable table and column schema.");
-        if(!Guid.TryParseExact(source.GenerationId,"N",out _)||source.Watermark<0)throw new ArgumentException("A readable table needs its captured generation and watermark.");_source=source;_budget=budget;_name=name;_columns=columns.ToArray();_budget.Consume(_columns);
+        if(!Guid.TryParseExact(generationId,"N",out _)||watermark<0)throw new ArgumentException("A readable table needs its captured generation and watermark.");_generationId=generationId;_watermark=watermark;_budget=budget;_name=name;_columns=columns.ToArray();_budget.Consume(_columns);
     }
     internal void Add(params object?[] values)
     {
@@ -38,7 +41,7 @@ internal sealed class ReadableTableBuilder
     }
     internal ReadableExportTable Freeze()
     {
-        if(_finished)throw new InvalidOperationException("The readable table is already frozen.");_finished=true;var columns=Array.AsReadOnly(_columns);var rows=Array.AsReadOnly(_rows.ToArray());byte[] bytes=JsonSerializer.SerializeToUtf8Bytes(new{_source.GenerationId,_source.Watermark,Name=_name,Columns=columns,Rows=rows});return new(_source.GenerationId,_source.Watermark,_name,columns,rows,Convert.ToHexString(SHA256.HashData(bytes)));
+        if(_finished)throw new InvalidOperationException("The readable table is already frozen.");_finished=true;var columns=Array.AsReadOnly(_columns);var rows=Array.AsReadOnly(_rows.ToArray());byte[] bytes=JsonSerializer.SerializeToUtf8Bytes(new{GenerationId=_generationId,Watermark=_watermark,Name=_name,Columns=columns,Rows=rows});return new(_generationId,_watermark,_name,columns,rows,Convert.ToHexString(SHA256.HashData(bytes)));
     }
     private static string Cell(object? value)=>value switch
     {
