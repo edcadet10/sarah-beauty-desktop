@@ -79,6 +79,6 @@ internal sealed class InvoiceView(BusinessStore store,OwnerSession owner)
     private void ShowIssued(DocumentVersion version)
     {
         _detail.Children.Clear();
-        _detail.Add(Form.Title(version.ToString()),QuoteView.Snapshot(version.Snapshot),PdfArtifactView.Build(store,owner,version.Id));
+        _detail.Add(Form.Title(version.ToString()),QuoteView.Snapshot(version.Snapshot),PdfArtifactView.Build(store,owner,version.Id),Form.Text("Open Document decisions to review retained history or void an unused invoice. Invoices with payment or credit-note history require linked adjustments."));
     }
 }
