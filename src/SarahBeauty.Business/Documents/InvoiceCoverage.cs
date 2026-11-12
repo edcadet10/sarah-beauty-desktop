@@ -95,7 +95,7 @@ internal static class InvoiceCoverage
             SaveLine(db,quote,invoice.Id,line);
         foreach(var milestone in invoice.Snapshot.Milestones)
             db.Execute("INSERT INTO InvoiceMilestones (Id,InvoiceVersionId,Kind,Cents,DueDate) VALUES ($id,$invoice,$kind,$cents,$due);",
-                ("$id",Guid.NewGuid().ToString()),("$invoice",invoice.Id),("$kind",milestone.Kind),("$cents",milestone.Cents),("$due",milestone.DueDate?.ToString("yyyy-MM-dd")));
+                ("$id",Guid.NewGuid().ToString()),("$invoice",invoice.Id),("$kind",milestone.Kind),("$cents",milestone.Cents),("$due",milestone.DueDate?.ToStorageDate()));
         db.Execute("INSERT INTO BillingState (BookingId,Generation) VALUES ($id,1) ON CONFLICT(BookingId) DO UPDATE SET Generation=Generation+1;",("$id",quote.BookingId));
     }
 
