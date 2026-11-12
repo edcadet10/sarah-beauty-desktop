@@ -9,11 +9,12 @@ internal static class OwnerSchedule
     internal const string LoanLender="Captured loan lender";
     internal const string ConfirmedLoan="Captured owner lender confirmed";
 
-    internal static OwnerScheduleSnapshot Read(DbWork db,OwnerSession owner,DateOnly from,DateOnly through,DebtScheduleSnapshot debts)
+    internal static OwnerScheduleSnapshot Read(DbWork db,OwnerSession owner,DateOnly from,DateOnly through,DebtScheduleSnapshot debts)=>Read(db,owner.BusinessId,from,through,debts);
+    internal static OwnerScheduleSnapshot Read(DbWork db,string businessId,DateOnly from,DateOnly through,DebtScheduleSnapshot debts)
     {
         var owners=db.Read("SELECT Id,Name,Active FROM Owners WHERE BusinessId=$business ORDER BY Name,Id;",
-            r=>(Id:r.GetString(0),Name:r.GetString(1),Active:r.GetInt32(2)==1),("$business",owner.BusinessId));
-        var entries=Entries(db,owner,through);
+            r=>(Id:r.GetString(0),Name:r.GetString(1),Active:r.GetInt32(2)==1),("$business",businessId));
+        var entries=Entries(db,businessId,through);
         entries.AddRange(debts.Entries.Where(e=>e.CapturedLender?.OwnerLenderId.Length>0).Select(e=>new OwnerScheduleEntry(
             e.CapturedLender!.OwnerLenderId,e.MovementId,e.Date,e.Kind,e.EffectiveKind,e.Memo,e.AccountCode,e.AccountName,e.DebitCents,e.CreditCents,LoanLender,e.LoanId)));
         var loans=debts.Positions.Select(p=>LoanBalance(p,debts.Entries.Where(e=>e.LoanId==p.CurrentFacts.LoanId && e.AccountCode=="2300").ToList())).ToList();
@@ -50,7 +51,7 @@ internal static class OwnerSchedule
         return ids[0].Length==0?Result("","No owner-lender link captured"):Result(ids[0],ConfirmedLoan);
     }
 
-    private static List<OwnerScheduleEntry> Entries(DbWork db,OwnerSession owner,DateOnly through)=>db.Read("""
+    private static List<OwnerScheduleEntry> Entries(DbWork db,string businessId,DateOnly through)=>db.Read("""
         SELECT COALESCE(M.OwnerId,''),M.Id,M.Date,M.Kind,CASE WHEN M.Kind='Reversal' THEN O.Kind ELSE M.Kind END,M.Memo,
             A.Code,A.Name,J.DebitCents,J.CreditCents FROM Movements M JOIN JournalLines J ON J.MovementId=M.Id
         JOIN Accounts A ON A.Id=J.AccountId LEFT JOIN Movements O ON O.Id=M.ReversesId
@@ -59,5 +60,5 @@ internal static class OwnerSchedule
                 WHERE K.MovementId=M.Id AND B.Code IN('3000','3100','2100')))) ORDER BY M.Date,M.rowid,J.rowid;
         """,r=>new OwnerScheduleEntry(r.GetString(0),r.GetString(1),DateOnly.Parse(r.GetString(2)),r.GetString(3),r.GetString(4),r.GetString(5),
             r.GetString(6),r.GetString(7),r.GetInt64(8),r.GetInt64(9),OwnerLedger),
-        ("$business",owner.BusinessId),("$through",through.ToString("yyyy-MM-dd")));
+        ("$business",businessId),("$through",through.ToString("yyyy-MM-dd")));
 }
