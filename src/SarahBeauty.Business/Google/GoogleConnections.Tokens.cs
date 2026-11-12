@@ -23,6 +23,11 @@ public sealed partial class GoogleConnections
     {
         var loaded=Load()??throw NotConnected();cancellation.ThrowIfCancellationRequested();if(Fresh(loaded.Token))return new(loaded.Connection,loaded.Token.AccessToken);
         using var lease=await RefreshLease(cancellation).ConfigureAwait(false);loaded=Load()??throw NotConnected();cancellation.ThrowIfCancellationRequested();if(Fresh(loaded.Token))return new(loaded.Connection,loaded.Token.AccessToken);
+        try{return await RenewAccess(loaded,cancellation).ConfigureAwait(false);}
+        catch(GoogleConnectionFailure error){ObserveFailure(loaded.Connection,error);throw;}
+    }
+    private async Task<GoogleAccessGrant> RenewAccess(LoadedGoogleGrant loaded,CancellationToken cancellation)
+    {
         var renewed=await Renew(loaded.Client.Client,loaded.Token.RefreshToken,cancellation).ConfigureAwait(false);renewed.RefreshToken??=loaded.Token.RefreshToken;
         var material=GoogleGrantPayload.Create(renewed,loaded.Connection.Id,loaded.Connection.ConfigurationId);var account=await VerifyAccount(material.AccessToken,cancellation).ConfigureAwait(false);
         if(account.Account.PermissionId!=loaded.Connection.Account.Account.PermissionId)throw new GoogleConnectionFailure("GoogleAccountChanged","Google token renewal returned another account. Reconnect the intended account.");

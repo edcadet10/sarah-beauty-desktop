@@ -24,6 +24,7 @@ internal static class GoogleConnectionRecords
     internal static void RequireConsent(DbWork db,GoogleConnectionRecord record)
     {
         if(record.Status!="Connected" || Read(db,record.BusinessId,record.InstanceId)!=record || GoogleClientRecords.Read(db,record.BusinessId,record.InstanceId)?.Id!=record.ConfigurationId || db.Scalar("SELECT Id FROM Owners WHERE Id=$owner AND BusinessId=$business AND Active=1;",("$owner",record.ConnectedBy),("$business",record.BusinessId)) is null)throw new GoogleConnectionFailure("GoogleConsentUnavailable","The saved Google connection permission changed. Review the current connection.");
+        GoogleConnectionIssues.RequireClear(db,record);
     }
     internal static void Save(DbWork db,GoogleConnectionRecord value)=>db.Execute("INSERT INTO AppMetadata(Key,Value) VALUES($key,$json) ON CONFLICT(Key) DO UPDATE SET Value=excluded.Value;",("$key",Key(value.BusinessId,value.InstanceId)),("$json",JsonSerializer.Serialize(value)));
 }
