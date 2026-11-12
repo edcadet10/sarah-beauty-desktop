@@ -11,12 +11,14 @@ internal sealed class GoogleArchiveTestServer(GoogleOutputPolicy policy):HttpMes
     private JsonObject? _metadata;
     internal int ContentWrites,Calls,Generated;
     internal bool AddGroup;
+    internal bool Offline;
+    internal HttpStatusCode? ErrorStatus;
     internal byte[] Received=>_received.ToArray();
     private static JsonObject Private(string id,string mime)=>new(){["id"]=id,["mimeType"]=mime,["ownedByMe"]=true,["shared"]=false,["trashed"]=false,["owners"]=new JsonArray(new JsonObject{["permissionId"]="fictional-permission-id"}),["permissions"]=new JsonArray(new JsonObject{["id"]="fictional-permission-id",["type"]="user",["role"]="owner"})};
     private static HttpResponseMessage Json(JsonNode body)=>new(HttpStatusCode.OK){Content=new StringContent(body.ToJsonString())};
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,CancellationToken cancellation)
     {
-        cancellation.ThrowIfCancellationRequested();Calls++;Assert.Equal("www.googleapis.com",request.RequestUri!.Host);Assert.Equal("Fictional-TEST-access-token",request.Headers.Authorization?.Parameter);string path=request.RequestUri.AbsolutePath;
+        cancellation.ThrowIfCancellationRequested();Calls++;if(Offline)throw new HttpRequestException("Fictional private offline diagnostic");if(ErrorStatus is HttpStatusCode status)return new(status){Content=new StringContent("{\"error\":{\"message\":\"Fictional private quota detail\"}}")};Assert.Equal("www.googleapis.com",request.RequestUri!.Host);Assert.Equal("Fictional-TEST-access-token",request.Headers.Authorization?.Parameter);string path=request.RequestUri.AbsolutePath;
         if(path.EndsWith("/generateIds",StringComparison.Ordinal))return Json(new JsonObject{["ids"]=new JsonArray("fictional-generated-"+(++Generated))});
         if(path=="/drive/v3/files/"+policy.FolderId)
         {
