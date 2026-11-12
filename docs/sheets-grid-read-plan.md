@@ -1,0 +1,9 @@
+# Plan bounded typed-grid read requests
+
+The read planner verifies and freezes each source table, then splits its header/data into exact A1 rectangles. It budgets both entered and effective string values, allowing up to six JSON escape bytes per UTF-16 code unit in each copy, typed-cell wrapper overhead, row wrappers, and a 4 KiB response envelope. Each rectangle has an estimated response size of at most 1,000,000 bytes. Large rows split by column; ordinary tables split by row.
+
+Requests use a fixed HTTPS Sheets endpoint, an escaped workbook ID, an explicit range, and a field mask containing spreadsheet/sheet identity, offsets, and entered/effective values. `prettyPrint=false` requests compact JSON, as described in Google's [system parameters](https://docs.cloud.google.com/apis/docs/system-parameters). No cell values or access tokens appear in the query. The query itself grants no access; the future transport must obtain and recheck authorization.
+
+The estimate is an app planning bound for the documented response shape, not a measured guarantee about every Google response. The shared HTTP layer's independent 2 MiB hard response limit remains authoritative. The future transport must handle an unsupported/oversized response without marking the generation complete. See [range-limited reads and field masks](https://developers.google.com/workspace/sheets/api/reference/rest/v4/spreadsheets/get).
+
+Two new Debug cases pass for exact nonoverlapping coverage of all 256 cells in a maximum escaped row including its header, conservative estimates versus actual simulated typed-response bytes, complete typed-grid verification, ordinary row splits, fixed endpoints/field masks/ranges, absent credentials/cell values in URLs, cancellation, and a rejected altered table digest. These are controlled fixtures; no HTTP request or real Google readback occurred. Transport, privacy fences, schema, durable jobs, completion publication, and UI remain unfinished.
