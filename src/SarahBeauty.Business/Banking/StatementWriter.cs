@@ -14,7 +14,7 @@ internal static class StatementWriter
         db.Execute("""
             INSERT INTO StatementImports (Id,BusinessId,AccountId,PeriodStart,PeriodEnd,OpeningCents,ClosingCents,ContentHash,MappingJson,SourceHash,PayloadHash,RequestId,ApprovedBy,AtUtc,EvidenceId)
             VALUES ($id,$business,$account,$from,$through,$opening,$closing,$content,$mapping,$source,$payload,$request,$owner,$at,$evidence);
-            """,("$id",id),("$business",owner.BusinessId),("$account",draft.AccountId),("$from",draft.From.ToString("yyyy-MM-dd")),("$through",draft.Through.ToString("yyyy-MM-dd")),
+            """,("$id",id),("$business",owner.BusinessId),("$account",draft.AccountId),("$from",draft.From.ToStorageDate()),("$through",draft.Through.ToStorageDate()),
             ("$opening",draft.OpeningCents),("$closing",draft.ClosingCents),("$content",draft.Source.ContentHash.Length==0?null:draft.Source.ContentHash),
             ("$mapping",draft.Source.MappingJson),("$source",sourceHash),("$payload",payloadHash),("$request",request),("$owner",owner.OwnerId),("$at",at),("$evidence",draft.EvidenceId));
         failure?.Invoke("statement-header");
@@ -32,7 +32,7 @@ internal static class StatementWriter
             db.Execute("""
                 INSERT INTO BankLines (Id,BusinessId,AccountId,Date,SignedCents,Description,Reference,ReliableReference)
                 VALUES ($id,$business,$account,$date,$amount,$description,$reference,$reliable);
-                """,("$id",line),("$business",owner.BusinessId),("$account",account),("$date",row.Date.ToString("yyyy-MM-dd")),("$amount",row.SignedCents),
+                """,("$id",line),("$business",owner.BusinessId),("$account",account),("$date",row.Date.ToStorageDate()),("$amount",row.SignedCents),
                 ("$description",row.Description),("$reference",row.Reference),("$reliable",row.ReliableReference?1:0));
         }
         failure?.Invoke("bank-line");
