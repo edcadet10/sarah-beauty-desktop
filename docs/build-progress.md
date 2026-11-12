@@ -1,5 +1,9 @@
 # Build progress
 
+## Chart color and legend checks — November 12, 2026
+
+All four original colored legend labels failed normal-text contrast on the light surface; orange also failed plot contrast. Legends now use readable text/swatches, column series have matching numbers, and shapes/axes use theme resources. All 66 palette checks pass. Native light/dark column, line/point, bar, and owner renders were inspected with unchanged financial history/PDFs. See [chart contrast checks](chart-theme-contrast.md). Runtime theme switching, Windows contrast themes, and broader accessibility/device acceptance remain pending.
+
 ## Customer edit protection — November 12, 2026
 
 Customer switching and New customer now confirm unsaved edits. Native Keep/Discard, cached-navigation, undo, and rejected-save checks pass without changing stored customer/permission or financial history. An actual eight-second writer lock verifies disabled customer controls until one successful save completes. Debug builds cleanly. See [customer edit protection](customer-edit-guard.md). Global reload/lock/shutdown and other sections remain separate acceptance work.

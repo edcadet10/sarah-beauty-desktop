@@ -16,7 +16,9 @@ internal static class ColumnChart
             for(int j=0;j<series.Length;j++)
             {
                 if(series[j].Values[i] is not long cents)continue;double y=ChartDrawing.Y(cents,range),zero=ChartDrawing.Y(0,range);
-                ChartDrawing.Rectangle(canvas,center-series.Length*bar/2+j*bar,Math.Min(y,zero),bar-2,Math.Abs(y-zero),series[j].Brush);
+                double x=center-series.Length*bar/2+j*bar;
+                ChartDrawing.Rectangle(canvas,x,Math.Min(y,zero),bar-2,Math.Abs(y-zero),series[j].StyleKey);
+                ChartDrawing.Label(canvas,(j+1).ToString(),x,Math.Min(y,zero)-16,bar);
             }
         }
         var panel=Form.Panel();panel.Add(ChartDrawing.Legend(series),ChartDrawing.Scroll(canvas));return panel;
