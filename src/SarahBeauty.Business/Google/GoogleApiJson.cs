@@ -9,13 +9,15 @@ internal static class GoogleApiJson
     internal const int MaximumResponseBytes=2*1024*1024;
     internal static readonly HttpClient Client=new(new HttpClientHandler{AllowAutoRedirect=false,UseCookies=false,AutomaticDecompression=DecompressionMethods.GZip|DecompressionMethods.Deflate}){Timeout=TimeSpan.FromSeconds(60)};
     internal static async Task<T> ReadAsync<T>(HttpClient client,HttpRequestMessage request,Func<JsonElement,T> project,CancellationToken cancellation)
+        =>await SendAsync(client,request,(_,bytes)=>{using var json=JsonDocument.Parse(bytes,new(){MaxDepth=32});return project(json.RootElement);},cancellation).ConfigureAwait(false);
+    internal static async Task<T> SendAsync<T>(HttpClient client,HttpRequestMessage request,Func<HttpResponseMessage,byte[],T> project,CancellationToken cancellation,bool acceptResumeIncomplete=false)
     {
         byte[]? bytes=null;using var deadline=CancellationTokenSource.CreateLinkedTokenSource(cancellation);
         deadline.CancelAfter(client.Timeout==Timeout.InfiniteTimeSpan || client.Timeout>TimeSpan.FromSeconds(60)?TimeSpan.FromSeconds(60):client.Timeout);
         try
         {
             using var response=await client.SendAsync(request,HttpCompletionOption.ResponseHeadersRead,deadline.Token).ConfigureAwait(false);bytes=await Body(response.Content,deadline.Token).ConfigureAwait(false);
-            if(!response.IsSuccessStatusCode)throw Failure(response.StatusCode,bytes);using var json=JsonDocument.Parse(bytes,new(){MaxDepth=32});return project(json.RootElement);
+            if(!response.IsSuccessStatusCode && !(acceptResumeIncomplete && (int)response.StatusCode==308))throw Failure(response.StatusCode,bytes);return project(response,bytes);
         }
         catch(OperationCanceledException) when(!cancellation.IsCancellationRequested){throw new GoogleConnectionFailure("GoogleRequestTimedOut","The Google request timed out. Check the connection and retry.");}
         catch(HttpRequestException){throw new GoogleConnectionFailure("GoogleUnavailable","Google could not be reached. Check the connection and retry.");}
