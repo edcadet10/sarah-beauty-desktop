@@ -1,6 +1,6 @@
 namespace SarahBeauty.Business.Exports;
 
-internal sealed record ReadableExportSelection(DateOnly FinancialFrom,DateOnly FinancialThrough,DateOnly PlanningAsOf,DateOnly EventFrom,DateOnly EventThrough)
+public sealed record ReadableExportSelection(DateOnly FinancialFrom,DateOnly FinancialThrough,DateOnly PlanningAsOf,DateOnly EventFrom,DateOnly EventThrough)
 {
     internal void Validate()
     {
