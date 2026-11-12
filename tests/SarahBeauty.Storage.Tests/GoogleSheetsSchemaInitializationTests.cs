@@ -28,7 +28,7 @@ public sealed class GoogleSheetsSchemaInitializationTests
         Assert.Throws<GoogleConnectionFailure>(()=>GoogleSheetsSchemaInitialization.Plan(schema,JsonSerializer.SerializeToElement(current),"fictional-workbook"));
     }
 
-    private static void Apply(JsonObject current,JsonElement requests)
+    internal static void Apply(JsonObject current,JsonElement requests)
     {
         var sheets=current["sheets"]!.AsArray();
         foreach(var request in requests.EnumerateArray())
@@ -57,9 +57,9 @@ public sealed class GoogleSheetsSchemaInitializationTests
         }
     }
 
-    private static JsonObject Fresh(int id)=>new(){["spreadsheetId"]="fictional-workbook",["sheets"]=id<0?new JsonArray():new JsonArray(new JsonObject
+    internal static JsonObject Fresh(int id)=>new(){["spreadsheetId"]="fictional-workbook",["sheets"]=id<0?new JsonArray():new JsonArray(new JsonObject
         {["properties"]=new JsonObject{["sheetId"]=id,["title"]="Fictional default",["index"]=0,["sheetType"]="GRID",["gridProperties"]=new JsonObject{["rowCount"]=1000,["columnCount"]=26}}})};
-    private static GoogleSheetsWorkbookSchema Schema(LedgerFixture f)
+    internal static GoogleSheetsWorkbookSchema Schema(LedgerFixture f)
     {
         using var source=new ReadableExportSnapshots(f.Business.Store).Capture(f.Business.Owner);
         return GoogleSheetsWorkbookSchema.Build(ReadableExportGeneration.Build(source,new(new(2027,1,1),new(2027,1,31),new(2027,1,31),new(2027,3,1),new(2027,3,31))));
