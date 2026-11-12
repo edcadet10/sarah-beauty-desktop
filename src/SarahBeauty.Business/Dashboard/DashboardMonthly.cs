@@ -6,7 +6,8 @@ namespace SarahBeauty.Business.Dashboard;
 
 internal static class DashboardMonthly
 {
-    internal static DashboardMonth[] Read(DbWork db,OwnerSession owner,ReportSnapshot reports,int count)
+    internal static DashboardMonth[] Read(DbWork db,OwnerSession owner,ReportSnapshot reports,int count)=>Read(db,owner.BusinessId,reports,count);
+    internal static DashboardMonth[] Read(DbWork db,string businessId,ReportSnapshot reports,int count)
     {
         var closed=db.Read("""
             SELECT C.FromDate,C.ThroughDate,C.SnapshotJson,C.SnapshotHash FROM BookPeriodCloses C WHERE C.BusinessId=$business
@@ -16,7 +17,7 @@ internal static class DashboardMonthly
             {
                 if(BookPeriodQueries.Hash(r.GetString(2))!=r.GetString(3))throw new InvalidDataException("A closed report snapshot failed its content-hash check.");
                 return (From:DateOnly.Parse(r.GetString(0)),Through:DateOnly.Parse(r.GetString(1)));
-            },("$business",owner.BusinessId),("$from",reports.From.ToString("yyyy-MM-dd")),("$through",reports.Through.ToString("yyyy-MM-dd")));
+            },("$business",businessId),("$from",reports.From.ToString("yyyy-MM-dd")),("$through",reports.Through.ToString("yyyy-MM-dd")));
         var accounts=reports.TrialBalance.ToDictionary(t=>t.Account.Id,t=>t.Account.Type);
         var groups=reports.Entries.ToLookup(e=>new DateOnly(e.Date.Year,e.Date.Month,1));
         DateOnly first=new(reports.From.Year,reports.From.Month,1);

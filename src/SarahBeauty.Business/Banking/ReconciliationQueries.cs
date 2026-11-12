@@ -8,7 +8,8 @@ namespace SarahBeauty.Business.Banking;
 
 internal static class ReconciliationQueries
 {
-    internal static List<CompletedReconciliation> List(DbWork db,OwnerSession owner,string? id=null)=>db.Read("""
+    internal static List<CompletedReconciliation> List(DbWork db,OwnerSession owner,string? id=null)=>List(db,owner.BusinessId,id);
+    internal static List<CompletedReconciliation> List(DbWork db,string businessId,string? id=null)=>db.Read("""
         SELECT C.Id,C.AccountId,C.StatementId,C.AsOfDate,C.ApprovedBy,C.AtUtc,C.SnapshotJson,C.SnapshotHash,
             EXISTS(SELECT 1 FROM ReconciliationReopens R WHERE R.ReconciliationId=C.Id) FROM Reconciliations C
         WHERE C.BusinessId=$business AND ($id IS NULL OR C.Id=$id) ORDER BY C.AsOfDate,C.AtUtc,C.Id;
@@ -18,7 +19,7 @@ internal static class ReconciliationQueries
             if(Hash(json)!=hash)throw new InvalidDataException("A saved reconciliation snapshot failed its content-hash check.");
             return new CompletedReconciliation(r.GetString(0),r.GetString(1),r.GetString(2),DateOnly.Parse(r.GetString(3)),r.GetString(4),r.GetString(5),
                 JsonSerializer.Deserialize<ReconciliationPreview>(json)!,hash,r.GetInt32(8)==1);
-        },("$business",owner.BusinessId),("$id",id));
+        },("$business",businessId),("$id",id));
 
     internal static (string[] PriorIds,HashSet<string> BankIds) Coverage(DbWork db,OwnerSession owner,string account,DateOnly through)
     {
