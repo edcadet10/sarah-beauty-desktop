@@ -52,9 +52,10 @@ public sealed class CustomerBook(BusinessStore store)
             ("$at", DateTimeOffset.UtcNow.ToString("O")), ("$owner", session.OwnerId), ("$previous", previousRevision));
     }
 
-    internal static Customer? Find(DbWork db, OwnerSession session, string id) =>
+    internal static Customer? Find(DbWork db, OwnerSession session, string id) => Find(db,session.BusinessId,id);
+    internal static Customer? Find(DbWork db, string businessId, string id) =>
         db.Scalar("SELECT DataJson FROM Customers WHERE Id=$id AND BusinessId=$business;",
-            ("$id", id), ("$business", session.BusinessId)) is string json ? JsonSerializer.Deserialize<Customer>(json) : null;
+            ("$id", id), ("$business", businessId)) is string json ? JsonSerializer.Deserialize<Customer>(json) : null;
 
     public List<PermissionHistory> Permissions(OwnerSession session, string customerId) => store.Read(db =>
     {

@@ -23,17 +23,19 @@ internal static class DocumentVersions
         return new(id,draft.DocumentId,draft.BookingId,snapshot,hash,"Issued",null,null);
     }
 
-    internal static DocumentVersion? Find(DbWork db,OwnerSession owner,string? id=null,string? draftId=null)=>db.Read("""
+    internal static DocumentVersion? Find(DbWork db,OwnerSession owner,string? id=null,string? draftId=null)=>Find(db,owner.BusinessId,id,draftId);
+    internal static DocumentVersion? Find(DbWork db,string businessId,string? id=null,string? draftId=null)=>db.Read("""
         SELECT V.Id,V.DocumentId,V.DataJson,V.SnapshotHash,V.Status,V.AcceptedDate,V.AcceptanceEvidence,D.BookingId
         FROM DocumentVersions V JOIN Documents D ON D.Id=V.DocumentId
         WHERE D.BusinessId=$business AND (($id IS NOT NULL AND V.Id=$id) OR ($draft IS NOT NULL AND V.SourceDraftId=$draft));
-        """,Read,("$business",owner.BusinessId),("$id",id),("$draft",draftId)).SingleOrDefault();
+        """,Read,("$business",businessId),("$id",id),("$draft",draftId)).SingleOrDefault();
 
-    internal static List<DocumentVersion> List(DbWork db,OwnerSession owner)=>db.Read("""
+    internal static List<DocumentVersion> List(DbWork db,OwnerSession owner)=>List(db,owner.BusinessId);
+    internal static List<DocumentVersion> List(DbWork db,string businessId)=>db.Read("""
         SELECT V.Id,V.DocumentId,V.DataJson,V.SnapshotHash,V.Status,V.AcceptedDate,V.AcceptanceEvidence,D.BookingId
         FROM DocumentVersions V JOIN Documents D ON D.Id=V.DocumentId
         WHERE D.BusinessId=$business ORDER BY D.CreatedAtUtc,V.Version;
-        """,Read,("$business",owner.BusinessId));
+        """,Read,("$business",businessId));
 
     private static DocumentVersion Read(Microsoft.Data.Sqlite.SqliteDataReader r)
     {

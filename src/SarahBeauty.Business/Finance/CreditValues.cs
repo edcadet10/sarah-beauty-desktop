@@ -5,20 +5,23 @@ namespace SarahBeauty.Business.Finance;
 
 internal static class CreditValues
 {
-    internal static CustomerCredit Get(DbWork db,OwnerSession owner,string id)=>List(db,owner,id).SingleOrDefault()
+    internal static CustomerCredit Get(DbWork db,OwnerSession owner,string id)=>Get(db,owner.BusinessId,id);
+    internal static CustomerCredit Get(DbWork db,string businessId,string id)=>List(db,businessId,id).SingleOrDefault()
         ??throw new ArgumentException("Choose a credit from this business.");
 
-    internal static List<CustomerCredit> List(DbWork db,OwnerSession owner,string? id=null)=>db.Read("""
+    internal static List<CustomerCredit> List(DbWork db,OwnerSession owner,string? id=null)=>List(db,owner.BusinessId,id);
+    internal static List<CustomerCredit> List(DbWork db,string businessId,string? id=null)=>db.Read("""
         SELECT C.Id,C.CustomerId,json_extract(P.DataJson,'$.FullName'),C.PaymentId,C.IssueDate,C.IssuedCents,C.IssuedTaxCents,C.Reason,
             CASE WHEN M.Kind='UnclassifiedReceipt' THEN 'Unclassified suspense' WHEN A.Code='2200' THEN 'Held customer deposit' ELSE 'Recognized income' END
         FROM CustomerCredits C JOIN Customers P ON P.Id=C.CustomerId JOIN Movements M ON M.Id=C.PaymentId
         LEFT JOIN Accounts A ON A.Id=json_extract(M.DataJson,'$.CounterAccountId')
         WHERE C.BusinessId=$business AND ($id IS NULL OR C.Id=$id) ORDER BY C.IssueDate,C.Id;
-        """,r=>new CustomerCredit(r.GetString(0),r.GetString(1),r.GetString(2),r.GetString(3),DateOnly.Parse(r.GetString(4)),r.GetInt64(5),r.GetInt64(6),r.GetString(7)){SourceTreatment=r.GetString(8)},("$business",owner.BusinessId),("$id",id));
+        """,r=>new CustomerCredit(r.GetString(0),r.GetString(1),r.GetString(2),r.GetString(3),DateOnly.Parse(r.GetString(4)),r.GetInt64(5),r.GetInt64(6),r.GetString(7)){SourceTreatment=r.GetString(8)},("$business",businessId),("$id",id));
 
-    internal static ValueBalance Available(DbWork db,OwnerSession owner,string id,DateOnly date)
+    internal static ValueBalance Available(DbWork db,OwnerSession owner,string id,DateOnly date)=>Available(db,owner.BusinessId,id,date);
+    internal static ValueBalance Available(DbWork db,string businessId,string id,DateOnly date)
     {
-        _=Get(db,owner,id);
+        _=Get(db,businessId,id);
         var funded=ValueAvailability.Funding(db,"CreditId",id,date);
         var used=ValueAvailability.ApplicationSum(db,"CreditId",id,date);
         return new(checked(funded.Cents-used.Cents),checked(funded.TaxCents-used.TaxCents));

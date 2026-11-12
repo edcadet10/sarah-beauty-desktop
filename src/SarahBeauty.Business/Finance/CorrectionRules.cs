@@ -25,9 +25,10 @@ internal static class CorrectionRules
         return draft with { LoanId = original.LoanId, AssetId = original.AssetId, SupplierId = original.SupplierId, BookingId = original.BookingId };
     }
 
-    internal static FinancialDraft Original(DbWork db, OwnerSession owner, string id) =>
+    internal static FinancialDraft Original(DbWork db, OwnerSession owner, string id) => Original(db,owner.BusinessId,id);
+    internal static FinancialDraft Original(DbWork db, string businessId, string id) =>
         db.Scalar("SELECT DataJson FROM Movements WHERE Id=$id AND BusinessId=$business;",
-            ("$id", id), ("$business", owner.BusinessId)) is string json ? JsonSerializer.Deserialize<FinancialDraft>(json)!
+            ("$id", id), ("$business", businessId)) is string json ? JsonSerializer.Deserialize<FinancialDraft>(json)!
             : throw new ArgumentException("Choose an original posted movement from this business.");
 
     private static FinancialDraft Reversal(DbWork db, OwnerSession owner, FinancialDraft draft, FinancialDraft original)
