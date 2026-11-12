@@ -1,0 +1,7 @@
+# Prepare retained document decisions
+
+Schema 36 adds an immutable decision table bound to an exact issued version, document, business, recording owner, and optional managed evidence version. Business/document/version foreign keys reject crossed scopes. One terminal decision per version and one permanent request per business are enforced by unique indexes. Snapshot and payload hashes retain the decision source; update/delete triggers prevent replacing its history.
+
+The migration invents no decline, withdrawal, void, acceptance, or financial action. Existing issued content, numbering, status, and watermark stay unchanged. The normal verified schema-35 database snapshot remains openable, and a repeat opening creates no additional upgrade snapshot. Decision validation, supported transitions, current-source checks, retry handling, archive verification, readable history and native controls follow separately.
+
+Ten related Release cases pass across the new migration/constraints and existing quote/integrity behavior. Four new cases cover actual issued-source preservation/snapshot/reopen, foreign recording owner and crossed document/version rejection, one immutable decision, and unsupported earlier table rollback. The unsupported-table check failed before explicit unique-index creation was moved outside the table creation statement; it now rejects that shape while preserving its original row, schema version, and snapshot. Structural test rows do not establish valid business decisions.

@@ -2,7 +2,7 @@
 
 This file tracks the full application build requested on November 10, 2026. A component marked implemented still needs the release checks applicable to it. The app is not ready for live business use.
 
-Current feature head: owner-security controls, schema 35. Source is saved in focused GitHub PRs through #236. The latest complete hosted run through ownership export format 2 passes 1,275 Release cases, Windows Debug, and recovery cryptography; the newer complete local credential/passphrase-change suite passes all 1,288 cases in 6m03. Main merges remain incremental and are behind this feature stack. Historical sections below retain the results measured at their own step.
+Current feature head: document-decision storage foundation, schema 36, following owner-security controls through PR #236. The latest complete hosted run through ownership export format 2 passes 1,275 Release cases, Windows Debug, and recovery cryptography; the complete local credential/passphrase-change suite passes all 1,288 cases in 6m03. The new schema foundation passes ten related Release cases; its transitions/UI remain separate work. Main merges remain incremental and are behind this feature stack. Historical sections below retain the results measured at their own step.
 
 | Area | Current state | Evidence or remaining work |
 |---|---|---|
@@ -1252,3 +1252,7 @@ PRs #234–#236 now add current-credential session binding, transactional own-pa
 The complete ownership format-2 [hosted run 43211438537](https://github.com/edcadet10/sarah-beauty-desktop/actions/runs/43211438537) passes all 1,275 tests in 13m03, Windows Debug in 51 seconds with zero warnings/errors, and recovery cryptography. It predates credential binding. PR #165's earlier 15-minute workflow cancelled; current main's existing 45-minute workflow was merged into that PR head and its checks are running again at 3c57113. Future old-stack heads must receive current main before their main-targeted checks so they retain that CI budget. No cancelled or incomplete check authorizes a merge.
 
 The complete local schema-35 Release suite passes all 1,288 tests in 6m03, including archive/recovery cryptography with the built helper. PR #165's updated head passed both checks and merged; #166 now contains current main's 45-minute workflow and is undergoing main-targeted checks at 9fea5c2. Document decision/history work continues in a separate branch; the remaining LIVE/workflow/device/release requirements still apply.
+
+## Immutable document-decision storage foundation
+
+Schema 36 now binds retained decisions to exact issued versions/documents, business-scoped owners/evidence, source snapshots, and permanent retry identities. Unique indexes and immutable triggers reject crossed version/document pairs, foreign recording owners, second terminal decisions, updates and deletes. No new business decision/status is invented by migration. Ten related quote/schema/integrity Release cases pass. An unsupported earlier table initially passed table creation; the added explicit unique-index checks now fail and roll back while retaining its source row, version and snapshot. Transition/retry services, recovery/readable integration, native controls and the other full-build requirements continue. See [Prepare retained document decisions](document-decision-schema.md).
