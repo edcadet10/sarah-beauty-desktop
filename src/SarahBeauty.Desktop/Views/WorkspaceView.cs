@@ -17,6 +17,7 @@ internal sealed class WorkspaceView(BusinessStore store,OwnerSession session,Act
     private OwnerSecurityView? _ownerSecurity;
     private DocumentDecisionView? _documentDecisions;
     private BusinessProfileView? _businessProfile;
+    private ClientDraftDiscardView? _draftDiscards;
 
     internal UIElement Build()
     {
@@ -58,6 +59,7 @@ internal sealed class WorkspaceView(BusinessStore store,OwnerSession session,Act
         _routes["Credit notes"]=()=>new CreditNoteView(store,session).Build();
         _routes["Receipts"]=()=>new ReceiptView(store,session).Build();
         _routes["Document decisions"]=BuildDocumentDecisions;
+        _routes["Discard client drafts"]=BuildDraftDiscards;
         _routes["Money"]=()=>new MoneyView(store,session).Build();
         _routes["Apply payments"]=()=>new AllocationView(store,session).Build();
         _routes["Customer credits"]=()=>new CreditView(store,session).Build();
@@ -83,6 +85,7 @@ internal sealed class WorkspaceView(BusinessStore store,OwnerSession session,Act
         if(_current=="Owner security")_ownerSecurity?.Leave();
         if(_current=="Document decisions")_documentDecisions?.Leave();
         if(_current=="Business setup")_businessProfile?.Leave();
+        if(_current=="Discard client drafts")_draftDiscards?.Leave();
         if(!_pages.TryGetValue(key,out var page)){page=_routes[key]();_pages[key]=page;}
         _content.Content=page;
         _current=key;
@@ -91,6 +94,7 @@ internal sealed class WorkspaceView(BusinessStore store,OwnerSession session,Act
     private UIElement BuildOwnerSecurity(){_ownerSecurity=new(store,session,passphraseChanged??locked);return _ownerSecurity.Build();}
     private UIElement BuildDocumentDecisions(){_documentDecisions=new(store,session);return _documentDecisions.Build();}
     private UIElement BuildBusinessProfile(){_businessProfile=new(store,session,name=>_businessTitle.Text=name);return _businessProfile.Build();}
+    private UIElement BuildDraftDiscards(){_draftDiscards=new(store,session);return _draftDiscards.Build();}
 
     private UIElement Footer(FrameworkElement root)
     {
