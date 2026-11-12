@@ -23,7 +23,7 @@ internal static class BookPeriodReopening
         db.Execute("INSERT INTO BookPeriodReopens (Id,PeriodId,RequestId,Reason,OwnerId,AtUtc) VALUES ($id,$period,$request,$reason,$owner,$at);",
             ("$id",saved.Id),("$period",id),("$request",request),("$reason",reason),("$owner",owner.OwnerId),("$at",saved.AtUtc));
         failure?.Invoke("period-reopen");
-        db.Execute("UPDATE BookSettings SET ClosedThrough=$date WHERE BusinessId=$business;",("$date",period.Snapshot.PreviouslyClosedThrough?.ToString("yyyy-MM-dd")),("$business",owner.BusinessId));
+        db.Execute("UPDATE BookSettings SET ClosedThrough=$date WHERE BusinessId=$business;",("$date",period.Snapshot.PreviouslyClosedThrough?.ToStorageDate()),("$business",owner.BusinessId));
         BusinessStore.Audit(db,owner,"Reopen book period",id);failure?.Invoke("audit");
         return saved;
     }
