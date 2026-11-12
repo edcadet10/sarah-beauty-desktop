@@ -8,4 +8,4 @@ Forty-one related schema/upgrade/metadata/mode-recovery cases pass. They cover a
 
 Windows Debug passes with zero warnings/errors. A native TEST profile fixture upgraded from 39 to 40, reopened, locked and closed normally. Independent read-only checks retain watermark 5, three private profile revisions and the managed file, with no new discard/financial/document/ownership/Google facts. Its single verified prior snapshot remains schema 39 with watermark 5 and all three profiles.
 
-This increment provides storage only. Typed retained-history validation, transactional discard commands and the native workflow follow separately. The parent credential correction passes 1,515 local and hosted cases; full schema-40 regression follows. Release and actual device/account acceptance remain pending.
+The full local schema-40 regression at `0996ee2` passes all 1,544 cases in 7 minutes 6 seconds. This increment provides storage only. Typed retained-history validation, transactional discard commands and the native workflow follow separately. The parent credential correction passes 1,515 local and hosted cases. Release and actual device/account acceptance remain pending.
