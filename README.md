@@ -28,9 +28,11 @@ The full build is in progress in small GitHub pull requests. The app remains in 
 
 The implemented local core includes two-owner sign-in and approvals, customers, service prices, bookings and recipient places, appointment planning and calendar review, combined cancellation decisions and history, versioned client documents and PDFs, bookkeeping, payment applications and funded credits, resource registers, supplier bills and refunds, statements, bank matching, reconciliation, and retained period close/reopen reports.
 
-The latest complete .NET suite has 752 passing cases, with four separate recovery-crypto test groups. The Windows Debug build succeeds with no warnings or errors. Fictional desktop walkthroughs cover selected workflows, manual/scheduled local encrypted backups, controlled TEST recovery activation, and restart persistence. These checks do not establish full release acceptance or current Surface compatibility.
+The latest complete .NET suite has 761 passing cases, with four separate recovery-crypto test groups. The Windows Debug build succeeds with no warnings or errors. Fictional desktop walkthroughs cover selected workflows, manual/scheduled local encrypted backups, controlled TEST recovery activation, Google client import, and restart persistence. These checks do not establish full release acceptance or current Surface compatibility.
 
-Remaining work includes further managed-evidence selection within entry forms, retention controls and second-device recovery acceptance, the app's own Google authorization and exports, separate LIVE setup, owner-access and unsaved-work hardening, an installer, and full release/device checks. There is no published installer yet.
+The app now has [Google Desktop connection controls](docs/desktop-google-connection.md), including private client import, PKCE browser consent, account review, cancellation, and local disconnect. Actual Google consent/account acceptance and Drive/Sheets delivery remain pending.
+
+Remaining work includes further managed-evidence selection within entry forms, retention controls and second-device recovery acceptance, Google delivery, separate LIVE setup, owner-access and unsaved-work hardening, an installer, and full release/device checks. There is no published installer yet.
 
 The first target is a Surface Pro 7. Everyday work will happen locally on Windows. Google Sheets will hold a readable export, and private Google Drive storage will hold recovery backups. These are backups of the desktop records, not a second place to edit the books.
 
@@ -59,7 +61,7 @@ Run the automated checks with:
 dotnet test .\tests\SarahBeauty.Storage.Tests\SarahBeauty.Storage.Tests.csproj -c Release
 ```
 
-The tests use temporary fictional SQLite stores and the same business assembly as the desktop app. They include historical balance limits, concurrent/stale decisions, interrupted transactions, migrations, document integrity, scheduling boundaries, complete encrypted archives, and staged restore validation through the real recovery helper. Build the helper before running the checks. Local upgrade snapshots contain only the database; full archives also retain managed files. Restore activation/interface, LIVE setup, and Google backups remain pending.
+The tests use temporary fictional SQLite stores and the same business assembly as the desktop app. They include historical balance limits, concurrent/stale decisions, interrupted transactions, migrations, document integrity, scheduling boundaries, complete encrypted archives, and staged restore validation through the real recovery helper. Build the helper before running the checks. Local upgrade snapshots contain only the database; full archives also retain managed files. TEST recovery activation is implemented; LIVE setup, Google backups, and second-device acceptance remain pending.
 
 An earlier welcome-screen preview launched on the Surface Pro 7. The current business workflows, touch interaction, offline behavior, and restore on a second Windows device still need explicit device checks.
 

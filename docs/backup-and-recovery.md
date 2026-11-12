@@ -1,10 +1,10 @@
 # Backup and Recovery
 
-Status: Verified local database upgrade snapshots, the [managed evidence workspace](managed-evidence.md), and [complete local encrypted archives](archive-package.md) are implemented. Automated fictional fixtures cover committed WAL data, invalid sources, failed verification, migration rollback, managed-file versions/integrity, pinned record links, archive contents, and interrupted encryption. Cloud backups and a restore interface remain in progress. The procedure below includes the contract for those future features.
+Status: Verified local database upgrade snapshots, the [managed evidence workspace](managed-evidence.md), [complete local encrypted archives](archive-package.md), [desktop automatic scheduling](desktop-automatic-backups.md), and [controlled TEST recovery activation](active-test-store.md) are implemented. Automated fictional fixtures cover committed WAL data, invalid sources, failed verification, migration rollback, managed-file versions/integrity, pinned record links, archive contents, and interrupted encryption. [Google connection controls](desktop-google-connection.md) are implemented; cloud delivery remains in progress. The procedure below includes the contract for future delivery features.
 
-The [portable encryption helper](archive-encryption.md) uses the published age format and passes reference interoperability and failure checks. [Staged restore verification](archive-restore.md) now checks isolated decrypted files and the database before any activation. The desktop interface and activation remain separate work.
+The [portable encryption helper](archive-encryption.md) uses the published age format and passes reference interoperability and failure checks. [Staged restore verification](archive-restore.md) checks isolated decrypted files and the database before any activation. The desktop interface supports preparation, local retirement, reviewed activation, and persistent selection of a recovered TEST copy.
 
-The [recovery source capture](archive-snapshot.md) retains a verified standalone database and all required managed file versions from that same snapshot, with exact metadata and journal checks. The package service encrypts that capture and publishes only verified completed output. Desktop restore remains in progress.
+The [recovery source capture](archive-snapshot.md) retains a verified standalone database and all required managed file versions from that same snapshot, with exact metadata and journal checks. The package service encrypts that capture and publishes only verified completed output. Physical failure and second-device recovery acceptance remain pending.
 
 ## Local upgrade snapshots
 
@@ -63,7 +63,7 @@ Show separate states: Never completed, Pending, Running, Succeeded with timestam
 
 Handle expired/revoked sign-in, denied file access, offline operation, quota limits, full Drive storage, local disk exhaustion, and interrupted uploads. Stop/retry cloud work without blocking ordinary local records. Confirm local failure visibly; never claim an unsaved record was saved.
 
-Standard Google Sheets/Drive API use is currently described as available at no additional cost, with future charges for exceeding quota limits planned later in 2026. This is not an unlimited-free guarantee. Keep the project without billing enrollment, stay within available quotas/storage, and recheck terms at implementation. Sources checked September 21, 2026: [Sheets limits](https://developers.google.com/workspace/sheets/api/limits), [Drive limits](https://developers.google.com/workspace/drive/api/guides/limits).
+Standard Google Sheets/Drive API use is currently described as available at no additional cost, with future charges for exceeding Drive quota limits planned later in 2026. This is not an unlimited-free guarantee. Keep the project without billing enrollment, stay within available quotas/storage, and recheck terms before enabling delivery. Sources checked November 11, 2026: [Sheets limits](https://developers.google.com/workspace/sheets/api/limits), [Drive limits](https://developers.google.com/workspace/drive/api/guides/limits).
 
 Backup interval and retention count/age are still open choices. Show estimated archive size and available space before enabling a schedule. If storage fills, report the problem; do not silently delete old recoverable history or purchase storage.
 
