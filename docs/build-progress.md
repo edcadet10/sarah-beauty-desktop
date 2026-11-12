@@ -883,3 +883,11 @@ Three new cases pass for actual gross/tax/fee/expense facts and balanced journal
 Five more source-bound tables retain customer credits, Reserve/Release funding and source/refund/reversal identities, application approval metadata, dated payment/credit applications and reversals, and separate credit drafts with blank unknown dates. Free-form reasons and cached generations stay out. These are movements of existing value; exporting them creates no new receipt/income and does not flatten positive/reversal rows into misleading net balances.
 
 Three new cases pass for an actual receipt-funded credit/application/partial return with one cash receipt, dated application/unapplication with separate approvals, and an incomplete draft with no credit/funding. Private reasons stay out; Windows Debug has no warnings/errors. The latest complete suite remains 863 before billing-link/ledger/credit additions. Resource/banking/tax groups, reports, RAW Sheets transport/readback/publication/UI, real account/device acceptance, and full-build work continue. See [Project applications and funded credit history](readable-credit-tables.md).
+
+The complete Release suite now passes all 872 cases, including billing-link, ledger, and credit projections.
+
+## Explicit supplier, asset, and loan register tables
+
+Four more source-bound tables retain supplier business contacts/terms, loan opening/lender/terms/due facts, asset registered/funding/disposal/provenance facts, and ordered registered-asset fact review history. Unknown dates/principal/cost/basis/use remain blank, while confirmed zero values remain zero. Supplier private notes and free-form review/evidence inputs stay out. Registered cost/tax basis are kept distinct from book carrying value; projection makes no posting or depreciation decision.
+
+Two focused Debug cases pass for supplier privacy, unknown versus zero register facts, and an actual asset-fact review retaining previous unknown values without journal effects. The desktop Debug build has no warnings/errors. The latest complete Release suite is 872 before these additions. Operational/purchasing/banking/tax groups, reports, Sheets transport/readback/publication/UI, real account/device acceptance, and full-build work continue. See [Project suppliers, assets, and loan registers](readable-resource-tables.md).
