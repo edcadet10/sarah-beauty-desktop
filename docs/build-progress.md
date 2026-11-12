@@ -2,7 +2,7 @@
 
 This file tracks the full application build requested on November 10, 2026. A component marked implemented still needs the release checks applicable to it. The app is not ready for live business use.
 
-Current feature head: separate LIVE creation/readiness policy, schema 39, following internal mode-aware stores/documents through PR #257. Thirty-one policy/profile cases pass; the parent full regression is running. The full local suite through mode-bound sessions passes 1,413 cases; hosted earlier profile-core verification passes 1,396 cases, Windows Debug and recovery cryptography. Transactional LIVE gates/clean creation/selection, remaining workflows and release acceptance continue. Main merges remain incremental and are behind this feature stack. Historical sections below retain the results measured at their own step.
+Current feature head: transactional LIVE setup/date guards, schema 39, following separate creation/readiness policy and internal mode-aware stores. Forty-two related cases, Windows Debug and native TEST preservation pass. The parent full local regression passes 1,430 cases; hosted mode-session verification passes 1,413 cases, Windows Debug and recovery cryptography. Clean LIVE creation/selection, remaining workflows and release acceptance continue. Main has merged through PR #178 and remains behind this feature stack. Historical sections below retain the results measured at their own step.
 
 | Area | Current state | Evidence or remaining work |
 |---|---|---|
