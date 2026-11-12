@@ -3,21 +3,22 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <ResourceDictionary.ThemeDictionaries>
         <ResourceDictionary x:Key="Light">
-            <SolidColorBrush x:Key="SarahCanvasBrush" Color="#FAF7F4" />
-            <SolidColorBrush x:Key="SarahSurfaceBrush" Color="#FFFFFF" />
-            <SolidColorBrush x:Key="SarahSoftBrush" Color="#F0E2E8" />
-            <SolidColorBrush x:Key="SarahTextBrush" Color="#2D2430" />
-            <SolidColorBrush x:Key="SarahMutedBrush" Color="#6C5B67" />
-            <SolidColorBrush x:Key="SarahAccentBrush" Color="#633F59" />
-            <SolidColorBrush x:Key="SarahStrokeBrush" Color="#D9CBD2" />
-            <SolidColorBrush x:Key="AccentFillColorDefaultBrush" Color="#633F59" />
-            <SolidColorBrush x:Key="AccentFillColorSecondaryBrush" Color="#52314A" />
-            <SolidColorBrush x:Key="AccentFillColorTertiaryBrush" Color="#43263B" />
-            <SolidColorBrush x:Key="TextOnAccentFillColorPrimaryBrush" Color="#FFFFFF" />
-            <SolidColorBrush x:Key="TextOnAccentFillColorSecondaryBrush" Color="#FFFFFF" />
-            <SolidColorBrush x:Key="AccentTextFillColorPrimaryBrush" Color="#633F59" />
-            <SolidColorBrush x:Key="AccentTextFillColorSecondaryBrush" Color="#52314A" />
-            <SolidColorBrush x:Key="AccentTextFillColorTertiaryBrush" Color="#43263B" />
+            <SolidColorBrush x:Key="SarahGoldBrush" Color="#86682A" />
+            <SolidColorBrush x:Key="SarahCanvasBrush" Color="#FBF8F0" />
+            <SolidColorBrush x:Key="SarahSurfaceBrush" Color="#FFFEFA" />
+            <SolidColorBrush x:Key="SarahSoftBrush" Color="#EEE6D4" />
+            <SolidColorBrush x:Key="SarahTextBrush" Color="#22372D" />
+            <SolidColorBrush x:Key="SarahMutedBrush" Color="#56665A" />
+            <SolidColorBrush x:Key="SarahAccentBrush" Color="#174E3C" />
+            <SolidColorBrush x:Key="SarahStrokeBrush" Color="#D6CBB5" />
+            <SolidColorBrush x:Key="AccentFillColorDefaultBrush" Color="#174E3C" />
+            <SolidColorBrush x:Key="AccentFillColorSecondaryBrush" Color="#103D2F" />
+            <SolidColorBrush x:Key="AccentFillColorTertiaryBrush" Color="#0B3025" />
+            <SolidColorBrush x:Key="TextOnAccentFillColorPrimaryBrush" Color="#FFFEFA" />
+            <SolidColorBrush x:Key="TextOnAccentFillColorSecondaryBrush" Color="#FFFEFA" />
+            <SolidColorBrush x:Key="AccentTextFillColorPrimaryBrush" Color="#174E3C" />
+            <SolidColorBrush x:Key="AccentTextFillColorSecondaryBrush" Color="#103D2F" />
+            <SolidColorBrush x:Key="AccentTextFillColorTertiaryBrush" Color="#0B3025" />
             <StaticResource x:Key="AccentButtonBackground" ResourceKey="AccentFillColorDefaultBrush" />
             <StaticResource x:Key="AccentButtonBackgroundPointerOver" ResourceKey="AccentFillColorSecondaryBrush" />
             <StaticResource x:Key="AccentButtonBackgroundPressed" ResourceKey="AccentFillColorTertiaryBrush" />
@@ -27,21 +28,22 @@
             <StaticResource x:Key="NavigationViewSelectionIndicatorForeground" ResourceKey="SarahAccentBrush" />
         </ResourceDictionary>
         <ResourceDictionary x:Key="Dark">
-            <SolidColorBrush x:Key="SarahCanvasBrush" Color="#1F1A21" />
-            <SolidColorBrush x:Key="SarahSurfaceBrush" Color="#2C2430" />
-            <SolidColorBrush x:Key="SarahSoftBrush" Color="#40313E" />
-            <SolidColorBrush x:Key="SarahTextBrush" Color="#F7EFF5" />
-            <SolidColorBrush x:Key="SarahMutedBrush" Color="#CFBDC9" />
-            <SolidColorBrush x:Key="SarahAccentBrush" Color="#E6A9CC" />
-            <SolidColorBrush x:Key="SarahStrokeBrush" Color="#665360" />
-            <SolidColorBrush x:Key="AccentFillColorDefaultBrush" Color="#E6A9CC" />
-            <SolidColorBrush x:Key="AccentFillColorSecondaryBrush" Color="#F0BFDB" />
-            <SolidColorBrush x:Key="AccentFillColorTertiaryBrush" Color="#D99ABD" />
-            <SolidColorBrush x:Key="TextOnAccentFillColorPrimaryBrush" Color="#1F1A21" />
-            <SolidColorBrush x:Key="TextOnAccentFillColorSecondaryBrush" Color="#1F1A21" />
-            <SolidColorBrush x:Key="AccentTextFillColorPrimaryBrush" Color="#E6A9CC" />
-            <SolidColorBrush x:Key="AccentTextFillColorSecondaryBrush" Color="#F0BFDB" />
-            <SolidColorBrush x:Key="AccentTextFillColorTertiaryBrush" Color="#D99ABD" />
+            <SolidColorBrush x:Key="SarahGoldBrush" Color="#D8BE82" />
+            <SolidColorBrush x:Key="SarahCanvasBrush" Color="#14251F" />
+            <SolidColorBrush x:Key="SarahSurfaceBrush" Color="#1C3229" />
+            <SolidColorBrush x:Key="SarahSoftBrush" Color="#314036" />
+            <SolidColorBrush x:Key="SarahTextBrush" Color="#F8F4E8" />
+            <SolidColorBrush x:Key="SarahMutedBrush" Color="#C4CFBE" />
+            <SolidColorBrush x:Key="SarahAccentBrush" Color="#9FD7B4" />
+            <SolidColorBrush x:Key="SarahStrokeBrush" Color="#5F725D" />
+            <SolidColorBrush x:Key="AccentFillColorDefaultBrush" Color="#9FD7B4" />
+            <SolidColorBrush x:Key="AccentFillColorSecondaryBrush" Color="#B4E4C4" />
+            <SolidColorBrush x:Key="AccentFillColorTertiaryBrush" Color="#8DC7A2" />
+            <SolidColorBrush x:Key="TextOnAccentFillColorPrimaryBrush" Color="#14251F" />
+            <SolidColorBrush x:Key="TextOnAccentFillColorSecondaryBrush" Color="#14251F" />
+            <SolidColorBrush x:Key="AccentTextFillColorPrimaryBrush" Color="#9FD7B4" />
+            <SolidColorBrush x:Key="AccentTextFillColorSecondaryBrush" Color="#B4E4C4" />
+            <SolidColorBrush x:Key="AccentTextFillColorTertiaryBrush" Color="#8DC7A2" />
             <StaticResource x:Key="AccentButtonBackground" ResourceKey="AccentFillColorDefaultBrush" />
             <StaticResource x:Key="AccentButtonBackgroundPointerOver" ResourceKey="AccentFillColorSecondaryBrush" />
             <StaticResource x:Key="AccentButtonBackgroundPressed" ResourceKey="AccentFillColorTertiaryBrush" />
@@ -51,6 +53,7 @@
             <StaticResource x:Key="NavigationViewSelectionIndicatorForeground" ResourceKey="SarahAccentBrush" />
         </ResourceDictionary>
         <ResourceDictionary x:Key="HighContrast">
+            <SolidColorBrush x:Key="SarahGoldBrush" Color="{ThemeResource SystemColorWindowTextColor}" />
             <SolidColorBrush x:Key="SarahCanvasBrush" Color="{ThemeResource SystemColorWindowColor}" />
             <SolidColorBrush x:Key="SarahSurfaceBrush" Color="{ThemeResource SystemColorWindowColor}" />
             <SolidColorBrush x:Key="SarahSoftBrush" Color="{ThemeResource SystemColorWindowColor}" />

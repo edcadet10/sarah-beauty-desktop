@@ -26,6 +26,7 @@ foreach($taskTheme in $taskPalette.DocumentElement.ChildNodes[0].ChildNodes){
             Assert-Contrast $taskBrushes $taskText $taskSurface
         }
         Assert-Contrast $taskBrushes 'SarahAccentBrush' $taskSurface 3
+        Assert-Contrast $taskBrushes 'SarahGoldBrush' $taskSurface 3
     }
     foreach($taskFill in @('AccentFillColorDefaultBrush','AccentFillColorSecondaryBrush','AccentFillColorTertiaryBrush')){
         Assert-Contrast $taskBrushes 'TextOnAccentFillColorPrimaryBrush' $taskFill
