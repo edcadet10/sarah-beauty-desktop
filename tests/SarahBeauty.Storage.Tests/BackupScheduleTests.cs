@@ -54,6 +54,19 @@ public sealed class BackupScheduleTests
     }
 
     [Fact]
+    public async Task RevocationDuringPublicationVerificationPreventsTheFinalRename()
+    {
+        using var f=new LedgerFixture();var enabled=await Enabled(f);string destination=Path.Combine(f.Business.Files.Folder,"fictional-revoked-at-rename.age");
+        var archives=new FullArchives(f.Business.Store){FailurePoint=point=>
+        {
+            if(point!="Publication verification started")return;var current=enabled.Schedules.Current(f.Business.Owner)!;
+            enabled.Schedules.Save(f.Business.Owner,new(false,current.IntervalMinutes,current.Directory,current.Revision));
+        }};
+        await Assert.ThrowsAsync<UnauthorizedAccessException>(()=>archives.CreateAutomaticAsync(enabled.Permit,destination));Assert.False(File.Exists(destination));
+        Assert.Empty(Directory.EnumerateDirectories(f.Business.Files.Folder,".sarah-recovery-*"));
+    }
+
+    [Fact]
     public async Task AutomaticAuthorityCannotChooseAnotherFolderOrFollowAChangedInstance()
     {
         using var f=new LedgerFixture();using var other=new TestStore();var enabled=await Enabled(f);

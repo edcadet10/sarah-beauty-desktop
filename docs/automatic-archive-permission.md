@@ -12,7 +12,7 @@ Schedule changes require the reviewed revision and are audited once. Repeating i
 
 The internal archive permit binds the exact schedule revision/instance, business, confirmed public recipient/fingerprint, and destination folder. It authorizes only consistent recovery capture and encryption. It contains no passphrase, private recovery material, or human session.
 
-Capture checks current consent before copying and against the captured database. Publication checks the current policy and recovery recipient again. Disabled/revised settings, deactivated confirming owners, changed recovery material, or changed instances invalidate an earlier permit. A completed ciphertext still in staging is not published after revocation. Other destinations are rejected.
+Capture checks current consent before copying and against the captured database. After ciphertext verification, publication checks current policy and recipient inside the same short writer reservation as the final nonoverwriting rename. A schedule writer therefore orders before or after that publication; it cannot commit a revocation between the final check and rename. Disabled/revised settings, deactivated confirming owners, changed recovery material, or changed instances invalidate an earlier permit. Other destinations are rejected.
 
 Automatic capture/encryption does not touch or renew an owner session. A locked human session stays locked while an already configured archive operation can finish. Automatic completion does not imply Google upload or a readable export.
 
@@ -25,3 +25,5 @@ Current health counts only attempts bound to this writable instance. Older unkno
 ## Verification
 
 Nine fictional cases cover instance/revision/idempotent settings, actual encrypted output while the human session stays locked, revocation after encryption, active-owner and recovery-key changes, destination boundaries, stale/copied instances, and invalid/foreign setup. Existing complete-archive/source-capture checks run alongside them.
+
+A later regression first demonstrated publication after permission was revoked between the earlier check and final ciphertext verification. Checking under the rename reservation corrected that race. That new case and 62 related encryption, archive, restore, schedule, and queue cases pass. The reservation excludes checksum/encryption work, so ordinary business writes do not wait for those long operations.

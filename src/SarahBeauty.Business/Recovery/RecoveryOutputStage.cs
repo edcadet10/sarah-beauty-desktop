@@ -15,7 +15,7 @@ internal sealed class RecoveryOutputStage:IDisposable
         _directory=System.IO.Path.Combine(parent,".sarah-recovery-"+Guid.NewGuid().ToString("N"));Directory.CreateDirectory(_directory);
         Path=System.IO.Path.Combine(_directory,"output.partial");
     }
-    internal async Task<RecoveryOutput> Publish(RecoveryReply reply,CancellationToken cancellation)
+    internal async Task<RecoveryOutput> Publish(RecoveryReply reply,CancellationToken cancellation,Action<Action>? publish=null)
     {
         string hash;
         using(var file=new FileStream(Path,FileMode.Open,FileAccess.Read,FileShare.Read))
@@ -24,7 +24,8 @@ internal sealed class RecoveryOutputStage:IDisposable
             hash=Convert.ToHexString(await SHA256.HashDataAsync(file,cancellation));
         }
         if(!string.Equals(hash,reply.Sha256,StringComparison.OrdinalIgnoreCase))throw new RecoveryFailure("InvalidResponse","The recovery output hash did not match its completed result.");
-        cancellation.ThrowIfCancellationRequested();File.Move(Path,_destination,overwrite:false);return new(reply.Bytes,hash);
+        void Move(){cancellation.ThrowIfCancellationRequested();File.Move(Path,_destination,overwrite:false);}
+        if(publish is null)Move();else publish(Move);return new(reply.Bytes,hash);
     }
     public void Dispose()
     {
