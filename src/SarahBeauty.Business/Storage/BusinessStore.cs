@@ -80,7 +80,7 @@ public sealed class BusinessStore
     internal void RequireSession(DbWork db, OwnerSession session)
     {
         StoreInstanceGuard.Require(db,StoreId,InstanceId,_requiredState);
-        if (session.StoreId != StoreId || session.InstanceId!=InstanceId || session.ExpiresAt <= DateTimeOffset.UtcNow
+        if (session.StoreId != StoreId || session.InstanceId!=InstanceId || !session.IsActive
             || db.Scalar("SELECT Id FROM Owners WHERE Id=$id AND BusinessId=$business AND Active=1;",
                 ("$id", session.OwnerId), ("$business", session.BusinessId)) is null)
             throw new UnauthorizedAccessException("Sign in to this business to continue.");

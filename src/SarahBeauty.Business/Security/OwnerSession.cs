@@ -8,23 +8,32 @@ public sealed class OwnerSession
     public string StoreId { get; }
     public string InstanceId {get;}
     private readonly object _gate=new();
+    private readonly TimeProvider _time;
+    private static readonly TimeSpan IdleLimit=TimeSpan.FromMinutes(15);
+    private long _lastActivity;
     private DateTimeOffset _expiresAt;
     private bool _locked;
-    internal DateTimeOffset ExpiresAt { get{lock(_gate)return _expiresAt;} }
+    internal DateTimeOffset ExpiresAt { get{lock(_gate){Active();return _expiresAt;}} }
+    public bool IsActive {get{lock(_gate)return Active();}}
 
-    internal OwnerSession(string ownerId, string name, string businessId, string storeId,string instanceId)
+    internal OwnerSession(string ownerId, string name, string businessId, string storeId,string instanceId,TimeProvider? time=null)
     {
         (OwnerId, OwnerName, BusinessId, StoreId,InstanceId) = (ownerId, name, businessId, storeId,instanceId);
-        _expiresAt=DateTimeOffset.UtcNow.AddMinutes(15);
+        _time=time??TimeProvider.System;_lastActivity=_time.GetTimestamp();_expiresAt=_time.GetUtcNow()+IdleLimit;
     }
 
     internal void Touch()
     {
         lock(_gate)
         {
-            if(_locked||_expiresAt<=DateTimeOffset.UtcNow){_locked=true;_expiresAt=DateTimeOffset.MinValue;throw new UnauthorizedAccessException("Sign in to this business to continue.");}
-            _expiresAt=DateTimeOffset.UtcNow.AddMinutes(15);
+            if(!Active())throw new UnauthorizedAccessException("Sign in to this business to continue.");
+            _lastActivity=_time.GetTimestamp();_expiresAt=_time.GetUtcNow()+IdleLimit;
         }
     }
     public void Lock(){lock(_gate){_locked=true;_expiresAt=DateTimeOffset.MinValue;}}
+    private bool Active()
+    {
+        if(!_locked&&_time.GetElapsedTime(_lastActivity,_time.GetTimestamp())>=IdleLimit){_locked=true;_expiresAt=DateTimeOffset.MinValue;}
+        return !_locked;
+    }
 }
