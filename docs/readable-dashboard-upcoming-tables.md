@@ -1,0 +1,7 @@
+# Project upcoming confirmed-event chart data
+
+Eight source-bound tables retain planning scope, monthly confirmed counts/known gross subtotals/unknown-value counts, explicit month membership, dated and undated event values, review issues, artist state, and source invoice/milestone balances at the planning as-of date. Scope labels agreement gross including tax as a commitment rather than cash income.
+
+Unknown event values stay blank. A zero known subtotal alongside an unknown-value count does not claim the whole month's value is zero. Undated bookings remain separate from month counts. Quote/invoice IDs and hashes retain source context; archived/unavailable artists and agreement/deposit review issues remain visible. One captured timestamp/watermark drives the datasets, independent of later cancellation. Private notes/products/evidence and raw planning objects are excluded.
+
+Three table cases plus two captured-upcoming cases pass in Release (five targeted). They cover actual confirmed commitment and source membership/remaining deposit balance versus received cash, earlier acceptance uncertainty, undated events, archived artist warnings, private-field exclusion, locked access, and later-cancellation isolation. Latest complete suite remains 943 before dashboard additions; another complete run and Windows Debug build are in progress. Readable export validation, transport, and UI remain pending.
