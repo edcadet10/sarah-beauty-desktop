@@ -1,0 +1,11 @@
+# Review private business setup
+
+1. Open **Business setup**. Review the loaded profile revision. If no profile exists, private identity, dates, currency, time zone and setup states stay unconfirmed.
+2. Enter known legal/contact/address facts and optional private EIN. Explicitly choose USD, time zone and start dates only when reviewed. Record the new-business-only acknowledgment separately.
+3. For formation, EIN, banking and tax, choose a review state and private reason. Optionally select an exact managed supporting-file version. These are your recorded assessments; the app does not verify legal or tax registration.
+4. Enter the private reason for this profile review. Select **Review and confirm business profile**, review the frozen facts and file selections, then enter your current passphrase in the private dialog. The summary does not repeat the full EIN.
+5. Select **Confirm profile**. The screen loads saved history/current facts and updates the business heading. Unknown or pending states remain as explicitly selected; no opening entry or LIVE business is created.
+
+Navigation and cancelled confirmation preserve fields. **Refresh saved business-profile history** preserves the draft and reviewed revision. After a competing review, confirmation rejects the stale draft. **Reload current business profile and discard draft** requires explicit discard before replacing fields. Leaving the page clears confirmation phrases and cancels registered foreground work. Refresh history after cancellation during a save before retrying; the same reviewed payload keeps its permanent request identity.
+
+Windows Debug builds with zero warnings/errors. A fictional native walkthrough passes unknown defaults, ISO dates, private confirmation, summary EIN omission, cancel/discard/navigation/history preservation, wrong-phrase rejection, a saved review with managed evidence, competing-owner stale rejection, explicit reload, restart and lock. Read-only checks confirm TEST/schema 39, two profile revisions/audits at watermark 4, one verified managed file pinned to both reviews, pending/unconfirmed states, zero financial/document/ownership records and no Google metadata. Real LIVE/Google/device/release acceptance remains separate.

@@ -10,11 +10,13 @@ internal sealed class WorkspaceView(BusinessStore store,OwnerSession session,Act
     private readonly ContentControl _content=new(){HorizontalContentAlignment=HorizontalAlignment.Stretch};
     private readonly Dictionary<string,UIElement> _pages=[];
     private readonly TextBlock _status=Form.Text();
+    private readonly TextBlock _businessTitle=Form.Title("");
     private string _current="Dashboard";
     private readonly Dictionary<string,Func<UIElement>> _routes=new();
     private NavigationView? _navigation;
     private OwnerSecurityView? _ownerSecurity;
     private DocumentDecisionView? _documentDecisions;
+    private BusinessProfileView? _businessProfile;
 
     internal UIElement Build()
     {
@@ -24,7 +26,7 @@ internal sealed class WorkspaceView(BusinessStore store,OwnerSession session,Act
         root.RowDefinitions.Add(new(){Height=new GridLength(1,GridUnitType.Star)});
         var header=Form.Panel();
         header.Margin=new Thickness(24,12,24,8);
-        header.Add(Form.Title(store.BusinessName(session)),Form.Text($"TEST • Signed in as {session.OwnerName}"),_status);
+        _businessTitle.Text=store.BusinessName(session);header.Add(_businessTitle,Form.Text($"TEST • Signed in as {session.OwnerName}"),_status);
         var nav=new NavigationView{IsSettingsVisible=false,PaneDisplayMode=NavigationViewPaneDisplayMode.Auto,IsPaneOpen=true};
         _navigation=nav;
         foreach(string label in _routes.Keys)nav.MenuItems.Add(new NavigationViewItem{Content=label,Tag=label,Icon=new SymbolIcon(Symbol.Document)});
@@ -63,6 +65,7 @@ internal sealed class WorkspaceView(BusinessStore store,OwnerSession session,Act
         _routes["Evidence files"]=()=>new EvidenceView(store,session).Build();
         _routes["Backups and recovery"]=()=>new LocalBackupView(store,session,retired,backupRuntime,googleRuntime,sheetsRuntime).Build();
         _routes["Opening balances"]=()=>new OpeningView(store,session).Build();
+        _routes["Business setup"]=BuildBusinessProfile;
         _routes["Ownership settings"]=()=>new OwnerInterestView(store,session).Build();
         _routes["Owner security"]=BuildOwnerSecurity;
         _routes["Reports"]=()=>new ReportsView(store,session).Build();
@@ -79,6 +82,7 @@ internal sealed class WorkspaceView(BusinessStore store,OwnerSession session,Act
     {
         if(_current=="Owner security")_ownerSecurity?.Leave();
         if(_current=="Document decisions")_documentDecisions?.Leave();
+        if(_current=="Business setup")_businessProfile?.Leave();
         if(!_pages.TryGetValue(key,out var page)){page=_routes[key]();_pages[key]=page;}
         _content.Content=page;
         _current=key;
@@ -86,6 +90,7 @@ internal sealed class WorkspaceView(BusinessStore store,OwnerSession session,Act
     }
     private UIElement BuildOwnerSecurity(){_ownerSecurity=new(store,session,passphraseChanged??locked);return _ownerSecurity.Build();}
     private UIElement BuildDocumentDecisions(){_documentDecisions=new(store,session);return _documentDecisions.Build();}
+    private UIElement BuildBusinessProfile(){_businessProfile=new(store,session,name=>_businessTitle.Text=name);return _businessProfile.Build();}
 
     private UIElement Footer(FrameworkElement root)
     {
