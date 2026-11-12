@@ -34,6 +34,6 @@ public sealed class OwnerActivityTests
         f.Owner.Lock();Assert.False(access.TryRecordActivity(f.Owner));Assert.Equal(DateTimeOffset.MinValue,f.Owner.ExpiresAt);
         var fresh=access.SignIn(f.Owner.OwnerId,BusinessFixture.Phrase);f.Files.Execute($"UPDATE Owners SET Active=0 WHERE Id='{fresh.OwnerId}';");Assert.False(access.IsSessionCurrent(fresh));Assert.False(access.TryRecordActivity(fresh));
     }
-    private static OwnerSession Session(BusinessFixture f,Clock clock)=>new(f.Owner.OwnerId,f.Owner.OwnerName,f.Owner.BusinessId,f.Store.StoreId,f.Store.InstanceId,clock);
+    private static OwnerSession Session(BusinessFixture f,Clock clock)=>new(f.Owner.OwnerId,f.Owner.OwnerName,f.Owner.BusinessId,f.Store.StoreId,f.Store.InstanceId,clock,f.Owner.CredentialStamp);
     private static long Watermark(BusinessFixture f)=>Convert.ToInt64(TestStore.Scalar(f.Store.DatabasePath,"SELECT Watermark FROM Business;"));
 }

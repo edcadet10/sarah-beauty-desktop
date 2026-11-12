@@ -1,0 +1,9 @@
+# Require the credential used to establish the session
+
+Setup and sign-in now bind each human session to a private digest of the stored salted credential and its iteration count. Every protected read/write and nonrenewing access check compares that binding to the current active owner credential. A mismatch locks the old session permanently and requires fresh sign-in. Owner identity alone cannot establish this binding. The digest stays internal and is not included in session JSON or readable exports.
+
+Two checks failed before the change: replacing the stored credential left existing sessions valid, and confirmation with the new phrase renewed an earlier-credential session. The revised checks reject both paths while fresh sign-in succeeds. All 35 related Release cases pass across credential binding, sign-in/concurrency, lock renewal, monotonic idle/activity, ownership confirmation, and writer/export compatibility. Two virtual-clock fixtures initially lacked the new authenticated binding; they now copy it from their actual setup session. The pure clock-only fixtures remain independent of database access.
+
+Writer schema 35 raises the minimum session-validation contract without changing ownership, creating credentials, or altering business data. Older writers reject that version rather than continuing with weaker session checks. This is the prerequisite for a passphrase-change form, not the completed change/recovery feature.
+
+The policy applies the reauthentication principle in OWASP's [authentication guidance](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html#change-password-feature) and [session guidance](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html#renew-the-session-id-after-any-privilege-level-change) to this local desktop session model. Browser-cookie transport details do not apply to these in-process owner sessions.

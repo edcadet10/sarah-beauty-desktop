@@ -7,6 +7,7 @@ public sealed class OwnerSession
     public string BusinessId { get; }
     public string StoreId { get; }
     public string InstanceId {get;}
+    internal string? CredentialStamp {get;}
     private readonly object _gate=new();
     private readonly TimeProvider _time;
     private static readonly TimeSpan IdleLimit=TimeSpan.FromMinutes(15);
@@ -16,9 +17,10 @@ public sealed class OwnerSession
     internal DateTimeOffset ExpiresAt { get{lock(_gate){Active();return _expiresAt;}} }
     public bool IsActive {get{lock(_gate)return Active();}}
 
-    internal OwnerSession(string ownerId, string name, string businessId, string storeId,string instanceId,TimeProvider? time=null)
+    internal OwnerSession(string ownerId, string name, string businessId, string storeId,string instanceId,TimeProvider? time=null,string? credentialStamp=null)
     {
         (OwnerId, OwnerName, BusinessId, StoreId,InstanceId) = (ownerId, name, businessId, storeId,instanceId);
+        CredentialStamp=credentialStamp;
         _time=time??TimeProvider.System;_lastActivity=_time.GetTimestamp();_expiresAt=_time.GetUtcNow()+IdleLimit;
     }
 
