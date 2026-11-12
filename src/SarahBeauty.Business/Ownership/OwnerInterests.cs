@@ -11,7 +11,7 @@ public sealed partial class OwnerInterests(BusinessStore store)
     public IReadOnlyList<OwnerInterestVersion> History(OwnerSession owner)=>store.ReadSnapshot(db=>{store.RequireSession(db,owner);return OwnerInterestQueries.Read(db,owner.BusinessId);});
     public IReadOnlyList<OwnerInterestPeriod> Periods(OwnerSession owner)=>BuildPeriods(History(owner));
     public OwnerInterestPeriod? At(OwnerSession owner,DateOnly date)=>Periods(owner).SingleOrDefault(p=>p.EffectiveFrom<=date && (p.EffectiveThrough is null || date<=p.EffectiveThrough));
-    internal static IReadOnlyList<OwnerInterestPeriod> BuildPeriods(IReadOnlyList<OwnerInterestVersion> history)
+    public static IReadOnlyList<OwnerInterestPeriod> BuildPeriods(IReadOnlyList<OwnerInterestVersion> history)
     {
         var superseded=history.Where(v=>v.SupersedesId is not null).Select(v=>v.SupersedesId).ToHashSet(StringComparer.Ordinal);
         var current=history.Where(v=>!superseded.Contains(v.Id)).OrderBy(v=>v.EffectiveFrom).ToArray();

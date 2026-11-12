@@ -1,8 +1,8 @@
 namespace SarahBeauty.Business.Ownership;
 
-internal static class OwnerInterestRules
+public static class OwnerInterestRules
 {
-    internal static OwnerInterestDraft Normalize(OwnerInterestDraft draft)
+    public static OwnerInterestDraft Normalize(OwnerInterestDraft draft)
     {
         ArgumentNullException.ThrowIfNull(draft);
         if(draft.ExpectedRevision<0 || draft.ExpectedRevision==long.MaxValue || draft.EffectiveFrom==default)

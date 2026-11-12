@@ -60,6 +60,7 @@ internal sealed class WorkspaceView(BusinessStore store,OwnerSession session,Act
         _routes["Evidence files"]=()=>new EvidenceView(store,session).Build();
         _routes["Backups and recovery"]=()=>new LocalBackupView(store,session,retired,backupRuntime,googleRuntime,sheetsRuntime).Build();
         _routes["Opening balances"]=()=>new OpeningView(store,session).Build();
+        _routes["Ownership settings"]=()=>new OwnerInterestView(store,session).Build();
         _routes["Reports"]=()=>new ReportsView(store,session).Build();
         _routes["Statements"]=()=>new StatementPreviewView(store,session).Build();
         _routes["Bank matching"]=()=>new BankMatchingView(store,session).Build();
