@@ -15,8 +15,8 @@ internal static class StatementErrorHistory
             E.Explanation,E.EvidenceId FROM StatementErrors E JOIN Reconciliations C ON C.Id=E.ReconciliationId JOIN BankLines B ON B.Id=E.BankLineId
         WHERE C.BusinessId=$business AND C.AccountId=$account AND C.AsOfDate<$date
         AND NOT EXISTS(SELECT 1 FROM ReconciliationReopens X WHERE X.ReconciliationId=C.Id) ORDER BY B.Date,E.Id;
-        """,r=>new CarriedStatementError(r.GetString(0),r.GetString(1),DateOnly.Parse(r.GetString(2)),r.GetInt64(3),r.GetInt64(4),r.GetString(5),r.GetString(6)),
-        ("$business",owner.BusinessId),("$account",account),("$date",through.ToString("yyyy-MM-dd"))).Where(e=>e.RemainingCents>0).ToArray();
+        """,r=>new CarriedStatementError(r.GetString(0),r.GetString(1),StoredDates.Parse(r.GetString(2)),r.GetInt64(3),r.GetInt64(4),r.GetString(5),r.GetString(6)),
+        ("$business",owner.BusinessId),("$account",account),("$date",through.ToStorageDate())).Where(e=>e.RemainingCents>0).ToArray();
 
     internal static List<BankReservation> Reservations(DbWork db,OwnerSession owner,string account)=>db.Read("""
         SELECT E.BankLineId,E.Cents,C.AsOfDate FROM StatementErrors E JOIN Reconciliations C ON C.Id=E.ReconciliationId
@@ -24,7 +24,7 @@ internal static class StatementErrorHistory
         UNION ALL
         SELECT R.BankLineId,R.Cents,C.AsOfDate FROM StatementErrorResolutions R JOIN Reconciliations C ON C.Id=R.ReconciliationId
         WHERE C.BusinessId=$business AND C.AccountId=$account AND NOT EXISTS(SELECT 1 FROM ReconciliationReopens X WHERE X.ReconciliationId=C.Id);
-        """,r=>new BankReservation(r.GetString(0),r.GetInt64(1),DateOnly.Parse(r.GetString(2))),("$business",owner.BusinessId),("$account",account));
+        """,r=>new BankReservation(r.GetString(0),r.GetInt64(1),StoredDates.Parse(r.GetString(2))),("$business",owner.BusinessId),("$account",account));
 
     internal static void Save(DbWork db,OwnerSession owner,string reconciliation,ReconciliationDraft draft,Action<string>? failure)
     {
