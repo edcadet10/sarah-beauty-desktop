@@ -16,12 +16,8 @@ internal static class ReadyStoreChecks
     {
         var m=ArchiveManifestChecks.Read(JsonSerializer.SerializeToUtf8Bytes(receipt.SourceManifest));StoreInstanceGuard.Require(db,receipt.StoreId,receipt.InstanceId,"Prepared");
         if(m.StoreId!=receipt.StoreId || m.Mode!="TEST" || m.Watermark!=receipt.SourceWatermark || (string?)db.Scalar("SELECT DisplayName FROM Business WHERE Id=$id;",("$id",m.BusinessId))!=m.BusinessName || (long?)db.Scalar("SELECT Watermark FROM Business WHERE Id=$id;",("$id",m.BusinessId))!=m.Watermark+1)throw new InvalidDataException("The prepared business changed before activation.");
-        var facts=ArchiveDatabaseChecks.Read(db);if(facts.Tables.Length!=m.Facts.Tables.Length || facts.MovementCount!=m.Facts.MovementCount || facts.JournalLineCount!=m.Facts.JournalLineCount || facts.TotalDebits!=m.Facts.TotalDebits || facts.TotalCredits!=m.Facts.TotalCredits)throw new InvalidDataException("The prepared financial facts changed before activation.");
-        foreach(var expected in m.Facts.Tables)
-        {
-            long added=expected.Table=="Audit"?1:expected.Table=="AppMetadata"?1+(m.SchemaVersion<32?2:0):0;
-            if(facts.Tables.SingleOrDefault(t=>t.Table==expected.Table)?.Rows!=expected.Rows+added)throw new InvalidDataException("The prepared record counts changed before activation.");
-        }
+        var facts=ArchiveDatabaseChecks.Read(db);if(facts.MovementCount!=m.Facts.MovementCount || facts.JournalLineCount!=m.Facts.JournalLineCount || facts.TotalDebits!=m.Facts.TotalDebits || facts.TotalCredits!=m.Facts.TotalCredits)throw new InvalidDataException("The prepared financial facts changed before activation.");
+        RecoveredTableInventory.Verify(facts,m);
         var files=m.Files.Where(f=>f.Kind!="Database").ToDictionary(f=>f.RelativePath,StringComparer.Ordinal);var references=ArchiveReferences.Read(db,m.BusinessId);
         if(files.Count!=references.Length)throw new InvalidDataException("The prepared managed-file references changed before activation.");
         foreach(var reference in references)
