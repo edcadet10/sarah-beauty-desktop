@@ -66,7 +66,7 @@ public sealed class BookingReservations(BusinessStore store)
             JOIN InvoiceMilestones M ON M.Id=A.MilestoneId JOIN DocumentVersions V ON V.Id=A.InvoiceVersionId
             JOIN Documents D ON D.Id=V.DocumentId WHERE D.BusinessId=$business AND D.BookingId=$booking AND A.Date<=$date;
             """,r=>(Kind:r.GetString(0),Cents:r.GetInt64(1)*(r.IsDBNull(2)?1:-1)),
-            ("$business",businessId),("$booking",bookingId),("$date",date.ToString("yyyy-MM-dd")));
+            ("$business",businessId),("$booking",bookingId),("$date",date.ToStorageDate()));
         return(rows.Where(r=>r.Kind=="Trial").Sum(r=>r.Cents),rows.Where(r=>r.Kind=="Deposit").Sum(r=>r.Cents));
     }
 }

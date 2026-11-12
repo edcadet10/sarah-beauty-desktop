@@ -17,7 +17,7 @@ internal static class ReconciliationQueries
         {
             string json=r.GetString(6),hash=r.GetString(7);
             if(Hash(json)!=hash)throw new InvalidDataException("A saved reconciliation snapshot failed its content-hash check.");
-            return new CompletedReconciliation(r.GetString(0),r.GetString(1),r.GetString(2),DateOnly.Parse(r.GetString(3)),r.GetString(4),r.GetString(5),
+            return new CompletedReconciliation(r.GetString(0),r.GetString(1),r.GetString(2),StoredDates.Parse(r.GetString(3)),r.GetString(4),r.GetString(5),
                 JsonSerializer.Deserialize<ReconciliationPreview>(json)!,hash,r.GetInt32(8)==1);
         },("$business",businessId),("$id",id));
 
@@ -27,7 +27,7 @@ internal static class ReconciliationQueries
             SELECT C.Id,B.BankLineId FROM Reconciliations C LEFT JOIN ReconciliationBankCoverage B ON B.ReconciliationId=C.Id
             WHERE C.BusinessId=$business AND C.AccountId=$account AND C.AsOfDate<$date
             AND NOT EXISTS(SELECT 1 FROM ReconciliationReopens R WHERE R.ReconciliationId=C.Id);
-            """,r=>(Id:r.GetString(0),Bank:r.IsDBNull(1)?null:r.GetString(1)),("$business",owner.BusinessId),("$account",account),("$date",through.ToString("yyyy-MM-dd")));
+            """,r=>(Id:r.GetString(0),Bank:r.IsDBNull(1)?null:r.GetString(1)),("$business",owner.BusinessId),("$account",account),("$date",through.ToStorageDate()));
         return(rows.Select(r=>r.Id).Distinct().ToArray(),rows.Where(r=>r.Bank is not null).Select(r=>r.Bank!).ToHashSet());
     }
 

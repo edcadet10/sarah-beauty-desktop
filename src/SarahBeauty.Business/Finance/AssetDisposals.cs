@@ -13,7 +13,7 @@ internal static class AssetDisposals
             SELECT 1 FROM json_each(M.DataJson,'$.AssetAdjustments') C WHERE json_extract(C.value,'$.AssetId')=$asset
             AND json_extract(C.value,'$.Treatment')='Retire returned asset'))
         AND NOT EXISTS(SELECT 1 FROM Movements R WHERE R.ReversesId=M.Id AND R.Date<=$date) LIMIT 1;
-        """,("$business",businessId),("$asset",asset),("$date",date.ToString("yyyy-MM-dd"))) is not null;
+        """,("$business",businessId),("$asset",asset),("$date",date.ToStorageDate())) is not null;
 
     internal static List<JournalLine> Lines(DbWork db,OwnerSession owner,FinancialDraft draft,List<Account> accounts)
     {

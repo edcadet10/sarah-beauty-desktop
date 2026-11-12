@@ -44,8 +44,8 @@ public sealed class FinancialReports(BusinessStore store)
         SELECT M.Id,M.Date,M.Kind,M.Memo,A.Id,A.Name,J.DebitCents,J.CreditCents FROM JournalLines J JOIN Movements M ON M.Id=J.MovementId
         JOIN Accounts A ON A.Id=J.AccountId WHERE M.BusinessId=$business
         AND M.Date BETWEEN $from AND $through ORDER BY M.Date,M.Id,A.Code;
-        """,r=>new CashActivity(r.GetString(0),DateOnly.Parse(r.GetString(1)),r.GetString(2),r.GetString(3),r.GetString(4),r.GetString(5),r.GetInt64(6),r.GetInt64(7)),
-        ("$business",businessId),("$from",from.ToString("yyyy-MM-dd")),("$through",through.ToString("yyyy-MM-dd")));
+        """,r=>new CashActivity(r.GetString(0),StoredDates.Parse(r.GetString(1)),r.GetString(2),r.GetString(3),r.GetString(4),r.GetString(5),r.GetInt64(6),r.GetInt64(7)),
+        ("$business",businessId),("$from",from.ToStorageDate()),("$through",through.ToStorageDate()));
 
     private static string[] OpeningWarnings(DbWork db,string businessId,List<AccountTotal> trial)
     {

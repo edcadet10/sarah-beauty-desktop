@@ -32,10 +32,10 @@ public sealed class BookingFinancialSources(BusinessStore store)
         FROM Movements M JOIN JournalLines J ON J.MovementId=M.Id JOIN Accounts A ON A.Id=J.AccountId LEFT JOIN Movements O ON O.Id=M.ReversesId
         WHERE M.BusinessId=$business AND (M.BookingId=$booking OR ($booking IS NULL AND M.BookingId IS NULL AND A.Type='Expense'))
         AND M.Date<=$through ORDER BY M.Date,M.rowid,J.rowid;
-        """,r=>new BookingFinancialEntry(r.GetString(0),DateOnly.Parse(r.GetString(1)),r.GetString(2),r.GetString(3),r.GetString(4),r.GetString(5),r.GetString(6),
+        """,r=>new BookingFinancialEntry(r.GetString(0),StoredDates.Parse(r.GetString(1)),r.GetString(2),r.GetString(3),r.GetString(4),r.GetString(5),r.GetString(6),
             r.GetInt64(8),r.GetInt64(9),IsDirectCost(r.GetString(7),r.GetString(5)),
             r.GetString(7)=="Income" && r.GetString(5)!="4010" && r.GetString(3) is "Receipt" or "ReceiptClassification" or "Refund"),
-        ("$business",businessId),("$booking",booking),("$through",through.ToString("yyyy-MM-dd"))).ToArray();
+        ("$business",businessId),("$booking",booking),("$through",through.ToStorageDate())).ToArray();
 
     internal static bool IsDirectCost(string accountType,string code)=>accountType=="Expense" && code is not ("5030" or "5035" or "5040" or "5060");
 
@@ -48,8 +48,8 @@ public sealed class BookingFinancialSources(BusinessStore store)
         FROM Movements M LEFT JOIN Movements O ON O.Id=M.ReversesId
         WHERE M.BusinessId=$business AND M.BookingId=$booking AND M.Date<=$through
         AND CASE WHEN M.Kind='Reversal' THEN O.Kind ELSE M.Kind END IN('Receipt','UnclassifiedReceipt','Refund') ORDER BY M.Date,M.rowid;
-        """,r=>CashRow(r.GetString(0),DateOnly.Parse(r.GetString(1)),r.GetString(2),r.GetString(3),r.GetString(4),r.GetString(5),r.GetInt64(6),r.GetInt64(7),r.GetInt64(8)),
-        ("$business",businessId),("$booking",booking),("$through",through.ToString("yyyy-MM-dd"))).ToArray();
+        """,r=>CashRow(r.GetString(0),StoredDates.Parse(r.GetString(1)),r.GetString(2),r.GetString(3),r.GetString(4),r.GetString(5),r.GetInt64(6),r.GetInt64(7),r.GetInt64(8)),
+        ("$business",businessId),("$booking",booking),("$through",through.ToStorageDate())).ToArray();
 
     private static BookingCashSource CashRow(string id,DateOnly date,string kind,string effectiveKind,string memo,string account,long gross,long tax,long fee)
     {

@@ -39,7 +39,7 @@ internal static class ReadableCancellationTables
             CancellationPreview value;
             try{value=JsonSerializer.Deserialize<CancellationPreview>(reader.GetString(5))??throw new JsonException();}
             catch(JsonException){throw new InvalidDataException("A retained cancellation decision cannot be projected.");}
-            if(value.Decision.Id!=reader.GetString(2)||value.Decision.BookingId!=reader.GetString(1)||value.Before.BookingId!=reader.GetString(1)||value.After.BookingId!=reader.GetString(1)||value.Decision.RequestedDate?.ToString("yyyy-MM-dd")!=reader.GetString(3)||value.Decision.Date?.ToString("yyyy-MM-dd")!=reader.GetString(4))throw new InvalidDataException("A retained cancellation does not match its relational identity.");
+            if(value.Decision.Id!=reader.GetString(2)||value.Decision.BookingId!=reader.GetString(1)||value.Before.BookingId!=reader.GetString(1)||value.After.BookingId!=reader.GetString(1)||value.Decision.RequestedDate?.ToStorageDate()!=reader.GetString(3)||value.Decision.Date?.ToStorageDate()!=reader.GetString(4))throw new InvalidDataException("A retained cancellation does not match its relational identity.");
             return(reader.GetString(0),value);
         },("$business",source.BusinessId));
 

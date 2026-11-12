@@ -54,7 +54,7 @@ internal static class ReceiptClassifications
             SELECT M.GrossCents,COALESCE(json_extract(M.DataJson,'$.SourceTaxCents'),0) FROM Movements M
             WHERE M.OriginalId=$id AND M.Kind='ReceiptClassification' AND M.Date<=$date
             AND NOT EXISTS(SELECT 1 FROM Movements R WHERE R.ReversesId=M.Id AND R.Date<=$date);
-            """,r=>(Cents:r.GetInt64(0),Tax:r.GetInt64(1)),("$id",payment),("$date",date.ToString("yyyy-MM-dd")));
+            """,r=>(Cents:r.GetInt64(0),Tax:r.GetInt64(1)),("$id",payment),("$date",date.ToStorageDate()));
         return new(rows.Sum(r=>r.Cents),rows.Sum(r=>r.Tax));
     }
 

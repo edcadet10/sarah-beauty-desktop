@@ -39,7 +39,7 @@ internal static class ReadableReconciliationTables
             ReconciliationPreview value;
             try{value=JsonSerializer.Deserialize<ReconciliationPreview>(reader.GetString(4))??throw new JsonException();}
             catch(JsonException){throw new InvalidDataException("A retained reconciliation cannot be projected.");}
-            if(value.Sources.Statement.Id!=reader.GetString(2)||value.Draft.StatementId!=reader.GetString(2)||value.Sources.Statement.AccountId!=reader.GetString(1)||value.Sources.Statement.Through.ToString("yyyy-MM-dd")!=reader.GetString(3))throw new InvalidDataException("A retained reconciliation does not match its relational identity.");
+            if(value.Sources.Statement.Id!=reader.GetString(2)||value.Draft.StatementId!=reader.GetString(2)||value.Sources.Statement.AccountId!=reader.GetString(1)||value.Sources.Statement.Through.ToStorageDate()!=reader.GetString(3))throw new InvalidDataException("A retained reconciliation does not match its relational identity.");
             return(reader.GetString(0),value);
         },("$business",source.BusinessId));
 

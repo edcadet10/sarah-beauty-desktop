@@ -18,7 +18,7 @@ internal static class DocumentVersions
             VALUES ($id,$document,$version,$draft,$date,$json,$hash,'Issued',$owner,$at);
             INSERT INTO DocumentArtifacts (VersionId) VALUES ($id);
             """,("$id",id),("$document",draft.DocumentId),("$version",snapshot.Version),("$draft",draft.Id),
-            ("$date",snapshot.IssueDate.ToString("yyyy-MM-dd")),("$json",json),("$hash",hash),
+            ("$date",snapshot.IssueDate.ToStorageDate()),("$json",json),("$hash",hash),
             ("$owner",owner.OwnerId),("$at",DateTimeOffset.UtcNow.ToString("O")));
         return new(id,draft.DocumentId,draft.BookingId,snapshot,hash,"Issued",null,null);
     }
@@ -43,7 +43,7 @@ internal static class DocumentVersions
         if(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(json)))!=hash)
             throw new InvalidOperationException("The document snapshot failed its integrity check.");
         return new(r.GetString(0),r.GetString(1),r.IsDBNull(7)?"":r.GetString(7),JsonSerializer.Deserialize<ClientSnapshot>(json)!,hash,r.GetString(4),
-            r.IsDBNull(5)?null:DateOnly.Parse(r.GetString(5)),r.IsDBNull(6)?null:r.GetString(6));
+            r.IsDBNull(5)?null:StoredDates.Parse(r.GetString(5)),r.IsDBNull(6)?null:r.GetString(6));
     }
 
     internal static string AllocateNumber(DbWork db,OwnerSession owner,DocumentKind kind)

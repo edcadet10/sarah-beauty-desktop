@@ -58,7 +58,7 @@ internal static class OwnerSchedule
         WHERE M.BusinessId=$business AND M.Date<=$through AND (A.Code IN('3000','3100','2100') OR
             (M.OwnerId IS NOT NULL AND EXISTS(SELECT 1 FROM JournalLines K JOIN Accounts B ON B.Id=K.AccountId
                 WHERE K.MovementId=M.Id AND B.Code IN('3000','3100','2100')))) ORDER BY M.Date,M.rowid,J.rowid;
-        """,r=>new OwnerScheduleEntry(r.GetString(0),r.GetString(1),DateOnly.Parse(r.GetString(2)),r.GetString(3),r.GetString(4),r.GetString(5),
+        """,r=>new OwnerScheduleEntry(r.GetString(0),r.GetString(1),StoredDates.Parse(r.GetString(2)),r.GetString(3),r.GetString(4),r.GetString(5),
             r.GetString(6),r.GetString(7),r.GetInt64(8),r.GetInt64(9),OwnerLedger),
-        ("$business",businessId),("$through",through.ToString("yyyy-MM-dd")));
+        ("$business",businessId),("$through",through.ToStorageDate()));
 }

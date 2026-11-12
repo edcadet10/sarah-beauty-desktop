@@ -37,7 +37,7 @@ internal static class DebtSchedule
         FROM Movements M JOIN JournalLines J ON J.MovementId=M.Id JOIN Accounts A ON A.Id=J.AccountId
         LEFT JOIN Movements O ON O.Id=M.ReversesId
         WHERE M.BusinessId=$business AND M.LoanId IS NOT NULL AND M.Date<=$through ORDER BY M.Date,M.rowid,J.rowid;
-        """,r=>new DebtScheduleEntry(r.GetString(0),r.GetString(1),DateOnly.Parse(r.GetString(2)),r.GetString(3),r.GetString(4),r.GetString(5),
+        """,r=>new DebtScheduleEntry(r.GetString(0),r.GetString(1),StoredDates.Parse(r.GetString(2)),r.GetString(3),r.GetString(4),r.GetString(5),
             r.GetString(6),r.GetString(7),r.GetInt64(8),r.GetInt64(9),r.IsDBNull(10)?null:JsonSerializer.Deserialize<LoanLenderSnapshot>(r.GetString(10))),
-        ("$business",businessId),("$through",through.ToString("yyyy-MM-dd")));
+        ("$business",businessId),("$through",through.ToStorageDate()));
 }
