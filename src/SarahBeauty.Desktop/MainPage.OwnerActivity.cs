@@ -36,7 +36,7 @@ public sealed partial class MainPage
     }
     private void HideOwnerContent()
     {
-        _session?.Lock();_session=null;_ownerActivity=null;Host.Content=null;if(Host.XamlRoot is null)return;
+        _workspaceGeneration++;_session?.Lock();_session=null;_ownerActivity=null;Host.Content=null;if(Host.XamlRoot is null)return;
         foreach(var popup in VisualTreeHelper.GetOpenPopupsForXamlRoot(Host.XamlRoot).ToArray()){HideDialogs(popup.Child);popup.IsOpen=false;}
     }
     private static void HideDialogs(DependencyObject? root)

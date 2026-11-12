@@ -24,11 +24,11 @@ internal static class OwnerView
             Form.Action("Create business", status, async () =>
             {
                 var values = (name.Text, first.Text, firstPhrase.Password, second.Text, secondPhrase.Password);
-                var session = await Task.Run(() => access.Setup(values.Item1, values.Item2, values.Item3, values.Item4, values.Item5));
+                var session = await ((App)Application.Current).Operations.RunAsync(token=>Task.Run(() => access.Setup(values.Item1, values.Item2, values.Item3, values.Item4, values.Item5),token));
                 firstPhrase.Password = secondPhrase.Password = "";
                 signedIn(session);
             }));
-        return panel;
+        panel.Unloaded+=(_,_)=>{firstPhrase.Password="";secondPhrase.Password="";};return panel;
     }
 
     private static UIElement SignIn(OwnerAccess access, Action<OwnerSession> signedIn)
@@ -44,8 +44,8 @@ internal static class OwnerView
                 if (select.SelectedIndex < 0) throw new ArgumentException("Select an owner.");
                 var (id, password) = (owners[select.SelectedIndex].Id, phrase.Password);
                 phrase.Password = "";
-                signedIn(await Task.Run(() => access.SignIn(id, password)));
+                signedIn(await ((App)Application.Current).Operations.RunAsync(token=>Task.Run(() => access.SignIn(id, password),token)));
             }));
-        return panel;
+        panel.Unloaded+=(_,_)=>phrase.Password="";return panel;
     }
 }

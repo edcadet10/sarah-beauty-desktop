@@ -26,7 +26,7 @@ internal sealed class WorkspaceView(BusinessStore store,OwnerSession session,Act
         root.RowDefinitions.Add(new(){Height=new GridLength(1,GridUnitType.Star)});
         var header=Form.Panel();
         header.Margin=new Thickness(24,12,24,8);
-        _businessTitle.Text=store.BusinessName(session);header.Add(_businessTitle,Form.Text($"TEST • Signed in as {session.OwnerName}"),_status);
+        _businessTitle.Text=store.BusinessName(session);header.Add(_businessTitle,Form.Text($"{BusinessModes.StoredName(store.Mode)} • Signed in as {session.OwnerName}"),_status);
         var nav=new NavigationView{IsSettingsVisible=false,PaneDisplayMode=NavigationViewPaneDisplayMode.Auto,IsPaneOpen=true};
         _navigation=nav;
         foreach(string label in _routes.Keys)nav.MenuItems.Add(new NavigationViewItem{Content=label,Tag=label,Icon=new SymbolIcon(Symbol.Document)});
