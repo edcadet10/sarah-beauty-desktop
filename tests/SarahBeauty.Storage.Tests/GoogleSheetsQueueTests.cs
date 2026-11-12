@@ -42,6 +42,12 @@ public sealed class GoogleSheetsQueueTests
         public void Dispose(){Client.Dispose();Google.Dispose();}
     }
     [Fact]
+    public async Task DisabledSheetsConsentReportsOffWithoutCapturingEvenWhenAutomaticChoiceIsSaved()
+    {
+        using var f=await Fixture.Create();await f.Google.Settings.SaveAsync(f.Google.Ledger.Business.Owner,new(false,false,f.Permit.Policy.Revision));
+        Assert.Equal("Sheets export disabled or not configured",(await f.Queue.RunDueAsync()).Status);Assert.Equal(0,f.Server.Calls);Assert.Empty(f.Store.Read(db=>GoogleSheetsJobRecords.List(db,f.Permit.Policy.BusinessId)));
+    }
+    [Fact]
     public async Task DisabledAutomaticChoiceMakesNoHttpOrJobEvenWithManualSheetsPermission()
     {
         using var f=await Fixture.Create(false);Assert.Contains("disabled",(await f.Queue.RunDueAsync()).Status);Assert.Equal(0,f.Server.Calls);

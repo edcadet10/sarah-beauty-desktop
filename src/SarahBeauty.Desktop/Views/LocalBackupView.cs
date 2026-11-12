@@ -4,13 +4,14 @@ using Microsoft.UI.Xaml.Controls;
 using SarahBeauty.Business.Recovery;
 using SarahBeauty.Business.Security;
 using SarahBeauty.Business.Storage;
+using SarahBeauty.Business.Google;
 
 namespace SarahBeauty_Desktop.Views;
 
-internal sealed class LocalBackupView(BusinessStore store,OwnerSession owner,Action? retired=null,Func<string>? runtime=null,Func<string>? googleRuntime=null)
+internal sealed class LocalBackupView(BusinessStore store,OwnerSession owner,Action? retired=null,Func<string>? runtime=null,Func<string>? googleRuntime=null,Func<string>? sheetsRuntime=null)
 {
     private readonly LocalBackups _backups=new(store);
-    private readonly TextBlock _status=Form.Text(),_health=Form.Text(),_profile=Form.Text();
+    private readonly TextBlock _status=Form.Text(),_health=Form.Text(),_profile=Form.Text(),_sheets=Form.Text();
     private readonly SearchableRecords _history=new("Local archive attempt");
     private readonly ContentControl _detail=new();
     private readonly StackPanel _panel=Form.Panel();
@@ -21,7 +22,7 @@ internal sealed class LocalBackupView(BusinessStore store,OwnerSession owner,Act
         _panel.Add(Form.Title("Backups and recovery"),Form.Text("Create a complete encrypted copy of the local database, issued PDFs, and managed evidence versions. Keep a copy on another device or private storage to protect against loss of this computer."),
             _profile,new RecoverySetupView(store,owner,Refresh).Build(),new BackupScheduleView(store,owner,runtime).Build(),new GoogleConnectionView(store,owner).Build(),new GoogleArchiveView(store,owner,googleRuntime).Build(),Form.Action("Refresh backup health",_status,()=>{Refresh();return Task.CompletedTask;}),_health,
             Form.Action("Create encrypted archive now",_status,Create),Form.Action("Cancel local archive",_status,()=>{_cancellation?.Cancel();return Task.CompletedTask;}),_status,
-            Form.Text("Sheets export: Never completed. Second-device restore test: Never completed. Connection setup and archive delivery do not complete these export or restore checks."),
+            _sheets,Form.Text("Second-device restore test: Never completed. Google delivery does not establish this restore check."),
             _history.Build(),Form.Action("Show selected archive attempt",_status,Show),Form.Action("Verify selected encrypted file",_status,Verify),_detail);
         _panel.Loaded+=(_,_)=>{try{Refresh();}catch(Exception error){_status.Text=error.Message;}};_panel.Unloaded+=(_,_)=>_cancellation?.Cancel();return _panel;
     }
@@ -29,6 +30,8 @@ internal sealed class LocalBackupView(BusinessStore store,OwnerSession owner,Act
     {
         var profile=new RecoveryProfiles(store).Current(owner);_profile.Text=profile is null?"Portable recovery: Not configured.":"Portable recovery confirmed "+profile.ConfirmedAtUtc+" • Recipient fingerprint "+profile.RecipientFingerprint;
         var health=_backups.Health(owner);_health.Text=HealthText(health);string selected=_history.SelectedId;_jobs=_backups.History(owner);
+        var dates=new GoogleSheetsExportProfiles(store).Current(owner);var sheets=new GoogleSheetsHealthService(store).Current(owner,dates?.Selection);
+        _sheets.Text=$"Google Sheets: {sheets.Status} • Current watermark {sheets.CurrentWatermark} • Selected-report coverage {sheets.ExportedWatermark?.ToString()??"None"}\nSheets worker: {sheetsRuntime?.Invoke()??"Unavailable"}";
         _history.Update(_jobs.Select(j=>(j.Id,$"{j.StartedAtUtc} • {j.Status} • {Path.GetFileName(j.Destination)}")),selected);
     }
     internal static string HealthText(LocalBackupHealth health)=>$"Local archive: {health.Status} • Current business watermark {health.CurrentWatermark}\nLast completed coverage: {health.ArchivedWatermark?.ToString()??"None"} • Completed {health.CompletedAtUtc??"Never"}";
