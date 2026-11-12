@@ -8,7 +8,7 @@ namespace SarahBeauty.Storage.Tests;
 public sealed class GoogleSheetsFilesTests
 {
     private const string Token="Fictional-TEST-workbook-access",Account="fictional-account",FileId="fictional-workbook";
-    private static GoogleSheetsFileSpec Spec()=>new("fictional-folder","00000000000000000000000000000001","00000000000000000000000000000002","00000000000000000000000000000003",new string('A',64),"TEST");
+    internal static GoogleSheetsFileSpec Spec()=>new("fictional-folder","00000000000000000000000000000001","00000000000000000000000000000002","00000000000000000000000000000003",new string('A',64),"TEST");
     private static Task<string> Access(CancellationToken cancellation){cancellation.ThrowIfCancellationRequested();return Task.FromResult(Token);}
 
     [Fact]
@@ -78,7 +78,7 @@ public sealed class GoogleSheetsFilesTests
     }
 
     private static HttpResponseMessage Json(JsonNode value)=>new(HttpStatusCode.OK){Content=new StringContent(value.ToJsonString())};
-    private static JsonObject Facts(GoogleSheetsFileSpec spec)=>new()
+    internal static JsonObject Facts(GoogleSheetsFileSpec spec)=>new()
     {
         ["id"]=FileId,["mimeType"]=GoogleSheetsFileSpec.Mime,["ownedByMe"]=true,["shared"]=false,["trashed"]=false,
         ["owners"]=new JsonArray(new JsonObject{["permissionId"]=Account}),["permissions"]=new JsonArray(new JsonObject{["id"]=Account,["type"]="user",["role"]="owner",["deleted"]=false}),
