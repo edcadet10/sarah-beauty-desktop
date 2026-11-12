@@ -1,6 +1,6 @@
 # Verify the authorized Google account
 
-Status: The internal account probe and bounded JSON response reader are implemented. Saving verified connection grants, desktop controls, real consent/account checks, and delivery follow separately. Tests use fictional responses only.
+Status: The internal account probe, bounded JSON response reader, and [verified grant service](google-connection-grants.md) are implemented. Desktop controls, real consent/account checks, and delivery follow separately. Tests use fictional responses only.
 
 The probe calls the pinned Drive `about.get` endpoint with the bearer token in its Authorization header and an explicit field selection: authenticated permission identity, email, display name, and storage limit/usage. The default HTTP client disables redirects and cookies. The token does not enter query strings or error messages. Google documents `drive.file` as a supported scope for this operation.
 

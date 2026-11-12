@@ -8,7 +8,7 @@ namespace SarahBeauty.Storage.Tests;
 
 public sealed class GoogleClientSettingsTests
 {
-    private static byte[] Client(string suffix="first")=>Encoding.UTF8.GetBytes("{\"installed\":{\"client_id\":\"123456789-fictional.apps.googleusercontent.com\",\"client_secret\":\"Fictional-TEST-secret-"+suffix+"\",\"project_id\":\"fictional-test-project\",\"auth_uri\":\"https://accounts.google.com/o/oauth2/auth\",\"token_uri\":\"https://oauth2.googleapis.com/token\"}}");
+    internal static byte[] Client(string suffix="first")=>Encoding.UTF8.GetBytes("{\"installed\":{\"client_id\":\"123456789-fictional.apps.googleusercontent.com\",\"client_secret\":\"Fictional-TEST-secret-"+suffix+"\",\"project_id\":\"fictional-test-project\",\"auth_uri\":\"https://accounts.google.com/o/oauth2/auth\",\"token_uri\":\"https://oauth2.googleapis.com/token\"}}");
     private static long Watermark(LedgerFixture f)=>(long)TestStore.Scalar(f.Business.Files.DatabasePath,"SELECT Watermark FROM Business;")!;
     [Fact]
     public void SavedClientReopensProtectedWithPublicProvenanceAndNoArchiveSecret()
