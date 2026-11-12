@@ -8,4 +8,4 @@ Fifty-four related cases pass across command, retained-history, quote-decision, 
 
 The first command/history run passed 29 of 30 cases. Its competing-issuance fixture still referenced an older booking revision, so issuance stopped before competing with discard. Refreshing that fixture to the current booking revision lets the real competing issuance complete; discard then rejects the stale review as intended. No production issuance guard was changed.
 
-The full regression and Windows build are running. A native review screen follows in a separate PR. Actual device/account acceptance and release checks remain pending.
+The full regression passes 1,575 cases in 8 minutes 7 seconds at `6010845`. Windows Debug passes without warnings or errors. A native TEST profile reopen/lock/close check preserves the schema-40/watermark-5 fixture, all three private profile revisions, and its managed file. A native discard review screen follows in a separate PR. Actual device/account acceptance and release checks remain pending.
