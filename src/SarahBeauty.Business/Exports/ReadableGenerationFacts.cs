@@ -22,6 +22,11 @@ internal static class ReadableGenerationFacts
         if(debits!=credits)throw Invalid();return new(table.Rows.Count,debits.ToString(CultureInfo.InvariantCulture),credits.ToString(CultureInfo.InvariantCulture));
     }
 
+    internal static void CheckJournal(ReadableJournalFacts facts)
+    {
+        if(facts.Rows is <0 or >1_000_000||facts.DebitCents is not{Length:>0 and <=32}||facts.CreditCents is not{Length:>0 and <=32}||Cents(facts.DebitCents)!=Cents(facts.CreditCents))throw Invalid();
+    }
+
     private static BigInteger Cents(string value)=>BigInteger.TryParse(value,NumberStyles.None,CultureInfo.InvariantCulture,out var number)&&number>=0?number:throw Invalid();
     private static InvalidDataException Invalid()=>new("Readable journal facts must contain exact nonnegative integer cents with equal debit and credit totals.");
 }
