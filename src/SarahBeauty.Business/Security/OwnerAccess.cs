@@ -46,7 +46,7 @@ public sealed class OwnerAccess(BusinessStore store)
 
     public void Confirm(OwnerSession session, string phrase)
     {
-        if (session.StoreId != store.StoreId || session.InstanceId!=store.InstanceId || session.ExpiresAt <= DateTimeOffset.UtcNow)
+        if (session.StoreId != store.StoreId || session.InstanceId!=store.InstanceId || !session.IsActive)
             throw new UnauthorizedAccessException("Sign in to this business to continue.");
         var verified = SignIn(session.OwnerId, phrase);
         try
