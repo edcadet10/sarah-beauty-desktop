@@ -28,7 +28,7 @@ public sealed class ReadableExportAssemblyTests
         try{CultureInfo.CurrentCulture=CultureInfo.GetCultureInfo(culture);second=ReadableExportAssembly.Build(source,Dates);}
         finally{CultureInfo.CurrentCulture=previous;}
         Assert.Equal(JsonSerializer.Serialize(first),JsonSerializer.Serialize(second));
-        Assert.Equal(29,first.Groups.Count);Assert.Equal(155,first.Tables.Count);Assert.Equal(first.Tables.Count,first.Groups.Sum(g=>g.Tables.Count));
+        Assert.Equal(30,first.Groups.Count);Assert.Equal(159,first.Tables.Count);Assert.Equal(first.Tables.Count,first.Groups.Sum(g=>g.Tables.Count));
         Assert.Equal(first.Tables.Count,first.Tables.Select(t=>t.Name).Distinct(StringComparer.OrdinalIgnoreCase).Count());
         Assert.All(first.Tables,t=>{Assert.Equal(source.Source.GenerationId,t.GenerationId);Assert.Equal(source.Source.Watermark,t.Watermark);});
         string json=JsonSerializer.Serialize(first);Assert.DoesNotContain(secret,json);Assert.DoesNotContain(BusinessFixture.Phrase,json);

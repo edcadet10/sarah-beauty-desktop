@@ -4,6 +4,7 @@ internal static class ReadableColumnJoins
 {
     internal static (string Table,string Column)? Target(string table,string column)
     {
+        if(column is "OwnershipVersionId" or "SupersedesOwnershipVersionId")return("Ownership confirmations","OwnershipVersionId");
         if(column.EndsWith("OwnerId",StringComparison.Ordinal)||column is "OwnerLenderId" or "CapturedOwnerLenderId")return ("Owners","OwnerId");
         if(column.EndsWith("CustomerId",StringComparison.Ordinal)||column=="PayerId")return ("Customers","CustomerId");
         if(column.EndsWith("AccountId",StringComparison.Ordinal))return ("Accounts","AccountId");

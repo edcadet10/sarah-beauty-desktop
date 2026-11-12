@@ -20,7 +20,7 @@ public sealed class GoogleSheetsDeliveryWorkerTests
         {
             var rows=new[]{table.Columns}.Concat(table.Rows).ToArray();for(int r=0;r<rows.Length;r++)for(int c=0;c<rows[r].Count;c++)Assert.Equal(rows[r][c],server.Cells[(table.Name,r,c)]);
         }
-        Assert.True(server.Published);Assert.Equal(1,server.Creates);Assert.Equal(1,server.SchemaWrites);Assert.Equal(1,server.PublicationWrites);Assert.True(server.GridReads>=160);
+        Assert.True(server.Published);Assert.Equal(1,server.Creates);Assert.Equal(1,server.SchemaWrites);Assert.Equal(1,server.PublicationWrites);Assert.True(server.GridReads>=164);
         Assert.Equal(watermark,f.Watermark);Assert.Equal(DateTimeOffset.MinValue,f.Ledger.Business.Owner.ExpiresAt);Assert.False(GoogleSheetsDeliveryWorker.IsActive(completed.Id));
     }
     [Theory]

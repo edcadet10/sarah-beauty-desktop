@@ -44,7 +44,7 @@ internal static class ReadableColumnDictionary
 
     private static bool IsDate(string table,string column)=>
         (column.EndsWith("Date",StringComparison.Ordinal)||column.EndsWith("DateAtCapture",StringComparison.Ordinal)||
-            column is "Through" or "Month" or "PlanningAsOf" or "AsOf" or "EventFrom" or "EventThrough" or "ClosedThrough" or "ReconciledThrough" or "PeriodStart" or "PeriodEnd" or "TrialDue" or "DepositDue" or "FinalDue"||
+            column is "Through" or "Month" or "PlanningAsOf" or "AsOf" or "EventFrom" or "EventThrough" or "ClosedThrough" or "ReconciledThrough" or "PeriodStart" or "PeriodEnd" or "TrialDue" or "DepositDue" or "FinalDue" or "EffectiveFrom" or "EffectiveThrough"||
             column=="From"&&table!="Booking status history");
 
     private static string Scope(string column)=>column switch

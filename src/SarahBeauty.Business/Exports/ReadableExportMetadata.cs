@@ -15,6 +15,7 @@ internal static class ReadableExportMetadata
         var source=assembly.Source;var dates=assembly.Selection;var table=new ReadableTableBuilder(source,budget,"Start Here","Property","Value");
         table.Add("Label","Export from Sarah Beauty Desktop");table.Add("AssemblyState","Local business tables assembled; remote publication is not established by these rows");
         table.Add("SourceFormatVersion",source.Version);table.Add("GenerationId",source.GenerationId);table.Add("BusinessId",source.BusinessId);
+        table.Add("ProjectionFormatVersion",ReadableExportGeneration.FormatVersion);
         table.Add("BusinessName",source.BusinessName);table.Add("Mode",source.Mode);table.Add("StoreId",source.StoreId);table.Add("InstanceId",source.InstanceId);
         table.Add("SchemaVersion",source.SchemaVersion);table.Add("AppAssemblyVersion",typeof(ReadableExportAssembly).Assembly.GetName().Version?.ToString());
         table.Add("Watermark",source.Watermark);table.Add("CapturedAtUtc",source.CapturedAtUtc);table.Add("Currency","USD");
@@ -22,7 +23,7 @@ internal static class ReadableExportMetadata
         table.Add("EventFrom",dates.EventFrom);table.Add("EventThrough",dates.EventThrough);table.Add("BusinessGroupCount",assembly.Groups.Count);table.Add("BusinessTableCount",assembly.Tables.Count);
         table.Add("Authority","Correct records in Sarah Beauty Desktop. Spreadsheet edits are not imported.");
         table.Add("ReportBasis","Management cash basis with approved book adjustments. Invoice dues, planning commitments, credits, and actual cash are separate facts.");
-        table.Add("OwnerInterestStatus","Ownership percentage settings are not implemented in this build. Actual owner movements do not establish percentage interests.");
+        table.Add("OwnerInterestStatus","Dated ownership confirmations and exact shares are included. See Ownership coverage at the selected planning date; unknown percentages remain unconfirmed. Actual owner movements do not establish percentage interests.");
         table.Add("InventoryScope","Business tables only. Metadata table hashes belong in the final generation manifest.");
         return table.Freeze();
     }
@@ -41,6 +42,7 @@ internal static class ReadableExportMetadata
         table.Add("Planning","Upcoming agreement gross is a planning commitment, not received cash. Known subtotals alongside unknown-value counts are not complete known totals.");
         table.Add("Cash and credits","Applications, held classifications, and credit funding do not create another cash receipt. Loan proceeds and owner contributions are separate from service income.");
         table.Add("Private omissions","Authentication, recovery keys, private notes, sensitivities, preferences, permission evidence, raw snapshots, and file binaries are excluded from readable tables.");
+        table.Add("Ownership","Confirmation reasons and ownership evidence bindings are private. Captured corrections do not establish what ownership was known in a retained financial report. Percentages do not distribute cash, allocate taxable profit, or establish tax basis.");
         table.Add("File references","Recorded paths and hashes identify source versions. They do not prove that a file was uploaded, is accessible, or remains authorized for use.");
         table.Add("Integrity","A table digest binds its generation, watermark, name, schema, row order, and exact values. Local hashes do not establish remote verification or completeness.");
         return table.Freeze();

@@ -32,7 +32,9 @@ The latest complete hosted .NET suite through the local Sheets preview has 1,228
 
 The app now has [Google Desktop connection controls](docs/desktop-google-connection.md), including private client import, PKCE browser consent, account review, cancellation, and local disconnect. [Drive archive controls](docs/desktop-google-archives.md) add private-folder setup, explicit delivery permission, manual delivery, recurring delivery of completed local archives, and durable retry/history/health. [Readable Sheets controls](docs/desktop-sheets-controls.md) add local preview, saved report dates, separate delivery and automatic choices, verified generation delivery, retry/history/health, and a link to the last verified workbook. Real Google consent/delivery acceptance remains pending.
 
-Remaining work includes ownership percentage settings, further managed-evidence selection within entry forms, retention controls and second-device recovery acceptance, real Google acceptance, separate LIVE setup, owner-access and unsaved-work hardening, an installer, and full release/device checks. There is no published installer yet.
+[Ownership settings](docs/desktop-ownership-settings.md) now retain dated, reasoned percentage confirmations and corrections with optional managed evidence, exact totals, explicit unknown dates, and history. [Readable ownership coverage](docs/readable-ownership-generation.md) is included in projection format 2. Percentages create no financial allocation or tax-basis assumption.
+
+Remaining work includes further managed-evidence selection within entry forms, retention controls and second-device recovery acceptance, real Google acceptance, separate LIVE setup, password changes/recovery, further unsaved-work and workflow hardening, an installer, and full release/device checks. There is no published installer yet.
 
 The first target is a Surface Pro 7. Everyday work will happen locally on Windows. Google Sheets will hold a readable export, and private Google Drive storage will hold recovery backups. These are backups of the desktop records, not a second place to edit the books.
 
@@ -51,7 +53,7 @@ dotnet run --project .\src\SarahBeauty.Desktop\SarahBeauty.Desktop.csproj
 
 Development runs unpackaged by default, with the project directory as its working directory so the app can find its icon. On startup it creates or opens `%LOCALAPPDATA%\SarahBeautyDesktop\Test\sarahbeauty.db`, outside the repository. An empty store offers two-owner TEST setup; existing stores require local sign-in. Use fictional records during development.
 
-The shared business project manages the SQLite schema, currently version 32. Metadata retains the permanent Store ID, TEST mode, and writable-instance identity/state. Business access rejects stale or retired instances and sessions. Opening validates identity, mode, and supported versions; archive and pre-upgrade snapshot checks also verify integrity and foreign keys.
+The shared business project manages the SQLite schema, currently version 34. Metadata retains the permanent Store ID, TEST mode, and writable-instance identity/state. Business access rejects stale or retired instances and sessions. Opening validates identity, mode, and supported versions; archive and pre-upgrade snapshot checks also verify integrity and foreign keys. Schema 33 added dated ownership history; schema 34 distinguishes complete ownership export coverage from older jobs.
 
 Before upgrading an older store, initialization creates a verified database snapshot in the data folder's `Backups` directory, then applies migrations atomically. A failed snapshot or migration stops the upgrade. Reopening a current store preserves its identity without creating another upgrade snapshot.
 

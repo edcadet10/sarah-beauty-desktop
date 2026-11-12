@@ -9,7 +9,8 @@ internal sealed record ReadableGenerationSource(int SourceVersion,string Generat
 internal sealed record ReadableGenerationManifest(int Version,ReadableGenerationSource Source,ReadableExportSelection Selection,IReadOnlyList<ReadableExportGroup> Groups,IReadOnlyList<ReadableTableFacts> Tables,long DataRows,long Cells,long RawUtf8Bytes,ReadableJournalFacts Journal);
 internal sealed record ReadableExportGeneration(ReadableGenerationManifest Manifest,IReadOnlyList<ReadableExportTable> Tables,string ManifestSha256)
 {
-    private const int FormatVersion=1,GroupCount=29,BusinessTableCount=155,TableCount=159;
+    internal const int FormatVersion=2;
+    private const int GroupCount=30,BusinessTableCount=159,TableCount=163;
     internal static ReadableExportGeneration Build(ReadableExportSnapshot snapshot,ReadableExportSelection selection,CancellationToken cancellation=default)
     {
         var assembly=ReadableExportAssembly.Build(snapshot,selection,cancellation);
