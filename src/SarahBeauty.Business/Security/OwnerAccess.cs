@@ -41,7 +41,7 @@ public sealed partial class OwnerAccess(BusinessStore store)
                 ("$id", businessId), ("$name", businessName.Trim()));
             string ownerId = AddOwner(db, businessId, firstName.Trim(), first);
             AddOwner(db, businessId, secondName.Trim(), second);
-            var session = new OwnerSession(ownerId, firstName.Trim(), businessId, store.StoreId,store.InstanceId,credentialStamp:OwnerCredentials.Stamp(first.Salt,first.Hash,Passphrase.Iterations));
+            var session = new OwnerSession(ownerId, firstName.Trim(), businessId, store.StoreId,store.InstanceId,credentialStamp:OwnerCredentials.Stamp(first.Salt,first.Hash,Passphrase.Iterations),mode:store.Mode);
             BusinessStore.Audit(db, session, "Business setup", businessId);
             return session;
         });
@@ -83,7 +83,7 @@ public sealed partial class OwnerAccess(BusinessStore store)
         var owner=ReadCredential(db,id);
         if(!MayAuthenticate(owner) || owner!.BusinessId!=reviewed.BusinessId || owner.Salt!=reviewed.Salt || owner.Hash!=reviewed.Hash || owner.Iterations!=reviewed.Iterations)return null;
         RecordAttempt(db, id, valid, owner.Failures);
-        return valid ? new OwnerSession(id, owner.Name, owner.BusinessId, store.StoreId,store.InstanceId,credentialStamp:OwnerCredentials.Stamp(owner.Salt,owner.Hash,owner.Iterations)) : null;
+        return valid ? new OwnerSession(id, owner.Name, owner.BusinessId, store.StoreId,store.InstanceId,credentialStamp:OwnerCredentials.Stamp(owner.Salt,owner.Hash,owner.Iterations),mode:store.Mode) : null;
     }
 
     private static void RecordAttempt(DbWork db, string id, bool valid, int failures)
