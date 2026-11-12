@@ -32,7 +32,7 @@ internal sealed class ReadableExportSnapshots(BusinessStore store)
         try
         {
             string path=workspace.FilePath("sarahbeauty.db");DatabaseBackup.CreateVerifiedSnapshotAt(store.DatabasePath,path);FailurePoint?.Invoke("Database captured");cancellation.ThrowIfCancellationRequested();
-            connection=new(new SqliteConnectionStringBuilder{DataSource=path,Mode=SqliteOpenMode.ReadOnly,Pooling=false,ForeignKeys=true}.ToString());connection.Open();var db=new DbWork(connection);StoreInstanceGuard.Require(db,store.StoreId,store.InstanceId);authorize(db);
+            connection=new(new SqliteConnectionStringBuilder{DataSource=path,Mode=SqliteOpenMode.ReadOnly,Pooling=false,ForeignKeys=true}.ToString());connection.Open();var db=new DbWork(connection);StoreInstanceGuard.Require(db,store.StoreId,store.InstanceId,mode:store.Mode);authorize(db);
             var facts=ArchiveDatabaseChecks.Read(db);int schema=Convert.ToInt32(db.Scalar("PRAGMA user_version;"));if(schema!=BusinessSchema.Version)throw new InvalidDataException("The readable export source schema is unsupported.");
             string name=(string?)db.Scalar("SELECT DisplayName FROM Business WHERE Id=$id;",("$id",business))??throw new InvalidDataException("The readable export business is unavailable.");string mode=(string)db.Scalar("SELECT Value FROM AppMetadata WHERE Key='StoreMode';")!;long watermark=(long)db.Scalar("SELECT Watermark FROM Business WHERE Id=$id;",("$id",business))!;
             cancellation.ThrowIfCancellationRequested();store.Read(current=>{authorize(current);return true;});return new(workspace,connection,new(1,Guid.NewGuid().ToString("N"),business,name,store.StoreId,store.InstanceId,mode,schema,watermark,DateTimeOffset.UtcNow.ToString("O"),facts));

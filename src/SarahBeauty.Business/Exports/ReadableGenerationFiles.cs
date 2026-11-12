@@ -46,7 +46,7 @@ internal sealed class ReadableGenerationFiles(BusinessStore store)
     private void RequireCurrent(ReadableGenerationSource source)=>store.Read(db=>{RequireCurrent(db,source);return true;});
     private void RequireCurrent(DbWork db,ReadableGenerationSource source)
     {
-        StoreInstanceGuard.Require(db,store.StoreId,store.InstanceId);
+        StoreInstanceGuard.Require(db,store.StoreId,store.InstanceId,mode:store.Mode);
         if(source.StoreId!=store.StoreId||source.InstanceId!=store.InstanceId||source.Mode!=(string?)db.Scalar("SELECT Value FROM AppMetadata WHERE Key='StoreMode';")||
             db.Scalar("SELECT Id FROM Business WHERE Id=$id AND Watermark>=$watermark;",("$id",source.BusinessId),("$watermark",source.Watermark)) is null)
             throw new UnauthorizedAccessException("The readable generation belongs to another or unavailable business-store instance.");
