@@ -49,8 +49,12 @@ public sealed class OwnerAccess(BusinessStore store)
         if (session.StoreId != store.StoreId || session.InstanceId!=store.InstanceId || session.ExpiresAt <= DateTimeOffset.UtcNow)
             throw new UnauthorizedAccessException("Sign in to this business to continue.");
         var verified = SignIn(session.OwnerId, phrase);
-        if (verified.BusinessId != session.BusinessId) throw new UnauthorizedAccessException();
-        session.Touch();
+        try
+        {
+            if (verified.BusinessId != session.BusinessId) throw new UnauthorizedAccessException();
+            store.Read(db=>{store.RequireSession(db,session);return true;});
+        }
+        finally{verified.Lock();}
     }
 
     private static OwnerCredential? ReadCredential(DbWork db,string id)=>db.Read("""
