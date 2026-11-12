@@ -8,4 +8,4 @@ Incomplete current setup reviews remain editable after sign-in. Opening does not
 
 Thirty-six opening/creation/mode-store cases pass. Rejected current-schema fixtures preserve their bytes, including a TEST database placed in the LIVE location. The first corruption run stopped two fixtures at immutable-profile triggers; the corrected fixtures explicitly remove only those guards in temporary data and reach the intended opening rejection. Windows Debug and native TEST profile reopen/lock/close pass; independent checks preserve the existing profile fixture and managed file.
 
-The full local guard regression passes 1,449 cases at `0fadb0a`. Full regression for creation/opening follows. Native mode selection and reviewed creation, mode-aware recovery activation, external delivery and release acceptance remain pending.
+The full local regression at creation/opening source `fd4adc7` passes all 1,477 cases in 7 minutes 21 seconds. The earlier guard regression passed 1,449 cases at `0fadb0a`. Hosted creation/opening checks are running. Native mode selection and reviewed creation, mode-aware recovery activation, external delivery and release acceptance remain pending.
