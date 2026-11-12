@@ -1,0 +1,9 @@
+# Run the saved readable export queue
+
+The queue requires both current Sheets output consent and a current owner-confirmed automatic profile. It holds the queue lease, observes selected-report coverage and due time, captures or resumes one job, attaches its identity before HTTP, and runs the delivery worker. Repeated covered polls send no requests. Changes after capture remain pending rather than renewing that generation's watermark.
+
+Failures retain the same job and use exponential retry intervals of 1, 2, 4, 8, 16, 32, then 60 minutes, subject to the profile's longer minimum interval. State and retry time persist across restart. Existing native creation checkpoints prevent duplicate creation after a lost response. No archive or workbook is deleted, and no quota or storage purchase is requested.
+
+Scheduled deliveries check their exact profile after pacing/token access and inside the final success writer. Withdrawing or changing automatic settings stops subsequent scheduled requests even while manual Sheets consent remains enabled. Manual retry remains an explicit separate action. Returned remote effects and failed outcomes are preserved.
+
+Eight Debug integration cases pass against a server that stores posted cells: disabled scheduling with no HTTP, one capture plus covered polling after owner lock, lost-create restart/backoff using one file, later changes remaining pending, withdrawal during source transfer and at the final writer with manual permission preserved, exponential quota backoff capped at 60 minutes with one job, and queue lease exclusion. The full Release suite and Windows build are running. Test waits are virtual or bypassed; pacing has separate timing checks. App runtime integration, desktop controls, real Google acceptance, retention, and the remaining full build are still pending.

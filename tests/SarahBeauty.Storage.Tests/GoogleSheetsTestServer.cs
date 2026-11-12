@@ -12,7 +12,7 @@ internal sealed class GoogleSheetsTestServer(BusinessStore store,GoogleOutputPer
 {
     internal const string FileId="fictional-workbook";
     internal readonly Dictionary<(string Table,int Row,int Column),string> Cells=new();
-    internal bool FileExists,Published,Shared,LostCreate,LostSchema,LostValues,LostPublication,EmptyLookup;
+    internal bool FileExists,Published,Shared,LostCreate,LostSchema,LostValues,LostPublication,EmptyLookup,Quota;
     internal int Calls,Creates,SchemaWrites,ValueWrites,PublicationWrites,GridReads;
     private JsonObject _schema=GoogleSheetsSchemaInitializationTests.Fresh(777);
     private GoogleSheetsExportJob Job=>store.Read(db=>GoogleSheetsJobRecords.List(db,permit.Policy.BusinessId).Single());
@@ -48,7 +48,7 @@ internal sealed class GoogleSheetsTestServer(BusinessStore store,GoogleOutputPer
         Assert.True(FileExists);Assert.False(Published);using var body=JsonDocument.Parse(await request.Content!.ReadAsStringAsync());
         if(request.RequestUri!.AbsolutePath.EndsWith("/values:batchUpdate",StringComparison.Ordinal))
         {
-            ValueWrites++;Assert.Equal("RAW",body.RootElement.GetProperty("valueInputOption").GetString());
+            ValueWrites++;Assert.Equal("RAW",body.RootElement.GetProperty("valueInputOption").GetString());if(Quota)return new((HttpStatusCode)429){Content=new StringContent("Fictional quota response")};
             foreach(var data in body.RootElement.GetProperty("data").EnumerateArray())
             {
                 var address=Address(data.GetProperty("range").GetString()!);int row=address.Row;
