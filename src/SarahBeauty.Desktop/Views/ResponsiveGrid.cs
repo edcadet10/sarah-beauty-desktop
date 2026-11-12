@@ -3,12 +3,12 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace SarahBeauty_Desktop.Views;
 
-internal static class ResponsiveCards
+internal static class ResponsiveGrid
 {
-    internal static UIElement Build(IEnumerable<UIElement> cards,int maximumColumns=3)
+    internal static UIElement Build(IEnumerable<UIElement> items,int maximumColumns=3)
     {
         var grid=new Grid{ColumnSpacing=16,RowSpacing=16};
-        foreach(var card in cards)grid.Children.Add(card);
+        foreach(var item in items)grid.Children.Add(item);
         Arrange(grid,0,maximumColumns);
         grid.SizeChanged+=(_,args)=>Arrange(grid,args.NewSize.Width,maximumColumns);
         return grid;
@@ -22,6 +22,6 @@ internal static class ResponsiveCards
         grid.ColumnDefinitions.Clear();grid.RowDefinitions.Clear();
         for(int i=0;i<columns;i++)grid.ColumnDefinitions.Add(new(){Width=new GridLength(1,GridUnitType.Star)});
         for(int i=0;i<rows;i++)grid.RowDefinitions.Add(new(){Height=GridLength.Auto});
-        for(int i=0;i<grid.Children.Count;i++){var card=(FrameworkElement)grid.Children[i];Grid.SetRow(card,i/columns);Grid.SetColumn(card,i%columns);}
+        for(int i=0;i<grid.Children.Count;i++){var item=(FrameworkElement)grid.Children[i];Grid.SetRow(item,i/columns);Grid.SetColumn(item,i%columns);}
     }
 }
