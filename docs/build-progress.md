@@ -1,5 +1,9 @@
 # Build progress
 
+## Private installer preview — November 12, 2026
+
+The per-user preview installs and updates a bundled app and removes explicit package files while preserving unrelated files and fictional business data. Native destination and package probes pass. An initial nonexistent-destination defect was reproduced and corrected; verified stray payload files were moved into private reversible quarantine. See [installer preview checks](installer-preview.md) for evidence and remaining release work. No installer has been released; signing, interruption recovery, clean-machine and device acceptance remain pending.
+
 This file tracks the full application build requested on November 10, 2026. A component marked implemented still needs the release checks applicable to it. The app is not ready for live business use.
 
 Current feature head: exact installer file maps, schema 40. The module maps all 574 published files and passes adversarial data/header, literal filename, macro and source/output junction checks. Removal instructions name individual files and empty folders; no installer has run yet. The bundled-runtime publish and its native retained-history/dashboard/restart checks pass; the earlier published build also passes customer save after the trimming fix. The complete parent storage regression passes 1,681 cases at 39225e7 in 7m03; the resolved desktop NuGet audit reports no known vulnerabilities. Earlier native payment/bank/cancellation/funded-credit refund checks pass. Main has merged through PR #195 plus contention fix #287 after refreshed checks; #196 has been explicitly dispatched for current-head checks. Main remains behind the feature stack. Installer lifecycle, remaining native/aggregation work and actual business/Google/device acceptance continue. Historical sections below retain results measured at their own step. See [Generate exact installer file lists](installer-file-map.md).
