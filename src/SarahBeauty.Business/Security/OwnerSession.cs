@@ -7,14 +7,24 @@ public sealed class OwnerSession
     public string BusinessId { get; }
     public string StoreId { get; }
     public string InstanceId {get;}
-    internal DateTimeOffset ExpiresAt { get; private set; }
+    private readonly object _gate=new();
+    private DateTimeOffset _expiresAt;
+    private bool _locked;
+    internal DateTimeOffset ExpiresAt { get{lock(_gate)return _expiresAt;} }
 
     internal OwnerSession(string ownerId, string name, string businessId, string storeId,string instanceId)
     {
         (OwnerId, OwnerName, BusinessId, StoreId,InstanceId) = (ownerId, name, businessId, storeId,instanceId);
-        Touch();
+        _expiresAt=DateTimeOffset.UtcNow.AddMinutes(15);
     }
 
-    internal void Touch() => ExpiresAt = DateTimeOffset.UtcNow.AddMinutes(15);
-    public void Lock() => ExpiresAt = DateTimeOffset.MinValue;
+    internal void Touch()
+    {
+        lock(_gate)
+        {
+            if(_locked||_expiresAt<=DateTimeOffset.UtcNow){_locked=true;_expiresAt=DateTimeOffset.MinValue;throw new UnauthorizedAccessException("Sign in to this business to continue.");}
+            _expiresAt=DateTimeOffset.UtcNow.AddMinutes(15);
+        }
+    }
+    public void Lock(){lock(_gate){_locked=true;_expiresAt=DateTimeOffset.MinValue;}}
 }
