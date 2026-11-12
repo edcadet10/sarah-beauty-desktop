@@ -9,13 +9,19 @@ namespace SarahBeauty.Business.Exports;
 internal sealed record ReadableExportTable(string GenerationId,long Watermark,string Name,IReadOnlyList<string> Columns,IReadOnlyList<IReadOnlyList<string>> Rows,string Sha256);
 internal sealed class ReadableExportBudget(long maximumCells=1_000_000,long maximumBytes=64*1024*1024,int maximumCellCharacters=32768,CancellationToken cancellation=default)
 {
+    private static readonly UTF8Encoding StrictUtf8=new(false,true);
     private long _cells,_bytes;
     internal void Consume(IReadOnlyList<string> values)
     {
         cancellation.ThrowIfCancellationRequested();
         if(maximumCells is <1 or >1_000_000 || maximumBytes is <1 or >64*1024*1024 || maximumCellCharacters is <1 or >32768)throw new ArgumentOutOfRangeException(nameof(maximumCells));
-        long bytes=0;foreach(string value in values){if(value.Length>maximumCellCharacters || value.Any(c=>char.IsControl(c)&&c is not('\r' or '\n' or '\t')))throw Limit();bytes=checked(bytes+Encoding.UTF8.GetByteCount(value));}
+        long bytes=0;foreach(string value in values){if(value.Length>maximumCellCharacters || value.Any(c=>char.IsControl(c)&&c is not('\r' or '\n' or '\t')))throw Limit();bytes=checked(bytes+ByteCount(value));}
         if(_cells+values.Count>maximumCells || _bytes+bytes>maximumBytes)throw Limit();_cells+=values.Count;_bytes+=bytes;
+    }
+    private static int ByteCount(string value)
+    {
+        try{return StrictUtf8.GetByteCount(value);}
+        catch(EncoderFallbackException){throw new InvalidDataException("Readable exports require valid Unicode text; a replacement value cannot be published.");}
     }
     private static InvalidDataException Limit()=>new("The readable export exceeds its supported text/cell budget. No truncated generation can be published.");
 }
