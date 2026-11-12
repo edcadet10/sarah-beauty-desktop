@@ -14,6 +14,7 @@ public sealed class GoogleSheetsDeliveriesTests
         var second=deliveries.Begin(permit,job);Assert.Throws<GoogleConnectionFailure>(()=>deliveries.Begin(permit,job));deliveries.InterruptRunning();var third=deliveries.Begin(permit,job);
         var checkpoints=new GoogleSheetsCreationCheckpoints(store);checkpoints.RecordFile(job,checkpoints.BeginCreate(permit,job,checkpoints.Prepare(permit,job)),"fictional-verified-file");
         Assert.Equal(3,Assert.Single(deliveries.History(f.Ledger.Business.Owner)).Attempts.Length);
+        new GoogleSheetsPublicationCheckpoints(store).Prepare(permit,job,third);
         f.Ledger.Business.Owner.Lock();var result=new GoogleSheetsVerifiedDelivery("fictional-verified-file",job.GenerationId,job.ManifestSha256,job.SourceWatermark,DateTimeOffset.UtcNow.ToString("O"));var completed=deliveries.Complete(permit,job,third,result);
         Assert.Equal("Succeeded",completed.Status);Assert.Equal(watermark,f.Watermark);Assert.Equal(DateTimeOffset.MinValue,f.Ledger.Business.Owner.ExpiresAt);
         var attempts=new BusinessStore(store.DatabasePath).Read(db=>GoogleSheetsAttemptRecords.List(db,job.BusinessId));Assert.Equal(3,attempts.Count);
@@ -33,6 +34,7 @@ public sealed class GoogleSheetsDeliveriesTests
         using var f=new GoogleOutputSettingsTests.Fixture();var (permit,artifact)=await GoogleSheetsExportJobsTests.Stage(f);var store=f.Ledger.Business.Store;var job=new GoogleSheetsExportJobs(store).Reserve(permit,artifact);var deliveries=new GoogleSheetsDeliveries(store);var attempt=deliveries.Begin(permit,job);
         var checkpoints=new GoogleSheetsCreationCheckpoints(store);checkpoints.RecordFile(job,checkpoints.BeginCreate(permit,job,checkpoints.Prepare(permit,job)),"fictional-file");
         var result=new GoogleSheetsVerifiedDelivery("fictional-file",job.GenerationId,job.ManifestSha256,job.SourceWatermark,DateTimeOffset.UtcNow.ToString("O"));using var cancellation=new CancellationTokenSource();
+        new GoogleSheetsPublicationCheckpoints(store).Prepare(permit,job,attempt);
         if(defect is "cancel" or "permission")store.BeforeTransactionReservation=()=>{store.BeforeTransactionReservation=null;if(defect=="cancel")cancellation.Cancel();else f.Settings.SaveAsync(f.Ledger.Business.Owner,new(false,false,permit.Policy.Revision)).GetAwaiter().GetResult();};
         if(defect=="file")result=result with{FileId="different-file"};if(defect=="digest")result=result with{ManifestSha256=new string('A',64)};
         var supplied=defect=="attempt"?attempt with{PolicyRevision=attempt.PolicyRevision+1}:attempt;

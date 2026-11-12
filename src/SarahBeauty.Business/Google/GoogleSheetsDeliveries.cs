@@ -24,6 +24,7 @@ public sealed class GoogleSheetsDeliveries(BusinessStore store)
     internal GoogleSheetsAttempt Complete(GoogleOutputPermit permit,GoogleSheetsExportJob job,GoogleSheetsAttempt attempt,GoogleSheetsVerifiedDelivery result,CancellationToken cancellation=default)=>store.Transaction(db=>
     {
         cancellation.ThrowIfCancellationRequested();RequireRunning(db,permit,job,attempt);var creation=GoogleSheetsCreationRecords.Get(db,job);
+        var publication=GoogleSheetsPublicationRecords.Get(db,job);if(publication is null||publication.FileId!=result.FileId)throw GoogleSheetsPublicationRecords.Invalid();
         if(creation is not{State:"FileKnown"}||creation.FileId!=result.FileId||result.GenerationId!=job.GenerationId||result.ManifestSha256!=job.ManifestSha256||result.SourceWatermark!=job.SourceWatermark||!GoogleSheetsAttemptRecords.Utc(result.VerifiedAtUtc))throw GoogleSheetsAttemptRecords.Invalid();
         var completed=attempt with{Status="Succeeded",FinishedAtUtc=DateTimeOffset.UtcNow.ToString("O"),FileId=result.FileId,VerifiedAtUtc=result.VerifiedAtUtc};
         GoogleSheetsAttemptRecords.Replace(db,attempt,completed);cancellation.ThrowIfCancellationRequested();return completed;
