@@ -40,6 +40,8 @@ internal static class GoogleApiJson
     {
         string? reason=Reason(body);
         if(status==HttpStatusCode.Unauthorized)return new("GrantUnavailable","Google no longer accepts this connection. Reconnect Google.");
+        if(status==HttpStatusCode.NotFound)return new("GoogleFileUnavailable","The requested Google file or upload session is unavailable to this connection. Review the destination and attempt.");
+        if(status==HttpStatusCode.Conflict)return new("GoogleFileAlreadyExists","Google already has this file identity. Verify the earlier attempt before retrying; no existing file was overwritten.");
         if((int)status==429 || reason is "rateLimitExceeded" or "userRateLimitExceeded" or "dailyLimitExceeded" or "quotaExceeded" or "RATE_LIMIT_EXCEEDED")return new("GoogleQuotaLimited","Google request quota is unavailable. Wait before retrying; no paid fallback is enabled.");
         if(reason=="storageQuotaExceeded")return new("GoogleStorageFull","Google storage is full. Review existing storage or choose another confirmed destination; no purchase is made.");
         if(status==HttpStatusCode.Forbidden)return new("DriveAccessUnavailable","Google Drive access is unavailable. Review API enablement and account permissions.");
