@@ -58,14 +58,15 @@ public sealed class BookingReservations(BusinessStore store)
         return true;
     }
 
-    internal static (long Trial,long Deposit) PaidMilestones(DbWork db,OwnerSession owner,string bookingId,DateOnly date)
+    internal static (long Trial,long Deposit) PaidMilestones(DbWork db,OwnerSession owner,string bookingId,DateOnly date)=>PaidMilestones(db,owner.BusinessId,bookingId,date);
+    internal static (long Trial,long Deposit) PaidMilestones(DbWork db,string businessId,string bookingId,DateOnly date)
     {
         var rows=db.Read("""
             SELECT M.Kind,A.Cents,A.ReversesId FROM PaymentApplications A
             JOIN InvoiceMilestones M ON M.Id=A.MilestoneId JOIN DocumentVersions V ON V.Id=A.InvoiceVersionId
             JOIN Documents D ON D.Id=V.DocumentId WHERE D.BusinessId=$business AND D.BookingId=$booking AND A.Date<=$date;
             """,r=>(Kind:r.GetString(0),Cents:r.GetInt64(1)*(r.IsDBNull(2)?1:-1)),
-            ("$business",owner.BusinessId),("$booking",bookingId),("$date",date.ToString("yyyy-MM-dd")));
+            ("$business",businessId),("$booking",bookingId),("$date",date.ToString("yyyy-MM-dd")));
         return(rows.Where(r=>r.Kind=="Trial").Sum(r=>r.Cents),rows.Where(r=>r.Kind=="Deposit").Sum(r=>r.Cents));
     }
 }
