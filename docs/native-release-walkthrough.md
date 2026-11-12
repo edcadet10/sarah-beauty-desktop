@@ -1,0 +1,20 @@
+# Review the fresh native release walkthrough
+
+Date: November 12, 2026. Environment: developer Windows machine, WinUI Debug, schema 40, fictional TEST business. Foundation steps used `05f8d3b`; customer-label/participant steps used the code saved in `b624074`; document steps and the combined regression used `ba05c6b`, which includes main's contention fix #287. Windows UI Automation used control patterns without desktop mouse/keyboard control. No real business facts, messages, Google consent or device acceptance were simulated as completed.
+
+| Scope | Observed result |
+|---|---|
+| AC-001/002 and owner-access paths | Wrong proof rejected; creator approved their $39.00 expense; the other owner approved a separate $11.47 draft. Creator/approver identities and restart persistence independently verified. |
+| AC-004/005/006/010 | Empty name rejected; name-only record showed its warning; contact update removed it. Same-name records retained distinct IDs. Removing contact restored the warning only on the contactless record. |
+| AC-007/008 | Six unnamed service-recipient places created no additional customers. Two saved customers were linked later; all six place IDs, quantity and price remained unchanged, with two named/four unnamed after restart. |
+| Recipient/payer path in AC-009 | Issued payer header references the contact with email; the two named service recipients remain separate linked customers. |
+| Billing path in AC-016 | All six source quantities billed once. Another attempt showed zero unbilled quantity and rejected issuance without changing numbering, versions, PDFs or money. Concurrent-request coverage remains separate automated evidence. |
+| TEST part of AC-018 | Unresolved tax blocked issuance without a document/version/counter. An explicit fictional zero-tax decision then allowed quote and invoice issuance. This does not establish a real LIVE tax policy. |
+| Document/privacy part of AC-019/051 | Saved quote and invoice each total $720.00, carry TEST labels and exclude customer-note, sensitivity, booking-note and acceptance sentinels. Hashes and extracted text verified; both one-page layouts visually inspected. Long/multipage and actual-device release checks remain separate. |
+| Unissued-draft lifecycle | The blocked duplicate invoice draft was discarded through reviewed owner confirmation. Its private original/reason remains, while nine complete issued/financial tables and both PDFs match the pre-discard baseline. The second owner verified the result after restart. |
+
+Independent SQLite checks verify integrity/foreign keys, four customer records, original recipient identities, payer separation, numbering, immutable snapshot/PDF hashes and the unchanged original two expense movements. Booking and document activity did not create another financial movement; the original four journal lines still balance at 5,047 cents on each side. Private fixture databases, PDFs, images and detailed QA files stay outside Git.
+
+The corrected full storage run passes 1,641 cases in 7 minutes 51 seconds at `ba05c6b`. Windows Debug passes without warnings/errors, and the recovery helper is verified in both native and test outputs. An earlier combined run was started before that helper finished: it was aborted with 61 helper-missing failures and 582 passes. Rebuilding after the helper existed corrected the test setup; that aborted run is not counted as a product regression pass.
+
+This is partial developer-machine acceptance evidence. Remaining work includes further payment/cancellation/resource/reconciliation/report workflows on the fresh fixture, other date/aggregation boundaries, installer/release checks, actual Surface touch/keyboard/offline behavior, second-computer recovery, and real owned Google client/consent/private delivery. Do not mark the app fully built or ready for LIVE use from this report.
