@@ -23,7 +23,7 @@ internal static class ReconciliationReopening
         if(db.Scalar("""
             SELECT C.Id FROM Reconciliations C WHERE C.BusinessId=$business AND C.AccountId=$account AND C.AsOfDate>$date
             AND NOT EXISTS(SELECT 1 FROM ReconciliationReopens R WHERE R.ReconciliationId=C.Id) LIMIT 1;
-            """,("$business",owner.BusinessId),("$account",target.AccountId),("$date",target.AsOfDate.ToString("yyyy-MM-dd"))) is not null)
+            """,("$business",owner.BusinessId),("$account",target.AccountId),("$date",target.AsOfDate.ToStorageDate())) is not null)
             throw new ArgumentException("Reopen this account's later reconciliations first so their dependencies remain explicit.");
         string reopen=Guid.NewGuid().ToString(),at=DateTimeOffset.UtcNow.ToString("O");
         db.Execute("INSERT INTO ReconciliationReopens (Id,ReconciliationId,RequestId,Reason,OwnerId,AtUtc) VALUES ($id,$target,$request,$reason,$owner,$at);",

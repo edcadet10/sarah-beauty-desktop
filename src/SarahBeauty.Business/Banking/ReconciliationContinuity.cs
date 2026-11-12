@@ -10,7 +10,7 @@ internal static class ReconciliationContinuity
         var latest=db.Read("""
             SELECT C.Id,C.AsOfDate FROM Reconciliations C WHERE C.BusinessId=$business AND C.AccountId=$account
             AND NOT EXISTS(SELECT 1 FROM ReconciliationReopens R WHERE R.ReconciliationId=C.Id) ORDER BY C.AsOfDate DESC LIMIT 1;
-            """,r=>(Id:r.GetString(0),Date:DateOnly.Parse(r.GetString(1))),("$business",owner.BusinessId),("$account",statement.AccountId)).SingleOrDefault();
+            """,r=>(Id:r.GetString(0),Date:StoredDates.Parse(r.GetString(1))),("$business",owner.BusinessId),("$account",statement.AccountId)).SingleOrDefault();
         if(latest.Id is not null)
         {
             if(latest.Date>=statement.Through)return ["A completed reconciliation already covers this date. Open its snapshot or reopen the affected reconciliations before revising."];
