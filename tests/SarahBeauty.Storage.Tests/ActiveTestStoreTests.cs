@@ -105,7 +105,7 @@ public sealed class ActiveTestStoreTests
     [InlineData("RestoredStores/00000000000000000000000000000001/../../outside.db")]
     public void UnsafeOrMalformedPointerDataNeverFallsBackToAnotherStore(string relative)
     {
-        using var target=new TestStore();string pointer=Path.Combine(target.Folder,"active-test-store.json");var value=new ActiveTestSelection(1,Guid.NewGuid().ToString(),Guid.NewGuid().ToString(),Guid.NewGuid().ToString("N"),relative,DateTimeOffset.UtcNow.ToString("O"));
+        using var target=new TestStore();string pointer=Path.Combine(target.Folder,"active-test-store.json");var value=new ActiveStoreSelection(1,Guid.NewGuid().ToString(),Guid.NewGuid().ToString(),Guid.NewGuid().ToString("N"),relative,DateTimeOffset.UtcNow.ToString("O"));
         File.WriteAllText(pointer,JsonSerializer.Serialize(value));byte[] before=File.ReadAllBytes(pointer);Assert.Throws<InvalidDataException>(()=>new ActiveTestStores(target.Folder).ResolveDatabase());Assert.True(before.SequenceEqual(File.ReadAllBytes(pointer)));
         File.WriteAllText(pointer,"not json");Assert.Throws<InvalidDataException>(()=>new ActiveTestStores(target.Folder).ResolveDatabase());Assert.Equal("not json",File.ReadAllText(pointer));
     }
@@ -114,7 +114,7 @@ public sealed class ActiveTestStoreTests
     public async Task AnInterruptedPointerToAStillPreparedCopyCanBeCompletedWithFreshProof()
     {
         using var f=new LedgerFixture();using var target=new TestStore();var created=await Prepare(f,target.Folder);var r=created.Prepared.Receipt;
-        var selection=new ActiveTestSelection(1,r.RequestId,r.StoreId,r.InstanceId,"RestoredStores/"+Guid.Parse(r.RequestId).ToString("N")+"/sarahbeauty.db",DateTimeOffset.UtcNow.ToString("O"));
+        var selection=new ActiveStoreSelection(1,r.RequestId,r.StoreId,r.InstanceId,"RestoredStores/"+Guid.Parse(r.RequestId).ToString("N")+"/sarahbeauty.db",DateTimeOffset.UtcNow.ToString("O"));
         File.WriteAllText(Path.Combine(target.Folder,"active-test-store.json"),JsonSerializer.Serialize(selection));var service=new ActiveTestStores(target.Folder);Assert.Equal(created.Prepared.DatabasePath,service.ResolveDatabase());Prepared(created.Prepared);
         var active=await service.ActivateAsync(r.RequestId,r.RecoveredOwnerId,NewPhrase);Assert.Equal("Fictional Beauty",active.Store.BusinessName(active.Owner));Assert.Equal(created.Prepared.DatabasePath,new ActiveTestStores(target.Folder).ResolveDatabase());
     }
@@ -146,7 +146,7 @@ public sealed class ActiveTestStoreTests
     public async Task ConcurrentPointerReadersObserveCompleteSelectionsDuringReplacement()
     {
         using var target=new TestStore();var paths=new RecoveredStorePaths(target.Folder);string first=Guid.NewGuid().ToString(),second=Guid.NewGuid().ToString();
-        ActiveTestSelection Value(string id)=>new(1,id,Guid.NewGuid().ToString(),Guid.NewGuid().ToString("N"),paths.Relative(id),DateTimeOffset.UtcNow.ToString("O"));
+        ActiveStoreSelection Value(string id)=>new(1,id,Guid.NewGuid().ToString(),Guid.NewGuid().ToString("N"),paths.Relative(id),DateTimeOffset.UtcNow.ToString("O"));
         byte[][] values=[JsonSerializer.SerializeToUtf8Bytes(Value(first)),JsonSerializer.SerializeToUtf8Bytes(Value(second))];ActiveStorePointer.Write(paths.Pointer,values[0]);
         using var cancellation=new CancellationTokenSource();var started=new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);var failures=new System.Collections.Concurrent.ConcurrentQueue<Exception>();int reads=0;
         // This synchronous reader must run while other tests occupy the shared pool.

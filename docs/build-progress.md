@@ -2,7 +2,7 @@
 
 This file tracks the full application build requested on November 10, 2026. A component marked implemented still needs the release checks applicable to it. The app is not ready for live business use.
 
-Current feature head: explicit-mode recovery preparation, schema 39, following existing LIVE opening, clean staged creation and transactional setup/date guards. Twenty-six related preparation/upgrade/mode cases, Windows Debug and native TEST preservation pass. The full creation/opening regression and hosted checks are running; the full local guard regression passes 1,449 cases. Hosted mode-session verification passes 1,413 cases, Windows Debug and recovery cryptography. Native mode selection and reviewed creation, mode-aware recovery activation, remaining workflows and release acceptance continue. Main has merged through PR #179 and remains behind this feature stack. Historical sections below retain the results measured at their own step.
+Current feature head: mode-separated recovery selections/paths, schema 39, following explicit-mode preparation and clean LIVE creation/opening. Thirty-four path/TEST-activation cases and Windows Debug pass. The full local creation/opening regression passes 1,477 cases; its hosted checks are running. Hosted mode-session verification passes 1,413 cases, Windows Debug and recovery cryptography. Native mode selection and reviewed creation, LIVE recovery activation, remaining workflows and release acceptance continue. Main has merged through PR #180 and remains behind this feature stack. Historical sections below retain the results measured at their own step.
 
 | Area | Current state | Evidence or remaining work |
 |---|---|---|

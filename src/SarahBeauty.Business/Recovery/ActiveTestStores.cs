@@ -5,7 +5,7 @@ using SarahBeauty.Business.Storage;
 
 namespace SarahBeauty.Business.Recovery;
 
-public sealed record ActivatedTestStore(BusinessStore Store,OwnerSession Owner,ActiveTestSelection Selection);
+public sealed record ActivatedTestStore(BusinessStore Store,OwnerSession Owner,ActiveStoreSelection Selection);
 public sealed class ActiveTestStores(string parent)
 {
     private readonly RecoveredStorePaths _paths=new(parent);
@@ -29,7 +29,7 @@ public sealed class ActiveTestStores(string parent)
             FailurePoint?.Invoke("Owner authenticated");cancellation.ThrowIfCancellationRequested();
             if(state=="Active" && string.Equals(Path.GetFullPath(current),Path.GetFullPath(database),StringComparison.OrdinalIgnoreCase))return new(store,owner,ActiveStorePointer.Read(_paths)!);
             if(state!="Prepared")throw new InvalidDataException("This copy is already active outside this selection. Review that working store before continuing.");
-            RequirePreviousRetired(current,database,receipt.StoreId);var selection=new ActiveTestSelection(1,receipt.RequestId,store.StoreId,store.InstanceId,_paths.Relative(receipt.RequestId),DateTimeOffset.UtcNow.ToString("O"));
+            RequirePreviousRetired(current,database,receipt.StoreId);var selection=new ActiveStoreSelection(1,receipt.RequestId,store.StoreId,store.InstanceId,_paths.Relative(receipt.RequestId),DateTimeOffset.UtcNow.ToString("O"));
             store.Transaction(db=>
             {
                 store.RequireSession(db,owner);ReadyStoreChecks.Verify(db,Path.GetDirectoryName(database)!,ReadyStoreChecks.Read(db,requestId),cancellation);FailurePoint?.Invoke("Prepared copy verified");RequirePreviousRetired(current,database,receipt.StoreId);
