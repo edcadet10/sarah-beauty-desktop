@@ -19,9 +19,9 @@ internal sealed class LocalBackupView(BusinessStore store,OwnerSession owner,Act
     internal UIElement Build()
     {
         _panel.Add(Form.Title("Backups and recovery"),Form.Text("Create a complete encrypted copy of the local database, issued PDFs, and managed evidence versions. Keep a copy on another device or private storage to protect against loss of this computer."),
-            _profile,new RecoverySetupView(store,owner,Refresh).Build(),new BackupScheduleView(store,owner,runtime).Build(),Form.Action("Refresh backup health",_status,()=>{Refresh();return Task.CompletedTask;}),_health,
+            _profile,new RecoverySetupView(store,owner,Refresh).Build(),new BackupScheduleView(store,owner,runtime).Build(),new GoogleConnectionView(store,owner).Build(),Form.Action("Refresh backup health",_status,()=>{Refresh();return Task.CompletedTask;}),_health,
             Form.Action("Create encrypted archive now",_status,Create),Form.Action("Cancel local archive",_status,()=>{_cancellation?.Cancel();return Task.CompletedTask;}),_status,
-            Form.Text("Google Drive upload: Never completed. Sheets export: Never completed. Second-device restore test: Never completed. Google connection is unavailable in this TEST build."),
+            Form.Text("Google Drive upload: Never completed. Sheets export: Never completed. Second-device restore test: Never completed. Connection setup does not complete these delivery or restore checks."),
             _history.Build(),Form.Action("Show selected archive attempt",_status,Show),Form.Action("Verify selected encrypted file",_status,Verify),_detail);
         _panel.Loaded+=(_,_)=>{try{Refresh();}catch(Exception error){_status.Text=error.Message;}};_panel.Unloaded+=(_,_)=>_cancellation?.Cancel();return _panel;
     }

@@ -5,6 +5,10 @@ namespace SarahBeauty_Desktop.Views;
 
 internal static class RecoveryFilePicker
 {
+    internal static async Task<string?> GoogleClient()
+    {
+        var window=((App)Application.Current).ActiveWindow;var picker=new FileOpenPicker(window.AppWindow.Id){SuggestedStartLocation=PickerLocationId.DocumentsLibrary};picker.FileTypeFilter.Add(".json");return(await picker.PickSingleFileAsync())?.Path;
+    }
     internal static async Task<string?> Folder()
     {
         var window=((App)Application.Current).ActiveWindow;var picker=new FolderPicker(window.AppWindow.Id){SuggestedStartLocation=PickerLocationId.DocumentsLibrary};return(await picker.PickSingleFolderAsync())?.Path;
