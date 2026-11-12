@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Page x:Class="SarahBeauty_Desktop.MainPage" Background="#FFFBF8"
+<Page x:Class="SarahBeauty_Desktop.MainPage"
+      Background="{ThemeResource SarahCanvasBrush}" Foreground="{ThemeResource SarahTextBrush}"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <ContentControl x:Name="Host" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />

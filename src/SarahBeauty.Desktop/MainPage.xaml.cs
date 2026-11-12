@@ -85,5 +85,5 @@ public sealed partial class MainPage : Page
     }
     private void StopBackups(){_stoppingBackups.RemoveAll(task=>task.IsCompleted);if(_backupRuntime is not null)_stoppingBackups.Add(_backupRuntime.StopAsync());if(_googleRuntime is not null)_stoppingBackups.Add(_googleRuntime.StopAsync());if(_sheetsRuntime is not null)_stoppingBackups.Add(_sheetsRuntime.StopAsync());_backupRuntime=null;_googleRuntime=null;_sheetsRuntime=null;}
     internal async Task StopBackupsAsync(){_stoppingOwnerActivity=true;_ownerTimer.Stop();HideOwnerContent();StopBackups();await Task.WhenAll(_stoppingBackups);}
-    private void ShowPanel(StackPanel panel)=>Host.Content=new ScrollViewer{Padding=new Microsoft.UI.Xaml.Thickness(24),Content=panel};
+    private void ShowPanel(StackPanel panel)=>Host.Content=new ScrollViewer{Padding=new Microsoft.UI.Xaml.Thickness(24),HorizontalContentAlignment=Microsoft.UI.Xaml.HorizontalAlignment.Stretch,Content=panel};
 }

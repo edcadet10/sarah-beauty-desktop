@@ -6,8 +6,10 @@ namespace SarahBeauty_Desktop.Views;
 internal static class Form
 {
     internal static StackPanel Panel() => new() { Spacing = 12, MaxWidth = 1100, HorizontalAlignment = HorizontalAlignment.Stretch };
-    internal static TextBlock Title(string text) => new() { Text = text, FontSize = 28, FontWeight = Microsoft.UI.Text.FontWeights.SemiBold };
-    internal static TextBlock Text(string text = "") => new() { Text = text, TextWrapping = TextWrapping.Wrap, IsTextSelectionEnabled = true };
+    internal static TextBlock Title(string text) => new() { Text = text, Style = Style("SarahTitleStyle") };
+    internal static TextBlock Text(string text = "") => new() { Text = text, Style = Style("SarahBodyStyle"), IsTextSelectionEnabled = true };
+    internal static TextBlock Muted(string text) => new() { Text = text, Style = Style("SarahMutedStyle"), IsTextSelectionEnabled = true };
+    internal static Style Style(string key) => (Style)Application.Current.Resources[key];
     internal static TextBox Input(string label, string value = "") => new() { Header = label, Text = value, MinWidth = 200 };
     internal static PasswordBox Secret(string label) => new() { Header = label, PasswordRevealMode = PasswordRevealMode.Hidden };
 
@@ -33,6 +35,14 @@ internal static class Form
             catch (Exception error) { status.Text = error.Message; }
             finally { button.IsEnabled = true; }
         };
+        return button;
+    }
+
+    internal static Button PrimaryAction(string label, TextBlock status, Func<Task> action)
+    {
+        var button = Action(label, status, action);
+        button.Style = Style("AccentButtonStyle");
+        button.Padding = new Thickness(16,10,16,10);
         return button;
     }
 
