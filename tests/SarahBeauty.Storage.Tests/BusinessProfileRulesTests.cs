@@ -4,6 +4,12 @@ namespace SarahBeauty.Storage.Tests;
 
 public sealed class BusinessProfileRulesTests
 {
+    [Theory]
+    [InlineData("negative")][InlineData("overflow")][InlineData("blank")][InlineData("long")]
+    public void ProfileChangesNeedAnAppendableRevisionAndBoundedPrivateReason(string defect)
+    {
+        var draft=new BusinessProfileChange(0,new(){DisplayName="Fictional Beauty"},"Fictional profile change");draft=defect switch{"negative"=>draft with{ExpectedRevision=-1},"overflow"=>draft with{ExpectedRevision=long.MaxValue},"blank"=>draft with{Reason=" "},_=>draft with{Reason=new('A',1001)}};Assert.Throws<ArgumentException>(()=>BusinessProfileRules.NormalizeChange(draft));
+    }
     [Fact]
     public void AnIncompleteProfileKeepsUnknownFactsWithoutInventingAStartCurrencyOrReview()
     {

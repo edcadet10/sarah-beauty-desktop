@@ -6,6 +6,12 @@ namespace SarahBeauty.Business.Setup;
 
 public static class BusinessProfileRules
 {
+    public static BusinessProfileChange NormalizeChange(BusinessProfileChange draft)
+    {
+        ArgumentNullException.ThrowIfNull(draft);string reason=Text(draft.Reason,"profile change reason",1000,true);
+        if(draft.ExpectedRevision is <0 or long.MaxValue||reason.Length==0)throw new ArgumentException("Review the current profile revision and record a private reason for the change.");
+        return draft with{Profile=Normalize(draft.Profile),Reason=reason};
+    }
     public static BusinessProfile Normalize(BusinessProfile draft)
     {
         ArgumentNullException.ThrowIfNull(draft);var value=draft with

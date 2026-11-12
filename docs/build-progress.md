@@ -2,7 +2,7 @@
 
 This file tracks the full application build requested on November 10, 2026. A component marked implemented still needs the release checks applicable to it. The app is not ready for live business use.
 
-Current feature head: append-only private business-profile storage, schema 39, following the profile contract through PR #249. Sixteen initial storage/recovery cases and 20 expanded upgrade/contract/workbook cases pass. The full local format-3 suite through #247 passes 1,353 cases; later quote/profile/customer checks pass separately. Hosted schema-37 verification passes all 1,345 cases, Windows Debug and recovery cryptography. Typed profile verification, authenticated saves/UI, isolated LIVE creation, remaining workflows and release acceptance continue. Main merges remain incremental and are behind this feature stack. Historical sections below retain the results measured at their own step.
+Current feature head: verified private business-profile history, schema 39, following append-only storage through PR #250. Twenty-eight history/profile cases pass; the parent full regression is running. The full local format-3 suite through #247 passes 1,353 cases, and hosted schema-37 verification passes 1,345 cases, Windows Debug and recovery cryptography. Authenticated profile saves/UI, isolated LIVE creation, remaining workflows and release acceptance continue. Main merges remain incremental and are behind this feature stack. Historical sections below retain the results measured at their own step.
 
 | Area | Current state | Evidence or remaining work |
 |---|---|---|
@@ -1302,3 +1302,7 @@ The pure contract now represents private legal/contact/address/EIN facts, option
 ## Append-only private profile storage and older-archive migration
 
 Schema 39 adds empty private profile history with business-scoped owner/revision/request constraints and immutable rows, without inferring setup or money. Readable conventions explicitly omit private profile facts/reasons. Sixteen initial storage/ownership/recovery cases and 20 expanded upgrade/contract/workbook cases pass, including genuine schema-38 encrypted restore/activation and an openable pre-upgrade snapshot. Earlier-layout fixtures refuse to discard newer rows and now faithfully preserve decision tables for schemas 36–38. Typed profile verification, authenticated saving and UI follow separately; the full regression is starting. PR #172 passed both checks and merged; #173 is undergoing main-targeted checks at cb343ac. See [Prepare append-only private profile history](business-profile-schema.md).
+
+## Verified private profile history and archive checks
+
+Protected current/history reads verify canonical snapshots/payloads/indexes, contiguous revisions, recording owners, store mode, exact managed evidence and the latest display name. A corrupted profile initially passed archive capture; schema-39 archive validation now invokes the same typed reader. Twenty-eight history/profile cases pass, including privacy, revision/index/mode/name mismatches, inactive historical actors, replaced/missing physical evidence with preserved metadata, forged descriptors and change-request bounds. Tests seed history directly; authenticated save and native review follow separately. The parent full regression remains running. See [Verify private business-profile history](business-profile-history.md).
