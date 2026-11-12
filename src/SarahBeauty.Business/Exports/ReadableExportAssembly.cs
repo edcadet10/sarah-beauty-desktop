@@ -48,6 +48,7 @@ internal sealed record ReadableExportAssembly(ReadableExportSource Source,Readab
         ("Booking planning reports",()=>ReadableBookingPlanningTables.Build(source,budget)),
         ("Dashboard finance",()=>ReadableDashboardFinanceTables.Build(source,budget,dates.FinancialFrom,dates.FinancialThrough)),
         ("Dashboard upcoming events",()=>ReadableDashboardUpcomingTables.Build(source,budget,dates.PlanningAsOf,dates.EventFrom,dates.EventThrough)),
-        ("Ownership settings",()=>ReadableOwnershipTables.Build(source,budget,dates.PlanningAsOf))
+        ("Ownership settings",()=>ReadableOwnershipTables.Build(source,budget,dates.PlanningAsOf)),
+        ("Document decisions",()=>ReadableDocumentDecisionTables.Build(source,budget))
     ];
 }

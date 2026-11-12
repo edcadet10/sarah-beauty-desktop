@@ -26,7 +26,9 @@ internal static class SchemaMigrations
             // Version 35 requires every human session to match the currently stored credential.
             (35,"SELECT 1;"),(36,DocumentDecisionSchema.Sql),
             // Version 37 requires dated invoice-void reads and retained dependency checks.
-            (37,"SELECT 1;")];
+            (37,"SELECT 1;"),
+            // Version 38 distinguishes complete decision-history projection from older jobs.
+            (38,"SELECT 1;")];
         foreach (var migration in migrations.Where(m => m.Version > fromVersion))
         {
             command.CommandText = migration.Sql;

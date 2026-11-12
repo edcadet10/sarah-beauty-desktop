@@ -86,7 +86,7 @@ public sealed class InvoiceVoidTests
     public void UpgradeFromThePriorWriterPreservesIssuedRecordsAndItsOpenableSnapshot()
     {
         using var f=new LedgerFixture();var invoice=ApplicationTests.Invoice(f,5000);long watermark=Scalar(f,"SELECT Watermark FROM Business;");string instance=f.Business.Store.InstanceId;f.Business.Files.Execute("PRAGMA user_version=36;");
-        var upgraded=new BusinessStore(f.Business.Store.DatabasePath);Assert.Equal(37,Scalar(f,"PRAGMA user_version;"));Assert.Equal(instance,upgraded.InstanceId);Assert.Equal(watermark,Scalar(f,"SELECT Watermark FROM Business;"));Assert.Empty(new DocumentDecisions(upgraded).History(f.Business.Owner));Assert.Equal(invoice.Hash,new QuoteBook(upgraded).Versions(f.Business.Owner).Single(v=>v.Id==invoice.Id).Hash);
+        var upgraded=new BusinessStore(f.Business.Store.DatabasePath);Assert.Equal(BusinessSchema.Version,Scalar(f,"PRAGMA user_version;"));Assert.Equal(instance,upgraded.InstanceId);Assert.Equal(watermark,Scalar(f,"SELECT Watermark FROM Business;"));Assert.Empty(new DocumentDecisions(upgraded).History(f.Business.Owner));Assert.Equal(invoice.Hash,new QuoteBook(upgraded).Versions(f.Business.Owner).Single(v=>v.Id==invoice.Id).Hash);
         string path=Assert.Single(f.Business.Files.Snapshots());Assert.Equal(36L,TestStore.Scalar(path,"PRAGMA user_version;"));Assert.Equal(0L,TestStore.Scalar(path,"SELECT count(*) FROM DocumentDecisions;"));new BusinessStore(upgraded.DatabasePath);Assert.Single(f.Business.Files.Snapshots());
     }
 
