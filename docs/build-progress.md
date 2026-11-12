@@ -1,5 +1,9 @@
 # Build progress
 
+## Shared input sizing — November 12, 2026
+
+Common text/passphrase/combo entry frames now use a 44-effective-pixel minimum; checkboxes have 44 × 44 minimum targets. Native before/after calibration verifies the 12-pixel entry increase, rather than mistaking header-inclusive bounds for the editing area. Dropdown, dashboard, customer identity, history/PDF, and clean Debug checks pass. See [touch input checks](touch-input-sizing.md). Physical touch/keyboard, larger text, and full target acceptance remain pending.
+
 ## Customer browser/editor layout — November 12, 2026
 
 The customer screen uses separate browse/edit panels on wider windows and stacked panels on smaller ones. New records explicitly clear the prior selection. Native checks verify 1280/900/500-pixel layouts, retained unsaved text during resize, empty-name rejection, same-name identity, unchanged financial history/PDFs, and a clean Debug build. See [customer workspace layout](customer-workspace-layout.md). Touch, keyboard, larger-text, device, and unsaved-change protection work continues separately.

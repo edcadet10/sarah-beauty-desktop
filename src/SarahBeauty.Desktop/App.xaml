@@ -9,6 +9,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
                 <ResourceDictionary Source="BrandResources.xaml" />
+                <ResourceDictionary Source="ControlSizingResources.xaml" />
                 <ResourceDictionary Source="Views/CustomerRowResources.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
