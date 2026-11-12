@@ -9,6 +9,7 @@
     <InternalsVisibleTo Include="SarahBeauty.Storage.Tests" />
     <PackageReference Include="PDFsharp-MigraDoc" Version="6.2.4" />
     <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.15" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.15" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="../../.artifacts/recovery-helper/SarahBeauty.Recovery.exe" Link="SarahBeauty.Recovery.exe"
@@ -16,6 +17,10 @@
     <Content Include="../../.artifacts/recovery-helper/ThirdParty/*" Link="ThirdParty/Recovery/%(Filename)%(Extension)"
              CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <Content Include="../../docs/third-party/pdfsharp-6.2.4-license.txt" Link="ThirdParty/PDFsharp/LICENSE.txt"
+             CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="../../docs/third-party/dotnet-runtime-10.0.15-license.txt" Link="ThirdParty/DotNet/LICENSE.txt"
+             CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="$(NuGetPackageRoot)system.security.cryptography.protecteddata/10.0.15/THIRD-PARTY-NOTICES.TXT" Link="ThirdParty/DotNet/ProtectedData-NOTICES.txt"
              CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
