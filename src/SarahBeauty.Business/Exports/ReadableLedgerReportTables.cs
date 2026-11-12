@@ -29,7 +29,7 @@ internal static class ReadableLedgerReportTables
         FROM JournalLines J JOIN Movements M ON M.Id=J.MovementId JOIN Accounts A ON A.Id=J.AccountId
         WHERE M.BusinessId=$business AND A.BusinessId=$business AND A.CashKind<>'None' AND M.Date BETWEEN $from AND $through
         ORDER BY M.Date,M.Id,A.Code,J.Id;
-        """,r=>new CashActivity(r.GetString(0),DateOnly.Parse(r.GetString(1)),r.GetString(2),r.GetString(3),r.GetString(4),r.GetString(5),r.GetInt64(6),r.GetInt64(7)),
+        """,r=>new CashActivity(r.GetString(0),StoredDates.Parse(r.GetString(1)),r.GetString(2),r.GetString(3),r.GetString(4),r.GetString(5),r.GetInt64(6),r.GetInt64(7)),
         ("$business",source.BusinessId),("$from",from.ToString("yyyy-MM-dd",System.Globalization.CultureInfo.InvariantCulture)),("$through",through.ToString("yyyy-MM-dd",System.Globalization.CultureInfo.InvariantCulture)));
 
     private sealed class Tables

@@ -32,7 +32,7 @@ public sealed class DashboardFinanceSources(BusinessStore store)
         var ids=db.Read("""
             SELECT C.AccountId,C.Id FROM Reconciliations C WHERE C.BusinessId=$business AND C.AsOfDate<=$date
             AND NOT EXISTS(SELECT 1 FROM ReconciliationReopens R WHERE R.ReconciliationId=C.Id) ORDER BY C.AsOfDate DESC,C.AtUtc DESC,C.Id DESC;
-            """,r=>(Account:r.GetString(0),Id:r.GetString(1)),("$business",businessId),("$date",reports.Through.ToString("yyyy-MM-dd")))
+            """,r=>(Account:r.GetString(0),Id:r.GetString(1)),("$business",businessId),("$date",reports.Through.ToStorageDate()))
             .GroupBy(c=>c.Account).ToDictionary(g=>g.Key,g=>g.First().Id);
         return reports.TrialBalance.Where(t=>t.Account.CashKind!="None").Select(t=>
         {
@@ -45,6 +45,6 @@ public sealed class DashboardFinanceSources(BusinessStore store)
         SELECT M.Id,M.Date,M.Kind,M.Memo,A.Id,A.Name,J.DebitCents,J.CreditCents FROM Movements M
         JOIN JournalLines J ON J.MovementId=M.Id JOIN Accounts A ON A.Id=J.AccountId
         WHERE M.BusinessId=$business AND M.Date<=$date AND A.CashKind<>'None' ORDER BY M.Date,M.rowid,J.rowid;
-        """,r=>new CashActivity(r.GetString(0),DateOnly.Parse(r.GetString(1)),r.GetString(2),r.GetString(3),r.GetString(4),r.GetString(5),r.GetInt64(6),r.GetInt64(7)),
-        ("$business",businessId),("$date",through.ToString("yyyy-MM-dd"))).ToArray();
+        """,r=>new CashActivity(r.GetString(0),StoredDates.Parse(r.GetString(1)),r.GetString(2),r.GetString(3),r.GetString(4),r.GetString(5),r.GetInt64(6),r.GetInt64(7)),
+        ("$business",businessId),("$date",through.ToStorageDate())).ToArray();
 }

@@ -55,8 +55,8 @@ public sealed class BookingBillingSources(BusinessStore store)
         return db.Read("""
             SELECT H.VersionId,H.InvoiceVersionId,H.Date FROM CreditNoteHeaders H JOIN DocumentVersions V ON V.Id=H.VersionId
             JOIN Documents D ON D.Id=V.DocumentId WHERE D.BusinessId=$business AND D.BookingId=$booking AND H.Date<=$date ORDER BY H.Date,V.rowid;
-            """,r=>(Id:r.GetString(0),Invoice:r.GetString(1),Date:DateOnly.Parse(r.GetString(2))),
-            ("$business",businessId),("$booking",booking),("$date",asOf.ToString("yyyy-MM-dd")))
+            """,r=>(Id:r.GetString(0),Invoice:r.GetString(1),Date:StoredDates.Parse(r.GetString(2))),
+            ("$business",businessId),("$booking",booking),("$date",asOf.ToStorageDate()))
             .Select(h=>new BookingBillingCredit(h.Id,h.Invoice,sources[h.Id].Snapshot.Number,h.Date,sources[h.Id].Snapshot.NetCents,
                 sources[h.Id].Snapshot.TaxCents,sources[h.Id].Hash,sources[h.Id].Snapshot.Lines)).ToArray();
     }

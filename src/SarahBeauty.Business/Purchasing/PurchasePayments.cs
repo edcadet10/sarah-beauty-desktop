@@ -95,13 +95,13 @@ public sealed class PurchasePayments(BusinessStore store)
         if(column is not ("PurchaseId" or "MovementId"))throw new ArgumentException("Unsupported supplier settlement dimension.");
         return db.Read($"""
             SELECT Id,MovementId,PurchaseId,LineId,Date,Cents,BusinessCents,ReversesId,Sign,RefundsId,DrawCents,ConsumesId FROM PurchaseSettlements WHERE {column}=$id;
-            """,r=>new PurchaseSettlement(r.GetString(0),r.GetString(1),r.GetString(2),r.GetString(3),DateOnly.Parse(r.GetString(4)),r.GetInt64(5),r.GetInt64(6),r.IsDBNull(7)?null:r.GetString(7),r.GetInt32(8),r.IsDBNull(9)?null:r.GetString(9),r.GetInt64(10),r.IsDBNull(11)?null:r.GetString(11)),("$id",id));
+            """,r=>new PurchaseSettlement(r.GetString(0),r.GetString(1),r.GetString(2),r.GetString(3),StoredDates.Parse(r.GetString(4)),r.GetInt64(5),r.GetInt64(6),r.IsDBNull(7)?null:r.GetString(7),r.GetInt32(8),r.IsDBNull(9)?null:r.GetString(9),r.GetInt64(10),r.IsDBNull(11)?null:r.GetString(11)),("$id",id));
     }
 
     private static void Save(DbWork db,PurchaseSettlement row,string movement)=>db.Execute("""
         INSERT INTO PurchaseSettlements (Id,MovementId,PurchaseId,LineId,Date,Cents,BusinessCents,ReversesId,Sign,RefundsId,DrawCents,ConsumesId)
         VALUES ($id,$movement,$purchase,$line,$date,$gross,$business,$reverse,$sign,$refund,$draw,$consumes);
-        """,("$id",row.Id),("$movement",movement),("$purchase",row.PurchaseId),("$line",row.LineId),("$date",row.Date.ToString("yyyy-MM-dd")),
+        """,("$id",row.Id),("$movement",movement),("$purchase",row.PurchaseId),("$line",row.LineId),("$date",row.Date.ToStorageDate()),
         ("$gross",row.Cents),("$business",row.BusinessCents),("$reverse",row.ReversesId),("$sign",row.Sign),("$refund",row.RefundsId),
         ("$draw",row.DrawCents),("$consumes",row.ConsumesId));
 }

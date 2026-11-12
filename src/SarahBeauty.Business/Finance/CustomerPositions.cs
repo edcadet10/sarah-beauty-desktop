@@ -15,7 +15,7 @@ internal static class CustomerPositions
         var payments=db.Read("""
             SELECT M.Id,M.CustomerId,A.Type,A.Code FROM Movements M JOIN Accounts A ON A.Id=json_extract(M.DataJson,'$.CounterAccountId')
             WHERE M.BusinessId=$business AND M.Kind IN('Receipt','ReceiptClassification') AND M.Date<=$date;
-            """,r=>(Id:r.GetString(0),Customer:r.GetString(1),Type:r.GetString(2),Code:r.GetString(3)),("$business",businessId),("$date",through.ToString("yyyy-MM-dd")));
+            """,r=>(Id:r.GetString(0),Customer:r.GetString(1),Type:r.GetString(2),Code:r.GetString(3)),("$business",businessId),("$date",through.ToStorageDate()));
         var credits=CreditValues.List(db,businessId).Where(c=>c.IssueDate<=through).ToList();
         var ids=dues.Select(d=>d.CustomerId).Concat(payments.Select(p=>p.Customer)).Concat(credits.Select(c=>c.CustomerId)).Distinct();
         return ids.Select(id=>

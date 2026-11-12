@@ -16,8 +16,8 @@ internal static class DashboardMonthly
             """,r=>
             {
                 if(BookPeriodQueries.Hash(r.GetString(2))!=r.GetString(3))throw new InvalidDataException("A closed report snapshot failed its content-hash check.");
-                return (From:DateOnly.Parse(r.GetString(0)),Through:DateOnly.Parse(r.GetString(1)));
-            },("$business",businessId),("$from",reports.From.ToString("yyyy-MM-dd")),("$through",reports.Through.ToString("yyyy-MM-dd")));
+                return (From:StoredDates.Parse(r.GetString(0)),Through:StoredDates.Parse(r.GetString(1)));
+            },("$business",businessId),("$from",reports.From.ToStorageDate()),("$through",reports.Through.ToStorageDate()));
         var accounts=reports.TrialBalance.ToDictionary(t=>t.Account.Id,t=>t.Account.Type);
         var groups=reports.Entries.ToLookup(e=>new DateOnly(e.Date.Year,e.Date.Month,1));
         DateOnly first=new(reports.From.Year,reports.From.Month,1);

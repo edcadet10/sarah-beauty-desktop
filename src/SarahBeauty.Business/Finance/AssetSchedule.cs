@@ -39,9 +39,9 @@ internal static class AssetSchedule
         FROM Movements M JOIN JournalLines J ON J.MovementId=M.Id JOIN Accounts A ON A.Id=J.AccountId
         WHERE M.BusinessId=$business AND M.Date<=$through AND COALESCE(NULLIF(J.AssetId,''),M.AssetId,'')<>''
         ORDER BY M.Date,M.rowid,J.rowid;
-        """,r=>new AssetScheduleEntry(r.GetString(0),r.GetString(1),DateOnly.Parse(r.GetString(2)),r.GetString(3),r.GetString(4),
+        """,r=>new AssetScheduleEntry(r.GetString(0),r.GetString(1),StoredDates.Parse(r.GetString(2)),r.GetString(3),r.GetString(4),
             r.GetString(5),r.GetString(6),r.GetInt64(7),r.GetInt64(8),r.GetInt32(9)==1),
-        ("$business",businessId),("$through",through.ToString("yyyy-MM-dd")));
+        ("$business",businessId),("$through",through.ToStorageDate()));
 
     private static List<AssetScheduleEvent> Events(DbWork db,string businessId,DateOnly through)=>db.Read("""
         SELECT A.Id,M.Id,M.Date,M.Kind,M.Memo FROM Records A JOIN Movements M ON M.BusinessId=A.BusinessId
@@ -49,6 +49,6 @@ internal static class AssetSchedule
         AND (M.AssetId=A.Id OR EXISTS(SELECT 1 FROM JournalLines J WHERE J.MovementId=M.Id AND J.AssetId=A.Id)
             OR EXISTS(SELECT 1 FROM json_each(M.DataJson,'$.AssetAdjustments') C WHERE json_extract(C.value,'$.AssetId')=A.Id))
         ORDER BY M.Date,M.rowid,A.Id;
-        """,r=>new AssetScheduleEvent(r.GetString(0),r.GetString(1),DateOnly.Parse(r.GetString(2)),r.GetString(3),r.GetString(4)),
-        ("$business",businessId),("$through",through.ToString("yyyy-MM-dd")));
+        """,r=>new AssetScheduleEvent(r.GetString(0),r.GetString(1),StoredDates.Parse(r.GetString(2)),r.GetString(3),r.GetString(4)),
+        ("$business",businessId),("$through",through.ToStorageDate()));
 }

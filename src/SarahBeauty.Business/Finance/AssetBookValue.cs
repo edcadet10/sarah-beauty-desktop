@@ -16,7 +16,7 @@ internal sealed record AssetBookValue(List<AssetAccountValue> Costs,long Depreci
             SELECT A.Id,A.Code,SUM(J.DebitCents-J.CreditCents) FROM Movements M JOIN JournalLines J ON J.MovementId=M.Id
             JOIN Accounts A ON A.Id=J.AccountId WHERE M.BusinessId=$business AND J.AssetId=$asset AND M.Date<=$date
             AND A.Type='Asset' AND A.CashKind='None' GROUP BY A.Id,A.Code;
-            """,r=>new AssetAccountValue(r.GetString(0),r.GetString(1),r.GetInt64(2)),("$business",businessId),("$asset",asset),("$date",date.ToString("yyyy-MM-dd")));
+            """,r=>new AssetAccountValue(r.GetString(0),r.GetString(1),r.GetInt64(2)),("$business",businessId),("$asset",asset),("$date",date.ToStorageDate()));
         var result=new AssetBookValue(values.Where(v=>v.Code!="1590").ToList(),-values.Where(v=>v.Code=="1590").Sum(v=>v.Cents),values.Count>0);
         if(!result.HasHistory || result.Costs.Any(c=>c.Cents<0) || result.Depreciation<0 || result.Depreciation>result.Cost)
             throw new ArgumentException("Review the asset's approved book value and accumulated depreciation. Unknown value is not zero.");

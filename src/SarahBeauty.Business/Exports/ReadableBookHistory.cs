@@ -32,7 +32,7 @@ internal static class ReadableBookHistory
             BookPeriodPreview value;
             try{value=JsonSerializer.Deserialize<BookPeriodPreview>(reader.GetString(3))??throw new JsonException();}
             catch(JsonException){throw new InvalidDataException("A retained book period cannot be projected.");}
-            if(value.Draft.From.ToString("yyyy-MM-dd")!=reader.GetString(1)||value.Draft.Through.ToString("yyyy-MM-dd")!=reader.GetString(2)||value.Reports.From!=value.Draft.From||value.Reports.Through!=value.Draft.Through||value.Reports.Mode!=source.Mode||value.Reports.Watermark<0||value.Reports.Watermark>source.Watermark)throw new InvalidDataException("A retained book report does not match its recorded period or source scope.");
+            if(value.Draft.From.ToStorageDate()!=reader.GetString(1)||value.Draft.Through.ToStorageDate()!=reader.GetString(2)||value.Reports.From!=value.Draft.From||value.Reports.Through!=value.Draft.Through||value.Reports.Mode!=source.Mode||value.Reports.Watermark<0||value.Reports.Watermark>source.Watermark)throw new InvalidDataException("A retained book report does not match its recorded period or source scope.");
             add(reader.GetString(0),value);
         }
     }
