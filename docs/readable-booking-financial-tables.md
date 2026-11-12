@@ -1,0 +1,7 @@
+# Project booking contribution and financial sources
+
+Five source-bound tables retain booking contribution summaries, assigned journal, tagged cash, unassigned direct costs, and explicit snapshot coverage. Report IDs join ledger report date/mode/observation scope. Nested billing/financial watermarks and times stay visible. Booking IDs, watermarks, and as-of dates must agree between the nested sources before projection.
+
+Effective billed net charges, period charges, applications, open amounts, tagged cash after fees, recognized service income, assigned direct costs, and unassigned costs remain separate. Contribution is an estimate of effective billed net less recorded assigned direct costs; it is not exact business profit. An unissued booking has a blank estimate even when costs are known. Unassigned costs have no invented booking ID. Retained close facts stay original after later costs.
+
+Missing older snapshots are marked unretained; unsupported versions stop projection. Private notes/evidence/raw snapshots stay out; public financial descriptions remain readable. Two table cases, three mixed-scope cases, and two booking kernel cases pass in Release (seven targeted). They cover actual charge/cash/income/fee/application/cost distinctions, retained unknown estimates, locked access, and hash-valid retained snapshots with altered booking ID/watermark/date. Windows Debug has zero warnings/errors. The latest complete suite remains 926; another complete run is in progress. Billing/planning/dashboard groups and verified Sheets publication remain pending.
