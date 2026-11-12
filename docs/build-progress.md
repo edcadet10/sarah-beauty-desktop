@@ -2,7 +2,7 @@
 
 This file tracks the full application build requested on November 10, 2026. A component marked implemented still needs the release checks applicable to it. The app is not ready for live business use.
 
-Current feature head: complete readable decision coverage, projection format 3/schema 38, following native document decisions and isolated tables through PR #246. The complete local Release suite passes all 1,353 cases in 6m34. Windows Debug and native upgrade/history/preview checks pass. Hosted schema-37 verification passes all 1,345 cases, Windows Debug and recovery cryptography. LIVE setup, remaining workflows and release acceptance continue. Main merges remain incremental and are behind this feature stack. Historical sections below retain the results measured at their own step.
+Current feature head: private business-profile contract, schema 38, following complete format-3 document-decision coverage and the quote-date guard through PR #248. The full local format-3 suite passes 1,353 cases; 19 later quote-date cases, 14 profile cases and six existing customer cases pass separately. Hosted schema-37 verification passes all 1,345 cases, Windows Debug and recovery cryptography. Profile persistence/UI, isolated LIVE creation, remaining workflows and release acceptance continue. Main merges remain incremental and are behind this feature stack. Historical sections below retain the results measured at their own step.
 
 | Area | Current state | Evidence or remaining work |
 |---|---|---|
@@ -1294,3 +1294,7 @@ The complete local format-3/schema-38 Release regression passes all 1,353 tests 
 ## Quote decision date guard
 
 A future-dated quote decision initially changed today's terminal state. The writer now requires issue date through today, matching invoice voids. Nineteen related Release cases pass, including the failing-before check, no-change rejection and exact retry after an injected clock rollback. The culture case uses a permitted date and still verifies Gregorian output. The full format-3 regression remains in progress; the hosted schema-37 invoice-command run has completed successfully. See [Reject future quote decisions](quote-decision-date.md).
+
+## Private business-profile foundation
+
+The pure contract now represents private legal/contact/address/EIN facts, optional explicit USD/time-zone/start settings, a separate new-business-only acknowledgment, and formation/EIN/banking/tax review states with private reasons and optional evidence descriptors. Unknown values remain unconfirmed; no legal, tax, ownership or opening fact is inferred. Fourteen profile cases and six existing customer cases pass after sharing contact validation. This step adds no persistence, physical-file validation, LIVE authority or opening posting. Authenticated revisioned storage and native review controls follow. See [Prepare private business setup facts](business-profile-contract.md).
