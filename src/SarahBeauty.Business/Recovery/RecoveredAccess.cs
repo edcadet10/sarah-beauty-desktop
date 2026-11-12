@@ -28,15 +28,15 @@ internal static class RecoveredAccess
         db.Execute("INSERT INTO AppMetadata(Key,Value) VALUES('WritableInstanceId',$instance) ON CONFLICT(Key) DO UPDATE SET Value=excluded.Value; INSERT INTO AppMetadata(Key,Value) VALUES('WritableInstanceState','Prepared') ON CONFLICT(Key) DO UPDATE SET Value=excluded.Value;",("$instance",instance));
         db.Execute("UPDATE Owners SET Salt=$salt,Hash=$hash,Iterations=$iterations,FailedAttempts=0,LockedUntil=NULL WHERE Id=$id;",("$salt",credential.Salt),("$hash",credential.Hash),("$iterations",Passphrase.Iterations),("$id",decision.OwnerId));
         db.Execute("INSERT INTO AppMetadata(Key,Value) VALUES($key,$json);",("$key","RecoveredStore/"+request),("$json",JsonSerializer.Serialize(receipt)));
-        BusinessStore.Audit(db,new OwnerSession(decision.OwnerId,"Recovered owner access",manifest.BusinessId,manifest.StoreId,instance),"Reestablished owner access from portable recovery",request);
+        BusinessStore.Audit(db,new OwnerSession(decision.OwnerId,"Recovered owner access",manifest.BusinessId,manifest.StoreId,instance,mode:BusinessModes.FromStoredName(manifest.Mode)),"Reestablished owner access from portable recovery",request);
         cancellation.ThrowIfCancellationRequested();transaction.Commit();return receipt;
     }
-    internal static void Verify(string database,ArchiveManifest source,RecoveredStoreReceipt receipt)
+    internal static void Verify(string database,ArchiveManifest source,RecoveredStoreReceipt receipt,CancellationToken cancellation=default)
     {
-        var store=new BusinessStore(database,"Prepared");if(store.InstanceId!=receipt.InstanceId || store.StoreId!=source.StoreId)throw new InvalidDataException("The recovered working copy identity did not match its preparation.");
+        var mode=BusinessModes.FromStoredName(source.Mode);var store=new BusinessStore(database,mode,"Prepared");if(store.InstanceId!=receipt.InstanceId || store.StoreId!=source.StoreId||receipt.Mode!=source.Mode)throw new InvalidDataException("The recovered working copy identity did not match its preparation.");
         store.Read(db=>
         {
-            var facts=ArchiveDatabaseChecks.Read(db);if(facts.MovementCount!=source.Facts.MovementCount || facts.JournalLineCount!=source.Facts.JournalLineCount || facts.TotalDebits!=source.Facts.TotalDebits || facts.TotalCredits!=source.Facts.TotalCredits)throw new InvalidDataException("The recovered working copy changed its financial facts.");return true;
+            ReadyStoreChecks.Verify(db,Path.GetDirectoryName(database)!,receipt,cancellation,mode);return true;
         });
     }
 }

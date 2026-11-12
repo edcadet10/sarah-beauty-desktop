@@ -4,8 +4,9 @@ using SarahBeauty.Business.Storage;
 
 namespace SarahBeauty.Business.Recovery;
 
-public sealed class RecoveredStores
+public sealed class RecoveredStores(BusinessMode mode=BusinessMode.Test)
 {
+    private readonly string _mode=BusinessModes.StoredName(mode);
     internal Action<string>? FailurePoint {get;set;}
     public IReadOnlyList<(string Id,string Name)> Owners(StagedArchiveReview review)
     {
@@ -16,7 +17,7 @@ public sealed class RecoveredStores
         if(!decision.PreviousPrimaryAcknowledged)throw new ArgumentException("Confirm that the previous writable instance is retired or permanently unavailable before preparing another writable copy.");
         if(string.IsNullOrWhiteSpace(decision.Reason) || decision.Reason.Length>4000)throw new ArgumentException("Enter a recovery reason of at most 4,000 characters.");
         if(!Guid.TryParse(requestId,out var request) || request==Guid.Empty)throw new ArgumentException("Use a new recovery request identity.");
-        var manifest=review.VerifiedManifest(cancellation);if(manifest.Mode!="TEST")throw new ArgumentException("This build can prepare only TEST working stores. Preserve this archive for a build that supports its mode.");
+        var manifest=review.VerifiedManifest(cancellation);if(manifest.Mode!=_mode)throw new ArgumentException("Choose a "+_mode+" recovery archive for this workspace. TEST and LIVE working stores cannot be mixed.");
         var credential=await Task.Run(()=>Passphrase.Hash(newOwnerPassphrase),cancellation);
         return await Task.Run(()=>Prepare(review,Path.GetFullPath(destinationParent),decision,credential,request.ToString(),manifest,cancellation),cancellation);
     }
@@ -27,7 +28,7 @@ public sealed class RecoveredStores
         if(File.Exists(destination)||Directory.Exists(destination))throw new IOException("This recovery request already has a destination. Review that recovered copy before retrying.");
         using var workspace=new ArchiveWorkspace(parent);RecoveredStoreCopy.Write(review,workspace,manifest,cancellation);FailurePoint?.Invoke("Recovered files copied");
         var receipt=RecoveredAccess.Prepare(workspace.FilePath("sarahbeauty.db"),manifest,review,decision,credential,request,cancellation);FailurePoint?.Invoke("Recovered access prepared");
-        RecoveredAccess.Verify(workspace.FilePath("sarahbeauty.db"),manifest,receipt);FailurePoint?.Invoke("Before recovered copy published");
+        RecoveredAccess.Verify(workspace.FilePath("sarahbeauty.db"),manifest,receipt,cancellation);FailurePoint?.Invoke("Before recovered copy published");
         review.PublishPreparedCopy(()=>{cancellation.ThrowIfCancellationRequested();ArchivePaths.RejectLink(stores);Directory.Move(workspace.Root,destination);});return new(destination,receipt);
     }
 }
