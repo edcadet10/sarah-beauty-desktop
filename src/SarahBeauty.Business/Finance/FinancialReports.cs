@@ -14,13 +14,10 @@ public sealed class FinancialReports(BusinessStore store)
     internal ReportSnapshot Load(DbWork db,OwnerSession owner,DateOnly from,DateOnly through)
     {
         store.RequireSession(db,owner);
-        var confirmed=ConfirmedOpenings(db,owner,through);
-        var trial=LedgerReports.TrialBalance(db,owner,from,through)
-            .Select(r=>r with{Account=r.Account with{OpeningConfirmed=confirmed.Contains(r.Account.Id)}}).ToList();
+        var trial=LedgerReports.TrialBalance(db,owner,from,through);
         AfterTrialRead?.Invoke();
-        var pnl=new ProfitAndLoss(trial.Where(r=>r.Account.Type=="Income").Sum(r=>r.Credits-r.Debits),trial.Where(r=>r.Account.Type=="Expense").Sum(r=>r.Debits-r.Credits));
-        var balance=new BalanceSheet(trial.Where(r=>r.Account.Type=="Asset").Sum(r=>r.Ending),-trial.Where(r=>r.Account.Type=="Liability").Sum(r=>r.Ending),
-            -trial.Where(r=>r.Account.Type is "Equity" or "Income" or "Expense").Sum(r=>r.Ending));
+        var pnl=LedgerReportKernel.ProfitLoss(trial);
+        var balance=LedgerReportKernel.BalanceSheet(trial);
         string business=(string)db.Scalar("SELECT DisplayName FROM Business WHERE Id=$id;",("$id",owner.BusinessId))!;
         long watermark=ReceiptSnapshot.Watermark(db,owner);
         var versions=DocumentVersions.List(db,owner);
@@ -91,8 +88,4 @@ public sealed class FinancialReports(BusinessStore store)
             group.Where(b=>b.DueDate>through).Sum(b=>b.PayableCents),group.Where(b=>b.DueDate is null).Sum(b=>b.PayableCents),group.Sum(b=>b.CreditCents))).ToList();
     }
 
-    private static HashSet<string> ConfirmedOpenings(DbWork db,OwnerSession owner,DateOnly through)=>db.Read("""
-        SELECT AccountId FROM OpeningBalances O WHERE O.BusinessId=$business AND O.DimensionKind='Account' AND O.Date<=$date
-        AND (O.RevokedAt IS NULL OR (O.ReversalMovementId IS NOT NULL AND NOT EXISTS(SELECT 1 FROM Movements R WHERE R.Id=O.ReversalMovementId AND R.Date<=$date)));
-        """,r=>r.GetString(0),("$business",owner.BusinessId),("$date",through.ToString("yyyy-MM-dd"))).ToHashSet();
 }
