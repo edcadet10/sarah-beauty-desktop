@@ -14,6 +14,7 @@ internal sealed class WorkspaceView(BusinessStore store,OwnerSession session,Act
     private string _current="Dashboard";
     private readonly Dictionary<string,Func<UIElement>> _routes=new();
     private NavigationView? _navigation;
+    private WorkspaceMenu? _menu;
     private OwnerSecurityView? _ownerSecurity;
     private DocumentDecisionView? _documentDecisions;
     private BusinessProfileView? _businessProfile;
@@ -28,10 +29,11 @@ internal sealed class WorkspaceView(BusinessStore store,OwnerSession session,Act
         var header=Form.Panel();
         header.Margin=new Thickness(24,12,24,8);
         _businessTitle.Text=store.BusinessName(session);header.Add(_businessTitle,Form.Text($"{BusinessModes.StoredName(store.Mode)} • Signed in as {session.OwnerName}"),_status);
-        var nav=new NavigationView{IsSettingsVisible=false,PaneDisplayMode=NavigationViewPaneDisplayMode.Auto,IsPaneOpen=true};
+        var nav=new NavigationView{IsSettingsVisible=false,PaneDisplayMode=NavigationViewPaneDisplayMode.Auto,IsPaneOpen=true,
+            OpenPaneLength=256,IsBackButtonVisible=NavigationViewBackButtonVisible.Collapsed,PaneTitle="Workspace"};
         _navigation=nav;
-        foreach(string label in _routes.Keys)nav.MenuItems.Add(new NavigationViewItem{Content=label,Tag=label,Icon=new SymbolIcon(Symbol.Document)});
-        nav.Content=new ScrollViewer{Padding=new Thickness(24),Content=_content};
+        _menu=new WorkspaceMenu(nav,Navigate);_menu.Build(_routes.Keys);
+        nav.Content=new ScrollViewer{Padding=new Thickness(24),HorizontalContentAlignment=HorizontalAlignment.Stretch,Content=_content};
         nav.PaneFooter=Footer(root);
         nav.SelectionChanged+=(_,args)=>
         {
@@ -41,8 +43,7 @@ internal sealed class WorkspaceView(BusinessStore store,OwnerSession session,Act
         Grid.SetRow(nav,1);
         root.Children.Add(header);
         root.Children.Add(nav);
-        nav.SelectedItem=nav.MenuItems[0];
-        Navigate("Dashboard");
+        _menu.Select("Dashboard");
         return root;
     }
 
@@ -90,6 +91,7 @@ internal sealed class WorkspaceView(BusinessStore store,OwnerSession session,Act
         _content.Content=page;
         _current=key;
         _status.Text="Local records";
+        if(_navigation is not null&&_navigation.IsLoaded&&_navigation.DisplayMode!=NavigationViewDisplayMode.Expanded)_navigation.IsPaneOpen=false;
     }
     private UIElement BuildOwnerSecurity(){_ownerSecurity=new(store,session,passphraseChanged??locked);return _ownerSecurity.Build();}
     private UIElement BuildDocumentDecisions(){_documentDecisions=new(store,session);return _documentDecisions.Build();}
@@ -113,8 +115,6 @@ internal sealed class WorkspaceView(BusinessStore store,OwnerSession session,Act
 
     private void SelectRoute(string key)
     {
-        if(_navigation is null)return;
-        var target=_navigation.MenuItems.OfType<NavigationViewItem>().Single(i=>i.Tag as string==key);
-        if(ReferenceEquals(_navigation.SelectedItem,target))Navigate(key);else _navigation.SelectedItem=target;
+        _menu?.Select(key);
     }
 }
