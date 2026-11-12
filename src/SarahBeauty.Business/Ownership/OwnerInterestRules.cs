@@ -10,7 +10,7 @@ internal static class OwnerInterestRules
         string reason=draft.Reason?.Trim()??"";
         if(reason.Length is <1 or >1000)throw new ArgumentException("Enter a confirmation or correction reason of at most 1,000 characters.");
         var shares=NormalizeShares(draft.Shares);
-        return draft with{Reason=reason,Shares=shares,SupersedesId=OptionalId(draft.SupersedesId),EvidenceVersionId=OptionalId(draft.EvidenceVersionId)};
+        return draft with{Reason=reason,Shares=shares,SupersedesId=OptionalId(draft.SupersedesId),EvidenceVersionId=OptionalFileId(draft.EvidenceVersionId)};
     }
 
     internal static IReadOnlyList<OwnerInterestInput> NormalizeShares(IReadOnlyList<OwnerInterestInput>? values)
@@ -29,4 +29,5 @@ internal static class OwnerInterestRules
 
     private static string RequiredId(string? value)=>Guid.TryParseExact(value,"D",out var id)?id.ToString():throw new ArgumentException("Choose an existing owner or ownership/evidence version.");
     private static string? OptionalId(string? value)=>string.IsNullOrWhiteSpace(value)?null:RequiredId(value);
+    private static string? OptionalFileId(string? value)=>Guid.TryParseExact(value,"N",out var id)?id.ToString("N"):OptionalId(value);
 }

@@ -12,6 +12,7 @@ public sealed class OwnerInterestRulesTests
         var value=OwnerInterestRules.Normalize(new(0,new(2027,1,1),inputs," Fictional confirmation "));
         inputs.Clear();Assert.Equal(2,value.Shares.Count);Assert.Equal(1m,value.Shares.Sum(s=>s.Fraction));Assert.Equal("Fictional confirmation",value.Reason);
         Assert.Throws<NotSupportedException>(()=>((IList<OwnerInterestInput>)value.Shares).Clear());
+        string file=Guid.NewGuid().ToString("N");Assert.Equal(file,OwnerInterestRules.Normalize(value with{EvidenceVersionId=file}).EvidenceVersionId);
     }
     [Theory]
     [InlineData(null,"1")][InlineData("-0.1","1.1")][InlineData("0.6","0.3")][InlineData("0.6","0.5")][InlineData("0.0000001","0.9999999")]
