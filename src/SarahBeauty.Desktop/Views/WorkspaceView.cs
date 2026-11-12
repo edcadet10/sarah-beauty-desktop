@@ -5,7 +5,7 @@ using SarahBeauty.Business.Storage;
 
 namespace SarahBeauty_Desktop.Views;
 
-internal sealed class WorkspaceView(BusinessStore store,OwnerSession session,Action locked,Action? retired=null,Func<string>? backupRuntime=null)
+internal sealed class WorkspaceView(BusinessStore store,OwnerSession session,Action locked,Action? retired=null,Func<string>? backupRuntime=null,Func<string>? googleRuntime=null)
 {
     private readonly ContentControl _content=new(){HorizontalContentAlignment=HorizontalAlignment.Stretch};
     private readonly Dictionary<string,UIElement> _pages=[];
@@ -58,7 +58,7 @@ internal sealed class WorkspaceView(BusinessStore store,OwnerSession session,Act
         _routes["Customer credits"]=()=>new CreditView(store,session).Build();
         _routes["Resources"]=()=>new ResourceView(store,session).Build();
         _routes["Evidence files"]=()=>new EvidenceView(store,session).Build();
-        _routes["Backups and recovery"]=()=>new LocalBackupView(store,session,retired,backupRuntime).Build();
+        _routes["Backups and recovery"]=()=>new LocalBackupView(store,session,retired,backupRuntime,googleRuntime).Build();
         _routes["Opening balances"]=()=>new OpeningView(store,session).Build();
         _routes["Reports"]=()=>new ReportsView(store,session).Build();
         _routes["Statements"]=()=>new StatementPreviewView(store,session).Build();
@@ -75,7 +75,7 @@ internal sealed class WorkspaceView(BusinessStore store,OwnerSession session,Act
         if(!_pages.TryGetValue(key,out var page)){page=_routes[key]();_pages[key]=page;}
         _content.Content=page;
         _current=key;
-        _status.Text="Local records • Cloud not connected";
+        _status.Text="Local records";
     }
 
     private UIElement Footer(FrameworkElement root)
