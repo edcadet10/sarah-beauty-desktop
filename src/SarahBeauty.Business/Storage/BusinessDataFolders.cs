@@ -10,6 +10,6 @@ public static class BusinessDataFolders
         if(preview is not null&&Overlaps(preview,live))throw new ArgumentException("The TEST preview directory must be separate from the LIVE business directory.");
         return mode==BusinessMode.Live?live:preview??Path.Combine(parent,"Test");
     }
-    private static bool Overlaps(string first,string second)=>Contains(first,second)||Contains(second,first);
+    internal static bool Overlaps(string first,string second)=>Contains(first,second)||Contains(second,first);
     private static bool Contains(string parent,string child)=>string.Equals(parent,child,StringComparison.OrdinalIgnoreCase)||child.StartsWith(parent.TrimEnd(Path.DirectorySeparatorChar,Path.AltDirectorySeparatorChar)+Path.DirectorySeparatorChar,StringComparison.OrdinalIgnoreCase);
 }

@@ -6,8 +6,17 @@ namespace SarahBeauty_Desktop.Storage;
 
 public static class AppDataPaths
 {
-    public static string GetTestFolder()=>BusinessDataFolders.Resolve(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),BusinessMode.Test,Environment.GetEnvironmentVariable("SARAHBEAUTY_TEST_DIRECTORY"));
-    public static string GetLiveFolder()=>BusinessDataFolders.Resolve(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),BusinessMode.Live);
+    public static string GetTestFolder()=>Resolve(BusinessMode.Test);
+    public static string GetLiveFolder()=>Resolve(BusinessMode.Live);
+    private static string Resolve(BusinessMode mode)
+    {
+        string local=Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),preview=Environment.GetEnvironmentVariable("SARAHBEAUTY_TEST_DIRECTORY")??"";
+#if DEBUG
+        string review=Environment.GetEnvironmentVariable("SARAHBEAUTY_REVIEW_DIRECTORY")??"";
+        if(!string.IsNullOrWhiteSpace(review))return BusinessReviewFolders.Resolve(local,review,mode,preview);
+#endif
+        return BusinessDataFolders.Resolve(local,mode,preview);
+    }
 
     public static string EnsureTestFolderExists()
     {
