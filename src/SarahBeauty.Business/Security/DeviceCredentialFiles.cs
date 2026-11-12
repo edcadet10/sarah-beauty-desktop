@@ -30,14 +30,14 @@ internal sealed class DeviceCredentialFiles
         byte[] encrypted=new byte[checked((int)input.Length)];input.ReadExactly(encrypted);byte[] clear=DeviceCredentialProtection.Unprotect(encrypted,Context(kind));
         try{RequireCurrent();return clear;}catch{CryptographicOperations.ZeroMemory(clear);throw;}
     }
-    internal void Write(DeviceCredentialKind kind,byte[] clear)
+    internal void Write(DeviceCredentialKind kind,byte[] clear,Action<DbWork>? authorize=null)
     {
         RequireCurrent();string path=FilePath(kind);byte[] encrypted=DeviceCredentialProtection.Protect(clear,Context(kind));EnsureDirectory();using var gate=Gate();RejectLinks(path);
         string temporary=Path.Combine(DirectoryPath,Guid.NewGuid().ToString("N")+".partial");
         try
         {
             using(var output=new FileStream(temporary,FileMode.CreateNew,FileAccess.Write,FileShare.None)){output.Write(encrypted);output.Flush(flushToDisk:true);}FailurePoint?.Invoke("Protected file flushed");
-            _store.Transaction(db=>{RequireScope(db);if(File.Exists(path))File.Replace(temporary,path,null);else File.Move(temporary,path,overwrite:false);return true;});
+            _store.Transaction(db=>{RequireScope(db);authorize?.Invoke(db);if(File.Exists(path))File.Replace(temporary,path,null);else File.Move(temporary,path,overwrite:false);FailurePoint?.Invoke("Protected file published");return true;});
         }
         finally{try{File.Delete(temporary);}catch(IOException){}catch(UnauthorizedAccessException){}}
     }
