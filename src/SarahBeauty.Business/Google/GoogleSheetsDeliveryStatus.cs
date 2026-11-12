@@ -6,8 +6,8 @@ internal static class GoogleSheetsDeliveryStatus
 {
     internal static ReadableExportTable Build(GoogleSheetsExportJob job,GoogleSheetsPublication publication,ReadableExportGeneration generation,CancellationToken cancellation=default)
     {
-        GoogleSheetsPublicationRecords.Require(publication,job);var verified=ReadableExportGeneration.Verify(generation.Manifest,job.ManifestSha256,generation.Tables,cancellation);var manifest=verified.Manifest;var source=manifest.Source;
-        if(source.GenerationId!=job.GenerationId||source.BusinessId!=job.BusinessId||source.StoreId!=job.StoreId||source.InstanceId!=job.InstanceId||source.Mode!=job.Mode||source.SchemaVersion!=job.SchemaVersion||source.Watermark!=job.SourceWatermark||source.CapturedAtUtc!=job.CapturedAtUtc||manifest.Selection!=job.Selection)throw GoogleSheetsPublicationRecords.Invalid();
+        GoogleSheetsPublicationRecords.Require(publication,job);var verified=ReadableExportGeneration.Verify(generation.Manifest,job.ManifestSha256,generation.Tables,cancellation);var manifest=verified.Manifest;
+        GoogleSheetsExportJobs.RequireGeneration(job,verified);
         var rows=new List<(string Field,object? Value)>
         {
             ("Format","Sarah Beauty readable delivery v1"),("Delivery state","Verified"),("Business mode",job.Mode),("Business ID",job.BusinessId),("Store ID",job.StoreId),("Writable instance ID",job.InstanceId),

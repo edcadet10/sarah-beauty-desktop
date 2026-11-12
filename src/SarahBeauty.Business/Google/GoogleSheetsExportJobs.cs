@@ -39,6 +39,12 @@ public sealed class GoogleSheetsExportJobs(BusinessStore store)
         if(GoogleSheetsJobRecords.Get(db,job.BusinessId,job.Id)!=job)throw Changed();
     }
 
+    internal static void RequireGeneration(GoogleSheetsExportJob job,ReadableExportGeneration generation)
+    {
+        var source=generation.Manifest.Source;
+        if(generation.ManifestSha256!=job.ManifestSha256||source.GenerationId!=job.GenerationId||source.BusinessId!=job.BusinessId||source.StoreId!=job.StoreId||source.InstanceId!=job.InstanceId||source.Mode!=job.Mode||source.SchemaVersion!=job.SchemaVersion||source.Watermark!=job.SourceWatermark||source.CapturedAtUtc!=job.CapturedAtUtc||generation.Manifest.Selection!=job.Selection)throw Changed();
+    }
+
     private void RequireSource(DbWork db,GoogleOutputPermit permit,GoogleSheetsExportJob job)
     {
         var policy=permit.Policy;
