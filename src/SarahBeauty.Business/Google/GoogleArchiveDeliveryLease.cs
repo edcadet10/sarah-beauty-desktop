@@ -1,0 +1,15 @@
+using SarahBeauty.Business.Recovery;
+using SarahBeauty.Business.Storage;
+
+namespace SarahBeauty.Business.Google;
+
+internal static class GoogleArchiveDeliveryLease
+{
+    internal static string PathFor(BusinessStore store)=>Path.Combine(Path.GetDirectoryName(Path.GetFullPath(store.DatabasePath))!,"google-archive-delivery.lock");
+    internal static FileStream? TryAcquire(BusinessStore store)
+    {
+        string path=PathFor(store);ArchivePaths.RejectLink(path);
+        try{return new FileStream(path,FileMode.OpenOrCreate,FileAccess.ReadWrite,FileShare.None);}
+        catch(IOException error) when((error.HResult&0xffff) is 32 or 33){return null;}
+    }
+}
