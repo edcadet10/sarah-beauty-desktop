@@ -1,0 +1,7 @@
+# Project actual owner movements and attribution
+
+Five source-bound tables retain owner positions, separate owner account balances, attributed journal/effective reversal facts, owner-loan attribution, selected-period flags, and explicit snapshot coverage. Report IDs join ledger report dates/mode/observation scope. Contributions, draws, payable changes, reimbursements, and owner-linked loans remain separate; this view introduces no percentage-based profit distribution.
+
+Unknown loan principal stays blank. A current owner-lender register link does not confirm missing historical attribution; the loan row keeps its unconfirmed reason and an empty attributed owner ID. Attributed journal rows repeat existing entries for review and create no posting. Retained close figures remain original after later contributions/payables. Missing older snapshots are marked unretained; unsupported versions stop projection. Private evidence and raw snapshots stay out; public movement descriptions remain readable.
+
+Two table cases plus two owner kernel cases pass in Release. They cover actual contribution/draw/reimbursement/loan categories with legacy attribution absence and locked access, and retained zero movements beside later contribution/payable amounts while unknown loan principal remains blank. Latest complete suite remains 926 before owner additions. Booking/dashboard reports and verified Sheets publication remain pending.
