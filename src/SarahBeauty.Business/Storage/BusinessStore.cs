@@ -31,7 +31,7 @@ public sealed class BusinessStore
         var connection = new SqliteConnection(new SqliteConnectionStringBuilder
         {
             DataSource = DatabasePath, Mode = SqliteOpenMode.ReadWrite,
-            ForeignKeys = true, Pooling = false, DefaultTimeout = 5
+            ForeignKeys = true, Pooling = false, DefaultTimeout = 30
         }.ToString());
         try { connection.Open(); return connection; }
         catch { connection.Dispose(); throw; }
