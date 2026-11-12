@@ -23,6 +23,7 @@ public partial class App : Application
 {
     private Window? _window;
     internal Window ActiveWindow=>_window??throw new InvalidOperationException("The app window is not ready.");
+    internal SarahBeauty.Business.Runtime.CancellableOperations Operations {get;}=new();
     
     /// <summary>
     /// Initializes the singleton application object.  This is the first line of authored code
