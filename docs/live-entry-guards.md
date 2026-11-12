@@ -6,6 +6,6 @@ The common posting guard covers the existing financial approval paths. Quote and
 
 Before the guard, both an unreviewed LIVE receipt and quote succeeded in temporary fixtures. After correction, 42 related cases pass, including permitted reviewed setup, date boundaries, a competing profile change before the writer reservation, and an exact posted retry. Windows Debug passes with no warnings or errors. Native TEST profile reopen, lock and close pass; independent checks preserve its schema 39, watermark 5, three profile revisions and managed file.
 
-The parent full local regression passes 1,430 cases in 7 minutes 1 second. Hosted verification of the earlier mode-session source `8a57f63` passes 1,413 cases in 20 minutes, Windows Debug in 39.85 seconds, and recovery cryptography: [GitHub run](https://github.com/edcadet10/sarah-beauty-desktop/actions/runs/43245567826). A full regression including these new guards is next.
+The full local regression at source `0fadb0a` passes all 1,449 cases in 6 minutes 32 seconds. The parent full regression passed 1,430 cases in 7 minutes 1 second. Hosted verification of the earlier mode-session source `8a57f63` passes 1,413 cases in 20 minutes, Windows Debug in 39.85 seconds, and recovery cryptography: [GitHub run](https://github.com/edcadet10/sarah-beauty-desktop/actions/runs/43245567826).
 
 Public LIVE creation/opening, native selection, LIVE recovery and external acceptance remain separate work. These fixtures do not establish release readiness or supply actual business facts.
