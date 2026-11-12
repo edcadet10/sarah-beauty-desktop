@@ -31,6 +31,10 @@
 
   <ItemGroup>
     <Manifest Include="$(ApplicationManifest)" />
+    <Content Include="$(NuGetPackageRoot)microsoft.windowsappsdk/2.5.1/license.txt" Link="ThirdParty/WindowsAppSDK/LICENSE.txt"
+             CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="$(NuGetPackageRoot)microsoft.windowsappsdk/2.5.1/NOTICE.txt" Link="ThirdParty/WindowsAppSDK/NOTICE.txt"
+             CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
   <!--
