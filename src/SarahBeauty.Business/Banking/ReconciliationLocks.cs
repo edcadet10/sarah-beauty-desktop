@@ -11,7 +11,7 @@ internal static class ReconciliationLocks
         if(db.Scalar("""
             SELECT C.Id FROM Reconciliations C WHERE C.BusinessId=$business AND C.AccountId=$account AND C.AsOfDate>=$date
             AND NOT EXISTS(SELECT 1 FROM ReconciliationReopens R WHERE R.ReconciliationId=C.Id) LIMIT 1;
-            """,("$business",owner.BusinessId),("$account",account),("$date",date.ToString("yyyy-MM-dd"))) is not null)
+            """,("$business",owner.BusinessId),("$account",account),("$date",date.ToStorageDate())) is not null)
             throw new ArgumentException("Reopen this account's completed reconciliation before changing a date it covers.");
     }
 
