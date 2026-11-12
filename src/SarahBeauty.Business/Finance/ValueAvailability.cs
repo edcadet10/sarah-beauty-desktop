@@ -7,9 +7,10 @@ namespace SarahBeauty.Business.Finance;
 
 internal static class ValueAvailability
 {
-    internal static ValueBalance Payment(DbWork db,OwnerSession owner,string paymentId,DateOnly date)
+    internal static ValueBalance Payment(DbWork db,OwnerSession owner,string paymentId,DateOnly date)=>Payment(db,owner.BusinessId,paymentId,date);
+    internal static ValueBalance Payment(DbWork db,string businessId,string paymentId,DateOnly date)
     {
-        var source=CorrectionRules.Original(db,owner,paymentId);
+        var source=CorrectionRules.Original(db,businessId,paymentId);
         if(source.Kind is not (FinancialKind.Receipt or FinancialKind.UnclassifiedReceipt or FinancialKind.ReceiptClassification))throw new ArgumentException("Choose an approved customer receipt or reviewed classification.");
         string at=date.ToString("yyyy-MM-dd");
         bool reversed=db.Scalar("SELECT Id FROM Movements WHERE ReversesId=$id AND Date<=$date;",("$id",paymentId),("$date",at)) is not null;
@@ -42,9 +43,10 @@ internal static class ValueAvailability
         return new(rows.Sum(r=>r.Reserve?r.Cents:-r.Cents),rows.Sum(r=>r.Reserve?r.Tax:-r.Tax));
     }
 
-    internal static List<InvoiceDue> Invoice(DbWork db,OwnerSession owner,string invoiceId,DateOnly date)
+    internal static List<InvoiceDue> Invoice(DbWork db,OwnerSession owner,string invoiceId,DateOnly date)=>Invoice(db,owner.BusinessId,invoiceId,date);
+    internal static List<InvoiceDue> Invoice(DbWork db,string businessId,string invoiceId,DateOnly date)
     {
-        var invoice=DocumentVersions.Find(db,owner,id:invoiceId)??throw new ArgumentException("Invoice not found.");
+        var invoice=DocumentVersions.Find(db,businessId,id:invoiceId)??throw new ArgumentException("Invoice not found.");
         if(invoice.Snapshot.Kind!=DocumentKind.Invoice || invoice.Status=="Void")throw new ArgumentException("Choose a current issued invoice.");
         string payer=(string)db.Scalar("SELECT CustomerId FROM InvoiceHeaders WHERE VersionId=$id;",("$id",invoiceId))!;
         var milestones=db.Read("SELECT Id,Kind,Cents,DueDate FROM InvoiceMilestones WHERE InvoiceVersionId=$id ORDER BY CASE Kind WHEN 'Trial' THEN 0 WHEN 'Deposit' THEN 1 ELSE 2 END;",

@@ -1,0 +1,7 @@
+# Read captured customer balances without a human session
+
+The existing customer position, invoice availability, receipt availability, funded credit, original movement, document, and customer readers now accept an internal business ID. Existing owner-session overloads delegate to those same reads. Public commands and reports retain their owner checks. Mutation, approval, and history validation methods still require their existing owner context.
+
+This lets a previously authorized captured export calculate the same overdue, due-today, future, unknown-date, unused-receipt, held-deposit, and unused-credit facts as the desktop report. It does not create or renew a session or treat reserved credit as another cash receipt. Child source reads remain scoped to the selected business. No new balance formula is introduced by this refactor; other aggregate-range hardening is separate work.
+
+Two new kernel cases and fifty-two existing report/application/credit/cancellation cases pass in Release (54 targeted cases). They compare real invoice and funded values against the human report, preserve an earlier source after a later application, retain locked human access and the current watermark, and reject another business's customer/document/payment sources. An initial test compile used the wrong fixture property; it now uses the fixture's actual CustomerId. Table projection and verified Sheets publication follow separately.
