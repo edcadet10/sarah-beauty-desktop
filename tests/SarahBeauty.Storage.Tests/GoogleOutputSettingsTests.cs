@@ -5,7 +5,7 @@ namespace SarahBeauty.Storage.Tests;
 
 public sealed class GoogleOutputSettingsTests
 {
-    private sealed class Fixture:IDisposable
+    internal sealed class Fixture:IDisposable
     {
         internal readonly LedgerFixture Ledger=new();internal readonly TestStore Files=new();internal GoogleConnections Connections {get;}internal GoogleOutputSettings Settings {get;}internal GoogleClientConfiguration Client {get;}
         internal Fixture()
