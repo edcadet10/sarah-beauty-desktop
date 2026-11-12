@@ -29,7 +29,11 @@ public sealed partial class MainWindow : Window
     private async void CloseAfterBackups(Microsoft.UI.Windowing.AppWindow sender,Microsoft.UI.Windowing.AppWindowClosingEventArgs args)
     {
         if(_closeReady)return;args.Cancel=true;if(_closing)return;_closing=true;
-        try{if(RootFrame.Content is MainPage page)await page.StopBackupsAsync();}
+        try
+        {
+            Task backups=RootFrame.Content is MainPage page?page.StopBackupsAsync():Task.CompletedTask;
+            await Task.WhenAll(backups,((App)Application.Current).Operations.StopAsync());
+        }
         finally{_closeReady=true;Close();}
     }
 }
