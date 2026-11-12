@@ -149,14 +149,15 @@ public sealed class ActiveTestStoreTests
         ActiveTestSelection Value(string id)=>new(1,id,Guid.NewGuid().ToString(),Guid.NewGuid().ToString("N"),paths.Relative(id),DateTimeOffset.UtcNow.ToString("O"));
         byte[][] values=[JsonSerializer.SerializeToUtf8Bytes(Value(first)),JsonSerializer.SerializeToUtf8Bytes(Value(second))];ActiveStorePointer.Write(paths.Pointer,values[0]);
         using var cancellation=new CancellationTokenSource();var started=new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);var failures=new System.Collections.Concurrent.ConcurrentQueue<Exception>();int reads=0;
-        var reader=Task.Run(()=>
+        // This synchronous reader must run while other tests occupy the shared pool.
+        var reader=Task.Factory.StartNew(()=>
         {
             while(!cancellation.IsCancellationRequested)
             {
                 try{var selection=ActiveStorePointer.Read(paths)!;Assert.True(selection.RequestId==first || selection.RequestId==second);Interlocked.Increment(ref reads);started.TrySetResult();}
                 catch(Exception error){failures.Enqueue(error);started.TrySetResult();}
             }
-        });
+        },CancellationToken.None,TaskCreationOptions.LongRunning,TaskScheduler.Default);
         try{await started.Task.WaitAsync(TimeSpan.FromSeconds(5));for(int index=0;index<40;index++)ActiveStorePointer.Write(paths.Pointer,values[index%2]);}
         finally{cancellation.Cancel();await reader;}
         Assert.Empty(failures);Assert.True(reads>0);Assert.Empty(Directory.EnumerateFiles(target.Folder,"*.partial"));
