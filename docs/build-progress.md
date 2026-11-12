@@ -2,7 +2,7 @@
 
 This file tracks the full application build requested on November 10, 2026. A component marked implemented still needs the release checks applicable to it. The app is not ready for live business use.
 
-Current feature head: authenticated unused-invoice void commands, schema 37, following historical invoice reads through PR #243. The complete local Release suite through the parent passes 1,330 cases in 6m15; 47 related cases pass for the new command and dated tax reductions. The new full regression, readable decision history, and desktop controls remain in progress. Main merges remain incremental and are behind this feature stack. Historical sections below retain the results measured at their own step.
+Current feature head: authenticated unused-invoice void commands, schema 37, following historical invoice reads through PR #243. The complete local Release suite passes all 1,345 cases in 7m14; Windows Debug has zero warnings/errors. The earlier schema-36 hosted suite passes all 1,323 cases, Windows Debug and recovery cryptography. Readable decision history and desktop controls remain in progress. Main merges remain incremental and are behind this feature stack. Historical sections below retain the results measured at their own step.
 
 | Area | Current state | Evidence or remaining work |
 |---|---|---|
@@ -1274,3 +1274,5 @@ The complete local Release regression through [PR #243](https://github.com/edcad
 ## Authenticated unused-invoice voids
 
 The separate command retains the original invoice/PDF/number and one decision/audit while advancing both invoice and billing generations. It rejects any payment/credit-note history, cancelled bookings, stale sources, closed dates and future voids. Forty-seven related Release cases pass, including actual encrypted restore/activation and competing payment/void writers in both orders. Two failing-before checks led to a replacement-date guard and tax reductions dated to the void period, preserving original issue-period charges. Schema 37 excludes earlier writers without inventing records. The full regression is starting; native controls and readable decision-history coverage follow separately. See [Void an unused invoice](invoice-void-command.md).
+
+The complete local schema-37 regression through [PR #244](https://github.com/edcadet10/sarah-beauty-desktop/pull/244) passes all 1,345 Release cases in 7m14, including archive/recovery cryptography; Windows Debug passes in 34 seconds with zero warnings/errors. The earlier schema-36 [hosted run 43225287527](https://github.com/edcadet10/sarah-beauty-desktop/actions/runs/43225287527) passes all 1,323 cases in 12m47, Windows Debug in 53 seconds, and recovery cryptography. PR #170 passed both current-head checks and merged; #171 is undergoing main-targeted checks after receiving current main. Native decision controls are being rehearsed separately with fictional data; real Google/LIVE/device/release acceptance remains unfinished.
