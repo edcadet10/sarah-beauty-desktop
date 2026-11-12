@@ -1,0 +1,9 @@
+# Plan initialization of a job-owned staging workbook
+
+The initialization planner accepts an empty sheet list, one default GRID tab, or the complete matching schema. It produces a bounded `spreadsheets.batchUpdate` body for the first two shapes and no operations for the complete matching shape. Unrecognized partial layouts are rejected. A sheet count alone does not establish ownership or authority: the caller must verify the app/job file binding and private account/folder permissions before executing any requests.
+
+If a default sheet has a planned ID, its layout is reused. Otherwise it is reduced to one temporary cell, new tabs are added, and the temporary sheet is deleted only after replacements exist. Final index updates run in ascending target order. These moves preserve the already ordered prefix and follow Google's [before-move index rules](https://developers.google.com/workspace/sheets/api/reference/rest/v4/spreadsheets/sheets#SheetProperties). Update field masks cover only the intended layout or index properties; source values are absent from this request body.
+
+Four new Debug cases pass. A simulated request interpreter follows add/delete/update rules, rejects deleting the last sheet, and implements the documented index semantics. Empty, reused-default, and unrelated-default-ID layouts all reach the exact 160-tab schema. Retrying the completed layout produces no operations; an unknown partial layout fails. Payloads stay below the app request limit. See [Sheets update requests](https://developers.google.com/workspace/sheets/api/reference/rest/v4/spreadsheets/request).
+
+This is a pure request plan. No workbook was created or changed, and no Google request occurred. Private file creation/binding proofs, schema transport, durable jobs/worker/completion, scheduling/UI, and real account/device acceptance remain unfinished.
