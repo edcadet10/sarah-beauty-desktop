@@ -8,11 +8,16 @@ internal static class Passphrase
 
     internal static (string Salt, string Hash) Hash(string phrase)
     {
-        if (phrase.Length < 15 || phrase.Length > 256)
-            throw new ArgumentException("Use a passphrase with 15 to 256 characters.");
+        Require(phrase);
         byte[] salt = RandomNumberGenerator.GetBytes(32);
         byte[] hash = Derive(phrase, salt, Iterations);
         return (Convert.ToBase64String(salt), Convert.ToBase64String(hash));
+    }
+
+    internal static void Require(string phrase)
+    {
+        ArgumentNullException.ThrowIfNull(phrase);
+        if(phrase.Length is <15 or >256)throw new ArgumentException("Use a passphrase with 15 to 256 characters.");
     }
 
     internal static bool Verify(string phrase, string salt, string hash, int iterations)

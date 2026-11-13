@@ -26,10 +26,7 @@ public sealed partial class OwnerAccess(BusinessStore store)
     public OwnerSession Setup(string businessName, string firstName, string firstPhrase,
         string secondName, string secondPhrase)
     {
-        if (new[] { businessName, firstName, secondName }.Any(string.IsNullOrWhiteSpace))
-            throw new ArgumentException("Enter a business name and both owner names.");
-        if (string.Equals(firstName.Trim(), secondName.Trim(), StringComparison.OrdinalIgnoreCase))
-            throw new ArgumentException("Use a distinct name for each owner.");
+        RequireSetup(businessName,firstName,firstPhrase,secondName,secondPhrase);
         var first = Passphrase.Hash(firstPhrase);
         var second = Passphrase.Hash(secondPhrase);
         return store.Transaction(db =>
@@ -45,6 +42,13 @@ public sealed partial class OwnerAccess(BusinessStore store)
             BusinessStore.Audit(db, session, "Business setup", businessId);
             return session;
         });
+    }
+
+    internal static void RequireSetup(string businessName,string firstName,string firstPhrase,string secondName,string secondPhrase)
+    {
+        if(new[]{businessName,firstName,secondName}.Any(string.IsNullOrWhiteSpace))throw new ArgumentException("Enter a business name and both owner names.");
+        if(string.Equals(firstName.Trim(),secondName.Trim(),StringComparison.OrdinalIgnoreCase))throw new ArgumentException("Use a distinct name for each owner.");
+        Passphrase.Require(firstPhrase);Passphrase.Require(secondPhrase);
     }
 
     public OwnerSession SignIn(string ownerId, string phrase)
