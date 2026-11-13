@@ -8,4 +8,6 @@ In the downloaded `a1a4e2a` app, a two-paragraph value is clipped in five repres
 
 The independent check finds five revision-1 records, six audits/watermark 6, valid integrity/foreign keys, and zero money or journal rows. Loan opening principal, asset cost/tax basis, and requested trip reimbursement remain null; the fictional ten-mile trip creates no deduction or payment. No real business facts are supplied by these tests. Windows Debug builds with zero warnings/errors.
 
+The self-contained publish succeeds with 575 files totaling 313,836,778 bytes. Its second owner reads every paragraph in all nine fields after restart. A complete table-hash comparison matches the saved checkpoint after both the Debug and published-app reads. GitHub packaging is being verified separately.
+
 This change preserves new input and untouched stored text; it cannot recover text already discarded by an earlier single-line field. Physical keyboard/touch and wider device checks remain pending. Private fixtures stay outside Git.
