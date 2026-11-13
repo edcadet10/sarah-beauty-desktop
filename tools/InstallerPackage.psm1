@@ -67,6 +67,15 @@ function Get-InstallerDirectories([object[]]$Files) {
     }
 }
 
+function Get-InstallerPathChecks([object[]]$Files) {
+    'Push "$INSTDIR"'
+    'Call ${PATH_GUARD_PREFIX}RequirePlainPath'
+    foreach($taskDirectory in @(Get-InstallerDirectories $Files | Sort-Object -Unique)){
+        'Push "$INSTDIR\'+(ConvertTo-NsisLiteral $taskDirectory)+'"'
+        'Call ${PATH_GUARD_PREFIX}RequirePlainPath'
+    }
+}
+
 function Write-InstallerPackageIncludes([string]$PublishDirectory,[string]$Destination) {
     $taskFiles=@(Get-InstallerPackageFiles $PublishDirectory | Sort-Object Relative)
     if($taskFiles.Count -eq 0){throw 'Publish the app before generating installer file includes.'}
@@ -78,6 +87,7 @@ function Write-InstallerPackageIncludes([string]$PublishDirectory,[string]$Desti
     Assert-PackageDirectory $taskOutput
     [IO.File]::WriteAllLines((Join-Path $taskOutput 'InstallFiles.nsh'),[string[]]@(Get-InstallerCopyLines $taskFiles),[Text.UTF8Encoding]::new($false))
     [IO.File]::WriteAllLines((Join-Path $taskOutput 'RemoveFiles.nsh'),[string[]]@(Get-InstallerRemovalLines $taskFiles),[Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllLines((Join-Path $taskOutput 'CheckPaths.nsh'),[string[]]@(Get-InstallerPathChecks $taskFiles),[Text.UTF8Encoding]::new($false))
     return $taskFiles.Count
 }
 
