@@ -29,7 +29,7 @@ Phone applications, a public customer portal, automated bank feeds, payroll, tax
 
 ## Users and approvals
 
-The application will support two owners.
+The application will support two owners. First-time setup requires only a business name, username, and password, then opens the dashboard. The second user and all remaining business information can be added later from Business settings. Do not require a second account, profile questionnaire, ownership percentages, or tax/bank details to enter the app. This simplified first-run requirement was explicitly requested on November 13, 2026.
 
 - Both owners can create and review financial entries.
 - Either owner can approve an entry, including their own.
