@@ -52,7 +52,7 @@ public sealed class OpeningBalances(BusinessStore store)
             INSERT INTO OpeningBalances (Id,BusinessId,AccountId,DimensionKind,DimensionId,Date,Cents,Credit,MovementId,Reason,Evidence,OwnerId,AtUtc)
             VALUES ($id,$business,$account,$kind,$dimension,$date,$cents,$credit,$movement,$reason,$evidence,$owner,$at);
             """,("$id",Guid.NewGuid().ToString()),("$business",owner.BusinessId),("$account",account),("$kind",kind),("$dimension",dimension),
-            ("$date",date.ToString("yyyy-MM-dd")),("$cents",cents),("$credit",credit?1:0),("$movement",movement),
+            ("$date",date.ToStorageDate()),("$cents",cents),("$credit",credit?1:0),("$movement",movement),
             ("$reason",reason),("$evidence",evidence),("$owner",owner.OwnerId),("$at",DateTimeOffset.UtcNow.ToString("O")));
         if(kind=="Account")db.Execute("UPDATE Accounts SET OpeningConfirmed=1 WHERE Id=$id;",("$id",account));
     }
@@ -67,6 +67,6 @@ public sealed class OpeningBalances(BusinessStore store)
     private static List<OpeningBalance> List(DbWork db,OwnerSession owner)=>db.Read("""
         SELECT O.Id,O.AccountId,A.Name,O.DimensionKind,O.DimensionId,O.Date,O.Cents,O.Credit,O.MovementId,O.Reason,O.RevokedAt
         FROM OpeningBalances O JOIN Accounts A ON A.Id=O.AccountId WHERE O.BusinessId=$business ORDER BY O.Date,O.AtUtc;
-        """,r=>new OpeningBalance(r.GetString(0),r.GetString(1),r.GetString(2),r.GetString(3),r.GetString(4),DateOnly.Parse(r.GetString(5)),r.GetInt64(6),
+        """,r=>new OpeningBalance(r.GetString(0),r.GetString(1),r.GetString(2),r.GetString(3),r.GetString(4),StoredDates.Parse(r.GetString(5)),r.GetInt64(6),
             r.GetInt32(7)==1,r.IsDBNull(8)?null:r.GetString(8),r.GetString(9),r.IsDBNull(10)?null:r.GetString(10)),("$business",owner.BusinessId));
 }

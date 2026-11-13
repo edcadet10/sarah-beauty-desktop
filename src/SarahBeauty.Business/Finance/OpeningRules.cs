@@ -47,7 +47,7 @@ internal static class OpeningRules
         var dates=db.Read("""
             SELECT M.Date,M.LoanId,J.AssetId,M.OwnerId FROM Movements M JOIN JournalLines J ON J.MovementId=M.Id
             WHERE M.BusinessId=$business AND J.AccountId=$account AND M.Kind NOT IN('Opening','Reversal');
-            """,r=>(Date:DateOnly.Parse(r.GetString(0)),Loan:r.IsDBNull(1)?"":r.GetString(1),Asset:r.IsDBNull(2)?"":r.GetString(2),Owner:r.IsDBNull(3)?"":r.GetString(3)),
+            """,r=>(Date:StoredDates.Parse(r.GetString(0)),Loan:r.IsDBNull(1)?"":r.GetString(1),Asset:r.IsDBNull(2)?"":r.GetString(2),Owner:r.IsDBNull(3)?"":r.GetString(3)),
             ("$business",owner.BusinessId),("$account",accountId));
         if(dates.Any(m=>m.Date<date && (kind=="Account" || (kind switch{"Loan"=>m.Loan,"Asset"=>m.Asset,_=>m.Owner})==dimension)))
             throw new ArgumentException("The opening date must be on or before this balance's first ordinary movement.");
