@@ -12,10 +12,10 @@ internal static class ReadyStoreChecks
         var receipt=JsonSerializer.Deserialize<RecoveredStoreReceipt>(json)??throw new InvalidDataException("The recovered-copy provenance is incomplete.");
         if(receipt.Version!=2 || receipt.SourceManifest is null || receipt.RequestId!=Guid.Parse(request).ToString() || !receipt.PreviousPrimaryAcknowledged)throw new InvalidDataException("Prepare a new recovered copy with the current app before activation. Existing copies are preserved.");return receipt;
     }
-    internal static void Verify(DbWork db,string folder,RecoveredStoreReceipt receipt,CancellationToken cancellation)
+    internal static void Verify(DbWork db,string folder,RecoveredStoreReceipt receipt,CancellationToken cancellation,BusinessMode mode=BusinessMode.Test)
     {
-        var m=ArchiveManifestChecks.Read(JsonSerializer.SerializeToUtf8Bytes(receipt.SourceManifest));StoreInstanceGuard.Require(db,receipt.StoreId,receipt.InstanceId,"Prepared");
-        if(m.StoreId!=receipt.StoreId || m.Mode!="TEST" || m.Watermark!=receipt.SourceWatermark || (string?)db.Scalar("SELECT DisplayName FROM Business WHERE Id=$id;",("$id",m.BusinessId))!=m.BusinessName || (long?)db.Scalar("SELECT Watermark FROM Business WHERE Id=$id;",("$id",m.BusinessId))!=m.Watermark+1)throw new InvalidDataException("The prepared business changed before activation.");
+        var m=ArchiveManifestChecks.Read(JsonSerializer.SerializeToUtf8Bytes(receipt.SourceManifest));StoreInstanceGuard.Require(db,receipt.StoreId,receipt.InstanceId,"Prepared",mode);
+        if(m.StoreId!=receipt.StoreId || m.Mode!=BusinessModes.StoredName(mode)||receipt.Mode!=m.Mode || m.Watermark!=receipt.SourceWatermark || (string?)db.Scalar("SELECT DisplayName FROM Business WHERE Id=$id;",("$id",m.BusinessId))!=m.BusinessName || (long?)db.Scalar("SELECT Watermark FROM Business WHERE Id=$id;",("$id",m.BusinessId))!=m.Watermark+1)throw new InvalidDataException("The prepared business changed before activation.");
         var facts=ArchiveDatabaseChecks.Read(db);if(facts.MovementCount!=m.Facts.MovementCount || facts.JournalLineCount!=m.Facts.JournalLineCount || facts.TotalDebits!=m.Facts.TotalDebits || facts.TotalCredits!=m.Facts.TotalCredits)throw new InvalidDataException("The prepared financial facts changed before activation.");
         RecoveredTableInventory.Verify(facts,m);
         var files=m.Files.Where(f=>f.Kind!="Database").ToDictionary(f=>f.RelativePath,StringComparer.Ordinal);var references=ArchiveReferences.Read(db,m.BusinessId);
