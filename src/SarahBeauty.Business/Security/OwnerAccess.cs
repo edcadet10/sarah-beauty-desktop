@@ -2,7 +2,7 @@ using SarahBeauty.Business.Storage;
 
 namespace SarahBeauty.Business.Security;
 
-public sealed class OwnerAccess(BusinessStore store)
+public sealed partial class OwnerAccess(BusinessStore store)
 {
     internal Action? AfterCredentialsRead {get;set;}
     public bool NeedsSetup => store.Read(db => db.Scalar("SELECT Id FROM Business;") is null);
