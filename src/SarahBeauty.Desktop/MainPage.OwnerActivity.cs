@@ -21,22 +21,22 @@ public sealed partial class MainPage
     internal void CheckOwnerAccess()
     {
         if(_stoppingOwnerActivity||_session is null)return;
-        try{if(_ownerActivity?.Check()!=true)ShowSignIn("Owner access expired or changed. Sign in again.");}
+        try{if(_ownerActivity?.Check()!=true)ShowSignIn("Owner access expired or changed. Unsaved fields were cleared. Sign in again.");}
         catch(Exception){OpenCurrentStore();}
     }
     internal void RecordOwnerActivity()
     {
         if(_stoppingOwnerActivity||_session is null)return;
-        try{if(_ownerActivity?.RecordInput()!=true)ShowSignIn("Owner access expired or changed. Sign in again.");}
+        try{if(_ownerActivity?.RecordInput()!=true)ShowSignIn("Owner access expired or changed. Unsaved fields were cleared. Sign in again.");}
         catch(Exception){OpenCurrentStore();}
     }
     private void LockOwner()
     {
-        try{ShowSignIn("Owner access locked. Sign in to continue.");}catch(Exception){OpenCurrentStore();}
+        try{ShowSignIn("Owner access locked. Unsaved fields were cleared. Sign in to continue.");}catch(Exception){OpenCurrentStore();}
     }
     private void HideOwnerContent()
     {
-        _workspaceGeneration++;_session?.Lock();_session=null;_ownerActivity=null;Host.Content=null;if(Host.XamlRoot is null)return;
+        _workspaceGeneration++;_session?.Lock();_session=null;_ownerActivity=null;_exitReview?.Cancel();Host.Content=null;if(Host.XamlRoot is null)return;
         foreach(var popup in VisualTreeHelper.GetOpenPopupsForXamlRoot(Host.XamlRoot).ToArray()){HideDialogs(popup.Child);popup.IsOpen=false;}
     }
     private static void HideDialogs(DependencyObject? root)

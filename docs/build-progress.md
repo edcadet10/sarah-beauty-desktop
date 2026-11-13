@@ -1,5 +1,9 @@
 # Build progress
 
+## Review voluntary workspace exits — November 13, 2026
+
+The verified `6b753ca` download reproduces cached customer/Money draft loss during manual lock and window close. A shared review defaults to Keep working; cancellation retains exact invalid input, session access and all saved tables. Repeated close and another open modal remain controlled, explicit exits clear drafts, and another owner restarts normally. Automatic security lock stays immediate. Clean Windows Debug and six owner-activity/shutdown cases pass. See [workspace exit review](workspace-exit-review.md). Packaged/download verification and the actual natural-expiry probe remain pending; this source is later than the current default preview.
+
 ## Verified Money review download — November 13, 2026
 
 The GitHub preview at `6b753ca` matches all 620 file paths, sizes and hashes plus 44 runtime-notice hashes. Native exact receipt context, both-owner posted reads, prior Money Keep/Discard/reversion/filter guards and 1280/500 row layouts pass, with every saved table retained in both posting fixtures. Its complete hosted check passes 1,684 tests, recovery interoperability and Windows Debug with zero warnings/errors. The default preview now points to this immutable source. README build/schema guidance is corrected; optional Google setup remains outside the offline-release gate. See [download evidence](windows-preview.md) and [remaining release work](offline-release-status.md).
