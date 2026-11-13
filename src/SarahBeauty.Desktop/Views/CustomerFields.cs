@@ -37,7 +37,7 @@ internal sealed class CustomerFields
     private static Expander Section(string title,params UIElement[] fields)
     {
         var panel=Form.Panel();panel.Add(fields);
-        return new Expander{Header=title,Content=panel,HorizontalAlignment=HorizontalAlignment.Stretch};
+        return new Expander{Header=title,Content=panel,HorizontalAlignment=HorizontalAlignment.Stretch,HorizontalContentAlignment=HorizontalAlignment.Stretch};
     }
 
     internal Customer Read(Customer previous) => previous with
