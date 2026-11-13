@@ -1,5 +1,9 @@
 # Build progress
 
+## Packaged asset lifecycle acceptance — November 12, 2026
+
+Native AC-032 retains unknown register facts, reviews cost without changing books, approves separate $30 depreciation, and disposes of $270 carrying value for $250 with a $20 loss. Independent journal/source checks and both owners' financial/asset schedules pass; cost history and unknown tax basis remain retained, with no invented depreciation. See [equipment lifecycle evidence](native-asset-acceptance.md). Full release acceptance remains open.
+
 ## Packaged reimbursement and loan acceptance — November 12, 2026
 
 Native AC-030/031 checks recognize an owner-paid expense once, clear its payable by reimbursement, separate principal/interest/fee, and reject an extra reimbursement cent, an excess principal cent, and a historically negative repayment. Independent row/journal checks, exact final reports, retained rejected drafts, integrity, and second-owner restart pass. See [reimbursement and loan evidence](native-reimbursement-loan-acceptance.md). Full release acceptance remains open.
