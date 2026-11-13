@@ -4,6 +4,10 @@
 
 The owner reaffirmed that Sarah Beauty must work fully offline. No Google project or app connection was created; setup stopped. Requirements, recovery guidance and acceptance distinguish required local encrypted backup/recovery from optional Google copies. Real Google setup/delivery is not an offline-release gate. Actual Surface, second-device recovery, installation and release checks remain required. Optional Google features remain disabled unless separately configured and authorized. This clarification does not mark later feature-stack work merged into main.
 
+## Visual foundation — November 12, 2026
+
+The first visual change adds plum/ivory/blush theme resources, light/dark/Windows contrast-theme mappings, readable typography, wrapping titles, and a bounded sign-in form. All 48 palette checks pass; native screenshots caught and corrected an inherited system-accent alias. Debug builds cleanly, and retained fictional native workflows still pass. See [visual design evidence](visual-design.md). Grouped navigation, dashboard hierarchy, entry-form layout, theme runtime checks, and device usability acceptance remain pending.
+
 ## Private installer preview — November 12, 2026
 
 The per-user preview installs and updates a bundled app and removes explicit package files while preserving unrelated files and fictional business data. Native destination and package probes pass. An initial nonexistent-destination defect was reproduced and corrected; verified stray payload files were moved into private reversible quarantine. See [installer preview checks](installer-preview.md) for evidence and remaining release work. No installer has been released; signing, interruption recovery, clean-machine and device acceptance remain pending.
