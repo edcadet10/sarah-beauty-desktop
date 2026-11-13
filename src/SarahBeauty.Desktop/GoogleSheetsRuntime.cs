@@ -20,7 +20,7 @@ internal sealed class GoogleSheetsRuntime
             {
                 try
                 {
-                    Volatile.Write(ref _status,"Checking saved Sheets permission and report dates");var result=await new GoogleSheetsQueue(store).RunDueAsync(_cancellation.Token);
+                    Volatile.Write(ref _status,"Checking or delivering pending readable exports");var result=await new GoogleSheetsQueue(store).RunDueAsync(_cancellation.Token);
                     Volatile.Write(ref _status,result.Status+(result.State is null?"":$" • Observed watermark {result.State.ObservedWatermark} • Exported {result.State.DeliveredWatermark?.ToString()??"None"}"));
                 }
                 catch(OperationCanceledException) when(_cancellation.IsCancellationRequested){break;}
