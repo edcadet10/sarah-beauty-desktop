@@ -1,0 +1,7 @@
+# Read dated ownership history
+
+The owner-only reader verifies the retained JSON digest, canonical version shape, indexed identity/date/actor fields, exact relational share copy, owner business membership, continuous revisions, and correction chain. Missing or inconsistent retained data stops the read. Returned versions and shares are read-only copies. Disabled owner logins remain in ownership history; their recorded names stay frozen.
+
+Each effective date uses its latest correction. A period ends the day before the next effective date, and dates before the first confirmation remain unknown. Replacing an earlier confirmation retains both versions and does not change a later effective period. Reading these settings creates no financial allocation or posting.
+
+Seventeen related Release cases initially passed across history, validation, and schema, including six new history cases for actual reopen, dated correction boundaries, unknown dates, disabled/renamed owner history, access rejection, and changed JSON/identity/share rows. An additional missing-parent case checks that orphaned share rows cannot be reported as an empty unconfirmed history. Its first setup was correctly blocked by foreign keys; the deliberately corrupted fixture explicitly disables them. Windows Business Debug builds without warnings/errors. These fixtures insert fictional confirmations directly to test the read boundary; transactional confirmation and desktop controls remain separate work.
