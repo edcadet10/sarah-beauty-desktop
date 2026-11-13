@@ -1,5 +1,9 @@
 # Build progress
 
+## New document palette — November 12, 2026
+
+New PDFs now share the emerald, cream, and subtle-gold palette. Debug and four PDF tests pass; native long-name/grouped-service split documents verify actual PDF colors, continuation layout, totals, private-field exclusion, and hashes. The walkthrough also finds multiline terms truncation in quote/invoice editors; that separate fix blocks complete document acceptance. See [document color evidence](document-brand-colors.md).
+
 ## Packaged payer allocation acceptance — November 12, 2026
 
 The same native $752.91 booking supports one complete single-payer invoice, retained voiding before payment, then two split invoices totaling $340.44/$412.47. Unresolved travel and repeated source issuance reject; combined milestones are counted once. Read-only coverage, retained version/PDF hashes, seeded private-field exclusion, zero money creation, integrity, and second-owner restart checks pass. See [payer allocation evidence](native-split-payer-acceptance.md). Long/multipage documents and full release acceptance remain separate work.
