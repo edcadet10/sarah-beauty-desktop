@@ -14,6 +14,7 @@ internal static class ReceiptSnapshot
         var payment=CorrectionRules.Original(db,owner,draft.PaymentId);
         if(payment.Kind is not (FinancialKind.Receipt or FinancialKind.AssetDisposal or FinancialKind.ReceiptClassification) || payment.AmountCents<=0 || draft.IssueDate is null || draft.IssueDate<payment.Date)
             throw new ArgumentException("Choose an approved customer payment and a receipt date on or after payment.");
+        SarahBeauty.Business.Setup.LiveEntryGuard.Require(db,owner,draft.IssueDate.Value);
         if(db.Scalar("SELECT Id FROM Movements WHERE ReversesId=$id AND Date<=$date;",("$id",draft.PaymentId),("$date",draft.IssueDate.Value.ToString("yyyy-MM-dd"))) is not null)
             throw new ArgumentException("This payment was reversed. Use its correction history instead of issuing a receipt.");
         if(draft.ClientReference.Length>200)throw new ArgumentException("Use a short client-safe payment reference of up to 200 characters.");

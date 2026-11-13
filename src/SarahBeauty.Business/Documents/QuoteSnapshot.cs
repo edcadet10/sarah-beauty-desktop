@@ -11,6 +11,7 @@ internal static class QuoteSnapshot
     internal static ClientSnapshot Create(DbWork db,BusinessStore store,OwnerSession owner,DocumentDraft draft,string number,int version)
     {
         if(draft.Kind!=DocumentKind.Quote || draft.IssueDate is null)throw new ArgumentException("Choose a quote issue date.");
+        SarahBeauty.Business.Setup.LiveEntryGuard.Require(db,owner,draft.IssueDate.Value);
         if(draft.DueDate<draft.IssueDate)throw new ArgumentException("The quote expiry cannot precede its issue date.");
         var booking=new RecordStore<Booking>(store,"Booking").Get(db,owner,draft.BookingId);
         if(booking.Revision!=draft.BookingRevision)throw new ArgumentException("The booking changed. Refresh this draft from the current booking before issuing.");

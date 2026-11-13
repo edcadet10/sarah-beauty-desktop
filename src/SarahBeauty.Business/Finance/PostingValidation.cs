@@ -33,6 +33,7 @@ internal static class PostingValidation
 
     internal static void CheckClosedPeriod(DbWork db, OwnerSession owner, DateOnly date)
     {
+        SarahBeauty.Business.Setup.LiveEntryGuard.Require(db,owner,date);
         if (db.Scalar("SELECT ClosedThrough FROM BookSettings WHERE BusinessId=$id;", ("$id", owner.BusinessId)) is string closed
             && date <= DateOnly.Parse(closed)) throw new ArgumentException("This date is in a closed period. Reopen it with a reason before changing the books.");
     }
