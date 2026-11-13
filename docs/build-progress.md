@@ -8,6 +8,10 @@ This file tracks the full application build requested on November 10, 2026. A co
 
 Current feature head: fresh native release walkthrough, schema 40. The corrected full run passes 1,641 cases at ba05c6b; Windows Debug and recovery-helper output checks pass. Native setup/customer/two-owner approvals, six recipient places with later naming, payer-separated quote/invoice/PDF issuance, duplicate billing rejection and retained draft discard pass with independent reads. The $120.00 processor receipt/$3.60 fee/$116.40 payout, reliable-reference rejection, gross invoice allocation, extra-cent rejection, payment acknowledgement/PDF and dated dashboard also pass; the invoice has $600.00 due and clearing is zero. Original issued facts and expense movements remain unchanged. Main has merged through PR #192 plus the contention fix #287 after refreshed checks; #193 is undergoing current-main checks. Main remains behind the feature stack. Complete native workflows, remaining date/aggregation work, installer and actual business/Google/device acceptance continue. Historical sections below retain results measured at their own step.
 
+Hosted [run 43373372805](https://github.com/edcadet10/sarah-beauty-desktop/actions/runs/43373372805) passes the complete branch storage/build and recovery-cryptography checks.
+
+This summary records the checks at its feature stage. See [Finish the offline release](offline-release-status.md) for current release work.
+
 | Area | Current state | Evidence or remaining work |
 |---|---|---|
 | Local storage | Implemented | Verified pre-upgrade snapshots, atomic migrations, explicit TEST mode |
