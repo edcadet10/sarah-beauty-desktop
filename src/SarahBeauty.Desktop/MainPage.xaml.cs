@@ -23,7 +23,7 @@ public sealed partial class MainPage : Page
     {
         InitializeComponent();
         InitializeOwnerActivity();
-        if(!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("SARAHBEAUTY_TEST_DIRECTORY")))OpenCurrentStore();else ShowWorkspaceChoices();
+        OpenStartupWorkspace();
     }
     private void OpenCurrentStore()
     {
@@ -33,6 +33,7 @@ public sealed partial class MainPage : Page
             if(_mode==BusinessMode.Live&&!new LiveBusinesses(AppDataPaths.GetLiveFolder()).Exists){ShowMissingLive();return;}
             _store = _mode==BusinessMode.Test?new BusinessStore(new ActiveTestStores(AppDataPaths.EnsureTestFolderExists()).ResolveDatabase()):new LiveBusinesses(AppDataPaths.GetLiveFolder()).Open();
             _access = new OwnerAccess(_store);
+            if(_access.NeedsSetup){ShowBusinessStart(_mode);return;}
             StartBackups();
             ShowSignIn();
         }
