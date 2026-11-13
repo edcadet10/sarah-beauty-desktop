@@ -15,19 +15,23 @@ public static class LocalDatabase
     }
 
     internal static (string DatabasePath, string StoreId, int SchemaVersion)
-        InitializeTestDatabaseAt(string databasePath)
+        InitializeTestDatabaseAt(string databasePath)=>InitializeDatabaseAt(databasePath,BusinessMode.Test);
+
+    internal static (string DatabasePath,string StoreId,int SchemaVersion) InitializeDatabaseAt(string databasePath,BusinessMode mode,bool allowCreate=true)
     {
-        using var connection = OpenConnection(databasePath);
+        BusinessModes.StoredName(mode);using var connection = OpenConnection(databasePath,allowCreate);
         using var transaction = connection.BeginTransaction(deferred: false);
         using var command = connection.CreateCommand();
         command.Transaction = transaction;
 
         int schemaVersion = DatabaseSchema.ReadSupportedVersion(command);
         bool isEmpty = schemaVersion == 0 && DatabaseSchema.IsEmpty(command);
+        if(isEmpty&&!allowCreate)throw new InvalidOperationException("Choose an initialized business store. An empty file cannot be opened as an existing business.");
 
         if (isEmpty)
         {
             DatabaseMetadata.Create(command);
+            DatabaseMetadata.SaveMode(command,mode);
         }
         else
         {
@@ -35,19 +39,19 @@ public static class LocalDatabase
         }
 
         string storeId = DatabaseMetadata.ReadStoreId(command);
-        DatabaseMetadata.ValidateTestMode(command, schemaVersion);
-        schemaVersion = UpgradeIfNeeded(command, databasePath, schemaVersion, isEmpty);
+        DatabaseMetadata.ValidateMode(command,schemaVersion,mode);
+        schemaVersion = UpgradeIfNeeded(command,databasePath,schemaVersion,isEmpty,mode);
         transaction.Commit();
 
         return (databasePath, storeId, schemaVersion);
     }
 
-    private static SqliteConnection OpenConnection(string databasePath)
+    private static SqliteConnection OpenConnection(string databasePath,bool allowCreate)
     {
         var options = new SqliteConnectionStringBuilder
         {
             DataSource = databasePath,
-            Mode = SqliteOpenMode.ReadWriteCreate,
+            Mode = allowCreate?SqliteOpenMode.ReadWriteCreate:SqliteOpenMode.ReadWrite,
             ForeignKeys = true,
             DefaultTimeout = 5,
             Pooling = false
@@ -67,7 +71,7 @@ public static class LocalDatabase
     }
 
     private static int UpgradeIfNeeded(
-        SqliteCommand command, string databasePath, int version, bool isEmpty)
+        SqliteCommand command,string databasePath,int version,bool isEmpty,BusinessMode mode)
     {
         if (version < BusinessSchema.Version)
         {
@@ -77,7 +81,7 @@ public static class LocalDatabase
                 DatabaseBackup.CreateVerifiedSnapshot(databasePath);
             }
 
-            if (version == 0) DatabaseMetadata.SaveTestMode(command);
+            if (version == 0) DatabaseMetadata.SaveMode(command,mode);
             SchemaMigrations.Apply(command, version);
             command.CommandText = $"PRAGMA user_version = {BusinessSchema.Version};";
             command.ExecuteNonQuery();
