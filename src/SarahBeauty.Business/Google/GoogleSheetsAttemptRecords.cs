@@ -45,7 +45,7 @@ internal static class GoogleSheetsAttemptRecords
 
 internal static class GoogleSheetsDeliveryFailures
 {
-    private static readonly HashSet<string> Codes=["GoogleSheetsBusy","GoogleSheetsSourceChanged","GoogleSheetsAlreadyVerified","ReadableVerificationFailed","ReadableSourceUnavailable",
+    private static readonly HashSet<string> Codes=["GoogleSheetsBusy","GoogleSheetsSourceChanged","GoogleSheetsAlreadyVerified","GoogleSheetsSchedulePermissionUnavailable","ReadableVerificationFailed","ReadableSourceUnavailable",
         "ReadableWorkbookCreationUnconfirmed","ReadableWorkbookLookupUnconfirmed","ReadableWorkbookNotPrivateOrBound","ReadableGridMismatch","ReadableCellMismatch",
         "ReadableInitialSchemaUnsupported","ReadableWriteUnconfirmed","ReadableReadLocationRejected","ReadableSchemaSourceMismatch","ReadableSchemaUnconfirmed","ReadableSchemaMismatch","ReadablePublicationUnconfirmed"];
     internal static bool Known(string? code)=>code is not null&&(Codes.Contains(code)||GoogleDeliveryFailures.Known(code));
