@@ -5,7 +5,7 @@ using SarahBeauty.Business.Storage;
 
 namespace SarahBeauty_Desktop.Views;
 
-internal sealed class WorkspaceView(BusinessStore store,OwnerSession session,Action locked,Action? retired=null,Func<string>? backupRuntime=null,Func<string>? googleRuntime=null,Func<string>? sheetsRuntime=null)
+internal sealed class WorkspaceView(BusinessStore store,OwnerSession session,Action locked,Action? retired=null,Func<string>? backupRuntime=null,Func<string>? googleRuntime=null,Func<string>? sheetsRuntime=null,Action? passphraseChanged=null)
 {
     private readonly ContentControl _content=new(){HorizontalContentAlignment=HorizontalAlignment.Stretch};
     private readonly Dictionary<string,UIElement> _pages=[];
@@ -13,6 +13,7 @@ internal sealed class WorkspaceView(BusinessStore store,OwnerSession session,Act
     private string _current="Dashboard";
     private readonly Dictionary<string,Func<UIElement>> _routes=new();
     private NavigationView? _navigation;
+    private OwnerSecurityView? _ownerSecurity;
 
     internal UIElement Build()
     {
@@ -61,6 +62,7 @@ internal sealed class WorkspaceView(BusinessStore store,OwnerSession session,Act
         _routes["Backups and recovery"]=()=>new LocalBackupView(store,session,retired,backupRuntime,googleRuntime,sheetsRuntime).Build();
         _routes["Opening balances"]=()=>new OpeningView(store,session).Build();
         _routes["Ownership settings"]=()=>new OwnerInterestView(store,session).Build();
+        _routes["Owner security"]=BuildOwnerSecurity;
         _routes["Reports"]=()=>new ReportsView(store,session).Build();
         _routes["Statements"]=()=>new StatementPreviewView(store,session).Build();
         _routes["Bank matching"]=()=>new BankMatchingView(store,session).Build();
@@ -73,11 +75,13 @@ internal sealed class WorkspaceView(BusinessStore store,OwnerSession session,Act
 
     private void Navigate(string key)
     {
+        if(_current=="Owner security")_ownerSecurity?.Leave();
         if(!_pages.TryGetValue(key,out var page)){page=_routes[key]();_pages[key]=page;}
         _content.Content=page;
         _current=key;
         _status.Text="Local records";
     }
+    private UIElement BuildOwnerSecurity(){_ownerSecurity=new(store,session,passphraseChanged??locked);return _ownerSecurity.Build();}
 
     private UIElement Footer(FrameworkElement root)
     {
