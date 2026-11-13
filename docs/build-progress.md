@@ -8,6 +8,10 @@ This file tracks the full application build requested on November 10, 2026. A co
 
 Current feature head: reconciliation date locks, schema 40. Six calendar probes now pass with 62 related Release cases and a clean Windows Debug build. A one-line guard fix blocks actual covered cash approval/import under Thai settings and permits valid later approval under Arabic settings; those three probes failed before it. The separate statement-date fix passes 52 related cases. The parent full run passes 1,641 cases at ba05c6b. Fresh native payment/fee/payout, application/excess, receipt/PDF/dashboard, customer archiving and issued-history preservation pass. Main has merged through PR #193 plus contention fix #287 after refreshed checks; #194 is undergoing current-main checks. Main remains behind the feature stack. Complete native workflows, other date/aggregation boundaries, installer and actual business/Google/device acceptance continue. Historical sections below retain results measured at their own step. See [Keep completed account dates protected across calendars](reconciliation-date-locks.md).
 
+Hosted [run 43373372805](https://github.com/edcadet10/sarah-beauty-desktop/actions/runs/43373372805) passes the complete branch storage/build and recovery-cryptography checks.
+
+This summary records the checks at its feature stage. See [Finish the offline release](offline-release-status.md) for current release work.
+
 | Area | Current state | Evidence or remaining work |
 |---|---|---|
 | Local storage | Implemented | Verified pre-upgrade snapshots, atomic migrations, explicit TEST mode |
