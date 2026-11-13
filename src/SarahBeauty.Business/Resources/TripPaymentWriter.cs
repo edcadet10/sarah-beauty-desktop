@@ -12,7 +12,7 @@ internal static class TripPaymentWriter
         db.Execute("""
             INSERT INTO TripPaymentLinks (Id,BusinessId,TripId,PaymentId,Date,Cents,RequestId,PayloadHash,SnapshotJson,SnapshotHash,ApprovedBy,AtUtc)
             VALUES ($id,$business,$trip,$payment,$date,$cents,$request,$payload,$snapshot,$hash,$owner,$at);
-            """,("$id",id),("$business",owner.BusinessId),("$trip",draft.TripId),("$payment",draft.PaymentId),("$date",draft.Date.ToString("yyyy-MM-dd")),("$cents",draft.Cents),
+            """,("$id",id),("$business",owner.BusinessId),("$trip",draft.TripId),("$payment",draft.PaymentId),("$date",draft.Date.ToStorageDate()),("$cents",draft.Cents),
             ("$request",request),("$payload",payload),("$snapshot",json),("$hash",hash),("$owner",owner.OwnerId),("$at",at));
         failure?.Invoke("trip-link");BusinessStore.Audit(db,owner,"Link actual trip reimbursement payment",id);failure?.Invoke("audit");
         return new(id,owner.OwnerId,at,snapshot,hash);
@@ -24,7 +24,7 @@ internal static class TripPaymentWriter
         db.Execute("""
             INSERT INTO TripPaymentReleases (Id,BusinessId,LinkId,Date,Cents,RequestId,PayloadHash,SnapshotJson,SnapshotHash,ApprovedBy,AtUtc)
             VALUES ($id,$business,$link,$date,$cents,$request,$payload,$snapshot,$hash,$owner,$at);
-            """,("$id",id),("$business",owner.BusinessId),("$link",draft.LinkId),("$date",draft.Date.ToString("yyyy-MM-dd")),("$cents",draft.Cents),
+            """,("$id",id),("$business",owner.BusinessId),("$link",draft.LinkId),("$date",draft.Date.ToStorageDate()),("$cents",draft.Cents),
             ("$request",request),("$payload",payload),("$snapshot",json),("$hash",hash),("$owner",owner.OwnerId),("$at",at));
         failure?.Invoke("trip-release");BusinessStore.Audit(db,owner,"Release trip reimbursement payment link",id);failure?.Invoke("audit");
         return new(id,owner.OwnerId,at,snapshot,hash);

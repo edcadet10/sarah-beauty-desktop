@@ -24,7 +24,7 @@ internal static class TripPaymentQueries
         """,r=>
         {
             var snapshot=ReadSnapshot<TripPaymentPreview>(r.GetString(3),r.GetString(4));var draft=snapshot.Draft;
-            if(draft.TripId!=r.GetString(5) || draft.PaymentId!=r.GetString(6) || draft.Date!=DateOnly.Parse(r.GetString(7)) || draft.Cents!=r.GetInt64(8)
+            if(draft.TripId!=r.GetString(5) || draft.PaymentId!=r.GetString(6) || draft.Date!=StoredDates.Parse(r.GetString(7)) || draft.Cents!=r.GetInt64(8)
                 || snapshot.Trip.Id!=draft.TripId || snapshot.Payment.Id!=draft.PaymentId)throw new InvalidDataException("A trip payment link has inconsistent retained source fields.");
             return new LinkedTripPayment(r.GetString(0),r.GetString(1),r.GetString(2),snapshot,r.GetString(4));
         },("$business",owner.BusinessId),("$trip",trip),("$payment",payment),("$id",id));
@@ -35,7 +35,7 @@ internal static class TripPaymentQueries
         """,r=>
         {
             var snapshot=ReadSnapshot<TripPaymentReleasePreview>(r.GetString(3),r.GetString(4));var draft=snapshot.Draft;
-            if(draft.LinkId!=r.GetString(5) || draft.Date!=DateOnly.Parse(r.GetString(6)) || draft.Cents!=r.GetInt64(7) || snapshot.Original.Id!=draft.LinkId)
+            if(draft.LinkId!=r.GetString(5) || draft.Date!=StoredDates.Parse(r.GetString(6)) || draft.Cents!=r.GetInt64(7) || snapshot.Original.Id!=draft.LinkId)
                 throw new InvalidDataException("A trip payment release has inconsistent retained source fields.");
             return new ReleasedTripPayment(r.GetString(0),r.GetString(1),r.GetString(2),snapshot,r.GetString(4));
         },("$business",owner.BusinessId),("$trip",trip),("$payment",payment),("$link",link));
@@ -51,7 +51,7 @@ internal static class TripPaymentQueries
         var adjustments=db.Read("""
             SELECT Id,Kind,Date,GrossCents,COALESCE(OriginalId,''),COALESCE(ReversesId,'') FROM Movements WHERE BusinessId=$business
             AND ((Kind='SupplierRefund' AND OriginalId=$id) OR ReversesId=$id OR ReversesId IN(SELECT Id FROM Movements WHERE Kind='SupplierRefund' AND OriginalId=$id));
-            """,r=>new TripPaymentAdjustment(r.GetString(0),Enum.Parse<FinancialKind>(r.GetString(1)),DateOnly.Parse(r.GetString(2)),r.GetInt64(3),r.GetString(4),r.GetString(5)),("$business",owner.BusinessId),("$id",id));
+            """,r=>new TripPaymentAdjustment(r.GetString(0),Enum.Parse<FinancialKind>(r.GetString(1)),StoredDates.Parse(r.GetString(2)),r.GetInt64(3),r.GetString(4),r.GetString(5)),("$business",owner.BusinessId),("$id",id));
         return new(id,source.Kind,source.Date!.Value,source.AmountCents,source.CashAccountId,source.EconomicOwnerId,adjustments.ToArray());
     }
 
