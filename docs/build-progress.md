@@ -8,6 +8,10 @@ This file tracks the full application build requested on November 10, 2026. A co
 
 Current feature head: invariant client-document storage dates, schema 40. Full regression passes 1,603 cases at 505dcce. Nine failing-before calendar probes, 47 related cases and Windows Debug pass. Posting/closed-period calendar checks pass 56 related cases; exact asset values pass 32. Native issued-document/discard load, lock/close and independent reads preserve all four originals and 13 financial/issued tables. GitHub native-discard checks pass 1,575 cases at 676a381 with a clean Windows build and recovery crypto. Native clean creation and TEST/LIVE recovery/identity checks pass. Other date/aggregation boundaries, complete workflow/release checks and actual business/Google/device acceptance continue. Main has merged through PR #190 and remains behind this feature stack. Historical sections below retain the results measured at their own step.
 
+Hosted [run 43373372805](https://github.com/edcadet10/sarah-beauty-desktop/actions/runs/43373372805) passes the complete branch storage/build and recovery-cryptography checks.
+
+This summary records the checks at its feature stage. See [Finish the offline release](offline-release-status.md) for current release work.
+
 | Area | Current state | Evidence or remaining work |
 |---|---|---|
 | Local storage | Implemented | Verified pre-upgrade snapshots, atomic migrations, explicit TEST mode |
