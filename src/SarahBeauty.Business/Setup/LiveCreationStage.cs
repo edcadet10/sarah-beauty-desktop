@@ -15,6 +15,7 @@ internal sealed class LiveCreationStage
     }
     internal void Publish(CancellationToken cancellation)
     {
-        cancellation.ThrowIfCancellationRequested();_paths.RequireUnused();ArchivePaths.RejectLink(_pending);Directory.Move(_pending,_paths.Primary);
+        cancellation.ThrowIfCancellationRequested();_paths.RequireNoLinks();using var selectionLock=new FileStream(_paths.SelectionLock,FileMode.OpenOrCreate,FileAccess.ReadWrite,FileShare.None);
+        _paths.RequireUnused();ArchivePaths.RejectLink(_pending);cancellation.ThrowIfCancellationRequested();Directory.Move(_pending,_paths.Primary);
     }
 }
