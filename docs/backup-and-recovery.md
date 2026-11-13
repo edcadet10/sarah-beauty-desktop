@@ -1,5 +1,7 @@
 # Backup and Recovery
 
+Offline release scope, reaffirmed November 12, 2026: complete encrypted archives and reviewed recovery operate locally without a Google account or Cloud project. Owners should keep a verified copy on separate offline media to protect against loss of the main device. Google delivery is optional and requires separate explicit authorization; it is not a prerequisite for the offline app or local recovery.
+
 Status: Verified local database upgrade snapshots, the [managed evidence workspace](managed-evidence.md), [complete local encrypted archives](archive-package.md), [desktop automatic scheduling](desktop-automatic-backups.md), and [controlled TEST recovery activation](active-test-store.md) are implemented. Automated fictional fixtures cover committed WAL data, invalid sources, failed verification, migration rollback, managed-file versions/integrity, pinned record links, archive contents, and interrupted encryption. [Google connection controls](desktop-google-connection.md) are implemented; cloud delivery remains in progress. The procedure below includes the contract for future delivery features.
 
 The [portable encryption helper](archive-encryption.md) uses the published age format and passes reference interoperability and failure checks. [Staged restore verification](archive-restore.md) checks isolated decrypted files and the database before any activation. The desktop interface supports preparation, local retirement, reviewed activation, and persistent selection of a recovered TEST copy.
@@ -12,7 +14,7 @@ Before upgrading an existing version-0 TEST store, the app saves a database snap
 
 The app attempts to remove incomplete `.partial` files after a failure. Windows can prevent cleanup; a leftover `.partial` file is not a verified recovery copy. Existing snapshots are retained without automatic pruning. They are unencrypted local database copies, contain no attachments, and do not protect against loss of the device. A full disk, interrupted power, and recovery on another computer still require testing.
 
-## Two separate outputs
+## Optional online outputs
 
 | Output | Purpose | Contains | Does not establish |
 |---|---|---|---|
@@ -33,7 +35,7 @@ Both destinations must remain private to the intended owners. A public link is n
 6. Upload as a new archive version. Verify remote completion, expected size, and the applicable remote checksum or download/hash comparison before marking success.
 7. Save the result locally, release pinned files, and apply the confirmed retention policy only after a newer complete backup exists.
 
-Failed/incomplete archives never replace the last known complete archive. Tokens and device-bound credentials are not backed up as portable secrets. Owners reconnect Google and reestablish device-specific authentication after restoring.
+Failed/incomplete archives never replace the last known complete archive. Tokens and device-bound credentials are not backed up as portable secrets. Local restoration does not require Google reconnection. Owners can separately reconnect Google after restoring if they choose online outputs.
 
 ## Readable export contract
 
