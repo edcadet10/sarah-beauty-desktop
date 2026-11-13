@@ -26,7 +26,7 @@ public sealed class ReadableDocumentDecisionTests
         using var f=new BusinessFixture();var old=CultureInfo.CurrentCulture;try
         {
             CultureInfo.CurrentCulture=new("th-TH");using(var empty=new ReadableExportSnapshots(f.Store).Capture(f.Owner)){var tables=ReadableDocumentDecisionTables.Build(empty,new());Assert.Empty(tables[0].Rows);Assert.Equal("0",Assert.Single(tables[1].Rows)[1]);}
-            var version=QuoteTerminalDecisionTests.Issue(f);var draft=QuoteTerminalDecisionTests.Draft(version,DocumentDecisionAction.WithdrawQuote) with{DecisionDate=new(2027,3,4)};new DocumentDecisions(f.Store).RecordQuote(f.Owner,draft,BusinessFixture.Phrase,Guid.NewGuid().ToString());using var captured=new ReadableExportSnapshots(f.Store).Capture(f.Owner);var row=Assert.Single(ReadableDocumentDecisionTables.Build(captured,new())[0].Rows);Assert.Equal("2027-03-04",row[6]);Assert.Equal("Withdrawn",row[8]);
+            var version=QuoteTerminalDecisionTests.Issue(f);var draft=QuoteTerminalDecisionTests.Draft(version,DocumentDecisionAction.WithdrawQuote) with{DecisionDate=DateOnly.FromDateTime(DateTime.Today)};new DocumentDecisions(f.Store).RecordQuote(f.Owner,draft,BusinessFixture.Phrase,Guid.NewGuid().ToString());using var captured=new ReadableExportSnapshots(f.Store).Capture(f.Owner);var row=Assert.Single(ReadableDocumentDecisionTables.Build(captured,new())[0].Rows);Assert.Equal(draft.DecisionDate.ToString("yyyy-MM-dd",CultureInfo.InvariantCulture),row[6]);Assert.Equal("Withdrawn",row[8]);
         }
         finally{CultureInfo.CurrentCulture=old;}
     }
