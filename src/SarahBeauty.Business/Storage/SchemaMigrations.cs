@@ -22,7 +22,9 @@ internal static class SchemaMigrations
             // Version 31 raises the minimum writer contract: older models must not discard or bypass pinned financial file evidence.
             (31,"SELECT 1;"),(32,StoreInstanceGuard.Migration),(33,SarahBeauty.Business.Ownership.OwnerInterestSchema.Sql),
             // Version 34 distinguishes complete ownership export coverage from earlier schema-33 projection jobs.
-            (34,"SELECT 1;")];
+            (34,"SELECT 1;"),
+            // Version 35 requires every human session to match the currently stored credential.
+            (35,"SELECT 1;")];
         foreach (var migration in migrations.Where(m => m.Version > fromVersion))
         {
             command.CommandText = migration.Sql;

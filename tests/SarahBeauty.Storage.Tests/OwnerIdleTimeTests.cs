@@ -34,14 +34,14 @@ public sealed class OwnerIdleTimeTests
     [Fact]
     public void ForegroundProtectedAccessRenewsTheElapsedIdleWindow()
     {
-        using var f=new BusinessFixture();var clock=new Clock();var session=new OwnerSession(f.Owner.OwnerId,f.Owner.OwnerName,f.Owner.BusinessId,f.Store.StoreId,f.Store.InstanceId,clock);
+        using var f=new BusinessFixture();var clock=new Clock();var session=new OwnerSession(f.Owner.OwnerId,f.Owner.OwnerName,f.Owner.BusinessId,f.Store.StoreId,f.Store.InstanceId,clock,f.Owner.CredentialStamp);
         clock.Advance(TimeSpan.FromMinutes(14));Assert.NotEmpty(f.Store.BusinessName(session));clock.Advance(TimeSpan.FromMinutes(14));Assert.True(session.IsActive);
         clock.Advance(TimeSpan.FromMinutes(1));Assert.Throws<UnauthorizedAccessException>(()=>f.Store.BusinessName(session));Assert.False(session.IsActive);
     }
     [Fact]
     public void ProtectedReadsRejectElapsedIdleEvenWhenUtcMovesBack()
     {
-        using var f=new BusinessFixture();var clock=new Clock();var session=new OwnerSession(f.Owner.OwnerId,f.Owner.OwnerName,f.Owner.BusinessId,f.Store.StoreId,f.Store.InstanceId,clock);
+        using var f=new BusinessFixture();var clock=new Clock();var session=new OwnerSession(f.Owner.OwnerId,f.Owner.OwnerName,f.Owner.BusinessId,f.Store.StoreId,f.Store.InstanceId,clock,f.Owner.CredentialStamp);
         clock.Advance(TimeSpan.FromMinutes(16));clock.Utc=clock.Utc.AddHours(-2);Assert.Throws<UnauthorizedAccessException>(()=>f.Store.BusinessName(session));
     }
     private static OwnerSession Session(Clock clock)=>new("fictional-owner","Fictional owner","fictional-business","fictional-store","fictional-instance",clock);

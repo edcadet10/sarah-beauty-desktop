@@ -2,7 +2,7 @@ namespace SarahBeauty.Business.Storage;
 
 internal static class BusinessSchema
 {
-    internal const int Version = 34;
+    internal const int Version = 35;
 
     internal const string Sql = """
         CREATE TABLE Business (
