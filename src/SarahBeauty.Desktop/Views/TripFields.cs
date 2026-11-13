@@ -29,6 +29,7 @@ internal sealed partial class ResourceView
         var evidence=Form.MultilineInput("Trip evidence reference",trip.EvidenceId);
         var archived=Archived(trip.Archived);
         var status=Form.Text();
+        TripPaymentView? paymentReview=null;
         MileageTrip Read()=>trip with{Name=purpose.Text,TripDate=Input.Date(date.Text),DriverOwnerId=driver.SelectedId(),DriverArtistId=artist.SelectedId(),
             BookingId=booking.SelectedId(),Origin=origin.Text,Destination=destination.Text,ActualMiles=Input.Decimal(miles.Text),ParkingCents=Money.Parse(parking.Text),
             TollsCents=Money.Parse(tolls.Text),ReimbursementStatus=(string)reimbursement.SelectedItem,RequestedReimbursementCents=OptionalMoney(requested.Text),EvidenceId=Form.ReadInput(evidence,trip.EvidenceId).Trim(),Archived=archived.IsChecked==true};
@@ -37,12 +38,22 @@ internal sealed partial class ResourceView
         _detail.Add(Form.Title("Actual trip"),Form.Text("Actual mileage is separate from quoted travel. This log does not apply a tax rate, invent a deduction, or post reimbursement. Approve any actual business payment separately."),
             purpose,date,driver,artist,booking,origin,destination,miles,parking,tolls,reimbursement,requested,evidence,archived,status,Form.Action("Save actual trip",status,async()=>
             {
+                if(!await ConfirmTripReview(paymentReview?.HasUnsavedChanges==true))return;
                 var value=Read();
                 await SaveEntry(()=>_operations.SaveTrip(owner,value),Edit);
             }),PagedReport.Build("Trip review history",["Revision / time","Driver / route","Actual miles / costs","Request review / evidence"],trip.History.Select(h=>new[]{
                 $"{h.Revision} • {h.AtUtc}\n{Who(h.OwnerId)}",$"{Who(h.DriverOwnerId.Length>0?h.DriverOwnerId:h.DriverArtistId)}\n{h.Origin} → {h.Destination}",
                 $"{h.ActualMiles} miles • Parking {Money.Display(h.ParkingCents)} • Tolls {Money.Display(h.TollsCents)}",
                 $"{h.ReimbursementStatus} • {(h.RequestedReimbursementCents.HasValue?Money.Display(h.RequestedReimbursementCents.Value):"Unknown amount")}\n{h.EvidenceId}"})));
-        if(trip.Revision>0)_detail.Add(new TripPaymentView(store,owner,trip.Id,Changed).Build());
+        if(trip.Revision>0)
+        {
+            paymentReview=new TripPaymentView(store,owner,trip.Id,Changed,ConfirmTripReview);
+            _detail.Add(paymentReview.Build());
+            var mainChanges=_hasChanges;
+            _hasChanges=()=>mainChanges()||paymentReview.HasUnsavedChanges;
+        }
     }
+
+    private Task<bool> ConfirmTripReview(bool dirty)=>ConfirmReplacement(dirty,"Discard unfinished trip payment review?",
+        "The trip payment review has unfinished changes. Discard them to continue.");
 }
