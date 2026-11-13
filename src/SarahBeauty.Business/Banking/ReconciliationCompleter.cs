@@ -34,7 +34,7 @@ internal static class ReconciliationCompleter
         db.Execute("""
             INSERT INTO Reconciliations (Id,BusinessId,AccountId,StatementId,AsOfDate,RequestId,PayloadHash,SnapshotJson,SnapshotHash,ReviewedWatermark,ApprovedBy,AtUtc)
             VALUES ($id,$business,$account,$statement,$date,$request,$payload,$snapshot,$hash,$watermark,$owner,$at);
-            """,("$id",id),("$business",owner.BusinessId),("$account",s.Statement.AccountId),("$statement",s.Statement.Id),("$date",s.Statement.Through.ToString("yyyy-MM-dd")),
+            """,("$id",id),("$business",owner.BusinessId),("$account",s.Statement.AccountId),("$statement",s.Statement.Id),("$date",s.Statement.Through.ToStorageDate()),
             ("$request",request),("$payload",payload),("$snapshot",json),("$hash",hash),("$watermark",s.Watermark),("$owner",owner.OwnerId),("$at",at));
         failure?.Invoke("reconciliation-snapshot");
         foreach(var bank in s.Bank)db.Execute("INSERT INTO ReconciliationBankCoverage (ReconciliationId,BankLineId) VALUES ($reconciliation,$bank);",("$reconciliation",id),("$bank",bank.Id));

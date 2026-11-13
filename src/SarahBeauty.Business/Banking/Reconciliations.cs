@@ -12,7 +12,7 @@ public sealed class Reconciliations(BusinessStore store)
         return db.Read("""
             SELECT C.Id,C.AccountId,C.StatementId,C.AsOfDate,C.ApprovedBy,C.AtUtc,EXISTS(SELECT 1 FROM ReconciliationReopens R WHERE R.ReconciliationId=C.Id)
             FROM Reconciliations C WHERE C.BusinessId=$business ORDER BY C.AsOfDate,C.AtUtc,C.Id;
-            """,r=>new ReconciliationSummary(r.GetString(0),r.GetString(1),r.GetString(2),DateOnly.Parse(r.GetString(3)),r.GetString(4),r.GetString(5),r.GetInt32(6)==1),("$business",owner.BusinessId));
+            """,r=>new ReconciliationSummary(r.GetString(0),r.GetString(1),r.GetString(2),StoredDates.Parse(r.GetString(3)),r.GetString(4),r.GetString(5),r.GetInt32(6)==1),("$business",owner.BusinessId));
     });
 
     public CompletedReconciliation Open(OwnerSession owner,string id)=>store.ReadSnapshot(db=>

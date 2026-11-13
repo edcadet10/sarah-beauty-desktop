@@ -32,7 +32,7 @@ internal static class ReconciliationSourcesReader
         var rows=db.Read("""
             SELECT O.Date FROM OpeningBalances O WHERE O.BusinessId=$business AND O.AccountId=$account AND O.DimensionKind='Account' AND O.Date<=$date
             AND (O.RevokedAt IS NULL OR (O.ReversalMovementId IS NOT NULL AND NOT EXISTS(SELECT 1 FROM Movements R WHERE R.Id=O.ReversalMovementId AND R.Date<=$date))) ORDER BY O.Date LIMIT 1;
-            """,r=>DateOnly.Parse(r.GetString(0)),("$business",owner.BusinessId),("$account",account),("$date",through.ToString("yyyy-MM-dd")));
+            """,r=>StoredDates.Parse(r.GetString(0)),("$business",owner.BusinessId),("$account",account),("$date",through.ToStorageDate()));
         return rows.Count==0?null:rows[0];
     }
 
@@ -41,8 +41,8 @@ internal static class ReconciliationSourcesReader
         JOIN JournalLines J ON J.MovementId=M.Id WHERE M.BusinessId=$business AND J.AccountId=$account AND M.Date<=$date
         AND COALESCE(json_extract(M.DataJson,'$.EvidenceId'),'')<>'' AND NOT EXISTS(SELECT 1 FROM Movements R WHERE R.ReversesId=M.Id AND R.Date<=$date)
         GROUP BY M.Id ORDER BY M.Date,M.Id;
-        """,r=>new PostedBookCorrection(r.GetString(0),DateOnly.Parse(r.GetString(1)),r.GetInt64(2),r.GetString(3),r.GetString(4)),
-        ("$business",owner.BusinessId),("$account",account),("$date",through.ToString("yyyy-MM-dd"))).ToArray();
+        """,r=>new PostedBookCorrection(r.GetString(0),StoredDates.Parse(r.GetString(1)),r.GetInt64(2),r.GetString(3),r.GetString(4)),
+        ("$business",owner.BusinessId),("$account",account),("$date",through.ToStorageDate())).ToArray();
 
     internal static long Cents(IEnumerable<long> values)
     {
