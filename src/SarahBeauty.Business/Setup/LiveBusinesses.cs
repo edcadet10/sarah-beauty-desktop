@@ -6,7 +6,7 @@ namespace SarahBeauty.Business.Setup;
 
 public sealed record CreatedLiveBusiness(BusinessStore Store,OwnerSession Owner);
 
-public sealed class LiveBusinesses(string parent)
+public sealed partial class LiveBusinesses(string parent)
 {
     internal Action? BeforePublish {get;set;}
 
