@@ -11,6 +11,16 @@ internal static class InvoiceCoverage
     internal static long Generation(DbWork db,string bookingId)=>Convert.ToInt64(db.Scalar(
         "SELECT Generation FROM BillingState WHERE BookingId=$id;",("$id",bookingId))??0L);
 
+    internal static void ValidateVoidDates(DbWork db,OwnerSession owner,string bookingId,DateOnly issueDate)
+    {
+        foreach(var invoice in DocumentVersions.List(db,owner).Where(v=>v.BookingId==bookingId&&v.Snapshot.Kind==DocumentKind.Invoice&&v.Status=="Void"))
+        {
+            var decision=DocumentDecisionQueries.Read(db,owner.BusinessId,invoice.Id).SingleOrDefault();
+            if(decision is not{Action:DocumentDecisionAction.VoidInvoice})throw new InvalidDataException("Review the retained void decision before reusing this booking's invoice coverage.");
+            if(issueDate<decision.DecisionDate)throw new ArgumentException("Date the replacement invoice on or after the booking's retained invoice void dates.");
+        }
+    }
+
     internal static List<CoveredPortion> Existing(DbWork db,string bookingId,string chargeId)=>db.Read("""
         SELECT C.Quantity,C.NetCents,C.TaxCents,C.DiscountCents,C.SourceSignature,C.InvoiceVersionId FROM InvoiceCoverage C
         JOIN DocumentVersions V ON V.Id=C.InvoiceVersionId

@@ -16,7 +16,7 @@ public sealed class InvoiceVoidDateTests
         var before=new DateOnly(2027,1,15);var financial=new FinancialReports(f.Business.Store).Load(f.Business.Owner,new(2027,1,1),before);
         long actual=report switch{"customer"=>financial.Customers.Sum(c=>c.OpenCents),"tax"=>financial.Tax.ChargedCents,_=>new PaymentApplications(f.Business.Store).Outstanding(f.Business.Owner,before).Sum(d=>d.Cents)};
         Assert.Equal(expected,actual);
-        var after=new FinancialReports(f.Business.Store).Load(f.Business.Owner,new(2027,1,1),new(2027,1,20));Assert.Equal(0,after.Customers.Sum(c=>c.OpenCents));Assert.Equal(0,after.Tax.ChargedCents);Assert.Empty(new PaymentApplications(f.Business.Store).Outstanding(f.Business.Owner,new(2027,1,20)));
+        var after=new FinancialReports(f.Business.Store).Load(f.Business.Owner,new(2027,1,1),new(2027,1,20));Assert.Equal(0,after.Customers.Sum(c=>c.OpenCents));Assert.Equal(450,after.Tax.ChargedCents);Assert.Equal(450,after.Tax.ChargeReductionCents);Assert.Empty(new PaymentApplications(f.Business.Store).Outstanding(f.Business.Owner,new(2027,1,20)));
     }
     [Fact]
     public void HistoricalVisibilityDoesNotPermitNewBackdatedApplications()

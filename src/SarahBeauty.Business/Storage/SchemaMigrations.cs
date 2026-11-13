@@ -24,7 +24,9 @@ internal static class SchemaMigrations
             // Version 34 distinguishes complete ownership export coverage from earlier schema-33 projection jobs.
             (34,"SELECT 1;"),
             // Version 35 requires every human session to match the currently stored credential.
-            (35,"SELECT 1;"),(36,DocumentDecisionSchema.Sql)];
+            (35,"SELECT 1;"),(36,DocumentDecisionSchema.Sql),
+            // Version 37 requires dated invoice-void reads and retained dependency checks.
+            (37,"SELECT 1;")];
         foreach (var migration in migrations.Where(m => m.Version > fromVersion))
         {
             command.CommandText = migration.Sql;
