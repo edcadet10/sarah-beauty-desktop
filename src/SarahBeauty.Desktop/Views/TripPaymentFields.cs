@@ -11,6 +11,8 @@ internal sealed class TripPaymentFields
     private readonly SearchableRecords _payment=new("Approved trip reimbursement payment");
     private readonly TextBox _date,_amount,_payee,_evidence;
     private readonly string _trip;
+    private readonly Func<bool> _hasChanges;
+    internal bool HasUnsavedChanges=>_hasChanges();
     internal TripPaymentFields(TripReimbursementReview review,List<PostedMovement> payments)
     {
         _trip=review.CurrentTrip.Id;
@@ -20,6 +22,8 @@ internal sealed class TripPaymentFields
         _amount=Form.Input("Trip reimbursement amount to link in USD",review.CurrentTrip.RequestedReimbursementCents.HasValue?
             Money.Input(review.CurrentTrip.RequestedReimbursementCents.Value-review.CurrentClaimLinkedCents):"");
         _payee=Form.Input("Confirm the actual payment paid this trip's identified driver");_evidence=Form.Input("Trip payment link evidence");
+        string date=_date.Text,amount=_amount.Text;
+        _hasChanges=()=>_payment.SelectedId.Length>0||_date.Text!=date||_amount.Text!=amount||_payee.Text.Length>0||_evidence.Text.Length>0;
     }
     internal UIElement Build()
     {

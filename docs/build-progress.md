@@ -1,5 +1,9 @@
 # Build progress
 
+## Unfinished trip-payment review protection — November 13, 2026
+
+Native probes reproduce silent loss of link/release drafts during New, reload and original-payment detail review. Small UI guards add Keep/Discard for those replacements, parent save and competing drafts during approval. Invalid input, cached navigation, explicit replacement, one actual expense/link/release, independent balanced journal, packaged replay and second-owner restart pass. Existing saved tables remain exact after the older fixture's separately audited schema upgrade. See [trip-payment edit protection](trip-payment-edit-guard.md). Physical devices, broader accessibility and lock/shutdown remain separate release work.
+
 ## Native full-volume failures and retries — November 12, 2026
 
 In a verified disposable NTFS virtual volume with zero free bytes, actual expense approval, customer save and receipt import report storage errors with unchanged prior protected rows and no false success. After space is freed, each retries once; exact note, one receipt hash, one movement/two journal lines, permission history and integrity pass. Second-owner restart and virtual-disk detach/remount retain all facts. The image is detached afterward. See [full-volume evidence](native-full-volume.md). Physical Surface/power/hardware and second-computer checks remain separate.
