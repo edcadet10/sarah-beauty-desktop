@@ -83,8 +83,8 @@ internal sealed class FinancialFields
         if(_kind is not (FinancialKind.AssetDisposal or FinancialKind.PurchasePayment or FinancialKind.PurchaseRefund or FinancialKind.SupplierCreditUse or FinancialKind.TaxRecovery))panel.Add(_counter);
         if(_kind is FinancialKind.PurchasePayment or FinancialKind.PurchaseRefund or FinancialKind.SupplierCreditUse)panel.Add(_supplierPayment.Build());
         if(_kind==FinancialKind.Transfer)panel.Add(_to);
-        if(_kind is FinancialKind.Receipt or FinancialKind.Refund or FinancialKind.AssetDisposal or FinancialKind.ReceiptClassification)panel.Add(_customer,_tax,_taxResolved);
-        if(_kind==FinancialKind.UnclassifiedReceipt)panel.Add(_customer);
+        if(ShowsPayer(_kind))panel.Add(_customer);
+        if(ShowsTaxReview(_kind))panel.Add(_tax,_taxResolved);
         if(_kind is FinancialKind.Receipt or FinancialKind.LoanPayment)panel.Add(_fee);
         if(_kind==FinancialKind.LoanPayment)panel.Add(_principal,_interest);
         if(_kind is FinancialKind.Contribution or FinancialKind.Withdrawal or FinancialKind.OwnerPaidExpense or FinancialKind.OwnerReimbursement or FinancialKind.AssetContribution or FinancialKind.Opening)panel.Add(_economicOwner);
@@ -97,13 +97,17 @@ internal sealed class FinancialFields
         if(_kind==FinancialKind.PurchaseRefund)panel.Add(_supplierRefund.Build());
         if(_kind is FinancialKind.SupplierRefund or FinancialKind.PurchaseRefund or FinancialKind.SupplierCreditUse)panel.Add(_assetRefund.Build());
         if(_kind==FinancialKind.Refund)panel.Add(_credit);
-        if(_kind is FinancialKind.Receipt or FinancialKind.UnclassifiedReceipt or FinancialKind.Refund or FinancialKind.AssetDisposal or FinancialKind.PurchasePayment or FinancialKind.PurchaseRefund or FinancialKind.TaxRecovery)panel.Add(_method);
+        if(ShowsPaymentMethod(_kind))panel.Add(_method);
         if(_kind==FinancialKind.Opening)panel.Add(_openingCredit,Form.Text("Approve a documented starting book value. Link an individual loan, asset, or owner when its account requires one. This does not import earlier business activity. Confirm zero cash balances in Opening balances."));
         panel.Add(_booking);
         if(_kind!=FinancialKind.ReceiptClassification)panel.Add(_reference,_provider,_reliable);
         panel.Add(_evidenceFile.Build(),_evidence,Form.Text("Missing evidence remains visible for review. It does not prove that a payment or expense occurred."));
         return panel;
     }
+
+    internal static bool ShowsPayer(FinancialKind kind)=>kind is FinancialKind.Receipt or FinancialKind.UnclassifiedReceipt or FinancialKind.Refund or FinancialKind.AssetDisposal or FinancialKind.ReceiptClassification;
+    internal static bool ShowsTaxReview(FinancialKind kind)=>kind is FinancialKind.Receipt or FinancialKind.Refund or FinancialKind.AssetDisposal or FinancialKind.ReceiptClassification;
+    internal static bool ShowsPaymentMethod(FinancialKind kind)=>kind is FinancialKind.Receipt or FinancialKind.UnclassifiedReceipt or FinancialKind.Refund or FinancialKind.AssetDisposal or FinancialKind.PurchasePayment or FinancialKind.PurchaseRefund or FinancialKind.TaxRecovery;
 
     internal FinancialDraft Read(FinancialDraft d)=>_taxRefund.Read(_supplierRefund.Read(_assetRefund.Read(_supplierPayment.Read(d with
     {
