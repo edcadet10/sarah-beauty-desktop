@@ -35,7 +35,7 @@ internal static class PostingValidation
     {
         SarahBeauty.Business.Setup.LiveEntryGuard.Require(db,owner,date);
         if (db.Scalar("SELECT ClosedThrough FROM BookSettings WHERE BusinessId=$id;", ("$id", owner.BusinessId)) is string closed
-            && date <= DateOnly.Parse(closed)) throw new ArgumentException("This date is in a closed period. Reopen it with a reason before changing the books.");
+            && date <= StoredDates.Parse(closed)) throw new ArgumentException("This date is in a closed period. Reopen it with a reason before changing the books.");
     }
 
     private static void ValidateAmounts(FinancialDraft draft)
@@ -99,7 +99,7 @@ internal static class PostingValidation
             if(loan.OpeningPrincipalCents>0 && db.Scalar("""
                 SELECT Id FROM OpeningBalances WHERE BusinessId=$business AND DimensionKind='Loan' AND DimensionId=$loan
                 AND RevokedAt IS NULL AND Date<=$date;
-                """,("$business",owner.BusinessId),("$loan",loan.Id),("$date",draft.Date!.Value.ToString("yyyy-MM-dd"))) is null)
+                """,("$business",owner.BusinessId),("$loan",loan.Id),("$date",draft.Date!.Value.ToStorageDate())) is null)
                 throw new ArgumentException("Approve this loan's evidenced ledger opening before posting proceeds or repayments.");
             if (loan.OpeningDate.HasValue && draft.Date < loan.OpeningDate) throw new ArgumentException("This movement precedes the loan opening date.");
         }

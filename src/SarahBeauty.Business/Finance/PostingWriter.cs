@@ -36,7 +36,7 @@ internal static class PostingWriter
         VALUES ($id,$business,$kind,$date,$memo,$gross,$tax,$customer,$owner,$booking,$loan,$asset,$supplier,
             $original,$reversal,$namespace,$reference,$json);
         """, ("$id", id), ("$business", owner.BusinessId), ("$kind", draft.Kind.ToString()),
-        ("$date", draft.Date!.Value.ToString("yyyy-MM-dd")), ("$memo", draft.Name), ("$gross", draft.AmountCents), ("$tax", draft.TaxCents),
+        ("$date", draft.Date!.Value.ToStorageDate()), ("$memo", draft.Name), ("$gross", draft.AmountCents), ("$tax", draft.TaxCents),
         ("$customer", Empty(draft.CustomerId)), ("$owner", Empty(draft.EconomicOwnerId)), ("$booking", Empty(draft.BookingId)),
         ("$loan", Empty(draft.LoanId)), ("$asset", Empty(draft.AssetId)), ("$supplier", Empty(draft.SupplierId)),
         ("$original", draft.Kind == FinancialKind.Reversal ? null : Empty(draft.OriginalId)),

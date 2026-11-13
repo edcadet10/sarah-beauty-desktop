@@ -6,9 +6,11 @@ The owner reaffirmed that Sarah Beauty must work fully offline. No Google projec
 
 This file tracks the full application build requested on November 10, 2026. A component marked implemented still needs the release checks applicable to it. The app is not ready for live business use.
 
-Current feature head: exact retained asset book-value reads, schema 40. A failing-before index-order overflow probe now passes in both orders; 32 related asset cases and Windows Debug pass. The preceding historical-balance fix passes 44 related cases and passes 1,584 cases at f0da162. Native draft-discard review passes all four kinds and preserves 13 financial/issued tables; its command parent passes 1,575 cases at 6010845. GitHub history checks pass 1,561 cases with a clean Windows build and recovery crypto. Native clean creation and TEST/LIVE recovery/identity checks pass. Other aggregation paths, complete workflow/release checks and actual business/device and optional Google acceptance continue. The reviewed integration base includes main through PR #275. Historical sections below retain the results measured at their own step.
+Current feature head: invariant posting/storage dates and closed-period checks, schema 40. Four failing-before calendar probes now pass; 56 related cases and Windows Debug pass. Exact retained asset values pass 32 related cases, including an index-order overflow probe. The preceding historical-balance fix passes 44 related cases and passes 1,584 cases at f0da162. Native draft-discard review passes all four kinds and preserves 13 financial/issued tables; its command parent passes 1,575 cases at 6010845. GitHub history checks pass 1,561 cases with a clean Windows build and recovery crypto. Native clean creation and TEST/LIVE recovery/identity checks pass. Other date/aggregation boundaries, complete workflow/release checks and actual business/Google/device acceptance continue. Main has merged through PR #189 and remains behind this feature stack. Historical sections below retain the results measured at their own step.
 
 Hosted [run 43373372805](https://github.com/edcadet10/sarah-beauty-desktop/actions/runs/43373372805) passes the complete branch storage/build and recovery-cryptography checks.
+
+This summary records the checks at its feature stage. See [Finish the offline release](offline-release-status.md) for current release work.
 
 | Area | Current state | Evidence or remaining work |
 |---|---|---|
