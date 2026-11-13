@@ -4,6 +4,10 @@
 
 The owner reaffirmed that Sarah Beauty must work fully offline. No Google project or app connection was created; setup stopped. Requirements, recovery guidance and acceptance distinguish required local encrypted backup/recovery from optional Google copies. Real Google setup/delivery is not an offline-release gate. Actual Surface, second-device recovery, installation and release checks remain required. Optional Google features remain disabled unless separately configured and authorized. This clarification does not mark later feature-stack work merged into main.
 
+## Multiline terms preservation — November 12, 2026
+
+Native checks reproduce quote/invoice terms shrinking from 4,128 to 226 characters. A shared multiline control now sets returns/wrapping before saved text; both probes and two save/reopen cycles pass. Corrected split invoices/PDFs retain exact full terms, all 23 source lines, exact milestones, private-field exclusion, original artifacts, and second-owner restart. Debug and self-contained publish pass; published-app checks retain all terms and facts. See [terms regression evidence](multiline-document-terms.md). Broader release/device/Google acceptance remains open.
+
 ## New document palette — November 12, 2026
 
 New PDFs now share the emerald, cream, and subtle-gold palette. Debug and four PDF tests pass; native long-name/grouped-service split documents verify actual PDF colors, continuation layout, totals, private-field exclusion, and hashes. The walkthrough also finds multiline terms truncation in quote/invoice editors; that separate fix blocks complete document acceptance. See [document color evidence](document-brand-colors.md).

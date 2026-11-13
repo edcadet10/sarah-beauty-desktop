@@ -15,4 +15,6 @@ An independently read earlier PDF retained the former plum heading `#61374C`. Na
 
 This color change does not pass complete AC-019 acceptance. The quote retains 4,128 characters of multiline terms, while both newly prepared invoice snapshots retain only their first 226-character paragraph. Native quote-revision and invoice-editor probes reproduce the truncation. Correct multiline initialization is a separate fix; issued test snapshots/PDFs remain retained rather than overwritten. Automation setup interruptions were resumed from verified stored state and were not counted as passes.
 
+The subsequent [multiline terms fix](multiline-document-terms.md) records failing-before/passing-after native checks, complete corrected invoices/PDFs, and retained originals. That evidence extends this palette check without rewriting the original failed results.
+
 Changing the renderer does not rewrite an existing issued PDF. Real Google delivery, complete document/device acceptance, signing, and release remain open.

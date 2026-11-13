@@ -21,9 +21,7 @@ internal sealed class InvoiceFields
         _date=Form.Input("Invoice issue date",draft.IssueDate?.ToString("yyyy-MM-dd")??"");
         _due=Form.Input("Invoice due date (optional)",draft.DueDate?.ToString("yyyy-MM-dd")??"");
         _payer=Form.Records("Payer for this invoice",new CustomerBook(store).Search(owner,includeArchived:true).Select(c=>(c.Id,$"{c.FullName} • {c.Id[..8]}")),draft.PayerCustomerId);
-        _terms=Form.Input("Terms for this invoice",draft.Terms);
-        _terms.AcceptsReturn=true;
-        _terms.MinHeight=100;
+        _terms=Form.MultilineInput("Terms for this invoice",draft.Terms);
         _panel.Add(_name,_date,_due,_payer,_terms,Form.Text("Choose the source quantities this payer will cover. Enter zero to leave a charge for another payer. The booking's trial and deposit are shared once across all invoices."));
         foreach(var remaining in new InvoiceBook(store).Remaining(owner,draft.QuoteVersionId))
         {

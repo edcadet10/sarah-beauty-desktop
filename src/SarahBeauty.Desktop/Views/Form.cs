@@ -12,6 +12,11 @@ internal static class Form
     internal static Style Style(string key) => (Style)Application.Current.Resources[key];
     internal static Border Card(UIElement content) => new() { Child = content, Style = Style("SarahCardStyle") };
     internal static TextBox Input(string label, string value = "") => new() { Header = label, Text = value, MinWidth = 200 };
+    internal static TextBox MultilineInput(string label,string value="")=>new()
+    {
+        Header=label,AcceptsReturn=true,TextWrapping=TextWrapping.Wrap,
+        MinWidth=200,MinHeight=100,MaxHeight=220,Text=value
+    };
     internal static PasswordBox Secret(string label) => new() { Header = label, PasswordRevealMode = PasswordRevealMode.Hidden };
 
     internal static ComboBox Select(string label, string[] choices, string selected) =>
