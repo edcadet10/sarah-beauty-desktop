@@ -1,5 +1,9 @@
 # Build progress
 
+## Customer multiline preservation — November 12, 2026
+
+Native before/after probes reproduce six customer fields clipping to the first line and an unintended extra permission-history entry on a name-only save. Six uses of the shared multiline control fix both behaviors. Exact property/permission retention, second-owner restart, Keep/Discard protection, 1280/500-pixel inspection, clean Debug, and published-app checks pass. See [customer text regression evidence](customer-multiline-fields.md). Full release acceptance remains open.
+
 ## Packaged supply/trip acceptance — November 12, 2026
 
 Native AC-034 retains Available/Low/Finished history and dates, refreshes the correct status/expiry dashboard alerts, and saves an actual trip with exact miles/parking/tolls and no requested reimbursement. Independent checks find zero new financial movements or changes to prior history; integrity and second-owner restart pass. See [operational supply/trip evidence](native-supply-trip-acceptance.md). Full release acceptance remains open.
