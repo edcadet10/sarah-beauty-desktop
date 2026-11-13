@@ -14,7 +14,7 @@ public sealed class GoogleSheetsQueue
     public GoogleSheetsQueueState? Current(OwnerSession owner)=>_store.Read(db=>{_store.RequireSession(db,owner);return GoogleSheetsQueueRecords.Read(db,owner.BusinessId,_store.InstanceId);});
     public async Task<GoogleSheetsQueuePoll> RunDueAsync(CancellationToken cancellation=default)
     {
-        cancellation.ThrowIfCancellationRequested();GoogleOutputPermit permit;GoogleSheetsExportProfile? profile;
+        cancellation.ThrowIfCancellationRequested();if(!OutputEnabled())return new("Sheets export disabled or not configured",null);GoogleOutputPermit permit;GoogleSheetsExportProfile? profile;
         try{permit=_settings.Authorize(GoogleOutputKind.SheetsExport);profile=Profile(permit);}catch(GoogleConnectionFailure){return new("Permission required",null);}
         if(profile is null)return new("Automatic export disabled or not configured",null);
         using var lease=GoogleSheetsDeliveryLease.TryQueue(_store);if(lease is null)return new("Busy",null);
@@ -32,6 +32,10 @@ public sealed class GoogleSheetsQueue
     {
         var profile=GoogleSheetsProfileRecords.Read(db,permit.Policy.BusinessId,_store.InstanceId);if(profile is null||!profile.AutomaticEnabled)return null;
         new GoogleSheetsExportProfiles(_store).Require(db,profile);return profile;
+    });
+    private bool OutputEnabled()=>_store.Read(db=>
+    {
+        string business=db.Read("SELECT Id FROM Business;",r=>r.GetString(0)).Single();return GoogleOutputRecords.Read(db,business,_store.InstanceId)?.SheetsExportEnabled==true;
     });
     private GoogleSheetsQueueState Finish(GoogleSheetsQueueState started,GoogleSheetsExportProfile profile,Exception? error)=>_store.Transaction(db=>
     {
