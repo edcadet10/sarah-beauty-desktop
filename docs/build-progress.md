@@ -8,6 +8,10 @@ This file tracks the full application build requested on November 10, 2026. A co
 
 Current feature head: invariant opening-balance dates, schema 40. Six failing-before calendar probes now pass; 34 related cases and Windows Debug pass. Retained book-period dates pass 27 related cases, client-document dates pass 47, posting dates pass 56, and exact asset values pass 32. The historical-balance parent passes the full 1,584-case regression at f0da162. A full regression for the combined asset/posting/client-document parent is running. Native issued-document/discard load and independent reads preserve all four histories and 13 financial/issued tables with the document-date build. GitHub native-discard checks pass 1,575 cases at 676a381, a clean Windows build and recovery crypto. Native clean creation and TEST/LIVE recovery/identity checks pass. Other date/aggregation boundaries, complete workflow/release checks and actual business/Google/device acceptance continue. Main has merged through PR #190 and remains behind this feature stack. Historical sections below retain the results measured at their own step.
 
+Hosted [run 43373372805](https://github.com/edcadet10/sarah-beauty-desktop/actions/runs/43373372805) passes the complete branch storage/build and recovery-cryptography checks.
+
+This summary records the checks at its feature stage. See [Finish the offline release](offline-release-status.md) for current release work.
+
 | Area | Current state | Evidence or remaining work |
 |---|---|---|
 | Local storage | Implemented | Verified pre-upgrade snapshots, atomic migrations, explicit TEST mode |
