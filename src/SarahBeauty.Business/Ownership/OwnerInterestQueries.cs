@@ -1,4 +1,5 @@
 using System.Globalization;
+using SarahBeauty.Business.Attachments;
 using SarahBeauty.Business.Storage;
 
 namespace SarahBeauty.Business.Ownership;
@@ -24,7 +25,7 @@ internal static class OwnerInterestQueries
         for(int i=0;i<values.Count;i++)
         {
             var value=values[i];if(value.Revision!=i+1L || !owners.Contains(value.RecordedByOwnerId) || value.Shares.Any(s=>!owners.Contains(s.OwnerId)))throw OwnerInterestCodec.Invalid();
-            CheckShares(db,value);CheckCorrection(values.Take(i),value);
+            CheckShares(db,value);CheckEvidence(db,value);CheckCorrection(values.Take(i),value);
         }
         return values.AsReadOnly();
     }
@@ -39,5 +40,11 @@ internal static class OwnerInterestQueries
         if(value.SupersedesId is null){if(earlier.Any(v=>v.EffectiveFrom==value.EffectiveFrom))throw OwnerInterestCodec.Invalid();return;}
         var prior=earlier.SingleOrDefault(v=>v.Id==value.SupersedesId);
         if(prior is null || prior.EffectiveFrom!=value.EffectiveFrom || earlier.Any(v=>v.SupersedesId==prior.Id))throw OwnerInterestCodec.Invalid();
+    }
+    private static void CheckEvidence(DbWork db,OwnerInterestVersion value)
+    {
+        if(value.EvidenceVersionId is null)return;
+        var evidence=AttachmentQueries.List(db,value.BusinessId,versionId:value.EvidenceVersionId).SingleOrDefault();
+        if(evidence is null || evidence.SnapshotHash!=value.EvidenceSnapshotHash || evidence.Version.Category=="Customer photo")throw OwnerInterestCodec.Invalid();
     }
 }
