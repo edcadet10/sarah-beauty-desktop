@@ -1,0 +1,9 @@
+# Confirm or correct dated ownership
+
+Confirm a complete, dated share set with an expected revision and a reason. Every owner of the business must be included, including owners whose login is disabled. Use explicit zero only when it is confirmed. The writer checks the current revision, complete business membership, effective-date uniqueness, and latest same-date correction before appending a version and its exact share copy. Names, actor, UTC time, reason, and optional evidence identity/hash are frozen. One audit advances the business watermark; no financial posting is created.
+
+Optional evidence must be an existing receipt/evidence version in this business. Its managed bytes are independently opened and verified before confirmation; customer photos are rejected because they have separate permission scope. A later file replacement does not replace the confirmed version. A missing file prevents a new confirmation while retaining earlier history.
+
+Cancellation and current owner access are checked before work and again after the records/audit are written, so a late cancellation or lock rolls the transaction back. A stale save cannot overwrite the winning writer. Correction requires the latest version for the same effective date; earlier versions and later effective periods stay retained.
+
+All seven new Release cases pass for real posted-receipt preservation across confirmation/correction/reopen, missing/foreign owners, stale/invalid corrections, a competing writer, cancellation/lock after writing with complete rollback, disabled login with explicit zero, and actual managed PDF version/hash pinning with foreign/missing file rejection. Business Debug builds with zero warnings/errors. The desktop form, general evidence-target navigation, archive validation integration, readable projection, and full acceptance remain separate work.
