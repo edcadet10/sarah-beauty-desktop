@@ -4,6 +4,10 @@
 
 The owner reaffirmed that Sarah Beauty must work fully offline. No Google project or app connection was created; setup stopped. Requirements, recovery guidance and acceptance distinguish required local encrypted backup/recovery from optional Google copies. Real Google setup/delivery is not an offline-release gate. Actual Surface, second-device recovery, installation and release checks remain required. Optional Google features remain disabled unless separately configured and authorized. This clarification does not mark later feature-stack work merged into main.
 
+## Packaged supply/trip acceptance — November 12, 2026
+
+Native AC-034 retains Available/Low/Finished history and dates, refreshes the correct status/expiry dashboard alerts, and saves an actual trip with exact miles/parking/tolls and no requested reimbursement. Independent checks find zero new financial movements or changes to prior history; integrity and second-owner restart pass. See [operational supply/trip evidence](native-supply-trip-acceptance.md). Full release acceptance remains open.
+
 ## Packaged supplier acceptance — November 12, 2026
 
 Native AC-033 approves an unpaid bill without a book expense, recognizes its actual payment once, records a paid bill credit without cash movement, and refunds against the original classification. Exact payable/credit, signed settlements, original source history, reports, integrity, and second-owner restart checks pass. See [supplier evidence](native-supplier-acceptance.md). Full release acceptance remains open.
