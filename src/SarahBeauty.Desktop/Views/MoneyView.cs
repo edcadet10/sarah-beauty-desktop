@@ -18,6 +18,12 @@ internal sealed class MoneyView
     private readonly ListView _list = new(){MaxHeight=220};
     private readonly StackPanel _detail=Form.Panel();
     private readonly TextBlock _status=Form.Text();
+    private readonly ComboBox _kind=Form.Select("Movement",Enum.GetNames<FinancialKind>(),"Expense");
+    private readonly ContentControl _host=new(){HorizontalContentAlignment=HorizontalAlignment.Stretch};
+    private FinancialDraft? _editing;
+    private Func<bool> _hasChanges=()=>false;
+    private ContentDialog? _discardDialog;
+    private bool _restoringSelection,_busy;
 
     internal MoneyView(BusinessStore store,OwnerSession owner)
     {
@@ -30,35 +36,75 @@ internal sealed class MoneyView
     internal UIElement Build()
     {
         var panel=Form.Panel();
-        var kinds=Form.Select("Movement",Enum.GetNames<FinancialKind>(),"Expense");
         panel.Add(Form.Title("Money and approvals"),Form.Text("Drafts do not change the books. Review and approve a saved draft to post it."),
-            kinds,Form.Action("Prepare movement",_status,()=>
-            {
-                Edit(new FinancialDraft{Kind=Enum.Parse<FinancialKind>((string)kinds.SelectedItem),
-                    Date=DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTimeOffset.Now,"Eastern Standard Time").DateTime)});
-                return Task.CompletedTask;
-            }),_status,_list,_detail);
+            _kind,Form.Action("Prepare movement",_status,Prepare),_status,_list,_detail);
         _list.ItemsSource=_book.Drafts(_owner).OrderByDescending(d=>d.Status=="Draft").ToList();
-        _list.SelectionChanged+=(_,_)=>{if(_list.SelectedItem is FinancialDraft draft)Review(draft);};
-        return panel;
+        _list.SelectionChanged+=async(_,_)=>{try{await SelectSaved();}catch(Exception error){_status.Text=error.Message;}};
+        panel.Unloaded+=(_,_)=>_discardDialog?.Hide();
+        _host.Content=panel;return _host;
+    }
+
+    private async Task Prepare()
+    {
+        if(!await ConfirmDiscard()){if(_editing is{} prior)_kind.SelectedItem=prior.Kind.ToString();return;}
+        Edit(new FinancialDraft{Kind=Enum.Parse<FinancialKind>((string)_kind.SelectedItem),
+            Date=DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTimeOffset.Now,"Eastern Standard Time").DateTime)});
+    }
+
+    private async Task SelectSaved()
+    {
+        if(_restoringSelection||_busy||_list.SelectedItem is not FinancialDraft draft)return;
+        if(draft.Id==_editing?.Id&&draft.Revision==_editing.Revision)return;
+        SelectRow(_editing);
+        if(await ConfirmDiscard())Review(draft);
+    }
+
+    private void SelectRow(FinancialDraft? draft)
+    {
+        _restoringSelection=true;
+        try{_list.SelectedItem=draft is null?null:_list.Items.OfType<FinancialDraft>().FirstOrDefault(row=>row.Id==draft.Id&&row.Revision==draft.Revision);}
+        finally{_restoringSelection=false;}
+    }
+
+    private async Task<bool> ConfirmDiscard()
+    {
+        if(_busy||_discardDialog is not null)return false;
+        if(!_hasChanges())return true;
+        var dialog=new ContentDialog{XamlRoot=_detail.XamlRoot,Title="Discard unsaved money draft?",
+            Content="These money fields have not been saved. Discard them to continue.",PrimaryButtonText="Discard changes",
+            CloseButtonText="Keep editing",DefaultButton=ContentDialogButton.Close};
+        _discardDialog=dialog;
+        try{return await dialog.ShowAsync()==ContentDialogResult.Primary;}finally{_discardDialog=null;}
+    }
+
+    private async Task RunBusy(Func<Task> action)
+    {
+        if(_busy||_discardDialog is not null)return;
+        _busy=true;_host.IsEnabled=false;
+        try{await action();}finally{_busy=false;_host.IsEnabled=true;}
     }
 
     private void Edit(FinancialDraft draft)
     {
         _detail.Children.Clear();
         var fields=new FinancialFields(_store,_owner,_accounts,draft);
+        var body=fields.Build();var state=new DraftFieldState(body);
+        _editing=draft;_hasChanges=()=>state.HasChanges;_kind.SelectedItem=draft.Kind.ToString();SelectRow(draft);
         var status=Form.Text();
-        _detail.Add(Form.Title($"{draft.Kind} draft"),fields.Build(),status,Form.Action("Save draft for review",status,async()=>
+        _detail.Add(Form.Title($"{draft.Kind} draft"),body,status,Form.Action("Save draft for review",status,async()=>
         {
             var value=fields.Read(draft);
-            var saved=await Task.Run(()=>_book.SaveDraft(_owner,value));
-            _list.ItemsSource=_book.Drafts(_owner);
-            Review(saved);
+            await RunBusy(async()=>
+            {
+                var saved=await Task.Run(()=>_book.SaveDraft(_owner,value));
+                _list.ItemsSource=_book.Drafts(_owner);Review(saved);
+            });
         }));
     }
 
     private void Review(FinancialDraft draft)
     {
+        _editing=draft;_hasChanges=()=>false;_kind.SelectedItem=draft.Kind.ToString();SelectRow(draft);
         _detail.Children.Clear();
         var status=Form.Text();
         _detail.Add(Form.Title(draft.Status=="Posted"?"Posted movement":"Review saved draft"),Form.Text(draft.ToString()));
@@ -98,10 +144,13 @@ internal sealed class MoneyView
             {
                 string password=phrase.Password;
                 phrase.Password="";
-                await Task.Run(()=>_book.Approve(_owner,draft.Id,draft.Revision,password));
-                _list.ItemsSource=_book.Drafts(_owner);
-                _detail.Children.Clear();
-                _detail.Add(Form.Text("Posted once. The approver and time are recorded in the activity history."));
+                await RunBusy(async()=>
+                {
+                    await Task.Run(()=>_book.Approve(_owner,draft.Id,draft.Revision,password));
+                    _list.ItemsSource=_book.Drafts(_owner);_editing=null;_hasChanges=()=>false;SelectRow(null);
+                    _detail.Children.Clear();
+                    _detail.Add(Form.Text("Posted once. The approver and time are recorded in the activity history."));
+                });
             }));
     }
 }

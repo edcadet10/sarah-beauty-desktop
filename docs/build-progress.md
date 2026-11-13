@@ -1,5 +1,9 @@
 # Build progress
 
+## Money draft replacement and busy-write protection — November 13, 2026
+
+The verified `6cd916a` download reproduces unfinished Money fields being cleared by Prepare or saved-record selection. A focused UI correction adds Keep/Discard and disables the editor during captured saves/approvals. Invalid text, account/checkbox state, exact reversion, cached navigation, saved-row identity and actual held-writer probes pass. Independent rows retain the other draft and exactly one balanced $2 posting by the second owner. See [Money edit protection](money-edit-guard.md). This later change is separate from the current default preview; global lock/shutdown and physical-device acceptance remain open.
+
 ## Offline feature integration and verified download — November 13, 2026
 
 The focused feature stack is merged into main through PR #347. Application, test, recovery and packaging files match the verified `6cd916a` download. The complete feature regression passes 1,684 cases, recovery interoperability and a clean Windows Debug build. All 620 downloaded files and 44 notices for 29 runtime packages match their hashes; native trip/resource text and draft checks, second-owner reads and blocked-network local archive review retain saved facts. An older schema-31 archive with three managed versions also validates before owner setup and removes its temporary stage on close. See [current release work](offline-release-status.md). Remaining form/accessibility, physical Surface, second-computer recovery, clean-machine, distribution/signing and private LIVE setup checks are not marked passed.
