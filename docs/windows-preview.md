@@ -10,13 +10,13 @@ The developer preview is a self-contained Windows x64 build for review. It is un
 
 The folder includes the Windows and .NET runtimes, the recovery helper, and third-party notices. No customer database, owner passphrase, Google credential, or preconfigured test business is supplied. The preview does not install or sign itself.
 
-The [verified resource-edit preview](https://github.com/edcadet10/sarah-beauty-desktop/actions/runs/43371951319/artifacts/14013580157) expires November 27, 2026. It includes the emerald icon and confirms before replacing unsaved resource fields. The app's core workflows and local encrypted backup do not require a Google account or Cloud project.
+The [verified asset-review preview](https://github.com/edcadet10/sarah-beauty-desktop/actions/runs/43375431442/artifacts/14013974409) expires November 27, 2026. It includes the emerald icon and confirms before replacing unsaved resource and nested asset-review fields. The app's core workflows and local encrypted backup do not require a Google account or Cloud project.
 
 ## Build another revision
 
 After this workflow is on the default branch, choose **Run workflow**, enter a repository branch, tag, or commit in **revision**, and start the run. The selected source must contain `tools/publish-desktop.ps1`. Building in GitHub does not run the app or create a business database.
 
-The default is the verified resource-edit, emerald-icon, and offline-backup UI commit `2912a34be0e9889723877164aef3a9eaf70371a3`. It is fixed to that reviewed source. Choose another revision explicitly when reviewing a newer build.
+The default is the verified asset-review, resource-edit, emerald-icon, and offline-backup UI commit `a1a4e2a65e1c8e86e7588cac98aea9341f8396a5`. It is fixed to that reviewed source. Choose another revision explicitly when reviewing a newer build.
 
 `source-manifest.json` records the exact checked-out source commit, target, unsigned preview status, and each published file's path, byte count, and SHA-256 hash. The artifact name uses the source commit, which can differ from the workflow branch's commit. A failed publish or empty output fails the job. Packaging rejects database, recovery archive, and key-file extensions.
 
@@ -31,8 +31,9 @@ The workflow was exercised through a temporary push trigger before enabling manu
 | `0a6185b069d622700cf5ff081458e3eb881704b0` | [43357524913](https://github.com/edcadet10/sarah-beauty-desktop/actions/runs/43357524913) | All 574 paths, byte counts, and SHA-256 hashes match; installed app retains the offline backup layout and verifies/decrypts its local archive under an outbound network block |
 | `96da46d780ccac01f369a5786e07186251ea9844` | [43368056716](https://github.com/edcadet10/sarah-beauty-desktop/actions/runs/43368056716) | All 575 paths, byte counts, and SHA-256 hashes match; extracted executable icon matches the expected 32-pixel frame; second owner reads edited multiline terms and complete unchanged evidence |
 | `2912a34be0e9889723877164aef3a9eaf70371a3` | [43371951319](https://github.com/edcadet10/sarah-beauty-desktop/actions/runs/43371951319) | All 575 paths, byte counts, and SHA-256 hashes match; second owner repeats New/reload/Keep/Discard/navigation in all five resource registers; every saved database table remains exact |
+| `a1a4e2a65e1c8e86e7588cac98aea9341f8396a5` | [43375431442](https://github.com/edcadet10/sarah-beauty-desktop/actions/runs/43375431442) | All 575 paths, byte counts, and SHA-256 hashes match; nested asset New/Keep, parent-save Keep, and New/Discard pass with unchanged tables; second-owner asset reads and all five main register probes pass |
 
-All five jobs succeeded. None of the downloads contains the rejected business-data file types. These checks establish packaging and the stated native probes; they do not certify production readiness or every app workflow.
+All six jobs succeeded. None of the downloads contains the rejected business-data file types. These checks establish packaging and the stated native probes; they do not certify production readiness or every app workflow.
 
 ## Observed runtime independence
 
