@@ -1,5 +1,9 @@
 # Build progress
 
+## Three-field first-time setup — November 13, 2026
+
+The owner's correction changes first-time setup to business name, username, and password, followed immediately by the dashboard. The previous two-owner form and long LIVE profile are deferred; missing facts remain unknown and the second user can be added in settings. All 1,709 local regressions pass. Fresh LIVE Debug and isolated published Release walkthroughs cover error correction, dashboard, later details/user settings, lock/unlock, and restart; the Release run also covers optional PIN and password fallback. See [first-run instructions and evidence](simple-first-run.md). Updating and verifying the public downloadable build is tracked separately; physical-device and signing acceptance remain open.
+
 ## Verified Enter unlock and critical Tab paths — November 13, 2026
 
 The `a6f3b9f` GitHub download matches all 620 file hashes and passes outbound-blocked PIN/password Enter, held-key suppression, wrong-PIN retry and both owner headers. Every saved business table remains exact and the owned rule is removed. Separate completed Tab probes reach sign-in controls, customer/Money Save and PIN actions; a focus interruption is recorded rather than counted. The default workflow/device link now identifies this immutable source, and requirements record the requested optional PIN. See [keyboard evidence](keyboard-unlock.md). Actual Surface, Windows text/contrast settings, second-device and final release checks remain open.
