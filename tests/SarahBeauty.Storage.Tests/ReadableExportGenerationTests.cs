@@ -27,7 +27,7 @@ public sealed class ReadableExportGenerationTests
         var tables=JsonSerializer.Deserialize<ReadableExportTable[]>(JsonSerializer.SerializeToUtf8Bytes(generation.Tables))!;
         var verified=ReadableExportGeneration.Verify(manifest,generation.ManifestSha256,tables);
         Assert.Equal(JsonSerializer.Serialize(generation),JsonSerializer.Serialize(verified));
-        Assert.Equal(159,verified.Tables.Count);Assert.Equal(29,verified.Manifest.Groups.Count);
+        Assert.Equal(163,verified.Tables.Count);Assert.Equal(30,verified.Manifest.Groups.Count);Assert.Equal(2,verified.Manifest.Version);
         Assert.Equal("5000",verified.Manifest.Journal.DebitCents);Assert.Equal("5000",verified.Manifest.Journal.CreditCents);Assert.Equal(2,verified.Manifest.Journal.Rows);
         Assert.Equal(verified.Tables.Sum(t=>(t.Rows.Count+1L)*t.Columns.Count),verified.Manifest.Cells);
         Assert.DoesNotContain(BusinessFixture.Phrase,JsonSerializer.Serialize(verified));Assert.DoesNotContain("\"Facts\":",JsonSerializer.Serialize(verified.Manifest.Source));
@@ -44,7 +44,8 @@ public sealed class ReadableExportGenerationTests
         }
         RejectEvenWithMatchingDigest(manifest with{Groups=manifest.Groups.Skip(1).ToArray()});
         RejectEvenWithMatchingDigest(manifest with{DataRows=manifest.DataRows+1});
-        RejectEvenWithMatchingDigest(manifest with{Version=2});
+        RejectEvenWithMatchingDigest(manifest with{Version=1});
+        RejectEvenWithMatchingDigest(manifest with{Version=3});
     }
 
     [Fact]

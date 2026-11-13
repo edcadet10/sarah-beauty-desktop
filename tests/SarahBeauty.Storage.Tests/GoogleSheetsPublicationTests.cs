@@ -15,7 +15,7 @@ public sealed class GoogleSheetsPublicationTests
         var publication=new GoogleSheetsPublicationCheckpoints(store).Prepare(permit,job,attempt);var generation=new ReadableGenerationFiles(store).Load(artifact);var table=GoogleSheetsDeliveryStatus.Build(job,publication,generation);
         deliveries.Fail(attempt,new IOException("Fictional private detail"));var next=deliveries.Begin(permit,job);f.Ledger.Business.Owner.Lock();
         var reopened=new BusinessStore(store.DatabasePath);var reread=new GoogleSheetsPublicationCheckpoints(reopened).Prepare(permit,job,next);Assert.Equal(publication,reread);Assert.Equal(table.Sha256,GoogleSheetsDeliveryStatus.Build(job,reread,generation).Sha256);
-        Assert.Equal(31,table.Rows.Count);Assert.Equal(2,table.Columns.Count);Assert.Equal("Verified",table.Rows.Single(row=>row[0]=="Delivery state")[1]);Assert.Equal(159.ToString(),table.Rows.Single(row=>row[0]=="Source tables")[1]);
+        Assert.Equal(31,table.Rows.Count);Assert.Equal(2,table.Columns.Count);Assert.Equal("Verified",table.Rows.Single(row=>row[0]=="Delivery state")[1]);Assert.Equal(163.ToString(),table.Rows.Single(row=>row[0]=="Source tables")[1]);
         var batch=Assert.Single(GoogleSheetsValueRequests.ForTables(job.GenerationId,job.SourceWatermark,[table]));using var json=JsonDocument.Parse(batch.Json);Assert.Equal("RAW",json.RootElement.GetProperty("valueInputOption").GetString());
         Assert.Equal("Running",next.Status);Assert.Equal(watermark,f.Watermark);Assert.Equal(DateTimeOffset.MinValue,f.Ledger.Business.Owner.ExpiresAt);
         Assert.Throws<InvalidDataException>(()=>GoogleSheetsDeliveryStatus.Build(job,publication with{ManifestSha256=new string('A',64)},generation));

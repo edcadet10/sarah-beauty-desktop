@@ -24,7 +24,7 @@ public sealed class GoogleSheetsValueRequestsTests
         using var f=new LedgerFixture();using var source=new ReadableExportSnapshots(f.Business.Store).Capture(f.Business.Owner);
         var generation=ReadableExportGeneration.Build(source,new(new(2027,1,1),new(2027,1,31),new(2027,1,31),new(2027,3,1),new(2027,3,31)));
         var batches=GoogleSheetsValueRequests.Build(generation).ToArray();
-        Assert.Equal(159,batches.SelectMany(b=>b.Rectangles).Select(r=>r.Table).Distinct().Count());
+        Assert.Equal(163,batches.SelectMany(b=>b.Rectangles).Select(r=>r.Table).Distinct().Count());
         Assert.Equal(generation.Manifest.Cells,batches.SelectMany(b=>b.Rectangles).Sum(r=>r.Values.Sum(row=>(long)row.Count)));
         Assert.All(batches,b=>Assert.True(b.Json.Length<=GoogleSheetsValueRequests.MaximumRequestBytes));
     }

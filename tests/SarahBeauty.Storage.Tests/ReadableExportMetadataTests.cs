@@ -14,9 +14,9 @@ public sealed class ReadableExportMetadataTests
         var assembly=ReadableExportAssembly.Build(source,Dates);var metadata=ReadableExportMetadata.Build(assembly,new());
         var start=metadata.Single(t=>t.Name=="Start Here").Rows.ToDictionary(r=>r[0],r=>r[1]);
         Assert.Equal(source.Source.GenerationId,start["GenerationId"]);Assert.Equal("TEST",start["Mode"]);Assert.Equal("USD",start["Currency"]);
-        Assert.Equal("2027-01-01",start["FinancialFrom"]);Assert.Equal("2027-03-31",start["EventThrough"]);Assert.Equal("155",start["BusinessTableCount"]);
-        Assert.Contains("not implemented",start["OwnerInterestStatus"]);Assert.Contains("remote publication is not established",start["AssemblyState"]);
-        var inventory=metadata.Single(t=>t.Name=="Business table inventory");Assert.Equal(155,inventory.Rows.Count);
+        Assert.Equal("2027-01-01",start["FinancialFrom"]);Assert.Equal("2027-03-31",start["EventThrough"]);Assert.Equal("159",start["BusinessTableCount"]);Assert.Equal("2",start["ProjectionFormatVersion"]);
+        Assert.Contains("unknown percentages remain unconfirmed",start["OwnerInterestStatus"]);Assert.Contains("remote publication is not established",start["AssemblyState"]);
+        var inventory=metadata.Single(t=>t.Name=="Business table inventory");Assert.Equal(159,inventory.Rows.Count);
         foreach(var table in assembly.Tables)
         {
             var row=inventory.Rows.Single(r=>r[1]==table.Name);Assert.Equal(table.Rows.Count.ToString(),row[2]);Assert.Equal(table.Columns.Count.ToString(),row[3]);
