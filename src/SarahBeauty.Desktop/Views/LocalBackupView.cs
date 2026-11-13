@@ -54,7 +54,7 @@ internal sealed class LocalBackupView(BusinessStore store,OwnerSession owner,Act
     private Task Show()
     {
         var selected=Selected();var panel=Form.Panel();panel.Add(LocalBackupDetailView.Build(selected));
-        if(selected.Result is not null)panel.Add(new Expander{Header="Decrypt and review this recorded archive",Content=new RestoreReviewView(selected.Destination,selected.Result).Build(),HorizontalAlignment=HorizontalAlignment.Stretch});
+        if(selected.Result is not null)panel.Add(new Expander{Header="Decrypt and review this recorded archive",Content=new RestoreReviewView(selected.Destination,selected.Result,store.Mode).Build(),HorizontalAlignment=HorizontalAlignment.Stretch});
         if(selected.Result is not null && retired is not null)panel.Add(new RetireStoreView(store,owner,selected,retired).Build());
         _detail.Content=panel;return Task.CompletedTask;
     }

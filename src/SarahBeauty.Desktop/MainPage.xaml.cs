@@ -12,6 +12,7 @@ public sealed partial class MainPage : Page
     private BusinessStore? _store;
     private OwnerAccess? _access;
     private OwnerSession? _session;
+    private BusinessMode _mode=BusinessMode.Test;
     private AutomaticBackupRuntime? _backupRuntime;
     private GoogleArchiveRuntime? _googleRuntime;
     private GoogleSheetsRuntime? _sheetsRuntime;
@@ -60,7 +61,7 @@ public sealed partial class MainPage : Page
     private void ShowArchiveReview()
     {
         _session?.Lock();_session=null;var panel=Form.Panel();var status=Form.Text();
-        panel.Add(Form.Action("Back to owner sign-in",status,()=>{OpenCurrentStore();return Task.CompletedTask;}),status,new RestoreReviewView().Build());ShowPanel(panel);
+        panel.Add(Form.Action("Back to owner sign-in",status,()=>{OpenCurrentStore();return Task.CompletedTask;}),status,new RestoreReviewView(mode:_mode).Build());ShowPanel(panel);
     }
     private StackPanel RecoveryActions()
     {
@@ -70,7 +71,7 @@ public sealed partial class MainPage : Page
     private void ShowActivation()
     {
         _session?.Lock();_session=null;var panel=Form.Panel();var status=Form.Text();panel.Add(Form.Action("Back to owner sign-in",status,()=>{OpenCurrentStore();return Task.CompletedTask;}),status,
-            new ActivateStoreView(AppDataPaths.EnsureTestFolderExists(),result=>{StopBackups();_session?.Lock();_store=result.Store;_access=new OwnerAccess(_store);_session=result.Owner;_ownerActivity=new(_access,_session);_backupRuntime=new(_store);_googleRuntime=new(_store);_sheetsRuntime=new(_store);ShowWorkspace();}).Build());ShowPanel(panel);
+            new ActivateStoreView(AppDataPaths.EnsureFolderExists(_mode),result=>{StopBackups();_session?.Lock();_store=result.Store;_access=new OwnerAccess(_store);_session=result.Owner;_ownerActivity=new(_access,_session);_backupRuntime=new(_store);_googleRuntime=new(_store);_sheetsRuntime=new(_store);ShowWorkspace();},_mode).Build());ShowPanel(panel);
     }
     private void ShowRetired()
     {

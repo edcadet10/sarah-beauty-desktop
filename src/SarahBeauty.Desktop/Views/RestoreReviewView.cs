@@ -1,11 +1,14 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using SarahBeauty.Business.Recovery;
+using SarahBeauty.Business.Storage;
+using SarahBeauty_Desktop.Storage;
 
 namespace SarahBeauty_Desktop.Views;
 
-internal sealed class RestoreReviewView(string? archive=null,CreatedArchive? expected=null)
+internal sealed class RestoreReviewView(string? archive=null,CreatedArchive? expected=null,BusinessMode mode=BusinessMode.Test)
 {
+    private readonly string _mode=BusinessModes.StoredName(mode);
     private string? _archive=archive,_recovery;
     private readonly TextBlock _archiveLabel=Form.Text(archive is null?"Encrypted archive: None selected.":"Encrypted archive: "+Path.GetFileName(archive));
     private readonly TextBlock _recoveryLabel=Form.Text("Protected recovery file: None selected."),_status=Form.Text();
@@ -19,7 +22,7 @@ internal sealed class RestoreReviewView(string? archive=null,CreatedArchive? exp
             _archiveLabel,Form.Action("Choose encrypted archive",_status,async()=>{var path=await RecoveryFilePicker.OpenArchive();if(path is not null){_archive=path;_archiveLabel.Text="Encrypted archive: "+Path.GetFileName(path);}}),
             _recoveryLabel,Form.Action("Choose protected recovery file",_status,async()=>{var path=await RecoveryFilePicker.OpenRecovery();if(path is not null){_recovery=path;_recoveryLabel.Text="Protected recovery file: "+Path.GetFileName(path);}}),
             _phrase,Form.Action("Decrypt and validate archive for review",_status,Review));_fields.Content=fields;
-        var panel=Form.Panel();panel.Add(Form.Title("Review encrypted recovery archive"),_fields,Form.Action("Cancel archive review",_status,()=>{_cancellation?.Cancel();return Task.CompletedTask;}),
+        var panel=Form.Panel();panel.Add(Form.Title("Review encrypted recovery archive"),Form.Text(_mode+" recovery workspace"),_fields,Form.Action("Cancel archive review",_status,()=>{_cancellation?.Cancel();return Task.CompletedTask;}),
             Form.Action("Close staged archive review",_status,()=>{if(_cancellation is not null)throw new ArgumentException("Cancel and wait for the current review first.");Close();_status.Text="Staged archive review closed.";return Task.CompletedTask;}),_status,_details);
         panel.Unloaded+=(_,_)=>{_cancellation?.Cancel();_phrase.Password="";Close();};return panel;
     }
@@ -29,12 +32,15 @@ internal sealed class RestoreReviewView(string? archive=null,CreatedArchive? exp
         _cancellation=new();_fields.IsEnabled=false;_status.Text="Decrypting and validating the isolated archive…";
         try
         {
-            string parent=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"SarahBeautyDesktop","RecoveryReview");Directory.CreateDirectory(parent);
-            byte[] material=await RecoveryMaterialFiles.ReadAsync(key,_cancellation.Token);var staged=await new ArchiveRestores().StageAsync(source,parent,material,phrase,expected,_cancellation.Token);
+            var staged=await ((App)Application.Current).Operations.RunAsync(async token=>
+            {
+                string parent=Path.Combine(AppDataPaths.EnsureFolderExists(mode),"RecoveryReview");Directory.CreateDirectory(parent);
+                byte[] material=await RecoveryMaterialFiles.ReadAsync(key,token);return await new ArchiveRestores().StageAsync(source,parent,material,phrase,expected,token);
+            },_cancellation.Token);
             try
             {
                 _cancellation.Token.ThrowIfCancellationRequested();var view=Form.Panel();view.Add(RestoreReviewFactsView.Build(staged));
-                if(staged.Manifest.Mode=="TEST")view.Add(new RecoveredCopyView(staged).Build());Close();_review=staged;_details.Content=view;
+                if(staged.Manifest.Mode==_mode)view.Add(new RecoveredCopyView(staged,mode).Build());else view.Add(Form.Text("This is a "+staged.Manifest.Mode+" archive. Open that mode to prepare a recovered copy; this "+_mode+" workspace stays unchanged."));Close();_review=staged;_details.Content=view;
             }
             catch{staged.Dispose();throw;}
             _status.Text="Archive validation completed. Review the captured facts; the working store is unchanged.";
