@@ -25,8 +25,8 @@ internal sealed class CustomerView
             Form.Action("Search", _status, Refresh),
             Form.Action("New customer", _status, () => { Edit(new Customer()); return Task.CompletedTask; }),
             _status, _list, _editor);
-        _list.SelectionChanged += (_, _) => { if (_list.SelectedItem is Customer customer) Edit(customer); };
-        _list.ItemsSource = _book.Search(_session);
+        _list.SelectionChanged += (_, _) => { if (_list.SelectedItem is CustomerListChoice choice) Edit(choice.Value); };
+        Show(_book.Search(_session));
         Edit(new Customer());
         return panel;
     }
@@ -34,8 +34,10 @@ internal sealed class CustomerView
     private async Task Refresh()
     {
         var (search, archived) = (_search.Text, _archived.IsChecked == true);
-        _list.ItemsSource = await Task.Run(() => _book.Search(_session, search, archived));
+        Show(await Task.Run(() => _book.Search(_session, search, archived)));
     }
+
+    private void Show(IEnumerable<Customer> customers)=>_list.ItemsSource=customers.Select(c=>new CustomerListChoice(c)).ToList();
 
     private void Edit(Customer customer)
     {
