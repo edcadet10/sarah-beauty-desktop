@@ -4,9 +4,13 @@ The developer preview is a self-contained Windows x64 build for review. It is un
 
 ## Download and open the app
 
-1. Sign in to GitHub with read access to this repository. Open **Actions > Windows developer preview**.
-2. Choose a successful run. Download its `SarahBeauty-Windows-preview-<source revision>` artifact before it expires. This workflow retains artifacts for 14 days. See [GitHub's artifact download guide](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/download-workflow-artifacts).
-3. Extract the entire archive. Keep its contents together. Open `SarahBeautyDesktop/SarahBeauty.Desktop.exe`.
+1. Download the [verified Windows preview ZIP](https://github.com/edcadet10/sarah-beauty-desktop/releases/download/windows-preview-2026-11-13/SarahBeauty-Windows-preview.zip). A GitHub sign-in is not required. The signed-in Sarah Beauty website dashboard links to this same file.
+2. Extract the entire archive. Keep its contents together.
+3. Open `SarahBeautyDesktop/SarahBeauty.Desktop.exe`. Set up the owners locally, then configure a password and optional [PIN unlock](owner-pin-unlock.md). No Google account or cloud project is required.
+
+The [November 13 preview release](https://github.com/edcadet10/sarah-beauty-desktop/releases/tag/windows-preview-2026-11-13) packages the verified `a6f3b9f450199a585bdca38796ea3b8660f63a7f` build. Its ZIP has SHA-256 `2d9c41df565f4c205b5d6cc60ea669393bc2039d081df338c99c2c86c61f183c`; the release also includes `SHA256SUMS.txt`. This release download remains separate from the expiring Actions artifact.
+
+For a different source revision, use **Actions > Windows developer preview** and choose a successful run. GitHub sign-in is required to download those workflow artifacts, which are retained for 14 days. See [GitHub's artifact download guide](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/download-workflow-artifacts).
 
 The folder includes the Windows and .NET runtimes, the recovery helper, and third-party notices. No customer database, owner passphrase, Google credential, or preconfigured test business is supplied. The preview does not install or sign itself.
 
