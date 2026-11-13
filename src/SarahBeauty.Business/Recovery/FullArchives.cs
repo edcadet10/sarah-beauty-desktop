@@ -22,7 +22,7 @@ public sealed class FullArchives(BusinessStore store)
     }
     private async Task<CreatedArchive> Create(string destination,string recipient,Func<ArchiveCapture> capture,Action<Action>? publish,CancellationToken cancellation)
     {
-        var cipher=new RecoveryCipher();string reviewed=await cipher.InspectRecipientAsync(recipient,cancellation);using var target=new RecoveryOutputStage(destination);
+        var cipher=new RecoveryCipher();string reviewed=await cipher.InspectRecipientAsync(recipient,cancellation);await using var target=new RecoveryOutputStage(destination);
         using var captured=await Task.Run(capture,cancellation);var package=await Task.Run(()=>ArchivePackage.Write(captured,cancellation),cancellation);FailurePoint?.Invoke("Package created");
         using var held=new FileStream(package.Path,FileMode.Open,FileAccess.Read,FileShare.Read);
         if(held.Length!=package.ByteLength || Convert.ToHexString(await SHA256.HashDataAsync(held,cancellation))!=package.PackageHash)throw new InvalidDataException("The prepared recovery package changed before encryption.");
