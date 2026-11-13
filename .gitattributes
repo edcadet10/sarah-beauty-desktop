@@ -1,0 +1,4 @@
+# Preserve the pinned upstream license bytes, including their original whitespace.
+docs/third-party/sqlitepclraw-2.1.12-*.txt -text
+docs/third-party/sqlitepclraw-2.1.12-notice.txt whitespace=-blank-at-eol,-blank-at-eof
+docs/third-party/efcore-10.0.12-license.txt -text
