@@ -15,8 +15,8 @@ internal sealed partial class ResourceView
         var due=Form.Input("Due date (optional)",loan.DueDate?.ToString("yyyy-MM-dd")??"");
         var lender=Form.Records("Owner lender (only for an actual owner loan)",new OwnerAccess(store).Owners(),loan.OwnerLenderId);
         lender.IsEnabled=!_book.LoanLenderLocked(owner,loan.Id);
-        var terms=Form.Input("Loan terms (informational)",loan.Terms);
-        var evidence=Form.Input("Evidence reference",loan.EvidenceId);
+        var terms=Form.MultilineInput("Loan terms (informational)",loan.Terms);
+        var evidence=Form.MultilineInput("Evidence reference",loan.EvidenceId);
         var archived=Archived(loan.Archived);
         var status=Form.Text();
         Loan Read()=>loan with{Name=name.Text,OpeningDate=Input.Date(date.Text),OpeningPrincipalCents=OptionalMoney(principal.Text),

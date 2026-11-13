@@ -26,12 +26,12 @@ internal sealed partial class ResourceView
         var tolls=Form.Input("Actual tolls in USD",Money.Input(trip.TollsCents));
         var reimbursement=Form.Select("Reimbursement review",["Unreviewed","Not requested","Requested"],trip.ReimbursementStatus);
         var requested=Form.Input("Reviewed reimbursement requested in USD (blank means unknown)",trip.RequestedReimbursementCents.HasValue?Money.Input(trip.RequestedReimbursementCents.Value):"");
-        var evidence=Form.Input("Trip evidence reference",trip.EvidenceId);
+        var evidence=Form.MultilineInput("Trip evidence reference",trip.EvidenceId);
         var archived=Archived(trip.Archived);
         var status=Form.Text();
         MileageTrip Read()=>trip with{Name=purpose.Text,TripDate=Input.Date(date.Text),DriverOwnerId=driver.SelectedId(),DriverArtistId=artist.SelectedId(),
             BookingId=booking.SelectedId(),Origin=origin.Text,Destination=destination.Text,ActualMiles=Input.Decimal(miles.Text),ParkingCents=Money.Parse(parking.Text),
-            TollsCents=Money.Parse(tolls.Text),ReimbursementStatus=(string)reimbursement.SelectedItem,RequestedReimbursementCents=OptionalMoney(requested.Text),EvidenceId=evidence.Text.Trim(),Archived=archived.IsChecked==true};
+            TollsCents=Money.Parse(tolls.Text),ReimbursementStatus=(string)reimbursement.SelectedItem,RequestedReimbursementCents=OptionalMoney(requested.Text),EvidenceId=Form.ReadInput(evidence,trip.EvidenceId).Trim(),Archived=archived.IsChecked==true};
         bool Changed(){try{return JsonSerializer.Serialize(Read())!=JsonSerializer.Serialize(trip);}catch{return true;}}
         TrackDraft(trip,Read);
         _detail.Add(Form.Title("Actual trip"),Form.Text("Actual mileage is separate from quoted travel. This log does not apply a tax rate, invent a deduction, or post reimbursement. Approve any actual business payment separately."),
