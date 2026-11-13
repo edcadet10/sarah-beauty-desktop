@@ -1,5 +1,7 @@
 # Acceptance Criteria
 
+Offline release scope, reaffirmed November 12, 2026: no Google account, Cloud project, or internet connection is required for the app's local workflows, encrypted backups, or recovery. AC-045 and AC-046 apply before enabling optional Google delivery, and do not gate the offline release. Local archive/recovery, actual Surface offline operation, second-device restoration, and the other relevant release scenarios remain required.
+
 Status: Required behavior for release. Component tests and fictional development-computer walkthroughs cover parts of these scenarios; [Build progress](build-progress.md) records the evidence and remaining work. Full scenario, Surface, offline, LIVE, and second-device recovery acceptance remain pending. Documentation review or arithmetic checks alone do not mark a scenario passed.
 
 ## Initial agreed scenarios
