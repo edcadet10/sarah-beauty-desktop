@@ -6,7 +6,7 @@ on:
       revision:
         description: Repository branch, tag, or commit to build
         required: true
-        default: fix/customer-group-width
+        default: fix/preserved-input-lines
         type: string
   push:
     branches: [feature/github-preview-artifact]
@@ -21,7 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: ${{ inputs.revision || 'fix/customer-group-width' }}
+          ref: ${{ inputs.revision || 'fix/preserved-input-lines' }}
           persist-credentials: false
       - uses: actions/setup-dotnet@v6
         with:
