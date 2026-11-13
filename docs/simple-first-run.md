@@ -43,3 +43,13 @@ confirmation and authentication checks were preserved.
 
 These checks use fictional records on the development computer. Physical
 Surface, second-device, signing, and final release acceptance remain separate.
+
+## Verified public build
+
+GitHub run `43483947275` builds immutable source
+`0d4ac64df8ed68c6a7781433a03f27cb1db6535d`. All 620 downloaded files match
+their manifest sizes and SHA-256 hashes; no business database is included.
+The downloaded executable repeats the Release walkthrough above with an
+app-specific outbound firewall block. That rule is removed after the check.
+The first rule attempt rejected a slash-form path; the completed attempt uses
+the resolved Windows path and verifies that the block is enabled.

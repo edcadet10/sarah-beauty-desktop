@@ -25,6 +25,8 @@ The app must run fully offline, including owner sign-in, approvals, records, rep
 
 ## Project status
 
+First-time setup asks only for **Business name**, **Username**, and **Password**, then opens the dashboard. Add the remaining business information and another user later in Business settings. See [start with three details](docs/simple-first-run.md) and the [download site](https://edcadet10.github.io/sarah-beauty-desktop/).
+
 See [Finish the offline release](docs/offline-release-status.md) for the verified preview, remaining usability/device/release checks, and private LIVE setup requirements. No Google setup is required for offline use.
 
 The reviewed feature stack is merged into `main` through small GitHub pull requests. An [unsigned Windows preview](docs/windows-preview.md) is available. Development checks use fictional TEST businesses; LIVE setup requires the owners' actual reviewed facts. See [Build progress](docs/build-progress.md) for current coverage and dated evidence.
