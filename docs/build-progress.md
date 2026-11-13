@@ -1,5 +1,9 @@
 # Build progress
 
+## Offline backup layout and blocked-network review — November 12, 2026
+
+Local recovery setup, schedules, a primary backup action, health/history and verification now precede collapsed optional Google controls. Native 1280/500 layout and clean Debug checks pass. With outbound access blocked for the exact test executables, both packaged and new Debug apps pass second-owner archive verification, wrong/correct recovery and staged validation. Independent checks retain the 519,920-byte archive, six-file manifest, schema 40, five PDFs and all business/document facts. Owned firewall rules are removed afterward. See [offline backup evidence](offline-backup-review.md). Actual Surface and second-computer recovery remain open.
+
 ## Offline release scope — November 12, 2026
 
 The owner reaffirmed that Sarah Beauty must work fully offline. No Google project or app connection was created; setup stopped. Requirements, recovery guidance and acceptance distinguish required local encrypted backup/recovery from optional Google copies. Real Google setup/delivery is not an offline-release gate. Actual Surface, second-device recovery, installation and release checks remain required. Optional Google features remain disabled unless separately configured and authorized. This clarification does not mark later feature-stack work merged into main.
