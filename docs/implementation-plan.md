@@ -2,9 +2,11 @@
 
 Current scope clarification, November 12, 2026: the app must be fully offline. Google Cloud setup and real Google delivery are optional work, not gates for the offline release. Complete local encrypted backup/recovery and actual Surface/second-device checks remain required. Older dated progress below records historical implementation stages; see [Build progress](build-progress.md) for current evidence.
 
-Status: The preview now creates a version-1 TEST database or upgrades the original version-0 store after a verified local snapshot. Automated storage checks pass and the Windows app builds. The latest changes still need interface and Surface checks. Business features and the remaining foundation are pending.
+Current release work is tracked in [Finish the offline release](offline-release-status.md). The verified feature preview includes the business workflows and local backup/recovery; integration into `main`, remaining form/device checks, clean-machine review, and actual LIVE facts remain open.
 
-## Current progress
+## Historical foundation progress
+
+The entries below record the initial implementation stage. Statements such as "unimplemented" or "not tested" describe that stage; use the release-status page and dated build record for current coverage.
 
 - Development uses the Lenovo computer with VS Code, the .NET 10 SDK, C# tooling, and Windows Developer Mode.
 - The [desktop project](../src/SarahBeauty.Desktop/SarahBeauty.Desktop.csproj) has been created and launched with `dotnet run`.
@@ -30,7 +32,7 @@ Status: The preview now creates a version-1 TEST database or upgrades the origin
 |---|---|
 | Device | Native Windows app for a Surface Pro 7; Surface-only initial scope |
 | Main records | Local database and managed local attachments |
-| Backup | One-way readable Google Sheets export plus complete private Google Drive recovery archive |
+| Backup | Complete local encrypted archives and reviewed recovery; optional one-way Sheets exports and private Drive copies |
 | Cost | $0 required recurring software subscriptions; no billing enrollment assumed |
 | Users | Two owners sharing one Windows login on the Surface; separate authenticated owner identities inside the app; both can approve, including their own entries, offline |
 | Customers | Name-only records permitted; nonblocking contact warning |
@@ -58,7 +60,7 @@ Each phase is a small set of reviewable pull requests. Build and explain one wor
 | 6. Books and approvals | Chart of accounts, drafts, atomic posting, receipts/applications, fees, transfers, refunds/credits | AC-001 through AC-003, AC-020 through AC-028, AC-039/044; injected failure/retry checks |
 | 7. Business resources | Purchases/suppliers, supplies, assets, mileage, owner balances, debt | AC-029 through AC-034; approved values and full ledger integration |
 | 8. Reconciliation and reports | Statement import/matching, tax tracking, closing, financial reports, dashboard charts | AC-035 through AC-041, AC-052/053; report reconciliation and historical dates |
-| 9. Cloud recovery | Private Google authorization, readable export, encrypted archive, scheduling/retention, restore UI | AC-045 through AC-049; recovery on a second computer; truthful success states |
+| 9. Local recovery and optional online copies | Local encrypted archives, scheduling, portable recovery and restore UI; separately authorized Google outputs | AC-047 through AC-049 and second-computer recovery; AC-045/046 only before enabling optional Google delivery |
 | 10. Release rehearsal | Installation/update/uninstall behavior, Surface operation, fictional end-to-end business, private live setup | All relevant scenarios executed, unresolved release blockers resolved, known limitations documented |
 
 Local snapshots and private-data protection start in phase 2; complete local encrypted recovery must be verified before live release. Optional cloud copies require their own authorization and real delivery acceptance before enabling them. Later phases can refine earlier fields, but changes must preserve issued/posted history and update the relevant docs and tests together.
