@@ -1,5 +1,9 @@
 # Build progress
 
+## Grouped customer field width — November 12, 2026
+
+Expanded customer groups now stretch their contents across the editor. Native address/sensitivity widths grow from 200/214 to 543 pixels at a 1280-pixel window and 360 at 500. Visual inspection, complete text retention, unchanged-record/Keep/Discard protection, second-owner restart, stored history, and clean Debug checks pass. See [group width evidence](customer-group-width.md). Full release acceptance remains open.
+
 ## Customer multiline preservation — November 12, 2026
 
 Native before/after probes reproduce six customer fields clipping to the first line and an unintended extra permission-history entry on a name-only save. Six uses of the shared multiline control fix both behaviors. Exact property/permission retention, second-owner restart, Keep/Discard protection, 1280/500-pixel inspection, clean Debug, and published-app checks pass. See [customer text regression evidence](customer-multiline-fields.md). Full release acceptance remains open.
