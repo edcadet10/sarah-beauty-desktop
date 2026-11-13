@@ -55,7 +55,7 @@ internal static class ClientPdf
         var brand=section.AddParagraph(s.BusinessName);
         brand.Format.Font.Size=24;
         brand.Format.Font.Bold=true;
-        brand.Format.Font.Color=Color.FromRgb(97,55,76);
+        brand.Format.Font.Color=DocumentColors.Emerald;
         string kind=s.Kind==DocumentKind.CreditNote?"Credit note":s.Kind.ToString();
         section.AddParagraph($"{kind} {s.Number} — version {s.Version}");
         if(s.RelatedDocument.Length>0)section.AddParagraph("Related document: "+s.RelatedDocument);
@@ -79,11 +79,11 @@ internal static class ClientPdf
         var table=section.AddTable();
         foreach(double width in new[]{8.1,1.6,2.8,2.8,3.2})table.AddColumn(Unit.FromCentimeter(width));
         table.Borders.Width=Unit.FromPoint(0.4);
-        table.Borders.Color=Colors.LightGray;
+        table.Borders.Color=DocumentColors.Gold;
         var heading=table.AddRow();
         heading.HeadingFormat=true;
         heading.Format.Font.Bold=true;
-        heading.Shading.Color=Color.FromRgb(244,235,240);
+        heading.Shading.Color=DocumentColors.Cream;
         string[] labels=["Service / charge","Qty","Unit price","Tax","Total"];
         for(int i=0;i<labels.Length;i++)heading.Cells[i].AddParagraph(labels[i]);
         foreach(var line in snapshot.Lines)Line(table,line);

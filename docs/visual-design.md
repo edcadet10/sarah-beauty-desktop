@@ -14,6 +14,8 @@ Use emerald, cream, and subtle gold, as selected by the owner. Emerald identifie
 
 The theme follows Windows. Light and dark dictionaries supply readable colors. The contrast-theme dictionary uses Windows system colors; it does not impose the brand palette. Preserve standard keyboard, focus, disabled, and validation behavior when styling controls. Labels and symbols must communicate state without relying only on color.
 
+New client PDFs use the light palette's emerald heading, cream table heading, and thin gold borders. Existing issued artifacts remain unchanged. See [PDF color validation and separate terms issue](document-brand-colors.md).
+
 ## Contrast check
 
 Claim: the chosen custom text colors remain readable on their intended surfaces. Reject a normal-text pair below 4.5:1 or a meaningful accent indicator below 3:1, using the [WCAG text](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html) and [non-text contrast](https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html) calculations as design checks. These checks do not establish whole-app accessibility conformance.
