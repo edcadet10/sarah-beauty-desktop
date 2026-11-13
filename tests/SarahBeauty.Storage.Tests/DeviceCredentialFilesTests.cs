@@ -10,6 +10,18 @@ public sealed class DeviceCredentialFilesTests
 {
     private static byte[] Fictional(string value)=>Encoding.UTF8.GetBytes("Fictional TEST credential material: "+value);
     [Fact]
+    public async Task ReviewedCredentialCannotBeReplacedUntilItsDecisionFinishesAndPlainBytesAreCleared()
+    {
+        using var f=new BusinessFixture();using var root=new TestStore();var files=new DeviceCredentialFiles(f.Store,root.Folder);
+        byte[] original=Fictional("reviewed PIN verifier"),replacement=Fictional("replacement PIN verifier");files.Write(DeviceCredentialKind.OwnerPin,original);
+        using var entered=new ManualResetEventSlim();using var release=new ManualResetEventSlim();using var started=new ManualResetEventSlim();byte[]? reviewed=null;
+        var read=Task.Run(()=>files.Review(DeviceCredentialKind.OwnerPin,clear=>{reviewed=clear;entered.Set();if(!release.Wait(TimeSpan.FromSeconds(5)))throw new TimeoutException();Assert.Equal(original,clear);return true;}));
+        Assert.True(entered.Wait(TimeSpan.FromSeconds(5)));
+        var write=Task.Run(()=>{started.Set();files.Write(DeviceCredentialKind.OwnerPin,replacement);});Assert.True(started.Wait(TimeSpan.FromSeconds(5)));
+        await Task.Delay(150);bool blocked=!write.IsCompleted;release.Set();await Task.WhenAll(read,write).WaitAsync(TimeSpan.FromSeconds(5));
+        Assert.True(blocked);Assert.NotNull(reviewed);Assert.All(reviewed,b=>Assert.Equal(0,b));Assert.Equal(replacement,files.Read(DeviceCredentialKind.OwnerPin));
+    }
+    [Fact]
     public void ProtectedCredentialsReopenOutsideTheBusinessStoreAndNeverEnterAnArchive()
     {
         using var f=new LedgerFixture();using var privateFiles=new TestStore();var files=new DeviceCredentialFiles(f.Business.Store,privateFiles.Folder);byte[] token=Fictional("first token"),client=Fictional("desktop client");

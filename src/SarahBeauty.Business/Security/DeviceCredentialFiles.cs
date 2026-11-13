@@ -5,7 +5,7 @@ using SarahBeauty.Business.Storage;
 
 namespace SarahBeauty.Business.Security;
 
-internal enum DeviceCredentialKind{GoogleClient,GoogleToken}
+internal enum DeviceCredentialKind{GoogleClient,GoogleToken,OwnerPin}
 internal sealed record DeviceCredentialScope(int Version,string StoreId,string InstanceId,string BusinessId,string Mode);
 internal sealed class DeviceCredentialFiles
 {
@@ -27,6 +27,16 @@ internal sealed class DeviceCredentialFiles
     {
         RequireCurrent();string path=FilePath(kind);RejectLinks(path);if(!Directory.Exists(DirectoryPath))return null;using var gate=Gate();
         RejectLinks(path);RequireCurrent();if(!File.Exists(path))return null;
+        return ReadFile(kind,path);
+    }
+    internal T Review<T>(DeviceCredentialKind kind,Func<byte[]?,T> review)
+    {
+        RequireCurrent();string path=FilePath(kind);EnsureDirectory();using var gate=Gate();RejectLinks(path);RequireCurrent();
+        byte[]? clear=File.Exists(path)?ReadFile(kind,path):null;
+        try{return review(clear);}finally{if(clear is not null)CryptographicOperations.ZeroMemory(clear);}
+    }
+    private byte[] ReadFile(DeviceCredentialKind kind,string path)
+    {
         using var input=new FileStream(path,FileMode.Open,FileAccess.Read,FileShare.Read);if(input.Length is <1 or >DeviceCredentialProtection.MaximumProtectedBytes)throw new InvalidDataException("The saved device credential file exceeds its supported size.");
         byte[] encrypted=new byte[checked((int)input.Length)];input.ReadExactly(encrypted);byte[] clear=DeviceCredentialProtection.Unprotect(encrypted,Context(kind));
         try{RequireCurrent();return clear;}catch{CryptographicOperations.ZeroMemory(clear);throw;}
@@ -74,7 +84,7 @@ internal sealed class DeviceCredentialFiles
         }
     }
     private static bool Contains(string parent,string child)=>string.Equals(parent,child,StringComparison.OrdinalIgnoreCase)||child.StartsWith(Path.EndsInDirectorySeparator(parent)?parent:parent+Path.DirectorySeparatorChar,StringComparison.OrdinalIgnoreCase);
-    private static string DefaultRoot()
+    internal static string DefaultRoot()
     {
         string local=Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);if(string.IsNullOrWhiteSpace(local))throw new IOException("Windows could not locate private device credential storage.");return Path.Combine(local,"SarahBeautyDesktop","DeviceCredentials");
     }

@@ -1,5 +1,9 @@
 # Build progress
 
+## Local owner PIN authentication service — November 13, 2026
+
+The requested password/PIN unlock adds a separate local PIN verifier per owner, protected outside the business folder by Windows CurrentUser DPAPI. Shared password/PIN lockout, current-password authorization for PIN changes, credential-stamp invalidation and held-file review prevent the tested cross-owner/stale paths. Forty-six selected PIN/shared-credential cases plus a new-instance case pass; Windows Debug has zero warnings/errors. See [owner PIN design and evidence](owner-pin-unlock.md). The desktop selector/settings and native/full-regression/download checks remain the next focused change.
+
 ## Review voluntary workspace exits — November 13, 2026
 
 The verified `6b753ca` download reproduces cached customer/Money draft loss during manual lock and window close. A shared review defaults to Keep working; cancellation retains exact invalid input, session access and all saved tables. Repeated close and another open modal remain controlled, explicit exits clear drafts, and another owner restarts normally. Automatic security lock stays immediate. Clean Windows Debug and six owner-activity/shutdown cases pass. See [workspace exit review](workspace-exit-review.md). Packaged/download verification and the actual natural-expiry probe remain pending; this source is later than the current default preview.
