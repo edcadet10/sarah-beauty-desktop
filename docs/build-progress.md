@@ -1,8 +1,16 @@
 # Build progress
 
+## Offline release scope — November 12, 2026
+
+The owner reaffirmed that Sarah Beauty must work fully offline. No Google project or app connection was created; setup stopped. Requirements, recovery guidance and acceptance distinguish required local encrypted backup/recovery from optional Google copies. Real Google setup/delivery is not an offline-release gate. Actual Surface, second-device recovery, installation and release checks remain required. Optional Google features remain disabled unless separately configured and authorized. This clarification does not mark later feature-stack work merged into main.
+
 This file tracks the full application build requested on November 10, 2026. A component marked implemented still needs the release checks applicable to it. The app is not ready for live business use.
 
 Current feature head: received-value dashboard date boundary, schema 40. Both calendar probes and 29 related dashboard cases pass with a clean Windows Debug build; the Arabic probe failed before the one-line fix and the Thai probe already passed. Trip-payment dates pass 32 related cases; cancellation dates pass 40. The parent full local run passes 1,665 cases at 38a69ac in 7m19, including archive/recovery cryptography; a new complete run is starting. Fresh native mixed cancellation, credit-note/PDF, funded-credit cash refund/excess, refreshed dashboard and second-owner restart pass while retaining original issued and cancellation history. Earlier bank/payment/customer/document checks also pass. Main has merged through PR #194 plus contention fix #287 after refreshed checks; #195 has been explicitly dispatched for current-head checks. Main remains behind the feature stack. Complete native workflows, aggregation, published-app/installer and actual business/Google/device acceptance continue. Historical sections below retain results measured at their own step. See [Preserve the received-value review date boundary](dashboard-work-storage-date.md).
+
+Hosted [run 43373372805](https://github.com/edcadet10/sarah-beauty-desktop/actions/runs/43373372805) passes the complete branch storage/build and recovery-cryptography checks.
+
+This summary records the checks at its feature stage. See [Finish the offline release](offline-release-status.md) for current release work.
 
 | Area | Current state | Evidence or remaining work |
 |---|---|---|
