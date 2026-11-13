@@ -1,5 +1,9 @@
 # Build progress
 
+## Offline device handoff prepared — November 12, 2026
+
+The [device checklist](offline-device-checklist.md) links the verified GitHub preview and defines physical Surface touch/keyboard/scaling/offline restart plus complete local recovery on a second Windows computer. No Google setup is required. These device checks remain pending; preparing the checklist does not mark them passed.
+
 ## Current offline installer and interrupted retries — November 12, 2026
 
 The guarded installer tooling is integrated without changing application source. Actual termination after 27/574 extracted files and during a changed-payload update is followed by successful retries with all 574 current file hashes exact. The installed app passes second-owner text and blocked-network backup review. Uninstall removes package/registration while retaining every business byte and unrelated sentinel. All owned network-block rules are removed. See [current offline installer evidence](current-offline-installer.md). Clean-machine, actual Surface and second-computer recovery remain open.
