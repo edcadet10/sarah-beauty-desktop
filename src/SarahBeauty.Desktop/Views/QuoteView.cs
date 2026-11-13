@@ -47,7 +47,7 @@ internal sealed class QuoteView(BusinessStore store,OwnerSession owner)
         var expiry=Form.Input("Quote expiry (optional)",draft.DueDate?.ToString("yyyy-MM-dd")??"");
         var terms=Form.MultilineInput("Terms for this quote version",draft.Terms);
         var status=Form.Text();
-        DocumentDraft Read()=>draft with{RecipientCustomerId=recipients.SelectedId(),IssueDate=Input.Date(date.Text),DueDate=Input.Date(expiry.Text),Terms=terms.Text};
+        DocumentDraft Read()=>draft with{RecipientCustomerId=recipients.SelectedId(),IssueDate=Input.Date(date.Text),DueDate=Input.Date(expiry.Text),Terms=Form.ReadInput(terms,draft.Terms)};
         _detail.Add(Form.Title("Quote draft"),recipients,date,expiry,terms,status,
             Form.Action("Refresh from current booking",status,()=>
             {

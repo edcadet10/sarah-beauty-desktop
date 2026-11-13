@@ -42,10 +42,10 @@ internal sealed class CustomerFields
 
     internal Customer Read(Customer previous) => previous with
     {
-        FullName = _name.Text, Phone = _phone.Text, Email = _email.Text,
-        PreferredContact = (string)_contact.SelectedItem, BillingName = _billingName.Text,
-        BillingAddress = _address.Text, MakeupPreferences = _makeup.Text, Sensitivities = _sensitivities.Text,
-        PrivateNotes = _notes.Text, PhotoPermission = (string)_permission.SelectedItem,
-        PermissionScope = _scope.Text, PermissionNotes = _permissionNotes.Text, Archived = _archive.IsChecked == true
+        FullName = Form.ReadInput(_name,previous.FullName), Phone = Form.ReadInput(_phone,previous.Phone), Email = Form.ReadInput(_email,previous.Email),
+        PreferredContact = (string)_contact.SelectedItem, BillingName = Form.ReadInput(_billingName,previous.BillingName),
+        BillingAddress = Form.ReadInput(_address,previous.BillingAddress), MakeupPreferences = Form.ReadInput(_makeup,previous.MakeupPreferences), Sensitivities = Form.ReadInput(_sensitivities,previous.Sensitivities),
+        PrivateNotes = Form.ReadInput(_notes,previous.PrivateNotes), PhotoPermission = (string)_permission.SelectedItem,
+        PermissionScope = Form.ReadInput(_scope,previous.PermissionScope), PermissionNotes = Form.ReadInput(_permissionNotes,previous.PermissionNotes), Archived = _archive.IsChecked == true
     };
 }
