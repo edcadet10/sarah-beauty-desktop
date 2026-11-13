@@ -19,14 +19,14 @@ internal sealed partial class ResourceView
         var evidence=Form.Input("Evidence reference",loan.EvidenceId);
         var archived=Archived(loan.Archived);
         var status=Form.Text();
+        Loan Read()=>loan with{Name=name.Text,OpeningDate=Input.Date(date.Text),OpeningPrincipalCents=OptionalMoney(principal.Text),
+                    DueDate=Input.Date(due.Text),OwnerLenderId=lender.SelectedId(),Terms=Form.ReadInput(terms,loan.Terms),EvidenceId=Form.ReadInput(evidence,loan.EvidenceId).Trim(),Archived=archived.IsChecked==true};
+        TrackDraft(loan,Read);
         _detail.Add(Form.Title("Loan"),Form.Text("Saving principal here does not create a ledger opening. An approved opening is required for a nonzero starting loan; new proceeds and repayments must also be approved."),
             name,date,principal,due,lender,Form.Text("The owner-lender link is protected after posting. Each new approved loan movement retains its reviewed lender facts."),terms,evidence,archived,status,Form.Action("Save loan",status,async()=>
             {
-                var value=loan with{Name=name.Text,OpeningDate=Input.Date(date.Text),OpeningPrincipalCents=OptionalMoney(principal.Text),
-                    DueDate=Input.Date(due.Text),OwnerLenderId=lender.SelectedId(),Terms=Form.ReadInput(terms,loan.Terms),EvidenceId=Form.ReadInput(evidence,loan.EvidenceId).Trim(),Archived=archived.IsChecked==true};
-                var saved=await Task.Run(()=>_book.SaveLoan(owner,value));
-                Refresh();
-                Edit(saved);
+                var value=Read();
+                await SaveEntry(()=>_book.SaveLoan(owner,value),Edit);
             }));
     }
 }

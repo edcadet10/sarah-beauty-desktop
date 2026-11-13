@@ -33,13 +33,12 @@ internal sealed partial class ResourceView
             BookingId=booking.SelectedId(),Origin=origin.Text,Destination=destination.Text,ActualMiles=Input.Decimal(miles.Text),ParkingCents=Money.Parse(parking.Text),
             TollsCents=Money.Parse(tolls.Text),ReimbursementStatus=(string)reimbursement.SelectedItem,RequestedReimbursementCents=OptionalMoney(requested.Text),EvidenceId=evidence.Text.Trim(),Archived=archived.IsChecked==true};
         bool Changed(){try{return JsonSerializer.Serialize(Read())!=JsonSerializer.Serialize(trip);}catch{return true;}}
+        TrackDraft(trip,Read);
         _detail.Add(Form.Title("Actual trip"),Form.Text("Actual mileage is separate from quoted travel. This log does not apply a tax rate, invent a deduction, or post reimbursement. Approve any actual business payment separately."),
             purpose,date,driver,artist,booking,origin,destination,miles,parking,tolls,reimbursement,requested,evidence,archived,status,Form.Action("Save actual trip",status,async()=>
             {
                 var value=Read();
-                var saved=await Task.Run(()=>_operations.SaveTrip(owner,value));
-                Refresh();
-                Edit(saved);
+                await SaveEntry(()=>_operations.SaveTrip(owner,value),Edit);
             }),PagedReport.Build("Trip review history",["Revision / time","Driver / route","Actual miles / costs","Request review / evidence"],trip.History.Select(h=>new[]{
                 $"{h.Revision} • {h.AtUtc}\n{Who(h.OwnerId)}",$"{Who(h.DriverOwnerId.Length>0?h.DriverOwnerId:h.DriverArtistId)}\n{h.Origin} → {h.Destination}",
                 $"{h.ActualMiles} miles • Parking {Money.Display(h.ParkingCents)} • Tolls {Money.Display(h.TollsCents)}",

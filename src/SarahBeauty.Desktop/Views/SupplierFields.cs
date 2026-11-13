@@ -15,14 +15,14 @@ internal sealed partial class ResourceView
         var notes=Form.Input("Private supplier notes",supplier.PrivateNotes);
         var archived=Archived(supplier.Archived);
         var status=Form.Text();
+        Supplier Read()=>supplier with{Name=name.Text,Phone=phone.Text.Trim(),Email=email.Text.Trim(),Address=address.Text.Trim(),
+                    Terms=terms.Text,PrivateNotes=notes.Text,Archived=archived.IsChecked==true};
+        TrackDraft(supplier,Read);
         _detail.Add(Form.Title("Supplier"),name,phone,email,address,terms,notes,archived,status,
             Form.Action("Save supplier",status,async()=>
             {
-                var value=supplier with{Name=name.Text,Phone=phone.Text.Trim(),Email=email.Text.Trim(),Address=address.Text.Trim(),
-                    Terms=terms.Text,PrivateNotes=notes.Text,Archived=archived.IsChecked==true};
-                var saved=await Task.Run(()=>_book.SaveSupplier(owner,value));
-                Refresh();
-                Edit(saved);
+                var value=Read();
+                await SaveEntry(()=>_book.SaveSupplier(owner,value),Edit);
             }));
     }
 }
