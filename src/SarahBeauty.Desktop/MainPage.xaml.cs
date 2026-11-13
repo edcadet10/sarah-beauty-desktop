@@ -2,6 +2,7 @@ using Microsoft.UI.Xaml.Controls;
 using SarahBeauty.Business.Security;
 using SarahBeauty.Business.Recovery;
 using SarahBeauty.Business.Storage;
+using SarahBeauty.Business.Setup;
 using SarahBeauty_Desktop.Storage;
 using SarahBeauty_Desktop.Views;
 
@@ -22,35 +23,40 @@ public sealed partial class MainPage : Page
     {
         InitializeComponent();
         InitializeOwnerActivity();
-        OpenCurrentStore();
+        if(!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("SARAHBEAUTY_TEST_DIRECTORY")))OpenCurrentStore();else ShowWorkspaceChoices();
     }
     private void OpenCurrentStore()
     {
         StopBackups();_session?.Lock();_session=null;_store=null;_access=null;
         try
         {
-            _store = new BusinessStore(new ActiveTestStores(AppDataPaths.EnsureTestFolderExists()).ResolveDatabase());
+            if(_mode==BusinessMode.Live&&!new LiveBusinesses(AppDataPaths.GetLiveFolder()).Exists){ShowMissingLive();return;}
+            _store = _mode==BusinessMode.Test?new BusinessStore(new ActiveTestStores(AppDataPaths.EnsureTestFolderExists()).ResolveDatabase()):new LiveBusinesses(AppDataPaths.GetLiveFolder()).Open();
             _access = new OwnerAccess(_store);
             _backupRuntime=new(_store);_googleRuntime=new(_store);_sheetsRuntime=new(_store);
             ShowSignIn();
         }
         catch (Exception error)
         {
-            var panel=Form.Panel();panel.Add(Form.Title("Storage could not open"),Form.Text(error.Message),RecoveryActions());ShowPanel(panel);
+            var panel=Form.Panel();var status=Form.Text();panel.Add(Form.Title(BusinessModes.StoredName(_mode)+" storage could not open"),Form.Text(error.Message),WorkspaceChoiceAction(status),RecoveryActions(),status);ShowPanel(panel);
         }
     }
 
     private void ShowSignIn(string? reason=null)
     {
         HideOwnerContent();
-        var panel=Form.Panel();
+        var panel=Form.Panel();var access=_access!;int generation=_workspaceGeneration;var status=Form.Text();
         if(reason is not null)panel.Add(Form.Text(reason));
-        panel.Add(Form.Text("TEST • Local business records"), OwnerView.Build(_access!, session =>
+        panel.Add(Form.Text(BusinessModes.StoredName(_mode)+" • Local business records"), OwnerView.Build(access, session =>
         {
-            _session = session;
-            _ownerActivity=new(_access!,session);
-            ShowWorkspace();
-        }),RecoveryActions());ShowPanel(panel);
+            bool retained=false;
+            try
+            {
+                if(generation!=_workspaceGeneration||!ReferenceEquals(_access,access)||_stoppingOwnerActivity||!access.IsSessionCurrent(session))return;
+                _session=session;_ownerActivity=new(access,session);ShowWorkspace();retained=true;
+            }
+            finally{if(!retained){session.Lock();if(ReferenceEquals(_session,session)){_session=null;_ownerActivity=null;}}}
+        }),WorkspaceChoiceAction(status),RecoveryActions(),status);ShowPanel(panel);
     }
 
     private void ShowWorkspace()
@@ -60,7 +66,7 @@ public sealed partial class MainPage : Page
     }
     private void ShowArchiveReview()
     {
-        _session?.Lock();_session=null;var panel=Form.Panel();var status=Form.Text();
+        HideOwnerContent();var panel=Form.Panel();var status=Form.Text();
         panel.Add(Form.Action("Back to owner sign-in",status,()=>{OpenCurrentStore();return Task.CompletedTask;}),status,new RestoreReviewView(mode:_mode).Build());ShowPanel(panel);
     }
     private StackPanel RecoveryActions()
@@ -70,7 +76,7 @@ public sealed partial class MainPage : Page
     }
     private void ShowActivation()
     {
-        _session?.Lock();_session=null;var panel=Form.Panel();var status=Form.Text();panel.Add(Form.Action("Back to owner sign-in",status,()=>{OpenCurrentStore();return Task.CompletedTask;}),status,
+        HideOwnerContent();var panel=Form.Panel();var status=Form.Text();panel.Add(Form.Action("Back to owner sign-in",status,()=>{OpenCurrentStore();return Task.CompletedTask;}),status,
             new ActivateStoreView(AppDataPaths.EnsureFolderExists(_mode),result=>{StopBackups();_session?.Lock();_store=result.Store;_access=new OwnerAccess(_store);_session=result.Owner;_ownerActivity=new(_access,_session);_backupRuntime=new(_store);_googleRuntime=new(_store);_sheetsRuntime=new(_store);ShowWorkspace();},_mode).Build());ShowPanel(panel);
     }
     private void ShowRetired()

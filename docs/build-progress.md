@@ -6,7 +6,7 @@ The owner reaffirmed that Sarah Beauty must work fully offline. No Google projec
 
 This file tracks the full application build requested on November 10, 2026. A component marked implemented still needs the release checks applicable to it. The app is not ready for live business use.
 
-Current feature head: mode-bound native recovery routes, schema 39. Twenty-three related cases, Windows Debug, native TEST encrypted review/preparation/activation/restart and independent retained-data/file checks pass. The full local activation regression passes 1,503 cases; its hosted checks are running. Earlier creation/opening passes 1,477 cases locally and on GitHub, plus Windows Debug and cryptography. Native LIVE selection and reviewed creation/recovery rehearsal, remaining workflows and release acceptance continue. Main has merged through PR #181 and remains behind this feature stack. Historical sections below retain the results measured at their own step.
+Current feature head: explicit native TEST/LIVE workspace selection, schema 39. Windows Debug, native mode switching, matching LIVE recovery/restart, pending-sign-in navigation and independent TEST/LIVE retained-data checks pass. The full local native-recovery regression passes 1,514 cases; earlier activation passes 1,503 local/hosted cases, Windows Debug and cryptography. Clean LIVE creation review, remaining workflows and release acceptance continue. Main has merged through PR #183 and remains behind this feature stack. Historical sections below retain the results measured at their own step.
 
 | Area | Current state | Evidence or remaining work |
 |---|---|---|
