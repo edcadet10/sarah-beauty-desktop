@@ -4,6 +4,10 @@
 
 The owner reaffirmed that Sarah Beauty must work fully offline. No Google project or app connection was created; setup stopped. Requirements, recovery guidance and acceptance distinguish required local encrypted backup/recovery from optional Google copies. Real Google setup/delivery is not an offline-release gate. Actual Surface, second-device recovery, installation and release checks remain required. Optional Google features remain disabled unless separately configured and authorized. This clarification does not mark later feature-stack work merged into main.
 
+## Grouped workspace menu — November 12, 2026
+
+Five daily sections remain prominent, with 25 tools in four expandable groups and searchable section names. Native checks reach all 30 sections, preserve nested dashboard shortcuts, and verify the menu closes after navigation at 900 × 900. Financial history and issued PDFs remain unchanged. See [workspace menu checks](workspace-menu.md). Larger text, keyboard traversal, owner testing, and physical device acceptance remain pending.
+
 ## Visual foundation — November 12, 2026
 
 The first visual change adds plum/ivory/blush theme resources, light/dark/Windows contrast-theme mappings, readable typography, wrapping titles, and a bounded sign-in form. All 48 palette checks pass; native screenshots caught and corrected an inherited system-accent alias. Debug builds cleanly, and retained fictional native workflows still pass. See [visual design evidence](visual-design.md). Grouped navigation, dashboard hierarchy, entry-form layout, theme runtime checks, and device usability acceptance remain pending.
