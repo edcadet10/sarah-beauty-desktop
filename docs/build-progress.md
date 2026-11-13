@@ -4,6 +4,10 @@
 
 The owner reaffirmed that Sarah Beauty must work fully offline. No Google project or app connection was created; setup stopped. Requirements, recovery guidance and acceptance distinguish required local encrypted backup/recovery from optional Google copies. Real Google setup/delivery is not an offline-release gate. Actual Surface, second-device recovery, installation and release checks remain required. Optional Google features remain disabled unless separately configured and authorized. This clarification does not mark later feature-stack work merged into main.
 
+## Customer list presentation — November 12, 2026
+
+Customer rows now separate name, contact/warning, and a wrapping complete reference. Native checks retain distinct identities for same-name customers, open the correct archived details, and keep references inside 1280- and 500-pixel windows. Financial history and issued PDF hashes remain unchanged; Debug builds cleanly. See [customer list presentation checks](customer-list-presentation.md).
+
 ## Grouped customer form — November 12, 2026
 
 Contact fields stay visible; optional billing, private preferences/notes, and photo details are grouped. Photo status remains visible and Save customer uses the primary style. A fresh native fixture verifies closed-section preservation across two owners and restarts; an independent database read confirms all 14 expected values and unchanged two-entry permission history. Debug builds cleanly. See [customer form checks](customer-form-sections.md). Wider layout, keyboard, larger-text, and touch checks remain pending.

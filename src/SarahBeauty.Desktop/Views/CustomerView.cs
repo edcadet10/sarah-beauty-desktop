@@ -20,6 +20,13 @@ internal sealed class CustomerView
 
     internal UIElement Build()
     {
+        _list.ItemTemplate=(DataTemplate)Application.Current.Resources["CustomerRowTemplate"];
+        _list.ContainerContentChanging+=(_,args)=>
+        {
+            if(args.InRecycleQueue||args.Item is not CustomerListChoice choice)return;
+            args.ItemContainer.HorizontalContentAlignment=HorizontalAlignment.Stretch;
+            Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(args.ItemContainer,choice.ToString());
+        };
         var panel = Form.Panel();
         panel.Add(Form.Title("Customers"), _search, _archived,
             Form.Action("Search", _status, Refresh),
