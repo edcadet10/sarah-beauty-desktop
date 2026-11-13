@@ -19,7 +19,7 @@ public sealed class GoogleSheetsPublicationTests
         var batch=Assert.Single(GoogleSheetsValueRequests.ForTables(job.GenerationId,job.SourceWatermark,[table]));using var json=JsonDocument.Parse(batch.Json);Assert.Equal("RAW",json.RootElement.GetProperty("valueInputOption").GetString());
         Assert.Equal("Running",next.Status);Assert.Equal(watermark,f.Watermark);Assert.Equal(DateTimeOffset.MinValue,f.Ledger.Business.Owner.ExpiresAt);
         Assert.Throws<InvalidDataException>(()=>GoogleSheetsDeliveryStatus.Build(job,publication with{ManifestSha256=new string('A',64)},generation));
-        Assert.Throws<InvalidDataException>(()=>GoogleSheetsDeliveryStatus.Build(job with{Selection=job.Selection with{FinancialThrough=new(2027,2,1)}},publication,generation));
+        Assert.Throws<GoogleConnectionFailure>(()=>GoogleSheetsDeliveryStatus.Build(job with{Selection=job.Selection with{FinancialThrough=new(2027,2,1)}},publication,generation));
     }
 
     [Theory]
