@@ -4,7 +4,7 @@ These checks remain pending. Development-computer checks do not establish physic
 
 ## Prepare the Surface
 
-1. Download the [verified Windows preview for source `6b753ca`](https://github.com/edcadet10/sarah-beauty-desktop/actions/runs/43408828743/artifacts/14028647609), or copy its complete extracted folder on removable media. This GitHub artifact expires on November 27, 2026; the [preview workflow guide](https://github.com/edcadet10/sarah-beauty-desktop/blob/main/docs/windows-preview.md) can build another copy. It is unsigned.
+1. Download the [verified Windows preview for source `818ec4f`](https://github.com/edcadet10/sarah-beauty-desktop/actions/runs/43438361774/artifacts/14045930374), or copy its complete extracted folder on removable media. This GitHub artifact expires on November 27, 2026; the [preview workflow guide](https://github.com/edcadet10/sarah-beauty-desktop/blob/main/docs/windows-preview.md) can build another copy. It is unsigned.
 2. Keep the whole `SarahBeautyDesktop` folder together. No developer tools, Google account, Cloud project, or subscription are needed to run it. Record the Surface model, Windows version, display scale, text size, and available disk space.
 3. Disconnect the Surface from Wi-Fi and Ethernet, then open `SarahBeauty.Desktop.exe`. Create a disposable TEST business with two owners and distinct private word passphrases.
 
@@ -12,7 +12,7 @@ These checks remain pending. Development-computer checks do not establish physic
 
 1. Using touch, create a fictional customer, expand the optional groups, enter multiline notes, save, and reopen it. Check the missing-contact warning with both contacts blank. Repeat navigation and editing using the keyboard.
 2. Create a fictional booking and client document. Generate and open its PDF without reconnecting. Confirm the TEST label, complete text, and readable pages.
-3. Save and approve a small fictional financial entry with the selected owner's passphrase. Check its supporting report. Lock, switch owners, close, and reopen the app while still disconnected. Verify the customer, notes, document/PDF, entry, and report remain intact.
+3. Save and approve a small fictional financial entry with the selected owner's passphrase. Check its supporting report. Set a PIN in Owner security, lock, and unlock with each offered method. Check the unfinished-work Keep choice before explicit lock/close. Switch owners, close, and reopen while still disconnected. Verify the customer, notes, document/PDF, entry, and report remain intact.
 4. Check the normal Surface orientation/scaling and a narrow window. Labels and fields must remain readable, controls reachable, scrolling usable, and focus visible with the on-screen and physical keyboards. Record the exact action for any failure.
 
 ## Recover on another Windows computer

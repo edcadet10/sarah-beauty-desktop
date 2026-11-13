@@ -11,6 +11,8 @@ The owner requested both password and PIN unlock on November 13, 2026. The deskt
 
 To use your password, choose **Password / passphrase** instead. To remove a PIN, open Owner security, enter your current password and select **Remove my PIN**. PIN and password fields clear after an attempt, when you switch methods/owners, or when you leave their view. Captured sign-in controls remain disabled while authentication runs.
 
+After five combined failed attempts, wait 30 seconds before retrying either method. Choosing the password does not bypass an active temporary lockout.
+
 ## Keep a separate PIN for each owner
 
 Setting or removing your PIN requires your active owner session and current password. A PIN contains 6 to 12 ASCII digits, including any leading zeros, and must be repeated exactly. It does not replace the owner's password or password confirmation for approvals.
@@ -35,4 +37,8 @@ Packaged restart retains the other owner's PIN, changed-password fallback and ev
 
 A held credential file also reproduces an out-of-order status bug: a rejected edit could leave Checking status stale. A versioned asynchronous refresh after an attempt fixes that case with every stored table retained. Save my PIN uses the existing emerald primary style; Remove remains secondary. No new palette colors are introduced.
 
-Microsoft describes [CurrentUser DPAPI protection](https://learn.microsoft.com/en-us/dotnet/api/system.security.cryptography.protecteddata) as protection using Windows credentials. Network-blocked use, full regression and GitHub download acceptance remain separate checks.
+The [GitHub-built source `818ec4f`](https://github.com/edcadet10/sarah-beauty-desktop/actions/runs/43438361774/artifacts/14045930374) matches all 620 file paths/sizes/hashes and 44 notice hashes for 29 packages. With its exact executable's outbound access blocked, both-owner PIN/password restart, held-file status recovery, leading-zero PIN setup/unlock/removal and password fallback pass. Both owned firewall rules are removed afterward. The same download passes the 1280/500 layouts and retains every saved business table.
+
+Its business/test/recovery/tool inputs are byte-identical to [complete hosted run `43433503257`](https://github.com/edcadet10/sarah-beauty-desktop/actions/runs/43433503257): all 1,700 tests, recovery interoperability and Windows Debug pass. An independent local full run also passes all 1,700 without a hang. Changed desktop sources separately build cleanly and pass GitHub publish/native checks.
+
+Microsoft describes [CurrentUser DPAPI protection](https://learn.microsoft.com/en-us/dotnet/api/system.security.cryptography.protecteddata) as protection using Windows credentials. Physical Surface, second-computer recovery and broader release checks remain separate.
