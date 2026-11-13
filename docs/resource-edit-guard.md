@@ -18,4 +18,6 @@ Before the change, the downloaded `96da46d` app silently replaces an edited loan
 
 The existing multiline customer/loan fixture also retains its complete saved values, exact CR/LF/CRLF content, original permission entry, and zero money after the unsaved-edit probes. Windows Debug builds with zero warnings/errors. Private fixtures and temporary lock helpers stay outside Git.
 
+The self-contained publish succeeds with 575 files totaling 313,832,410 bytes. Its second-owner native run repeats all five New/reload/Keep/Discard/navigation cases. A complete per-table comparison preserves every saved table exactly after both restart and those published-app probes. GitHub preview packaging is being checked separately.
+
 This covers the main register fields and observed actions. Separate nested asset-fact and trip-payment review drafts, global lock/shutdown policy, physical touch, and wider accessibility acceptance remain distinct work.
