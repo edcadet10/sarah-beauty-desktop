@@ -1,6 +1,5 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
 using SarahBeauty.Business.Dashboard;
 using SarahBeauty.Business.Rules;
 
@@ -29,20 +28,16 @@ internal static class DashboardCardsView
         if(r.Debts is not null)cards.Add(("Known loan principal",Money.Display(r.Debts.Positions.Sum(p=>p.ClosingPrincipalCents??0)),asOf+$" • {r.Debts.Positions.Count(p=>p.ClosingPrincipalCents is null)} loans have no approved principal basis"));
         foreach(var cash in snapshot.Finance.CashAccounts)cards.Add((cash.Account.Name,Money.Display(cash.BalanceCents),asOf+" • "+(cash.Account.OpeningConfirmed?"Opening confirmed":"Opening unconfirmed")
             +" • "+(cash.ReconciledThrough.HasValue?$"Reconciled through {cash.ReconciledThrough:yyyy-MM-dd}":"Reconciliation not completed")));
-        return BuildGrid(cards);
+        var panel=Form.Panel();
+        panel.Add(BuildGrid(cards.Take(3)),new Expander{Header="Balances and planning",Content=BuildGrid(cards.Skip(3)),HorizontalAlignment=HorizontalAlignment.Stretch});
+        return panel;
     }
 
-    private static UIElement BuildGrid(List<(string Title,string Value,string Detail)> cards)
+    private static UIElement BuildGrid(IEnumerable<(string Title,string Value,string Detail)> cards)=>ResponsiveCards.Build(cards.Select(Card));
+
+    private static UIElement Card((string Title,string Value,string Detail) card)
     {
-        var grid=new Grid{ColumnSpacing=12,RowSpacing=12};for(int i=0;i<3;i++)grid.ColumnDefinitions.Add(new(){Width=new GridLength(1,GridUnitType.Star)});
-        for(int i=0;i<cards.Count;i++)
-        {
-            if(i%3==0)grid.RowDefinitions.Add(new(){Height=GridLength.Auto});var c=cards[i];var panel=Form.Panel();
-            panel.Add(Form.Text(c.Title),Form.Title(c.Value),Form.Text(c.Detail));
-            var card=new Border{Padding=new Thickness(16),CornerRadius=new CornerRadius(8),BorderThickness=new Thickness(1),Child=panel,
-                BorderBrush=Application.Current.Resources["CardStrokeColorDefaultBrush"] as Brush,Background=Application.Current.Resources["CardBackgroundFillColorDefaultBrush"] as Brush};
-            Grid.SetRow(card,i/3);Grid.SetColumn(card,i%3);grid.Children.Add(card);
-        }
-        return grid;
+        var panel=Form.Panel();panel.Add(Form.Muted(card.Title),Form.Title(card.Value),Form.Muted(card.Detail));
+        return Form.Card(panel);
     }
 }

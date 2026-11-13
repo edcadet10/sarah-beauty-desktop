@@ -10,6 +10,7 @@ internal static class Form
     internal static TextBlock Text(string text = "") => new() { Text = text, Style = Style("SarahBodyStyle"), IsTextSelectionEnabled = true };
     internal static TextBlock Muted(string text) => new() { Text = text, Style = Style("SarahMutedStyle"), IsTextSelectionEnabled = true };
     internal static Style Style(string key) => (Style)Application.Current.Resources[key];
+    internal static Border Card(UIElement content) => new() { Child = content, Style = Style("SarahCardStyle") };
     internal static TextBox Input(string label, string value = "") => new() { Header = label, Text = value, MinWidth = 200 };
     internal static PasswordBox Secret(string label) => new() { Header = label, PasswordRevealMode = PasswordRevealMode.Hidden };
 

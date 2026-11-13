@@ -4,6 +4,10 @@
 
 The owner reaffirmed that Sarah Beauty must work fully offline. No Google project or app connection was created; setup stopped. Requirements, recovery guidance and acceptance distinguish required local encrypted backup/recovery from optional Google copies. Real Google setup/delivery is not an offline-release gate. Actual Surface, second-device recovery, installation and release checks remain required. Optional Google features remain disabled unless separately configured and authorized. This clarification does not mark later feature-stack work merged into main.
 
+## Dashboard layout — November 12, 2026
+
+The dashboard brings its primary financial summary and review links forward, retains detailed sources in expandable sections, and reflows cards for available width. Native checks verify three/two/one columns at 1280/900/500 pixels, correct detail actions, unchanged figures and issued PDFs, and a clean Debug build. See [dashboard layout checks](dashboard-layout.md). A hard-coded Google-disconnection claim was removed. Owner/device, keyboard, larger-text, and runtime theme acceptance remain pending.
+
 ## Grouped workspace menu — November 12, 2026
 
 Five daily sections remain prominent, with 25 tools in four expandable groups and searchable section names. Native checks reach all 30 sections, preserve nested dashboard shortcuts, and verify the menu closes after navigation at 900 × 900. Financial history and issued PDFs remain unchanged. See [workspace menu checks](workspace-menu.md). Larger text, keyboard traversal, owner testing, and physical device acceptance remain pending.
@@ -15,6 +19,7 @@ The first visual change adds plum/ivory/blush theme resources, light/dark/Window
 ## Private installer preview — November 12, 2026
 
 The per-user preview installs and updates a bundled app and removes explicit package files while preserving unrelated files and fictional business data. Native destination and package probes pass. An initial nonexistent-destination defect was reproduced and corrected; verified stray payload files were moved into private reversible quarantine. See [installer preview checks](installer-preview.md) for evidence and remaining release work. No installer has been released; signing, interruption recovery, clean-machine and device acceptance remain pending.
+
 
 This file tracks the full application build requested on November 10, 2026. A component marked implemented still needs the release checks applicable to it. The app is not ready for live business use.
 
