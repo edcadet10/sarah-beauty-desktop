@@ -94,11 +94,11 @@ public sealed class StoreInstanceTests
     }
     internal static async Task<(RecoveryMaterial Key,string Archive)> EarlierArchive(BusinessFixture f,TestStore legacy,int schemaVersion=31)
     {
-        if(schemaVersion is <31 or >35)throw new ArgumentOutOfRangeException(nameof(schemaVersion));
+        if(schemaVersion is <31 or >38)throw new ArgumentOutOfRangeException(nameof(schemaVersion));
         DatabaseBackup.CreateVerifiedSnapshotAt(f.Files.DatabasePath,legacy.DatabasePath);
-        var newer=new List<string>{"DocumentDecisions"};if(schemaVersion<33)newer.AddRange(["OwnerInterestShares","OwnerInterestVersions"]);
+        var newer=new List<string>{"BusinessProfileVersions"};if(schemaVersion<36)newer.Add("DocumentDecisions");if(schemaVersion<33)newer.AddRange(["OwnerInterestShares","OwnerInterestVersions"]);
         foreach(string table in newer)if(Convert.ToInt64(TestStore.Scalar(legacy.DatabasePath,"SELECT count(*) FROM "+table+";"))!=0)throw new InvalidOperationException("An earlier archive fixture cannot discard newer business history.");
-        legacy.Execute(string.Join(" ",newer.Select(table=>"DROP TABLE "+table+";"))+" DROP INDEX DocumentDecisionDocumentScope; DROP INDEX DocumentDecisionVersionScope; DROP INDEX DocumentDecisionEvidenceScope;"+(schemaVersion<33?" DROP INDEX OwnerInterestOwnerScope;":"")+(schemaVersion<32?" DELETE FROM AppMetadata WHERE Key IN ('WritableInstanceId','WritableInstanceState');":"")+$" PRAGMA user_version={schemaVersion};");
+        legacy.Execute(string.Join(" ",newer.Select(table=>"DROP TABLE "+table+";"))+(schemaVersion<36?" DROP INDEX DocumentDecisionDocumentScope; DROP INDEX DocumentDecisionVersionScope; DROP INDEX DocumentDecisionEvidenceScope;":"")+(schemaVersion<33?" DROP INDEX OwnerInterestOwnerScope;":"")+(schemaVersion<32?" DELETE FROM AppMetadata WHERE Key IN ('WritableInstanceId','WritableInstanceState');":"")+$" PRAGMA user_version={schemaVersion};");
         ArchiveDatabaseFacts facts;using(var connection=legacy.Open())facts=ArchiveDatabaseChecks.Read(new DbWork(connection));
         byte[] bytes=File.ReadAllBytes(legacy.DatabasePath);var file=new ArchiveFile("sarahbeauty.db","Database",bytes.Length,Convert.ToHexString(SHA256.HashData(bytes)));
         var manifest=new ArchiveManifest(1,f.Owner.BusinessId,"Fictional Beauty",f.Store.StoreId,"TEST",schemaVersion,(long)TestStore.Scalar(legacy.DatabasePath,"SELECT Watermark FROM Business;")!,DateTimeOffset.UtcNow.ToString("O"),"Fictional earlier archive",[file],facts);

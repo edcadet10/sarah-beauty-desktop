@@ -28,7 +28,7 @@ internal static class SchemaMigrations
             // Version 37 requires dated invoice-void reads and retained dependency checks.
             (37,"SELECT 1;"),
             // Version 38 distinguishes complete decision-history projection from older jobs.
-            (38,"SELECT 1;")];
+            (38,"SELECT 1;"),(39,SarahBeauty.Business.Setup.BusinessProfileSchema.Sql)];
         foreach (var migration in migrations.Where(m => m.Version > fromVersion))
         {
             command.CommandText = migration.Sql;
