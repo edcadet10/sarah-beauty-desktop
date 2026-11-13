@@ -8,20 +8,22 @@ This document records the agreed scope. Detailed fields are in the [data model](
 
 Sarah Beauty Desktop will be a Windows application intended for a Surface Pro 7.
 
+On November 12, 2026, the owner reaffirmed that the app must be fully offline. Google setup is optional and is not a prerequisite for installation, owner sign-in, everyday work, complete local backups, recovery, or release of the offline app.
+
 The application must:
 
 - Support everyday operations without internet access, including financial approval, local reporting, and PDF preparation.
 - Keep the main business records in a local database with locally stored attachments.
-- Provide a readable, one-way export in Google Sheets.
-- Store complete recovery backups in private Google Drive storage.
-- Display separate last-success times and pending/error states for the Sheets export and recovery backup.
+- Create complete encrypted recovery backups locally, including the database and required managed files, and restore without Google access.
+- Keep optional Google Sheets exports and private Drive copies disabled until an owner explicitly configures and authorizes them.
+- If online outputs are enabled later, display separate last-success times and pending/error states for each output.
 - Work with touch, keyboard, and mouse.
 - Require no recurring software subscription for the agreed personal business use.
 - Keep TEST and LIVE records separate and label test documents clearly.
 
 The initial scope covers the new business only. Earlier personal-business or other-company transactions are not imported automatically. Opening contributions and expenses require specific evidence and approval.
 
-Google Sheets and Google Drive backups require internet access. Core work must continue when the network, sign-in, API quota, or storage is unavailable. Automatic backups run while the application is open; a closed app must not be described as continuously backing up.
+Optional Google Sheets and Google Drive copies require internet access. Their setup and real-account delivery checks are separate from offline release acceptance. Core work and local backup/recovery must continue without them and when the network, sign-in, API quota, or cloud storage is unavailable. Automatic local backups run while the application is open; a closed app must not be described as continuously backing up.
 
 Phone applications, a public customer portal, automated bank feeds, payroll, tax-return filing, and retail product inventory are outside the initial release. Future product sales require an additional design before use.
 
@@ -153,7 +155,7 @@ Provide profit and loss, balance sheet, trial balance, cash movements, customer/
 
 ## Backup, privacy, and recovery
 
-Use the [backup and recovery](backup-and-recovery.md) contract for one-way Sheets exports, versioned full archives, separate success states, and restore checks. Google Sheets edits must not flow back into the books.
+Use the [backup and recovery](backup-and-recovery.md) contract for complete local encrypted archives and restore checks. Its Google delivery sections describe optional online copies, with separate authorization and success states. Google Sheets edits must not flow back into the books.
 
 Real customer information, attachments, financial records, account identifiers, credentials, and backups belong outside the public repository. Use fictional examples in development and demonstrations. A private Drive folder and readable Sheets export must be shared only with the intended owners.
 
