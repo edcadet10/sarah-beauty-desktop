@@ -58,5 +58,5 @@ internal static class TaxRecoveries
         WHERE M.BusinessId=$business AND A.Code='1250' AND
         ((M.Kind='Refund' AND M.Id=$root) OR (M.Kind='TaxRecovery' AND M.OriginalId=$root)
         OR (M.Kind='Reversal' AND ((O.Kind='Refund' AND O.Id=$root) OR (O.Kind='TaxRecovery' AND O.OriginalId=$root)))) ORDER BY M.Date;
-        """,r=>(DateOnly.Parse(r.GetString(0)),r.GetInt64(1)),("$business",owner.BusinessId),("$root",root));
+        """,r=>(StoredDates.Parse(r.GetString(0)),r.GetInt64(1)),("$business",owner.BusinessId),("$root",root));
 }
