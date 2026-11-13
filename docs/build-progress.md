@@ -1,5 +1,9 @@
 # Build progress
 
+## Packaged payment allocation acceptance — November 12, 2026
+
+Native AC-025 applies one receipt across split-payer invoices, requires a reviewed on-behalf decision, and settles one invoice from two receipts. Exhausted-source and settled-target extra cents reject without changing posted values. Independent amounts, milestone bounds, retained documents/PDFs, second-owner reports, integrity and restart checks pass. See [payment allocation evidence](native-payment-allocation.md). Full release acceptance remains open.
+
 ## Stored input line preservation — November 12, 2026
 
 Native probes reproduce loan terms/evidence clipping and mixed-newline customer saves creating an extra permission entry. The shared input factory and a small original-text reader retain complete values and unchanged CR/LF/CRLF. Name-only saves, a deliberate extra terms line, second-owner restart, customer Keep/Discard, full 4,128-character document terms, and independent stored-history checks pass. See [input regression evidence](preserved-input-lines.md). Full release acceptance remains open.
