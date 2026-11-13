@@ -30,7 +30,7 @@ public sealed class OwnershipExportContractTests
     {
         using var f=new BusinessFixture();var interest=new OwnerInterests(f.Store).Confirm(f.Owner,OwnerInterestConfirmationTests.Draft(f,0,new(2027,1,1),.6m));
         using var snapshot=new ReadableExportSnapshots(f.Store).Capture(f.Owner);var generation=ReadableExportGeneration.Build(snapshot,new(new(2027,1,1),new(2027,1,31),new(2027,1,31),new(2027,3,1),new(2027,3,31)));
-        Assert.Equal(2,generation.Manifest.Version);Assert.Equal(BusinessSchema.Version,generation.Manifest.Source.SchemaVersion);Assert.Equal(30,generation.Manifest.Groups.Count);Assert.Equal(163,generation.Tables.Count);Assert.Equal(164,GoogleSheetsWorkbookSchema.Build(generation).Tabs.Count);
+        Assert.Equal(3,generation.Manifest.Version);Assert.Equal(BusinessSchema.Version,generation.Manifest.Source.SchemaVersion);Assert.Equal(31,generation.Manifest.Groups.Count);Assert.Equal(165,generation.Tables.Count);Assert.Equal(166,GoogleSheetsWorkbookSchema.Build(generation).Tabs.Count);
         var group=generation.Manifest.Groups.Single(g=>g.Name=="Ownership settings");Assert.Equal(4,group.Tables.Count);Assert.All(group.Tables,name=>Assert.Contains(generation.Tables,t=>t.Name==name));
         Assert.Equal(interest.Id,generation.Tables.Single(t=>t.Name=="Ownership coverage").Rows[0][3]);var dictionary=generation.Tables.Single(t=>t.Name=="Column dictionary");
         foreach(string name in group.Tables)Assert.Contains(dictionary.Rows,row=>row[0]==name&&row[2]=="OwnershipVersionId"&&row[6]=="Ownership confirmations"&&row[7]=="OwnershipVersionId");

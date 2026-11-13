@@ -12,10 +12,11 @@ public sealed class GoogleSheetsPreviewTests
     public void LocalPreviewIncludesVerifiedCountsAndExactJournalFactsWithoutGoogleJobsOrStagingFiles()
     {
         using var f=new LedgerFixture();f.Post(f.Draft(FinancialKind.Receipt,12345));long watermark=Convert.ToInt64(TestStore.Scalar(f.Business.Store.DatabasePath,"SELECT Watermark FROM Business;"));
-        var preview=new GoogleSheetsPreview(f.Business.Store).Build(f.Business.Owner,Selection);Assert.Equal(163,preview.Tables.Count);Assert.Equal(Selection,preview.Selection);Assert.Equal("TEST",preview.Mode);Assert.Equal(watermark,preview.SourceWatermark);
+        var preview=new GoogleSheetsPreview(f.Business.Store).Build(f.Business.Owner,Selection);Assert.Equal(165,preview.Tables.Count);Assert.Equal(Selection,preview.Selection);Assert.Equal("TEST",preview.Mode);Assert.Equal(watermark,preview.SourceWatermark);
         Assert.Equal(preview.Tables.Sum(table=>(long)table.DataRows),preview.DataRows);Assert.Equal(preview.Tables.Sum(table=>table.Cells),preview.SourceCells);Assert.Equal(preview.SourceCells+64,preview.PlannedWorkbookCells);
         Assert.Equal(2,preview.JournalLines);Assert.Equal("12345",preview.JournalDebitCents);Assert.Equal(preview.JournalDebitCents,preview.JournalCreditCents);
         Assert.Contains(preview.Notices,notice=>notice.Contains("unknown percentages remain unconfirmed",StringComparison.Ordinal));Assert.Contains(preview.Notices,notice=>notice.Contains("does not filter every record table",StringComparison.Ordinal));
+        Assert.Contains(preview.Notices,notice=>notice.Contains("Verified retained quote and invoice decisions are included",StringComparison.Ordinal));
         Assert.False(Directory.Exists(new ReadableGenerationPaths(f.Business.Store.DatabasePath).Root));Assert.Equal(0L,Convert.ToInt64(TestStore.Scalar(f.Business.Store.DatabasePath,"SELECT count(*) FROM AppMetadata WHERE Key GLOB 'GoogleSheets*';")));
         Assert.Equal(watermark,Convert.ToInt64(TestStore.Scalar(f.Business.Store.DatabasePath,"SELECT Watermark FROM Business;")));Assert.DoesNotContain(f.Business.Store.DatabasePath,JsonSerializer.Serialize(preview));
     }

@@ -24,6 +24,7 @@ internal static class ReadableExportMetadata
         table.Add("Authority","Correct records in Sarah Beauty Desktop. Spreadsheet edits are not imported.");
         table.Add("ReportBasis","Management cash basis with approved book adjustments. Invoice dues, planning commitments, credits, and actual cash are separate facts.");
         table.Add("OwnerInterestStatus","Dated ownership confirmations and exact shares are included. See Ownership coverage at the selected planning date; unknown percentages remain unconfirmed. Actual owner movements do not establish percentage interests.");
+        table.Add("DocumentDecisionStatus","Verified retained quote and invoice decisions are included. See Document decision coverage; private reasons and supporting-file details are excluded from the decision tables. A void is not a cash refund.");
         table.Add("InventoryScope","Business tables only. Metadata table hashes belong in the final generation manifest.");
         return table.Freeze();
     }
@@ -43,6 +44,7 @@ internal static class ReadableExportMetadata
         table.Add("Cash and credits","Applications, held classifications, and credit funding do not create another cash receipt. Loan proceeds and owner contributions are separate from service income.");
         table.Add("Private omissions","Authentication, recovery keys, private notes, sensitivities, preferences, permission evidence, raw snapshots, and file binaries are excluded from readable tables.");
         table.Add("Ownership","Confirmation reasons and ownership evidence bindings are private. Captured corrections do not establish what ownership was known in a retained financial report. Percentages do not distribute cash, allocate taxable profit, or establish tax basis.");
+        table.Add("Document decisions","Decision reasons and supporting-file bindings are private. Captured decisions preserve exact issued-version references; invoice voids reduce charges in their effective period and do not establish a cash refund.");
         table.Add("File references","Recorded paths and hashes identify source versions. They do not prove that a file was uploaded, is accessible, or remains authorized for use.");
         table.Add("Integrity","A table digest binds its generation, watermark, name, schema, row order, and exact values. Local hashes do not establish remote verification or completeness.");
         return table.Freeze();

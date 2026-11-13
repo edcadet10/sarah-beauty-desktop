@@ -11,9 +11,9 @@ public sealed class GoogleSheetsWorkbookSchemaTests
     public void SourceTabsAndSeparateStatusHaveExactStableIdsDimensionsAndDisplayOrder()
     {
         using var f=new LedgerFixture();var generation=Generation(f);var schema=GoogleSheetsWorkbookSchema.Build(generation);
-        Assert.Equal(164,schema.Tabs.Count);Assert.Equal(163,schema.Tabs.Count(t=>t.SourceTable));
+        Assert.Equal(166,schema.Tabs.Count);Assert.Equal(165,schema.Tabs.Count(t=>t.SourceTable));
         Assert.Equal("Start Here",schema.Tabs[0].Name);Assert.Equal(GoogleSheetsWorkbookSchema.DeliveryStatus,schema.Tabs[1].Name);
-        Assert.Equal(Enumerable.Range(0,164),schema.Tabs.Select(t=>t.Index));Assert.Equal(164,schema.Tabs.Select(t=>t.SheetId).Distinct().Count());
+        Assert.Equal(Enumerable.Range(0,166),schema.Tabs.Select(t=>t.Index));Assert.Equal(166,schema.Tabs.Select(t=>t.SheetId).Distinct().Count());
         Assert.Equal(generation.Manifest.Cells+64,schema.Cells);
         foreach(var table in generation.Tables)
         {

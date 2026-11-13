@@ -26,7 +26,7 @@ public sealed class GoogleSheetsWorkbookReadbackTests
             return Json(SchemaFacts(schema));
         });using var client=new HttpClient(handler);var service=new GoogleSheetsWorkbookReadback(client);Task<string> Access(CancellationToken token){token.ThrowIfCancellationRequested();accesses++;return Task.FromResult(Token);}
         await service.SourcesAsync(generation,spec,FileId,permit.Connection.Account.Account.PermissionId,Access,state:state);await service.StatusAsync(schema,status,spec,FileId,permit.Connection.Account.Account.PermissionId,Access,state:state);
-        Assert.Equal(expected.Count,seen.Count);Assert.Equal(164,seen.Select(uri=>expected[uri].Expected.Table).Distinct(StringComparer.Ordinal).Count());Assert.Equal(handler.Calls,accesses);
+        Assert.Equal(expected.Count,seen.Count);Assert.Equal(166,seen.Select(uri=>expected[uri].Expected.Table).Distinct(StringComparer.Ordinal).Count());Assert.Equal(handler.Calls,accesses);
     }
 
     [Theory]

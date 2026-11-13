@@ -21,7 +21,7 @@ public sealed class GoogleSheetsPreview(BusinessStore store)
     {
         var manifest=generation.Manifest;var source=manifest.Source;
         var tables=manifest.Tables.Select(table=>new GoogleSheetsPreviewTable(table.Name,table.DataRows,table.Columns,table.Cells,table.RawUtf8Bytes)).ToArray();
-        var notices=new[]{Value(generation,"Start Here","OwnerInterestStatus"),Value(generation,"Export conventions","Record scope"),Value(generation,"Export conventions","Private omissions")};
+        var notices=new[]{Value(generation,"Start Here","OwnerInterestStatus"),Value(generation,"Start Here","DocumentDecisionStatus"),Value(generation,"Export conventions","Record scope"),Value(generation,"Export conventions","Private omissions")};
         return new(source.GenerationId,source.BusinessName,source.Mode,source.SchemaVersion,source.Watermark,source.CapturedAtUtc,manifest.Selection,manifest.DataRows,manifest.Cells,
             checked(manifest.Cells+GoogleSheetsWorkbookSchema.StatusRows*2L),manifest.RawUtf8Bytes,manifest.Journal.Rows,manifest.Journal.DebitCents,manifest.Journal.CreditCents,Array.AsReadOnly(tables),Array.AsReadOnly(notices));
     }
