@@ -1,10 +1,12 @@
 # Finish the offline release
 
-Updated November 13, 2026. The app has a [verified Windows preview](windows-preview.md), but release work remains. The preview uses immutable feature source `96da46d780ccac01f369a5786e07186251ea9844`; its full functionality is still being integrated into `main` through focused pull requests. A working preview does not establish completion of every release scenario.
+Updated November 13, 2026. The app has a [verified Windows preview](windows-preview.md), but release work remains. The preview uses immutable feature source `2912a34be0e9889723877164aef3a9eaf70371a3`; its full functionality is still being integrated into `main` through focused pull requests. A working preview does not establish completion of every release scenario.
 
 ## Implemented and checked on the development computer
 
 The preview includes owner sign-in and approvals, customer and booking records, client documents/PDFs, payments and bookkeeping, resources, bank reconciliation, reports, TEST/LIVE separation, and local encrypted backup/recovery. The interface uses the selected emerald, cream, and subtle-gold palette.
+
+The [resource editor correction](https://github.com/edcadet10/sarah-beauty-desktop/pull/340) confirms before replacing unsaved fields in all five main resource forms. Downloaded-app checks preserve every saved database table; nested review forms and wider accessibility remain separate work.
 
 The [dated development record](https://github.com/edcadet10/sarah-beauty-desktop/blob/96da46d780ccac01f369a5786e07186251ea9844/docs/build-progress.md) distinguishes code, component tests, and actual native walkthroughs. Recent native evidence covers retained multiline input, split-payer allocations, period close/reopen, supplier and resource workflows, and balanced reports. The [offline backup check](https://github.com/edcadet10/sarah-beauty-desktop/blob/96da46d780ccac01f369a5786e07186251ea9844/docs/offline-backup-review.md) verifies an encrypted local archive while the app's outbound network access is blocked. The [installer rehearsal](https://github.com/edcadet10/sarah-beauty-desktop/blob/96da46d780ccac01f369a5786e07186251ea9844/docs/current-offline-installer.md) covers interrupted install/update retries and uninstall preservation. The [full-volume rehearsal](https://github.com/edcadet10/sarah-beauty-desktop/blob/96da46d780ccac01f369a5786e07186251ea9844/docs/native-full-volume.md) covers actual out-of-space failures and successful retries for posting, customer save, and receipt import.
 
