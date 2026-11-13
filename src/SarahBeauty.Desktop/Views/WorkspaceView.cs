@@ -14,6 +14,7 @@ internal sealed class WorkspaceView(BusinessStore store,OwnerSession session,Act
     private readonly Dictionary<string,Func<UIElement>> _routes=new();
     private NavigationView? _navigation;
     private OwnerSecurityView? _ownerSecurity;
+    private DocumentDecisionView? _documentDecisions;
 
     internal UIElement Build()
     {
@@ -54,6 +55,7 @@ internal sealed class WorkspaceView(BusinessStore store,OwnerSession session,Act
         _routes["Invoices"]=()=>new InvoiceView(store,session).Build();
         _routes["Credit notes"]=()=>new CreditNoteView(store,session).Build();
         _routes["Receipts"]=()=>new ReceiptView(store,session).Build();
+        _routes["Document decisions"]=BuildDocumentDecisions;
         _routes["Money"]=()=>new MoneyView(store,session).Build();
         _routes["Apply payments"]=()=>new AllocationView(store,session).Build();
         _routes["Customer credits"]=()=>new CreditView(store,session).Build();
@@ -76,12 +78,14 @@ internal sealed class WorkspaceView(BusinessStore store,OwnerSession session,Act
     private void Navigate(string key)
     {
         if(_current=="Owner security")_ownerSecurity?.Leave();
+        if(_current=="Document decisions")_documentDecisions?.Leave();
         if(!_pages.TryGetValue(key,out var page)){page=_routes[key]();_pages[key]=page;}
         _content.Content=page;
         _current=key;
         _status.Text="Local records";
     }
     private UIElement BuildOwnerSecurity(){_ownerSecurity=new(store,session,passphraseChanged??locked);return _ownerSecurity.Build();}
+    private UIElement BuildDocumentDecisions(){_documentDecisions=new(store,session);return _documentDecisions.Build();}
 
     private UIElement Footer(FrameworkElement root)
     {
