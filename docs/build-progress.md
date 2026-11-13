@@ -6,7 +6,7 @@ The owner reaffirmed that Sarah Beauty must work fully offline. No Google projec
 
 This file tracks the full application build requested on November 10, 2026. A component marked implemented still needs the release checks applicable to it. The app is not ready for live business use.
 
-Current feature head: reviewed native clean LIVE creation, schema 39. Forty-one related cases, Windows Debug, native validation/review/creation/both-owner restart, independent unknown/opening/data checks and recovered-entry regression pass. The full local native-recovery regression passes 1,514 cases; earlier activation passes 1,503 local/hosted cases, Windows Debug and cryptography. Complete workflow/release checks and actual business/Google/device acceptance continue. Main has merged through PR #183 and remains behind this feature stack. Historical sections below retain the results measured at their own step.
+Current feature head: credential publication-read race fix, schema 39, following reviewed native clean LIVE creation. The creation full run passed 1,513 and failed one credential concurrency case. A controlled failing-before probe now passes with 29 related cases, ten replacement stress rounds and Windows Debug; the corrected full regression follows. Native creation/owner restart/unknown-data checks passed. Earlier native-recovery/workspace sources pass 1,514 local/hosted cases. Complete workflow/release checks and actual business/Google/device acceptance continue. Main has merged through PR #184 and remains behind this feature stack. Historical sections below retain the results measured at their own step.
 
 | Area | Current state | Evidence or remaining work |
 |---|---|---|
