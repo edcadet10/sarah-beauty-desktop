@@ -30,7 +30,7 @@ internal static class DocumentDecisionQueries
     private static void CheckSource(DbWork db,DocumentDecision value)
     {
         var source=DocumentVersions.Find(db,value.BusinessId,id:value.VersionId)??throw DocumentDecisionCodec.Invalid();
-        if(source.DocumentId!=value.DocumentId||source.Hash!=value.DocumentSnapshotHash||source.Status!=value.ResultStatus||source.Snapshot.Kind!=DocumentDecisionRules.Kind(value.Action)||value.DecisionDate<source.Snapshot.IssueDate||
+        if(source.DocumentId!=value.DocumentId||source.Hash!=value.DocumentSnapshotHash||source.Status!=value.ResultStatus||source.Snapshot.Kind!=DocumentDecisionRules.Kind(value.Action)||value.DecisionDate<source.Snapshot.IssueDate||source.Snapshot.Mode!=(string?)db.Scalar("SELECT Value FROM AppMetadata WHERE Key='StoreMode';")||
             db.Scalar("SELECT Id FROM Owners WHERE Id=$owner AND BusinessId=$business;",("$owner",value.OwnerId),("$business",value.BusinessId)) is null)throw DocumentDecisionCodec.Invalid();
         if(value.Evidence is null)return;var file=AttachmentQueries.List(db,value.BusinessId,versionId:value.Evidence.VersionId).SingleOrDefault();
         if(file is null||ManagedEvidenceFile.From(file)!=value.Evidence)throw DocumentDecisionCodec.Invalid();

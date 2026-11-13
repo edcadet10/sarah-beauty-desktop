@@ -10,7 +10,7 @@ internal static class ArchiveDatabaseChecks
     internal static ArchiveDatabaseFacts Read(DbWork db)
     {
         if(db.Scalar("PRAGMA integrity_check;") as string!="ok" || db.Read("PRAGMA foreign_key_check;",r=>r.GetValue(0)).Count>0)throw new InvalidDataException("The recovery database failed integrity or relationship checks.");
-        CheckHashes(db);CheckOwnership(db);var tables=db.Read("SELECT name FROM sqlite_schema WHERE type='table' AND name NOT GLOB 'sqlite_*' ORDER BY name;",r=>r.GetString(0));
+        CheckHashes(db);CheckOwnership(db);CheckDocumentDecisions(db);var tables=db.Read("SELECT name FROM sqlite_schema WHERE type='table' AND name NOT GLOB 'sqlite_*' ORDER BY name;",r=>r.GetString(0));
         var counts=tables.Select(table=>new ArchiveTableCount(table,(long)db.Scalar("SELECT COUNT(*) FROM "+Quote(table)+";")!)).ToArray();
         BigInteger debit=0,credit=0,groupDebit=0,groupCredit=0;string? movement=null;long lines=0;
         using(var command=db.Command("SELECT MovementId,DebitCents,CreditCents FROM JournalLines ORDER BY MovementId,Id;"))
@@ -42,5 +42,11 @@ internal static class ArchiveDatabaseChecks
         if(Convert.ToInt64(db.Scalar("PRAGMA user_version;"))<33)return;
         foreach(string business in db.Read("SELECT Id FROM Business ORDER BY Id;",r=>r.GetString(0)))
             SarahBeauty.Business.Ownership.OwnerInterestQueries.Read(db,business);
+    }
+    private static void CheckDocumentDecisions(DbWork db)
+    {
+        if(Convert.ToInt64(db.Scalar("PRAGMA user_version;"))<36)return;
+        foreach(string business in db.Read("SELECT Id FROM Business ORDER BY Id;",r=>r.GetString(0)))
+            SarahBeauty.Business.Documents.DocumentDecisionQueries.Read(db,business);
     }
 }
