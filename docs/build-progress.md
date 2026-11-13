@@ -1,5 +1,9 @@
 # Build progress
 
+## Offline release scope — November 12, 2026
+
+The owner reaffirmed that Sarah Beauty must work fully offline. No Google project or app connection was created; setup stopped. Requirements, recovery guidance and acceptance distinguish required local encrypted backup/recovery from optional Google copies. Real Google setup/delivery is not an offline-release gate. Actual Surface, second-device recovery, installation and release checks remain required. Optional Google features remain disabled unless separately configured and authorized. This clarification does not mark later feature-stack work merged into main.
+
 This file tracks the full application build requested on November 10, 2026. A component marked implemented still needs the release checks applicable to it. The app is not ready for live business use.
 
 Current feature head: invariant funded-credit issue dates, schema 40. Both failing-before calendar probes now pass; 42 related cases and Windows Debug pass. Payment-application dates pass 55 related cases, retirement/reversal dates pass 47, opening dates pass 34, and retained book-period dates pass 27. The combined asset/posting/client-document parent passes the full 1,603-case regression at 505dcce. Full local/GitHub regression for the retirement/reversal parent is running. Native issued-document/discard load and independent reads preserve four originals and 13 financial/issued tables with the document-date build. GitHub native-discard checks pass 1,575 cases at 676a381, a clean Windows build and recovery crypto. Native clean creation and TEST/LIVE recovery/identity checks pass. Other date/aggregation boundaries, complete workflow/release checks and actual business/Google/device acceptance continue. Main has merged through PR #191 and remains behind this feature stack. Historical sections below retain the results measured at their own step.
