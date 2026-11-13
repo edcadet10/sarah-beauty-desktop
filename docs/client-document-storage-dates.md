@@ -6,4 +6,4 @@ Before the fix, nine of ten Arabic/Thai-calendar probes failed. Acceptance, due 
 
 Forty-seven related cases now pass, including all ten probes plus existing quote/invoice/receipt/credit-note, payment application and dated invoice-void cases. Reversed-payment issuance rejects without another document or watermark change; receipt preview keeps only its dated history without a write. Windows Debug passes without warnings or errors.
 
-The full historical-balance parent regression passes 1,584 cases at `f0da162`. A full regression for the combined asset/posting/document changes is running. Remaining storage-date boundaries, full release workflows and actual device/account acceptance continue separately.
+The combined full regression passes 1,603 cases in 8 minutes 35 seconds at `505dcce`. A native issued-document/retained-discard load, lock and close check also passes; independent reads preserve all four retained originals and 13 complete financial/issued tables. Remaining storage-date boundaries, full release workflows and actual device/account acceptance continue separately.
