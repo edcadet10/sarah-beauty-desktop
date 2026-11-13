@@ -1,5 +1,9 @@
 # Build progress
 
+## Packaged net-zero reconciliation acceptance — November 12, 2026
+
+Native AC-037 rejects a zero-difference statement with unexplained +$25/−$25 rows, then completes only after exact matches and an evidenced actual $5 deposit in transit. Independent retained rows, snapshot SHA-256, source coverage, exact six-line balanced journal, and second-owner restart pass. Posting/matching/completion/restart are also checked with the packaged executable's outbound network blocked. See [net-zero reconciliation evidence](native-zero-reconciliation.md). Physical device and second-computer recovery remain open.
+
 ## Offline backup layout and blocked-network review — November 12, 2026
 
 Local recovery setup, schedules, a primary backup action, health/history and verification now precede collapsed optional Google controls. Native 1280/500 layout and clean Debug checks pass. With outbound access blocked for the exact test executables, both packaged and new Debug apps pass second-owner archive verification, wrong/correct recovery and staged validation. Independent checks retain the 519,920-byte archive, six-file manifest, schema 40, five PDFs and all business/document facts. Owned firewall rules are removed afterward. See [offline backup evidence](offline-backup-review.md). Actual Surface and second-computer recovery remain open.
