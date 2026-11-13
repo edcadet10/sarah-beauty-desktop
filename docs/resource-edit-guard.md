@@ -18,6 +18,8 @@ Before the change, the downloaded `96da46d` app silently replaces an edited loan
 
 The existing multiline customer/loan fixture also retains its complete saved values, exact CR/LF/CRLF content, original permission entry, and zero money after the unsaved-edit probes. Windows Debug builds with zero warnings/errors. Private fixtures and temporary lock helpers stay outside Git.
 
-The self-contained publish succeeds with 575 files totaling 313,832,410 bytes. Its second-owner native run repeats all five New/reload/Keep/Discard/navigation cases. A complete per-table comparison preserves every saved table exactly after both restart and those published-app probes. GitHub preview packaging is being checked separately.
+The self-contained publish succeeds with 575 files totaling 313,832,410 bytes. Its second-owner native run repeats all five New/reload/Keep/Discard/navigation cases. A complete per-table comparison preserves every saved table exactly after both restart and those published-app probes.
+
+GitHub [preview run 43371951319](https://github.com/edcadet10/sarah-beauty-desktop/actions/runs/43371951319) succeeds for immutable source `2912a34be0e9889723877164aef3a9eaf70371a3`. All 575 downloaded paths, byte counts, and SHA-256 hashes match the manifest, with no rejected business-data file types. The downloaded app repeats the five-register probe for the second owner and preserves every saved table exactly. The unsigned artifact expires November 27, 2026.
 
 This covers the main register fields and observed actions. Separate nested asset-fact and trip-payment review drafts, global lock/shutdown policy, physical touch, and wider accessibility acceptance remain distinct work.
