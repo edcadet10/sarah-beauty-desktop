@@ -16,7 +16,7 @@ The [verified offline preview](https://github.com/edcadet10/sarah-beauty-desktop
 
 After this workflow is on the default branch, choose **Run workflow**, enter a repository branch, tag, or commit in **revision**, and start the run. The selected source must contain `tools/publish-desktop.ps1`. Building in GitHub does not run the app or create a business database.
 
-The default is the verified offline preview commit `6b753ca7ed6dc8d73ae0d1436981c3f0b7471d9c`. It is fixed to that reviewed source. Its business/test/recovery inputs match the prior 1,684-case hosted regression; changed desktop sources separately pass clean Windows Debug, self-contained publish and downloaded-app checks. Choose another revision explicitly when reviewing a newer build.
+The default is the verified offline preview commit `6b753ca7ed6dc8d73ae0d1436981c3f0b7471d9c`. It is fixed to that reviewed source. Its [complete hosted check](https://github.com/edcadet10/sarah-beauty-desktop/actions/runs/43408829402) passes all 1,684 tests, recovery interoperability and Windows Debug with zero warnings/errors. Self-contained publish and downloaded-app checks also pass. Choose another revision explicitly when reviewing a newer build.
 
 `source-manifest.json` records the exact checked-out source commit, target, unsigned preview status, and each published file's path, byte count, and SHA-256 hash. The artifact name uses the source commit, which can differ from the workflow branch's commit. A failed publish or empty output fails the job. Packaging rejects database, recovery archive, and key-file extensions.
 

@@ -2,7 +2,7 @@
 
 ## Verified Money review download — November 13, 2026
 
-The GitHub preview at `6b753ca` matches all 620 file paths, sizes and hashes plus 44 runtime-notice hashes. Native exact receipt context, both-owner posted reads, prior Money Keep/Discard/reversion/filter guards and 1280/500 row layouts pass, with every saved table retained in both posting fixtures. The default preview now points to this immutable source. README build/schema guidance is corrected; optional Google setup remains outside the offline-release gate. See [download evidence](windows-preview.md) and [remaining release work](offline-release-status.md).
+The GitHub preview at `6b753ca` matches all 620 file paths, sizes and hashes plus 44 runtime-notice hashes. Native exact receipt context, both-owner posted reads, prior Money Keep/Discard/reversion/filter guards and 1280/500 row layouts pass, with every saved table retained in both posting fixtures. Its complete hosted check passes 1,684 tests, recovery interoperability and Windows Debug with zero warnings/errors. The default preview now points to this immutable source. README build/schema guidance is corrected; optional Google setup remains outside the offline-release gate. See [download evidence](windows-preview.md) and [remaining release work](offline-release-status.md).
 
 ## Exact Money record and payment context — November 13, 2026
 
