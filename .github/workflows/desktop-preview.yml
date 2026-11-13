@@ -1,0 +1,72 @@
+name: Windows developer preview
+
+on:
+  workflow_dispatch:
+    inputs:
+      revision:
+        description: Repository branch, tag, or commit to build
+        required: true
+        default: fix/customer-group-width
+        type: string
+  push:
+    branches: [feature/github-preview-artifact]
+
+permissions:
+  contents: read
+
+jobs:
+  package-preview:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.revision || 'fix/customer-group-width' }}
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - uses: actions/setup-go@v7
+        with:
+          go-version: '1.27.4'
+          cache-dependency-path: tools/SarahBeauty.Recovery/go.sum
+      - name: Publish the self-contained Windows app
+        shell: pwsh
+        run: ./tools/publish-desktop.ps1
+      - name: Prepare the preview and source manifest
+        id: preview
+        shell: pwsh
+        run: |
+          $sourceRevision=(git rev-parse HEAD).Trim()
+          if($LASTEXITCODE -ne 0 -or $sourceRevision -notmatch '^[0-9a-f]{40}$'){throw 'Cannot identify the checked-out source.'}
+          $publishDirectory=(Resolve-Path -LiteralPath '.artifacts/publish/win-x64').Path
+          $previewDirectory=Join-Path $PWD '.artifacts/github-preview'
+          if(Test-Path -LiteralPath $previewDirectory){throw 'Use a fresh preview output directory.'}
+          New-Item -ItemType Directory -Path $previewDirectory | Out-Null
+          $files=Get-ChildItem -LiteralPath $publishDirectory -Recurse -File
+          if($files.Count -eq 0 -or -not(Test-Path -LiteralPath (Join-Path $publishDirectory 'SarahBeauty.Desktop.exe'))){throw 'The published app is missing.'}
+          if($files | Where-Object Extension -In '.db','.sqlite','.sqlite3','.age','.key'){throw 'Business data must not be included in a preview.'}
+          $inventory=@($files | Sort-Object FullName | ForEach-Object {
+            [ordered]@{path=[IO.Path]::GetRelativePath($publishDirectory,$_.FullName).Replace('\','/');bytes=$_.Length;sha256=(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash}
+          })
+          Copy-Item -LiteralPath $publishDirectory -Destination (Join-Path $previewDirectory 'SarahBeautyDesktop') -Recurse
+          [ordered]@{sourceRevision=$sourceRevision;target='win-x64';preview=$true;signed=$false;fileCount=$inventory.Count;files=$inventory} |
+            ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $previewDirectory 'source-manifest.json') -Encoding utf8
+          @'
+          Sarah Beauty - unsigned Windows developer preview
+
+          Extract the entire archive. Open SarahBeautyDesktop/SarahBeauty.Desktop.exe.
+          Keep the whole folder together; the app includes its Windows and .NET runtimes.
+          No customer database, owner passphrase, Google credential, or test business is supplied.
+          source-manifest.json identifies the exact source commit and every published file hash.
+          This preview is for review. Device, Google, signing, and full release acceptance remain open.
+          '@ | Set-Content -LiteralPath (Join-Path $previewDirectory 'README.txt') -Encoding utf8
+          "short-revision=$($sourceRevision.Substring(0,12))" | Add-Content -LiteralPath $env:GITHUB_OUTPUT -Encoding utf8
+      - name: Upload the developer preview
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: SarahBeauty-Windows-preview-${{ steps.preview.outputs.short-revision }}
+          path: .artifacts/github-preview/
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 6
