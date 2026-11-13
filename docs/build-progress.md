@@ -4,6 +4,10 @@
 
 The owner reaffirmed that Sarah Beauty must work fully offline. No Google project or app connection was created; setup stopped. Requirements, recovery guidance and acceptance distinguish required local encrypted backup/recovery from optional Google copies. Real Google setup/delivery is not an offline-release gate. Actual Surface, second-device recovery, installation and release checks remain required. Optional Google features remain disabled unless separately configured and authorized. This clarification does not mark later feature-stack work merged into main.
 
+## Packaged reservation acceptance — November 12, 2026
+
+The native fictional wedding rejects trial-only reservation, remains unreserved after the separate deposit allocation until explicit review, then confirms exactly once. Independent checks retain the exact quote, four recipient places, $301.45 remaining due, both PDF hashes, and unchanged money/document rows through confirmation and second-owner restart. See [reservation evidence](native-reservation-acceptance.md). This covers the AC-014 payment boundary; full release/device/Google acceptance remains open.
+
 ## Packaged pricing acceptance — November 12, 2026
 
 A fresh native TEST fixture in the bundled current app matches all three agreed standard, odd-cent, and custom pricing plans. Independent decimal recomputation, ten-to-four active place counts with retained IDs, unchanged catalog prices, second-owner restart, integrity, and zero financial movement checks pass. See [packaged pricing evidence](native-pricing-acceptance.md). Reservation/deposit, split payer, full device, and complete release acceptance remain separate work.
