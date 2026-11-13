@@ -1,5 +1,9 @@
 # Finish the offline release
 
+## Current first-run update
+
+The [three-field setup preview](https://github.com/edcadet10/sarah-beauty-desktop/releases/tag/windows-preview-2026-11-13-simple-setup) starts with business name, username, and password, then opens the dashboard. Other details and the second user can be added afterward. Its GitHub build `43483947275` matches all 620 file hashes and passes the native setup/settings/PIN/password/restart walkthrough under an app-specific outbound block. All 1,709 local regressions pass. See [first-run evidence](simple-first-run.md); device and final release checks below remain open.
+
 Updated November 13, 2026. The reviewed feature stack, exit protection and password/PIN/Enter unlock are merged through PR #357 and available in the [verified Windows preview](windows-preview.md) at `a6f3b9f450199a585bdca38796ea3b8660f63a7f`. Sources are saved on GitHub. This unsigned preview still needs the release work below.
 
 ## Implemented and checked on the development computer
