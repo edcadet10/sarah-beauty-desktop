@@ -8,8 +8,6 @@ on:
         required: true
         default: fix/preserved-input-lines
         type: string
-  push:
-    branches: [feature/github-preview-artifact]
 
 permissions:
   contents: read
