@@ -1,5 +1,9 @@
 # Build progress
 
+## Native full-volume failures and retries — November 12, 2026
+
+In a verified disposable NTFS virtual volume with zero free bytes, actual expense approval, customer save and receipt import report storage errors with unchanged prior protected rows and no false success. After space is freed, each retries once; exact note, one receipt hash, one movement/two journal lines, permission history and integrity pass. Second-owner restart and virtual-disk detach/remount retain all facts. The image is detached afterward. See [full-volume evidence](native-full-volume.md). Physical Surface/power/hardware and second-computer checks remain separate.
+
 ## Offline device handoff prepared — November 12, 2026
 
 The [device checklist](offline-device-checklist.md) links the verified GitHub preview and defines physical Surface touch/keyboard/scaling/offline restart plus complete local recovery on a second Windows computer. No Google setup is required. These device checks remain pending; preparing the checklist does not mark them passed.
