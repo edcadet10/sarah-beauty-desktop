@@ -1,5 +1,9 @@
 # Build progress
 
+## Packaged bookkeeping acceptance — November 12, 2026
+
+The fresh native AC-029 fixture approves all seven agreed contribution/loan/receipt/expense/equipment/principal/withdrawal movements. Packaged-app P&L, balance sheet and full trial-balance rows agree with independent 14-line recomputation: Bank $1,170, equipment $300, debt $400, equity including result $1,070, profit $120. Second-owner restart retains all facts; unknown openings/tax basis remain explicit. See [bookkeeping evidence](native-ledger-acceptance.md). Full release acceptance remains open.
+
 ## Multiline terms preservation — November 12, 2026
 
 Native checks reproduce quote/invoice terms shrinking from 4,128 to 226 characters. A shared multiline control now sets returns/wrapping before saved text; both probes and two save/reopen cycles pass. Corrected split invoices/PDFs retain exact full terms, all 23 source lines, exact milestones, private-field exclusion, original artifacts, and second-owner restart. Debug and self-contained publish pass; published-app checks retain all terms and facts. See [terms regression evidence](multiline-document-terms.md). Broader release/device/Google acceptance remains open.
