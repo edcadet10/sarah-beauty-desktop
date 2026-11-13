@@ -1,0 +1,7 @@
+# Confirm a private business profile
+
+`BusinessProfiles.Confirm` requires an active owner, that owner's current passphrase, an exact reviewed revision, a private change reason and a permanent request ID. It normalizes the facts and verifies every selected managed-file descriptor and its physical content inside the writer transaction. A competing review requires a reload; an exact retry returns its original review even after a later revision, without replacing the latest facts.
+
+One transaction appends the immutable profile, updates the business display name and records one audit/watermark increment. Previously issued documents retain their original name/hash. No money, opening balance, tax confirmation, ownership interest or LIVE permission is inferred. Cancellation, lost owner access and injected storage failure after writing roll back the profile, name and audit together.
+
+Thirty-seven profile/history/rule/recovery cases pass. They cover stale/foreign/wrong-phrase/precancelled requests, exact/conflicting/older retries, competing writers, post-write rollback and verified/pinned evidence. A duplicate permanent request in an altered store initially passed history; the typed reader and archive check now reject it. An actual encrypted restore/activation preserves the private profile/EIN, exact evidence version, pending formation and unconfirmed tax/start facts, the posted balanced journal and a new writable instance with fresh owner access. These checks use fictional values. Native controls and isolated LIVE creation follow separately.
