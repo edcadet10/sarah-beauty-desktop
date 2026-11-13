@@ -1,5 +1,9 @@
 # Build progress
 
+## Offline release scope — November 12, 2026
+
+The owner reaffirmed that Sarah Beauty must work fully offline. No Google project or app connection was created; setup stopped. Requirements, recovery guidance and acceptance distinguish required local encrypted backup/recovery from optional Google copies. Real Google setup/delivery is not an offline-release gate. Actual Surface, second-device recovery, installation and release checks remain required. Optional Google features remain disabled unless separately configured and authorized. This clarification does not mark later feature-stack work merged into main.
+
 ## Grouped customer field width — November 12, 2026
 
 Expanded customer groups now stretch their contents across the editor. Native address/sensitivity widths grow from 200/214 to 543 pixels at a 1280-pixel window and 360 at 500. Visual inspection, complete text retention, unchanged-record/Keep/Discard protection, second-owner restart, stored history, and clean Debug checks pass. See [group width evidence](customer-group-width.md). Full release acceptance remains open.
@@ -99,6 +103,10 @@ The first visual change adds plum/ivory/blush theme resources, light/dark/Window
 This file tracks the full application build requested on November 10, 2026. A component marked implemented still needs the release checks applicable to it. The app is not ready for live business use.
 
 Current feature head: repeatable bundled-runtime publish, schema 40. The x64 profile/script publishes .NET 10.0.15, WinUI, recovery and required notices; checks verify runtime files, JSON reflection, source/helper/notice hashes, all nine assets and no business databases/archives. Its native executable passes retained customer/cancellation/PDF/reconciliation reads, refreshed balances and second-owner restart. The prior published executable separately passes customer save after the trimming fix. The complete parent storage regression passes 1,681 cases at 39225e7 in 7m03; the resolved desktop NuGet audit reports no known vulnerabilities. Earlier native payment/bank/cancellation/funded-credit refund checks pass. Main has merged through PR #195 plus contention fix #287 after refreshed checks; #196 is receiving current main. Main remains behind the feature stack. Installer/update/uninstall, remaining native/aggregation work and actual business/Google/device acceptance continue. Historical sections below retain results measured at their own step. See [Publish the Windows desktop app with bundled runtimes](publish-desktop.md).
+
+Hosted [run 43373372805](https://github.com/edcadet10/sarah-beauty-desktop/actions/runs/43373372805) passes the complete branch storage/build and recovery-cryptography checks.
+
+This summary records the checks at its feature stage. See [Finish the offline release](offline-release-status.md) for current release work.
 
 | Area | Current state | Evidence or remaining work |
 |---|---|---|
