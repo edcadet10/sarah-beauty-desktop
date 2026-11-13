@@ -18,7 +18,7 @@ The theme follows Windows. Light and dark dictionaries supply readable colors. T
 
 Claim: the chosen custom text colors remain readable on their intended surfaces. Reject a normal-text pair below 4.5:1 or a meaningful accent indicator below 3:1, using the [WCAG text](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html) and [non-text contrast](https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html) calculations as design checks. These checks do not establish whole-app accessibility conformance.
 
-Cream-white text on the emerald primary action measures 9.50:1. The committed palette probe checks 42 text pairs and 12 accent/surface pairs across light and dark themes; all 54 pass. The lowest text ratio is 4.91:1. Gold is checked for indicator contrast but is not used for body text or as the only indication of state.
+Cream-white text on the emerald primary action measures 9.50:1. The committed palette probe checks 42 text pairs and 24 accent/plot pairs across light and dark themes; all 66 pass. The lowest text ratio is 4.91:1. Gold is checked for indicator contrast but is not used for body text or as the only indication of state. [Chart checks](chart-theme-contrast.md) document the original legend failures, theme-aware swatches, and numbered series.
 
 ```powershell
 pwsh -NoProfile -File tools/test-ui-palette.ps1
