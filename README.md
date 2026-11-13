@@ -25,25 +25,25 @@ The app must run fully offline, including owner sign-in, approvals, records, rep
 
 ## Project status
 
-See [Finish the offline release](docs/offline-release-status.md) for the verified preview, remaining integration and device checks, and private LIVE setup requirements. Google Cloud is optional.
+See [Finish the offline release](docs/offline-release-status.md) for the verified preview, remaining usability/device/release checks, and private LIVE setup requirements. No Google setup is required for offline use.
 
-The full build is in progress in small GitHub pull requests. The app remains in TEST mode. See [Build progress](docs/build-progress.md) for current coverage and dated verification evidence.
+The reviewed feature stack is merged into `main` through small GitHub pull requests. An [unsigned Windows preview](docs/windows-preview.md) is available. Development checks use fictional TEST businesses; LIVE setup requires the owners' actual reviewed facts. See [Build progress](docs/build-progress.md) for current coverage and dated evidence.
 
 The implemented local core includes two-owner sign-in and approvals, customers, service prices, bookings and recipient places, appointment planning and calendar review, combined cancellation decisions and history, versioned client documents and PDFs, bookkeeping, payment applications and funded credits, resource registers, supplier bills and refunds, statements, bank matching, reconciliation, and retained period close/reopen reports.
 
-The complete hosted and local .NET suites through credential binding and own-passphrase changes each pass all 1,288 cases; hosted Windows Debug and recovery cryptography also pass. Retained document-decision checks are newer; see Build progress for exact branch scope and targeted results. The Windows Debug build succeeds with no warnings or errors. Fictional desktop walkthroughs cover selected workflows, manual/scheduled local encrypted backups, controlled TEST recovery activation, Google client import, Drive setup guards, Sheets controls and runtime shutdown, fifteen-minute owner idle lock, dated ownership, own-passphrase changes, and restart persistence. Simulated Google delivery transfers and stages real encrypted archive bytes and independently verifies readable workbook cells. These checks do not establish real Google delivery, full release acceptance, or current Surface compatibility.
+The complete hosted feature regression passes all 1,684 cases, recovery interoperability and the Windows Debug build with zero warnings/errors. Its application/test/recovery inputs match the verified download; packaging separately checks all 620 downloaded files and runtime notices. Fictional native walkthroughs cover the documented local workflows, balanced reports, local encrypted backup/review, draft protection, complete input, interrupted installer retries, out-of-space failure/retry and second-owner restart. These checks do not establish full release acceptance, physical Surface operation or recovery on another computer.
 
-The app now has [Google Desktop connection controls](docs/desktop-google-connection.md), including private client import, PKCE browser consent, account review, cancellation, and local disconnect. [Drive archive controls](docs/desktop-google-archives.md) add private-folder setup, explicit delivery permission, manual delivery, recurring delivery of completed local archives, and durable retry/history/health. [Readable Sheets controls](docs/desktop-sheets-controls.md) add local preview, saved report dates, separate delivery and automatic choices, verified generation delivery, retry/history/health, and a link to the last verified workbook. Real Google consent/delivery acceptance remains pending.
+Optional [Google connection](docs/desktop-google-connection.md), [Drive archive](docs/desktop-google-archives.md) and [readable Sheets](docs/desktop-sheets-controls.md) controls remain disabled without separate configuration and authorization. Real consent/delivery acceptance applies only before enabling those optional outputs; it does not gate the offline app.
 
 [Ownership settings](docs/desktop-ownership-settings.md) now retain dated, reasoned percentage confirmations and corrections with optional managed evidence, exact totals, explicit unknown dates, and history. [Readable ownership coverage](docs/readable-ownership-generation.md) is included in projection format 2. Percentages create no financial allocation or tax-basis assumption.
 
 [Owner security](docs/desktop-owner-security.md) adds private own-passphrase changes with current-phrase verification, stale-credential session revocation, cancellation/rollback and fresh sign-in. Reviewed archive recovery continues to require portable recovery material and a new writable instance.
 
-Remaining work includes further managed-evidence selection within entry forms, retention controls and second-device recovery acceptance, separate LIVE setup, remaining document states and workflow hardening, further unsaved-work protection, and full release/device checks. There is no published installer yet. Real Google acceptance applies only before enabling the optional online features; it does not block the offline release.
+Remaining work includes form/accessibility and global unsaved-work review, actual Surface and second-device recovery acceptance, clean-machine/distribution/signing checks, and private LIVE setup. Keep local archives until the owners choose a retention policy. The current public download is an unsigned portable preview.
 
 The first target is a Surface Pro 7. Everyday work and complete encrypted backups operate locally on Windows. An owner can later choose optional readable Sheets exports and private Drive copies. Those online copies never become a second place to edit the books.
 
-The project targets $0 in required recurring software subscriptions. Available storage, API limits, and dependency licenses will be checked before integration; no paid plan is assumed.
+The project targets $0 in required recurring software subscriptions. Runtime packages have a [checked license/notice inventory](docs/runtime-package-notices.md); final distribution-conditions review remains open. No paid plan is assumed.
 
 ## Run the development preview
 
