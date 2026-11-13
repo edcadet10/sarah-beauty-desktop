@@ -25,6 +25,8 @@ The app must run fully offline, including owner sign-in, approvals, records, rep
 
 ## Project status
 
+See [Finish the offline release](docs/offline-release-status.md) for the verified preview, remaining integration and device checks, and private LIVE setup requirements. Google Cloud is optional.
+
 The full build is in progress in small GitHub pull requests. The app remains in TEST mode. See [Build progress](docs/build-progress.md) for current coverage and dated verification evidence.
 
 The implemented local core includes two-owner sign-in and approvals, customers, service prices, bookings and recipient places, appointment planning and calendar review, combined cancellation decisions and history, versioned client documents and PDFs, bookkeeping, payment applications and funded credits, resource registers, supplier bills and refunds, statements, bank matching, reconciliation, and retained period close/reopen reports.
