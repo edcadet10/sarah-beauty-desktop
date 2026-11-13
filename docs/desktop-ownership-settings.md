@@ -1,0 +1,11 @@
+# Confirm dated ownership in the desktop app
+
+Open **Ownership settings**. The form starts with blank percentages and explains that unknown values remain unconfirmed. Enter every owner's percentage, an ISO effective date, and a reason. Optionally select a retained receipt/evidence file version. Review the exact names, percentages, date, and reason in the confirmation dialog before saving. No money, profit allocation, or tax basis is created.
+
+Load a current effective-date confirmation to correct it. The effective date stays fixed, the prior shares are copied for review, and a new reason is required. Earlier versions remain in history. Review any date to see its effective confirmation or an explicit unknown status before the first confirmed date. History shows retained/superseded versions and supporting file versions.
+
+Navigation preserves the draft. Refreshing saved history preserves both its fields and original expected revision. Starting another draft, loading a correction over unsaved work, or reloading the form requires a discard choice. Operations disable the form, support cancellation, register for application shutdown, and cancel/dismiss their dialog when the page unloads. No timer refreshes or saves these settings.
+
+Windows Debug builds with zero warnings/errors. A native fictional walkthrough passes blank/invalid totals, dialog cancellation, navigation/refresh draft preservation, two effective dates and an earlier-date correction, fixed correction date, unknown earlier dates, three retained history versions, lock/restart, and graceful close. The initial automation invoked a disabled button during form completion; waiting for the control's ready state resolves that test synchronization issue. Read-only checks verify schema 33, watermark 4, two owners, three confirmation audits, six matching shares with valid hashes, no financial/document/evidence/customer records, no Google metadata or readable cache, and valid SQLite integrity/foreign keys. Native evidence-file review, touch/Surface behavior, and complete release acceptance remain pending.
+
+The full Release suite through ownership recovery (before these UI-only/API-visibility changes) passes all 1,266 cases in 5 minutes 23 seconds. See [Verify ownership when capturing and restoring backups](owner-interest-recovery.md).
