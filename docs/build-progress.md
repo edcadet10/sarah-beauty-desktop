@@ -1,5 +1,9 @@
 # Build progress
 
+## Packaged period closing acceptance — November 12, 2026
+
+Native AC-038 blocks missing prerequisites and backdated expense/reversal approvals, preserves original reports through explicit book/Bank reopening, posts one reviewed correction, supports its actual outstanding remainder, and saves a distinct revised close. Independent hashes, source links, exact ledger counts, retained rejected drafts, and second-owner restart pass. A separate matched-source reversal verifies the active-match dependency guard. See [period closing evidence](native-period-acceptance.md). Full release acceptance remains open.
+
 ## Grouped customer field width — November 12, 2026
 
 Expanded customer groups now stretch their contents across the editor. Native address/sensitivity widths grow from 200/214 to 543 pixels at a 1280-pixel window and 360 at 500. Visual inspection, complete text retention, unchanged-record/Keep/Discard protection, second-owner restart, stored history, and clean Debug checks pass. See [group width evidence](customer-group-width.md). Full release acceptance remains open.
