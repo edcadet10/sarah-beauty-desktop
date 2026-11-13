@@ -8,6 +8,10 @@ This file tracks the full application build requested on November 10, 2026. A co
 
 Current feature head: distinct native customer list labels, schema 40. The fresh native foundation walkthrough passes setup, customer validation/contact and two-owner approvals; independent reads verify two customer IDs and a 5,047-cent balanced journal. A failing-before same-name row ambiguity is fixed and native selection/preservation checks pass. Windows Debug is clean. The parent full suite passes 1,639 cases at 05f8d3b. GitHub retirement checks pass 1,623 cases at 60deb09, Windows Debug and recovery crypto. PR #192 has a separate hosted supplier-credit concurrency failure (database locked during owner confirmation); it remains unmerged while investigated. Main has merged through PR #191 and remains behind this feature stack. Complete release walkthrough, remaining date/aggregation work, installer and actual business/Google/device acceptance continue. Historical sections below retain results measured at their own step.
 
+Hosted [run 43373372805](https://github.com/edcadet10/sarah-beauty-desktop/actions/runs/43373372805) passes the complete branch storage/build and recovery-cryptography checks.
+
+This summary records the checks at its feature stage. See [Finish the offline release](offline-release-status.md) for current release work.
+
 | Area | Current state | Evidence or remaining work |
 |---|---|---|
 | Local storage | Implemented | Verified pre-upgrade snapshots, atomic migrations, explicit TEST mode |
