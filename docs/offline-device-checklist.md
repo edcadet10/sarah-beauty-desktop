@@ -4,7 +4,7 @@ These checks remain pending. Development-computer checks do not establish physic
 
 ## Prepare the Surface
 
-1. Download the [verified Windows preview for source `0a6185b`](https://github.com/edcadet10/sarah-beauty-desktop/actions/runs/43357524913/artifacts/14007271111), or copy its complete extracted folder on removable media. This GitHub artifact expires on November 27, 2026; the [preview workflow](windows-preview.md) can build another copy. It is unsigned.
+1. Download the [verified Windows preview for source `0a6185b`](https://github.com/edcadet10/sarah-beauty-desktop/actions/runs/43357524913/artifacts/14007271111), or copy its complete extracted folder on removable media. This GitHub artifact expires on November 27, 2026; the [preview workflow guide](https://github.com/edcadet10/sarah-beauty-desktop/blob/main/docs/windows-preview.md) can build another copy. It is unsigned.
 2. Keep the whole `SarahBeautyDesktop` folder together. No developer tools, Google account, Cloud project, or subscription are needed to run it. Record the Surface model, Windows version, display scale, text size, and available disk space.
 3. Disconnect the Surface from Wi-Fi and Ethernet, then open `SarahBeauty.Desktop.exe`. Create a disposable TEST business with two owners and distinct private word passphrases.
 
@@ -21,4 +21,4 @@ These checks remain pending. Development-computer checks do not establish physic
 2. On a second Windows computer, copy the complete app folder and keep networking disconnected. Open archive review from sign-in. An incorrect recovery passphrase must fail clearly; the correct one must validate the database, managed files, counts, and hashes.
 3. For the disposable TEST business, retire its previous writable instance through the app before preparing a writable recovered copy. Complete the actual recovery acknowledgment and new-owner-passphrase steps, activate the recovered copy, and restart. Compare the saved records, approvals, reports, PDFs, and permanent IDs with the Surface source. Retained history must match; the recovered writable instance has its own identity. Google reconnection is optional.
 
-Record source commit, device/Windows/scaling, action, expected/actual result, and evidence for each check. Do not mark a result passed until it is performed. Local disk-full/power-failure, clean-machine installer, LIVE facts, and distribution checks remain separate from this device checklist.
+Record source commit, device/Windows/scaling, action, expected/actual result, and evidence for each check. Do not mark a result passed until it is performed. [Isolated NTFS out-of-space checks](native-full-volume.md) pass on the development computer. Physical power/hardware failure, clean-machine installer, LIVE facts, and distribution checks remain separate from this device checklist.
