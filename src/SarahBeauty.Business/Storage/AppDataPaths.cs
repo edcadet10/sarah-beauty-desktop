@@ -1,24 +1,13 @@
 using System;
 using System.IO;
+using SarahBeauty.Business.Storage;
 
 namespace SarahBeauty_Desktop.Storage;
 
 public static class AppDataPaths
 {
-    public static string GetTestFolder()
-    {
-        string? previewFolder=Environment.GetEnvironmentVariable("SARAHBEAUTY_TEST_DIRECTORY");
-        if(!string.IsNullOrWhiteSpace(previewFolder))return Path.GetFullPath(previewFolder);
-        string localData = Environment.GetFolderPath(
-            Environment.SpecialFolder.LocalApplicationData);
-        if (string.IsNullOrWhiteSpace(localData))
-        {
-            throw new InvalidOperationException(
-                "Windows could not locate the local application data folder.");
-        }
-
-        return Path.Combine(localData, "SarahBeautyDesktop", "Test");
-    }
+    public static string GetTestFolder()=>BusinessDataFolders.Resolve(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),BusinessMode.Test,Environment.GetEnvironmentVariable("SARAHBEAUTY_TEST_DIRECTORY"));
+    public static string GetLiveFolder()=>BusinessDataFolders.Resolve(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),BusinessMode.Live);
 
     public static string EnsureTestFolderExists()
     {
