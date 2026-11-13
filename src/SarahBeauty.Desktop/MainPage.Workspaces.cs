@@ -26,10 +26,7 @@ public sealed partial class MainPage
         HideOwnerContent();var panel=Form.Panel();var status=Form.Text();panel.Add(Form.Title("Open your LIVE business"),Form.Text("No saved LIVE business was found. Create a clean new business, review a complete LIVE recovery archive, or choose TEST for practice."),
             Form.Action("Create a clean LIVE business",status,()=>{ShowLiveCreation();return Task.CompletedTask;}),WorkspaceChoiceAction(status),RecoveryActions(),status);ShowPanel(panel);
     }
-    private void ShowLiveCreation()
-    {
-        HideOwnerContent();var panel=Form.Panel();var status=Form.Text();panel.Add(Form.Action("Back to LIVE opening",status,()=>{OpenCurrentStore();return Task.CompletedTask;}),new LiveBusinessCreationView(AppDataPaths.GetLiveFolder(),result=>EnterAuthenticatedStore(result.Store,result.Owner)).Build(),status);ShowPanel(panel);
-    }
+    private void ShowLiveCreation()=>ShowBusinessStart(BusinessMode.Live);
     private void EnterAuthenticatedStore(BusinessStore store,OwnerSession owner)
     {
         bool retained=false;

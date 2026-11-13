@@ -10,9 +10,9 @@ internal sealed class OwnerSignInView(OwnerAccess access,OwnerPins pins,Action<O
 {
     private readonly StackPanel _panel=Form.Panel();
     private readonly ContentControl _host=new(){HorizontalContentAlignment=HorizontalAlignment.Stretch};
-    private readonly ComboBox _owner=new(){Header="Owner"};
+    private readonly ComboBox _owner=new(){Header="Username"};
     private readonly ComboBox _method=Form.Select("Unlock with",["Password / passphrase","PIN"],"Password / passphrase");
-    private readonly PasswordBox _phrase=Form.Secret("Passphrase"),_pin=PinInput.Create("PIN");
+    private readonly PasswordBox _phrase=Form.Secret("Password"),_pin=PinInput.Create("PIN");
     private readonly TextBlock _hint=Form.Text(),_status=Form.Text();
     private List<(string Id,string Name)> _owners=[];
 
@@ -46,7 +46,7 @@ internal sealed class OwnerSignInView(OwnerAccess access,OwnerPins pins,Action<O
     }
     private async Task SignIn()
     {
-        if(_owner.SelectedIndex<0)throw new ArgumentException("Select an owner.");
+        if(_owner.SelectedIndex<0)throw new ArgumentException("Select your username.");
         string id=_owners[_owner.SelectedIndex].Id,secret=UsesPin?_pin.Password:_phrase.Password;bool pin=UsesPin;Clear();_host.IsEnabled=false;
         try
         {
