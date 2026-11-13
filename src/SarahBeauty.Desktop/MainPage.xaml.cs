@@ -47,7 +47,7 @@ public sealed partial class MainPage : Page
         HideOwnerContent();
         var panel=Form.Panel();var access=_access!;int generation=_workspaceGeneration;var status=Form.Text();
         if(reason is not null)panel.Add(Form.Text(reason));
-        panel.Add(Form.Text(BusinessModes.StoredName(_mode)+" • Local business records"), OwnerView.Build(access, session =>
+        panel.Add(Form.Text(BusinessModes.StoredName(_mode)+" • Local business records"), OwnerView.Build(access,new OwnerPins(_store!), session =>
         {
             bool retained=false;
             try
