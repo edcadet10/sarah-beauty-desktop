@@ -1,5 +1,9 @@
 # Build progress
 
+## Offline release scope — November 12, 2026
+
+The owner reaffirmed that Sarah Beauty must work fully offline. No Google project or app connection was created; setup stopped. Requirements, recovery guidance and acceptance now distinguish required local encrypted backup/recovery from optional Google copies. Real Google setup/delivery is not an offline-release gate. Local workflow, actual Surface, second-device recovery, installation and release checks remain required. Existing optional Google features remain disabled unless separately configured and authorized.
+
 ## Packaged payment allocation acceptance — November 12, 2026
 
 Native AC-025 applies one receipt across split-payer invoices, requires a reviewed on-behalf decision, and settles one invoice from two receipts. Exhausted-source and settled-target extra cents reject without changing posted values. Independent amounts, milestone bounds, retained documents/PDFs, second-owner reports, integrity and restart checks pass. See [payment allocation evidence](native-payment-allocation.md). Full release acceptance remains open.
