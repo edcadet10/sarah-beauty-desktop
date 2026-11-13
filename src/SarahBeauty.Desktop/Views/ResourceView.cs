@@ -89,12 +89,15 @@ internal sealed partial class ResourceView(BusinessStore store,OwnerSession owne
         SelectRow(value);
     }
 
-    private async Task<bool> ConfirmDiscard()
+    private Task<bool> ConfirmDiscard()=>ConfirmReplacement(_hasChanges(),"Discard unsaved register changes?",
+        "Your register changes have not been saved. Discard them to continue.");
+
+    private async Task<bool> ConfirmReplacement(bool dirty,string title,string content)
     {
         if(_saving||_discardDialog is not null)return false;
-        if(!_hasChanges())return true;
-        var dialog=new ContentDialog{XamlRoot=_detail.XamlRoot,Title="Discard unsaved register changes?",
-            Content="Your register changes have not been saved. Discard them to continue.",PrimaryButtonText="Discard changes",
+        if(!dirty)return true;
+        var dialog=new ContentDialog{XamlRoot=_detail.XamlRoot,Title=title,
+            Content=content,PrimaryButtonText="Discard changes",
             CloseButtonText="Keep editing",DefaultButton=ContentDialogButton.Close};
         _discardDialog=dialog;
         try{return await dialog.ShowAsync()==ContentDialogResult.Primary;}
