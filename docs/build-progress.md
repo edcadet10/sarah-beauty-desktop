@@ -4,6 +4,10 @@
 
 The owner reaffirmed that Sarah Beauty must work fully offline. No Google project or app connection was created; setup stopped. Requirements, recovery guidance and acceptance distinguish required local encrypted backup/recovery from optional Google copies. Real Google setup/delivery is not an offline-release gate. Actual Surface, second-device recovery, installation and release checks remain required. Optional Google features remain disabled unless separately configured and authorized. This clarification does not mark later feature-stack work merged into main.
 
+## Grouped customer form — November 12, 2026
+
+Contact fields stay visible; optional billing, private preferences/notes, and photo details are grouped. Photo status remains visible and Save customer uses the primary style. A fresh native fixture verifies closed-section preservation across two owners and restarts; an independent database read confirms all 14 expected values and unchanged two-entry permission history. Debug builds cleanly. See [customer form checks](customer-form-sections.md). Wider layout, keyboard, larger-text, and touch checks remain pending.
+
 ## Owner-selected emerald theme — November 12, 2026
 
 The current design uses the owner's emerald, cream, and subtle gold choice. All 54 palette checks pass, with a lowest text contrast of 4.91:1. Light and dark sign-in/dashboard/customer renders were inspected. Native dark dashboard checks retain the expected values and actions at 1280/900/500 pixels; caption colors were corrected after the dark capture exposed black controls. The app follows Windows. See [current visual design](visual-design.md); contrast-theme, keyboard, larger-text, inherited-state, and physical-device acceptance remain pending.

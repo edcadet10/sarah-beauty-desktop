@@ -26,8 +26,18 @@ internal sealed class CustomerFields
         _scope = Form.Input("Permission scope", customer.PermissionScope);
         _permissionNotes = Form.Input("Permission details / evidence reference", customer.PermissionNotes);
         _archive = new CheckBox { Content = "Archive this customer", IsChecked = customer.Archived };
-        Controls = [_name, _phone, _email, _contact, _billingName, _address, _makeup, _sensitivities, _notes,
-            _permission, _scope, _permissionNotes, _archive];
+        var permissionStatus=Form.Muted("Photo permission: "+customer.PhotoPermission);
+        _permission.SelectionChanged+=(_,_)=>permissionStatus.Text="Photo permission: "+_permission.SelectedItem;
+        Controls = [_name, _phone, _email, _contact,
+            Section("Billing details",_billingName,_address),
+            Section("Preferences and private notes",_makeup,_sensitivities,_notes),permissionStatus,
+            Section("Photo permission details",_permission,_scope,_permissionNotes),_archive];
+    }
+
+    private static Expander Section(string title,params UIElement[] fields)
+    {
+        var panel=Form.Panel();panel.Add(fields);
+        return new Expander{Header=title,Content=panel,HorizontalAlignment=HorizontalAlignment.Stretch};
     }
 
     internal Customer Read(Customer previous) => previous with

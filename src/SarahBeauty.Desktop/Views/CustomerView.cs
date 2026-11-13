@@ -46,7 +46,7 @@ internal sealed class CustomerView
         var status = Form.Text(customer.ContactWarning);
         _editor.Add(Form.Title(customer.Id.Length == 0 ? "New customer" : "Edit customer"));
         foreach (var control in fields.Controls) _editor.Children.Add(control);
-        _editor.Add(status, Form.Action("Save customer", status, async () =>
+        _editor.Add(status, Form.PrimaryAction("Save customer", status, async () =>
         {
             var value = fields.Read(customer);
             var saved = await Task.Run(() => _book.Save(_session, value));
