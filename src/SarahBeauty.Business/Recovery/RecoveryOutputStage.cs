@@ -2,7 +2,7 @@ using System.Security.Cryptography;
 
 namespace SarahBeauty.Business.Recovery;
 
-internal sealed class RecoveryOutputStage:IDisposable
+internal sealed class RecoveryOutputStage:IDisposable,IAsyncDisposable
 {
     private readonly string _directory;
     private readonly string _destination;
@@ -27,10 +27,27 @@ internal sealed class RecoveryOutputStage:IDisposable
         void Move(){cancellation.ThrowIfCancellationRequested();File.Move(Path,_destination,overwrite:false);}
         if(publish is null)Move();else publish(Move);return new(reply.Bytes,hash);
     }
-    public void Dispose()
+    public void Dispose()=>DisposeAsync().AsTask().GetAwaiter().GetResult();
+
+    public async ValueTask DisposeAsync()
     {
-        // Only the operation's known output is removed. Unexpected directory contents are retained.
-        try{File.Delete(Path);}catch(IOException){}catch(UnauthorizedAccessException){}
+        await DeleteKnownOutput().ConfigureAwait(false);
+        // Unexpected directory contents are retained; cleanup never removes them recursively.
         try{Directory.Delete(_directory,recursive:false);}catch(IOException){}catch(UnauthorizedAccessException){}
     }
+
+    private async Task DeleteKnownOutput()
+    {
+        for(int attempt=0;;attempt++)
+        {
+            try{File.Delete(Path);return;}
+            catch(IOException error) when((error.HResult&0xFFFF) is 32 or 33 && attempt<39)
+            {await Task.Delay(25).ConfigureAwait(false);}
+            catch(IOException){throw CleanupFailure();}
+            catch(UnauthorizedAccessException){throw CleanupFailure();}
+        }
+    }
+
+    private static RecoveryFailure CleanupFailure()=>new("TemporaryOutputCleanupFailed",
+        "The temporary recovery output could not be removed. Close programs using the destination folder and retry.");
 }
