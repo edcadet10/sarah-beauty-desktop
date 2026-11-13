@@ -39,7 +39,7 @@ The app now has [Google Desktop connection controls](docs/desktop-google-connect
 
 [Owner security](docs/desktop-owner-security.md) adds private own-passphrase changes with current-phrase verification, stale-credential session revocation, cancellation/rollback and fresh sign-in. Reviewed archive recovery continues to require portable recovery material and a new writable instance.
 
-Remaining work includes further managed-evidence selection within entry forms, retention controls and second-device recovery acceptance, separate LIVE setup, remaining document states and workflow hardening, further unsaved-work protection, an installer, and full release/device checks. There is no published installer yet. Real Google acceptance applies only before enabling optional online features and does not block the offline release.
+Remaining work includes further managed-evidence selection within entry forms, retention controls and second-device recovery acceptance, separate LIVE setup, remaining document states and workflow hardening, further unsaved-work protection, and full release/device checks. There is no published installer yet. Real Google acceptance applies only before enabling the optional online features; it does not block the offline release.
 
 The first target is a Surface Pro 7. Everyday work and complete encrypted backups operate locally on Windows. An owner can later choose optional readable Sheets exports and private Drive copies. Those online copies never become a second place to edit the books.
 
