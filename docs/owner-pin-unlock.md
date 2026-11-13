@@ -7,7 +7,7 @@ The owner requested both password and PIN unlock on November 13, 2026. The deskt
 1. Sign in with your owner password. Open **Owner security**.
 2. Enter your current password, a new PIN with 6 to 12 digits, and the same PIN again. Select **Save my PIN**.
 3. Select **Lock / switch owner**, review the unfinished-work message, and select **Lock now**.
-4. Select your owner, choose **PIN** under **Unlock with**, enter your PIN, and select **Sign in**.
+4. Select your owner, choose **PIN** under **Unlock with**, enter your PIN, and select **Sign in** or press Enter in the PIN field.
 
 To use your password, choose **Password / passphrase** instead. To remove a PIN, open Owner security, enter your current password and select **Remove my PIN**. PIN and password fields clear after an attempt, when you switch methods/owners, or when you leave their view. Captured sign-in controls remain disabled while authentication runs.
 
@@ -42,3 +42,5 @@ The [GitHub-built source `818ec4f`](https://github.com/edcadet10/sarah-beauty-de
 Its business/test/recovery/tool inputs are byte-identical to [complete hosted run `43433503257`](https://github.com/edcadet10/sarah-beauty-desktop/actions/runs/43433503257): all 1,700 tests, recovery interoperability and Windows Debug pass. An independent local full run also passes all 1,700 without a hang. Changed desktop sources separately build cleanly and pass GitHub publish/native checks.
 
 Microsoft describes [CurrentUser DPAPI protection](https://learn.microsoft.com/en-us/dotnet/api/system.security.cryptography.protecteddata) as protection using Windows credentials. Physical Surface, second-computer recovery and broader release checks remain separate.
+
+The later [keyboard unlock correction](keyboard-unlock.md) supports Enter in either credential field and is now the default download. Authentication and PIN settings remain unchanged.

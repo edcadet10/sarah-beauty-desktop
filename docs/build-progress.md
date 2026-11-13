@@ -1,5 +1,9 @@
 # Build progress
 
+## Verified Enter unlock and critical Tab paths — November 13, 2026
+
+The `a6f3b9f` GitHub download matches all 620 file hashes and passes outbound-blocked PIN/password Enter, held-key suppression, wrong-PIN retry and both owner headers. Every saved business table remains exact and the owned rule is removed. Separate completed Tab probes reach sign-in controls, customer/Money Save and PIN actions; a focus interruption is recorded rather than counted. The default workflow/device link now identifies this immutable source, and requirements record the requested optional PIN. See [keyboard evidence](keyboard-unlock.md). Actual Surface, Windows text/contrast settings, second-device and final release checks remain open.
+
 ## Enter to unlock with the selected credential — November 13, 2026
 
 The `818ec4f` download ignores Enter in the PIN field, while Space on the button confirms the owned-window keyboard route. A 15-line correction shares the existing guarded sign-in action for button, PIN Enter and password Enter. Native repeat suppression, wrong-PIN recovery, both actual owner headers and exact saved-table checks pass. Debug is clean and self-contained publish succeeds; domain/test/recovery/tool inputs match the 1,700-case full pass. See [keyboard unlock](keyboard-unlock.md). Download verification and physical-device keyboard checks remain separate.
