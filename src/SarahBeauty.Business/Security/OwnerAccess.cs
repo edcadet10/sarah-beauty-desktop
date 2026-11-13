@@ -10,6 +10,19 @@ public sealed class OwnerAccess(BusinessStore store)
     public List<(string Id, string Name)> Owners() => store.Read(db => db.Read(
         "SELECT Id,Name FROM Owners WHERE Active=1 ORDER BY Name;", r => (r.GetString(0), r.GetString(1))));
 
+    public bool IsSessionCurrent(OwnerSession session)
+    {
+        if(!session.IsActive)return false;
+        try{return store.Read(db=>{store.RequireCurrentSession(db,session);return true;});}
+        catch(UnauthorizedAccessException){return false;}
+    }
+    public bool TryRecordActivity(OwnerSession session)
+    {
+        if(!session.IsActive)return false;
+        try{return store.Read(db=>{store.RequireSession(db,session);return true;});}
+        catch(UnauthorizedAccessException){return false;}
+    }
+
     public OwnerSession Setup(string businessName, string firstName, string firstPhrase,
         string secondName, string secondPhrase)
     {
@@ -46,11 +59,15 @@ public sealed class OwnerAccess(BusinessStore store)
 
     public void Confirm(OwnerSession session, string phrase)
     {
-        if (session.StoreId != store.StoreId || session.InstanceId!=store.InstanceId || session.ExpiresAt <= DateTimeOffset.UtcNow)
+        if (session.StoreId != store.StoreId || session.InstanceId!=store.InstanceId || !session.IsActive)
             throw new UnauthorizedAccessException("Sign in to this business to continue.");
         var verified = SignIn(session.OwnerId, phrase);
-        if (verified.BusinessId != session.BusinessId) throw new UnauthorizedAccessException();
-        session.Touch();
+        try
+        {
+            if (verified.BusinessId != session.BusinessId) throw new UnauthorizedAccessException();
+            store.Read(db=>{store.RequireSession(db,session);return true;});
+        }
+        finally{verified.Lock();}
     }
 
     private static OwnerCredential? ReadCredential(DbWork db,string id)=>db.Read("""
