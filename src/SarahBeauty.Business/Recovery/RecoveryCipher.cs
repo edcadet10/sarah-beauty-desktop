@@ -25,13 +25,13 @@ public sealed class RecoveryCipher
     }
     public async Task<RecoveryOutput> EncryptAsync(string input,string output,string recipient,CancellationToken cancellation=default)
     {
-        using var stage=new RecoveryOutputStage(output);
+        await using var stage=new RecoveryOutputStage(output);
         var result=await _worker.Run(new(){Operation="encrypt",InputPath=Path.GetFullPath(input),OutputPath=stage.Path,Recipient=recipient},cancellation);
         return await stage.Publish(result,cancellation);
     }
     public async Task<RecoveryOutput> DecryptAsync(string input,string output,byte[] protectedIdentity,string passphrase,CancellationToken cancellation=default)
     {
-        using var stage=new RecoveryOutputStage(output);
+        await using var stage=new RecoveryOutputStage(output);
         var result=await _worker.Run(new(){Operation="decrypt",InputPath=Path.GetFullPath(input),OutputPath=stage.Path,ProtectedIdentity=protectedIdentity,Passphrase=passphrase},cancellation);
         return await stage.Publish(result,cancellation);
     }
