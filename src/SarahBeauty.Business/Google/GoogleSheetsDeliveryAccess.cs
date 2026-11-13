@@ -2,7 +2,7 @@ using SarahBeauty.Business.Storage;
 
 namespace SarahBeauty.Business.Google;
 
-internal sealed class GoogleSheetsDeliveryAccess(BusinessStore store,GoogleConnections connections,GoogleOutputPermit permit,GoogleSheetsExportJob job,GoogleSheetsAttempt attempt,HttpClient client)
+internal sealed class GoogleSheetsDeliveryAccess(BusinessStore store,GoogleConnections connections,GoogleOutputPermit permit,GoogleSheetsExportJob job,GoogleSheetsAttempt attempt,HttpClient client,GoogleSheetsExportProfile? schedule=null)
 {
     internal Func<CancellationToken,Task> Wait {get;set;}=GoogleSheetsRequestPacing.ForAccount(permit.Connection.Account.Account.PermissionId).WaitAsync;
     internal async Task<string> TokenAsync(CancellationToken cancellation)
@@ -20,7 +20,7 @@ internal sealed class GoogleSheetsDeliveryAccess(BusinessStore store,GoogleConne
     {
         await new GoogleDriveFolders(client).VerifyAsync(await TokenAsync(cancellation).ConfigureAwait(false),job.FolderId,permit.Connection.Account.Account.PermissionId,job.FolderBinding,cancellation).ConfigureAwait(false);cancellation.ThrowIfCancellationRequested();Require();
     }
-    internal void Require()=>store.Read(db=>{new GoogleSheetsDeliveries(store).RequireRunning(db,permit,job,attempt);return true;});
+    internal void Require()=>store.Read(db=>{if(schedule is not null)new GoogleSheetsExportProfiles(store).Require(db,schedule);new GoogleSheetsDeliveries(store).RequireRunning(db,permit,job,attempt);return true;});
     private string FileId()=>store.Read(db=>
     {
         new GoogleSheetsDeliveries(store).RequireRunning(db,permit,job,attempt);var creation=GoogleSheetsCreationRecords.Get(db,job);

@@ -32,26 +32,23 @@ public sealed partial class GoogleSheetsDeliveryWorker
         ArgumentNullException.ThrowIfNull(selection);selection.Validate();return RunAsync(selection,null,cancellation);
     }
     internal Task<GoogleSheetsAttempt> RetryCurrentAsync(string jobId,CancellationToken cancellation=default)=>RunAsync(null,jobId,cancellation);
+    internal Task<GoogleSheetsAttempt> RetryScheduledAsync(string jobId,GoogleSheetsExportProfile profile,CancellationToken cancellation=default)=>RunAsync(null,jobId,cancellation,profile);
 
-    private async Task<GoogleSheetsAttempt> RunAsync(ReadableExportSelection? selection,string? jobId,CancellationToken cancellation)
+    private async Task<GoogleSheetsAttempt> RunAsync(ReadableExportSelection? selection,string? jobId,CancellationToken cancellation,GoogleSheetsExportProfile? schedule=null)
     {
         cancellation.ThrowIfCancellationRequested();using var lease=GoogleSheetsDeliveryLease.TryAcquire(_store)??throw new GoogleConnectionFailure("GoogleSheetsBusy","Another readable delivery is active. Retry after it finishes.");
-        var permit=_settings.Authorize(GoogleOutputKind.SheetsExport);_deliveries.InterruptRunning();var job=selection is null?Existing(permit,jobId!):Capture(permit,selection,cancellation);
+        var permit=_settings.Authorize(GoogleOutputKind.SheetsExport);if(schedule is not null)_store.Read(db=>{new GoogleSheetsExportProfiles(_store).Require(db,schedule);return true;});
+        _deliveries.InterruptRunning();var job=selection is null?Existing(permit,jobId!):new GoogleSheetsExportJobs(_store).Capture(permit,selection,cancellation);
         var attempt=_deliveries.Begin(permit,job,cancellation);ActiveAttempts.TryAdd(attempt.Id,0);
         try
         {
             var generation=new ReadableGenerationFiles(_store).Load(GoogleSheetsJobRecords.Artifact(job),cancellation);GoogleSheetsExportJobs.RequireGeneration(job,generation);
-            var access=new GoogleSheetsDeliveryAccess(_store,_connections,permit,job,attempt,_client);if(WaitForRequest is not null)access.Wait=WaitForRequest;
+            var access=new GoogleSheetsDeliveryAccess(_store,_connections,permit,job,attempt,_client,schedule);if(WaitForRequest is not null)access.Wait=WaitForRequest;
             var result=await DeliverContentAsync(permit,job,attempt,generation,access,cancellation).ConfigureAwait(false);FailurePoint?.Invoke("Remote readable export verified");
-            cancellation.ThrowIfCancellationRequested();return _deliveries.Complete(permit,job,attempt,result,cancellation);
+            cancellation.ThrowIfCancellationRequested();return _deliveries.Complete(permit,job,attempt,result,cancellation,schedule);
         }
         catch(Exception error){RecordFailure(permit,attempt,error);throw;}
         finally{ActiveAttempts.TryRemove(attempt.Id,out _);}
-    }
-    private GoogleSheetsExportJob Capture(GoogleOutputPermit permit,ReadableExportSelection selection,CancellationToken cancellation)
-    {
-        using var snapshot=new ReadableExportSnapshots(_store).Capture(permit,cancellation);var generation=ReadableExportGeneration.Build(snapshot,selection,cancellation);
-        var artifact=new ReadableGenerationFiles(_store).Stage(generation,cancellation);return new GoogleSheetsExportJobs(_store).Reserve(permit,artifact,cancellation);
     }
     private GoogleSheetsExportJob Existing(GoogleOutputPermit permit,string id)=>_store.Read(db=>
     {

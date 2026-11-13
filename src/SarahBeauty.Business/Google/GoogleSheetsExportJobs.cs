@@ -14,6 +14,12 @@ public sealed class GoogleSheetsExportJobs(BusinessStore store)
             .OrderByDescending(job=>job.CreatedAtUtc,StringComparer.Ordinal).ThenBy(job=>job.Id,StringComparer.Ordinal).ToArray();
     });
 
+    internal GoogleSheetsExportJob Capture(GoogleOutputPermit permit,ReadableExportSelection selection,CancellationToken cancellation=default)
+    {
+        using var snapshot=new ReadableExportSnapshots(store).Capture(permit,cancellation);var generation=ReadableExportGeneration.Build(snapshot,selection,cancellation);
+        var artifact=new ReadableGenerationFiles(store).Stage(generation,cancellation);return Reserve(permit,artifact,cancellation);
+    }
+
     internal GoogleSheetsExportJob Reserve(GoogleOutputPermit permit,ReadableGenerationArtifact artifact,CancellationToken cancellation=default)
     {
         cancellation.ThrowIfCancellationRequested();store.Read(db=>{RequirePermission(db,permit);return true;});
