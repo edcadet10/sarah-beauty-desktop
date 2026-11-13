@@ -28,7 +28,7 @@ internal sealed class CustomerFields
         _archive = new CheckBox { Content = "Archive this customer", IsChecked = customer.Archived };
         var permissionStatus=Form.Muted("Photo permission: "+customer.PhotoPermission);
         _permission.SelectionChanged+=(_,_)=>permissionStatus.Text="Photo permission: "+_permission.SelectedItem;
-        Controls = [_name, _phone, _email, _contact,
+        Controls = [_name, ResponsiveGrid.Build([_phone,_email],2), _contact,
             Section("Billing details",_billingName,_address),
             Section("Preferences and private notes",_makeup,_sensitivities,_notes),permissionStatus,
             Section("Photo permission details",_permission,_scope,_permissionNotes),_archive];

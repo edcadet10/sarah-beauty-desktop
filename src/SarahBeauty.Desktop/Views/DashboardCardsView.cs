@@ -33,7 +33,7 @@ internal static class DashboardCardsView
         return panel;
     }
 
-    private static UIElement BuildGrid(IEnumerable<(string Title,string Value,string Detail)> cards)=>ResponsiveCards.Build(cards.Select(Card));
+    private static UIElement BuildGrid(IEnumerable<(string Title,string Value,string Detail)> cards)=>ResponsiveGrid.Build(cards.Select(Card));
 
     private static UIElement Card((string Title,string Value,string Detail) card)
     {

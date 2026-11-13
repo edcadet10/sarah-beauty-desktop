@@ -4,6 +4,10 @@
 
 The owner reaffirmed that Sarah Beauty must work fully offline. No Google project or app connection was created; setup stopped. Requirements, recovery guidance and acceptance distinguish required local encrypted backup/recovery from optional Google copies. Real Google setup/delivery is not an offline-release gate. Actual Surface, second-device recovery, installation and release checks remain required. Optional Google features remain disabled unless separately configured and authorized. This clarification does not mark later feature-stack work merged into main.
 
+## Responsive contact fields — November 12, 2026
+
+Phone/email share a row when the editor has room and stack on a narrow form. Native 1280/900/500-pixel checks retain saved values, all 14 independently checked customer facts and permission history, and the shared dashboard grid behavior. Debug builds cleanly; financial history/PDFs remain unchanged. See [contact layout checks](customer-contact-layout.md).
+
 ## Shared input sizing — November 12, 2026
 
 Common text/passphrase/combo entry frames now use a 44-effective-pixel minimum; checkboxes have 44 × 44 minimum targets. Native before/after calibration verifies the 12-pixel entry increase, rather than mistaking header-inclusive bounds for the editing area. Dropdown, dashboard, customer identity, history/PDF, and clean Debug checks pass. See [touch input checks](touch-input-sizing.md). Physical touch/keyboard, larger text, and full target acceptance remain pending.
