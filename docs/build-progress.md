@@ -4,6 +4,10 @@
 
 The owner reaffirmed that Sarah Beauty must work fully offline. No Google project or app connection was created; setup stopped. Requirements, recovery guidance and acceptance distinguish required local encrypted backup/recovery from optional Google copies. Real Google setup/delivery is not an offline-release gate. Actual Surface, second-device recovery, installation and release checks remain required. Optional Google features remain disabled unless separately configured and authorized. This clarification does not mark later feature-stack work merged into main.
 
+## Stored input line preservation — November 12, 2026
+
+Native probes reproduce loan terms/evidence clipping and mixed-newline customer saves creating an extra permission entry. The shared input factory and a small original-text reader retain complete values and unchanged CR/LF/CRLF. Name-only saves, a deliberate extra terms line, second-owner restart, customer Keep/Discard, full 4,128-character document terms, and independent stored-history checks pass. See [input regression evidence](preserved-input-lines.md). Full release acceptance remains open.
+
 ## Packaged period closing acceptance — November 12, 2026
 
 Native AC-038 blocks missing prerequisites and backdated expense/reversal approvals, preserves original reports through explicit book/Bank reopening, posts one reviewed correction, supports its actual outstanding remainder, and saves a distinct revised close. Independent hashes, source links, exact ledger counts, retained rejected drafts, and second-owner restart pass. A separate matched-source reversal verifies the active-match dependency guard. See [period closing evidence](native-period-acceptance.md). Full release acceptance remains open.

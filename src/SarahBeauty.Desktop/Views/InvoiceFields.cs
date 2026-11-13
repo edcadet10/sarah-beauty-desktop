@@ -35,7 +35,7 @@ internal sealed class InvoiceFields
     internal UIElement Build()=>_panel;
     internal InvoiceDraft Read(InvoiceDraft previous)=>previous with
     {
-        Name=_name.Text,IssueDate=Input.Date(_date.Text),DueDate=Input.Date(_due.Text),PayerCustomerId=_payer.SelectedId(),Terms=_terms.Text,
+        Name=_name.Text,IssueDate=Input.Date(_date.Text),DueDate=Input.Date(_due.Text),PayerCustomerId=_payer.SelectedId(),Terms=Form.ReadInput(_terms,previous.Terms),
         Portions=_quantities.Select(q=>new InvoicePortion(q.ChargeId,Input.Decimal(q.Quantity.Text))).Where(p=>p.Quantity!=0).ToArray()
     };
 }

@@ -23,7 +23,7 @@ internal sealed partial class ResourceView
             name,date,principal,due,lender,Form.Text("The owner-lender link is protected after posting. Each new approved loan movement retains its reviewed lender facts."),terms,evidence,archived,status,Form.Action("Save loan",status,async()=>
             {
                 var value=loan with{Name=name.Text,OpeningDate=Input.Date(date.Text),OpeningPrincipalCents=OptionalMoney(principal.Text),
-                    DueDate=Input.Date(due.Text),OwnerLenderId=lender.SelectedId(),Terms=terms.Text,EvidenceId=evidence.Text.Trim(),Archived=archived.IsChecked==true};
+                    DueDate=Input.Date(due.Text),OwnerLenderId=lender.SelectedId(),Terms=Form.ReadInput(terms,loan.Terms),EvidenceId=Form.ReadInput(evidence,loan.EvidenceId).Trim(),Archived=archived.IsChecked==true};
                 var saved=await Task.Run(()=>_book.SaveLoan(owner,value));
                 Refresh();
                 Edit(saved);

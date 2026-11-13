@@ -11,12 +11,19 @@ internal static class Form
     internal static TextBlock Muted(string text) => new() { Text = text, Style = Style("SarahMutedStyle"), IsTextSelectionEnabled = true };
     internal static Style Style(string key) => (Style)Application.Current.Resources[key];
     internal static Border Card(UIElement content) => new() { Child = content, Style = Style("SarahCardStyle") };
-    internal static TextBox Input(string label, string value = "") => new() { Header = label, Text = value, MinWidth = 200 };
+    internal static TextBox Input(string label,string value="")=>value?.IndexOfAny(['\r','\n']) is >=0
+        ? MultilineInput(label,value)
+        : new() { Header=label,Text=value,MinWidth=200 };
     internal static TextBox MultilineInput(string label,string value="")=>new()
     {
         Header=label,AcceptsReturn=true,TextWrapping=TextWrapping.Wrap,
         MinWidth=200,MinHeight=100,MaxHeight=220,Text=value
     };
+    internal static string ReadInput(TextBox input,string? original)
+    {
+        string text=input.Text;
+        return original is not null && text.ReplaceLineEndings("\n")==original.ReplaceLineEndings("\n")?original:text;
+    }
     internal static PasswordBox Secret(string label) => new() { Header = label, PasswordRevealMode = PasswordRevealMode.Hidden };
 
     internal static ComboBox Select(string label, string[] choices, string selected) =>
