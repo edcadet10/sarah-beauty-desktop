@@ -8,6 +8,7 @@ public sealed class BusinessStore
     public string DatabasePath { get; }
     public string StoreId { get; }
     public string InstanceId {get;}
+    public BusinessMode Mode {get;}=BusinessMode.Test;
     private readonly string _requiredState;
     internal Action? BeforeTransactionReservation {get;set;}
 
@@ -85,7 +86,7 @@ public sealed class BusinessStore
     internal void RequireCurrentSession(DbWork db,OwnerSession session)
     {
         StoreInstanceGuard.Require(db,StoreId,InstanceId,_requiredState);
-        if (session.StoreId != StoreId || session.InstanceId!=InstanceId || !session.IsActive)
+        if (session.Mode!=Mode || session.StoreId != StoreId || session.InstanceId!=InstanceId || !session.IsActive)
             throw new UnauthorizedAccessException("Sign in to this business to continue.");
         OwnerCredentials.Require(db,session);
     }
