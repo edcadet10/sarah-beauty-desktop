@@ -6,7 +6,7 @@ The owner reaffirmed that Sarah Beauty must work fully offline. No Google projec
 
 This file tracks the full application build requested on November 10, 2026. A component marked implemented still needs the release checks applicable to it. The app is not ready for live business use.
 
-Current feature head: mode-aware working-copy activation/retirement and LIVE reopening, schema 39. Sixty-five related activation/creation/opening/mode/upgrade cases, Windows Debug and native TEST preservation pass. The parent full creation/opening regression passes 1,477 cases locally and on GitHub, plus Windows Debug and recovery cryptography. Native mode selection and reviewed creation/recovery, remaining workflows and release acceptance continue. Main has merged through PR #180 and remains behind this feature stack. Historical sections below retain the results measured at their own step.
+Current feature head: isolated Debug review workspaces, schema 39, following mode-aware activation/retirement and clean LIVE opening/creation. Twenty-two path cases, actual Debug/Release routing probes, Windows Debug and a fresh native isolated TEST start pass. Full activation regression is running; the parent full creation/opening regression passes 1,477 cases locally and on GitHub, plus Windows Debug and recovery cryptography. Native mode selection and reviewed creation/recovery, remaining workflows and release acceptance continue. Main has merged through PR #181 and remains behind this feature stack. Historical sections below retain the results measured at their own step.
 
 | Area | Current state | Evidence or remaining work |
 |---|---|---|
