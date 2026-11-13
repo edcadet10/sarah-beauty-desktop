@@ -33,7 +33,7 @@ public sealed partial class MainPage : Page
             if(_mode==BusinessMode.Live&&!new LiveBusinesses(AppDataPaths.GetLiveFolder()).Exists){ShowMissingLive();return;}
             _store = _mode==BusinessMode.Test?new BusinessStore(new ActiveTestStores(AppDataPaths.EnsureTestFolderExists()).ResolveDatabase()):new LiveBusinesses(AppDataPaths.GetLiveFolder()).Open();
             _access = new OwnerAccess(_store);
-            _backupRuntime=new(_store);_googleRuntime=new(_store);_sheetsRuntime=new(_store);
+            StartBackups();
             ShowSignIn();
         }
         catch (Exception error)
@@ -77,7 +77,7 @@ public sealed partial class MainPage : Page
     private void ShowActivation()
     {
         HideOwnerContent();var panel=Form.Panel();var status=Form.Text();panel.Add(Form.Action("Back to owner sign-in",status,()=>{OpenCurrentStore();return Task.CompletedTask;}),status,
-            new ActivateStoreView(AppDataPaths.EnsureFolderExists(_mode),result=>{StopBackups();_session?.Lock();_store=result.Store;_access=new OwnerAccess(_store);_session=result.Owner;_ownerActivity=new(_access,_session);_backupRuntime=new(_store);_googleRuntime=new(_store);_sheetsRuntime=new(_store);ShowWorkspace();},_mode).Build());ShowPanel(panel);
+            new ActivateStoreView(AppDataPaths.EnsureFolderExists(_mode),result=>EnterAuthenticatedStore(result.Store,result.Owner),_mode).Build());ShowPanel(panel);
     }
     private void ShowRetired()
     {
