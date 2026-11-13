@@ -1,12 +1,16 @@
 # Build progress
 
+## Password and PIN unlock on the desktop — November 13, 2026
+
+The sign-in selector supports password/passphrase or an owner-specific PIN; Owner security sets/replaces/removes the PIN after current-password verification. Native format/password checks, both-owner unlock, cross-owner rejection, combined lockout with real timeout, password-change invalidation and removal/fallback pass. A PIN session still needs the password for approval; one $2 source posts once with two balanced journal lines and the correct actor. Packaged restart, 1280/500 protected-input/action layouts, narrow-window unlock and status-race recovery retain every saved table. See [PIN instructions and evidence](owner-pin-unlock.md). GitHub download/offline and full regression are being completed; this feature is later than the default preview.
+
 ## Local owner PIN authentication service — November 13, 2026
 
 The requested password/PIN unlock adds a separate local PIN verifier per owner, protected outside the business folder by Windows CurrentUser DPAPI. Shared password/PIN lockout, current-password authorization for PIN changes, credential-stamp invalidation and held-file review prevent the tested cross-owner/stale paths. Forty-six selected PIN/shared-credential cases plus a new-instance case pass; Windows Debug has zero warnings/errors. See [owner PIN design and evidence](owner-pin-unlock.md). The desktop selector/settings and native/full-regression/download checks remain the next focused change.
 
 ## Review voluntary workspace exits — November 13, 2026
 
-The verified `6b753ca` download reproduces cached customer/Money draft loss during manual lock and window close. A shared review defaults to Keep working; cancellation retains exact invalid input, session access and all saved tables. Repeated close and another open modal remain controlled, explicit exits clear drafts, and another owner restarts normally. Automatic security lock stays immediate. Clean Windows Debug and six owner-activity/shutdown cases pass. See [workspace exit review](workspace-exit-review.md). Packaged/download verification and the actual natural-expiry probe remain pending; this source is later than the current default preview.
+The verified `6b753ca` download reproduces cached customer/Money draft loss during manual lock and window close. A shared review defaults to Keep working; cancellation retains exact invalid input, session access and all saved tables. Repeated close and another open modal remain controlled, explicit exits clear drafts, and another owner restarts normally. An actual 905-second idle expiry dismisses an open review immediately. The GitHub `97dffa1` download matches 620 file hashes and passes the native probes with every saved table retained; its complete hosted check passes 1,684 tests, recovery interoperability and clean Windows Debug. See [workspace exit review](workspace-exit-review.md). Physical devices and broader usability remain separate release work.
 
 ## Verified Money review download — November 13, 2026
 

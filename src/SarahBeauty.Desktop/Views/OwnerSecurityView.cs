@@ -12,16 +12,17 @@ internal sealed class OwnerSecurityView(BusinessStore store,OwnerSession owner,A
     private readonly ContentControl _fields=new();
     private CancellationTokenSource? _cancellation;
     private ContentDialog? _dialog;
+    private readonly OwnerPinView _pin=new(store,owner);
     internal UIElement Build()
     {
         var fields=Form.Panel();fields.Add(_current,_next,_repeat,Form.Action("Change my sign-in passphrase",_status,Change));_fields.Content=fields;
-        var panel=Form.Panel();panel.Add(Form.Title("Owner security"),Form.Text("Change the passphrase for "+owner.OwnerName+". Use easy-to-type words, with 15 to 256 characters. Enter your current phrase and repeat the new phrase exactly."),
+        var panel=Form.Panel();panel.Add(Form.Title("Owner security"),_pin.Build(),Form.Text("Change the passphrase for "+owner.OwnerName+". Use easy-to-type words, with 15 to 256 characters. Enter your current phrase and repeat the new phrase exactly."),
             Form.Text("After saving, sign in again with your new phrase. Earlier sessions for your account will lose access. Passphrase fields clear after an attempt or when you leave this page."),
             _fields,Form.Action("Cancel passphrase change",_status,()=>{_dialog?.Hide();_cancellation?.Cancel();Clear();return Task.CompletedTask;}),_status,
             Form.Text("If you cannot sign in, review an encrypted recovery archive from the sign-in screen. Preparing a recovered copy requires your portable recovery material and creates a new local instance."));
         panel.Unloaded+=(_,_)=>Leave();return panel;
     }
-    internal void Leave(){Clear();_dialog?.Hide();_cancellation?.Cancel();}
+    internal void Leave(){_pin.Leave();Clear();_dialog?.Hide();_cancellation?.Cancel();}
     private async Task Change()
     {
         if(_cancellation is not null)throw new ArgumentException("Wait for the current passphrase operation.");
