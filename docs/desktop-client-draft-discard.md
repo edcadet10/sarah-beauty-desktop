@@ -8,4 +8,4 @@ The Windows Debug build passes without warnings or errors. A fresh fictional sch
 
 An independent SQLite reader verifies four retained original snapshots and hashes, one audit per discard, a preserved competing edit, database integrity and foreign keys. Thirteen complete financial and issued-document tables match the captured pre-discard baseline. The watermark advances only for the competing saved edit and four discards. Existing issued documents and the posted receipt/journal entries remain unchanged.
 
-These are developer-machine checks using fictional records. Full release workflows, actual Surface/second-device checks, and real Google account acceptance remain pending.
+GitHub run `43279646411` also passes all 1,575 storage cases in 20 minutes 27 seconds at `676a381`. Its Windows Debug build takes 45.12 seconds with zero warnings/errors, and recovery-crypto passes. These checks use fictional records. Full release workflows, actual Surface/second-device checks, and real Google account acceptance remain pending.
