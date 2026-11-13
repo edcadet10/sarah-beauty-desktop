@@ -34,7 +34,7 @@ internal static class ReceiptSnapshot
         string business=(string)db.Scalar("SELECT DisplayName FROM Business WHERE Id=$id;",("$id",owner.BusinessId))!;
         string terms="Balances are shown as of this receipt's issue date. Later payments, refunds, and adjustments appear in their own history.";
         if(payment.Kind==FinancialKind.ReceiptClassification)terms=$"This receipt acknowledges a reviewed {Rules.Money.Display(payment.AmountCents)} portion of the payment received on {received.Date:yyyy-MM-dd}. It does not acknowledge an additional payment. "+terms;
-        return new(DocumentKind.Receipt,number,1,"TEST",business,QuoteSnapshot.Party(customer),
+        return new(DocumentKind.Receipt,number,1,BusinessModes.StoredName(store.Mode),business,QuoteSnapshot.Party(customer),
             clientEvent,
             draft.IssueDate.Value,null,terms,
             [],checked(payment.AmountCents-payment.TaxCents),payment.TaxCents,payment.AmountCents,[]){Receipt=detail};

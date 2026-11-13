@@ -23,7 +23,7 @@ internal static class QuoteSnapshot
         ClientMilestone[] milestones=[new("Trial",plan.TrialCents,booking.TrialDue),
             new("Deposit",plan.DepositCents,booking.DepositDue),new("Final",plan.FinalCents,booking.FinalDue)];
         string name=(string)db.Scalar("SELECT DisplayName FROM Business WHERE Id=$id;",("$id",owner.BusinessId))!;
-        return new(DocumentKind.Quote,number,version,"TEST",name,Party(customer),
+        return new(DocumentKind.Quote,number,version,BusinessModes.StoredName(store.Mode),name,Party(customer),
             Event(booking),draft.IssueDate.Value,draft.DueDate,draft.Terms,
             lines,totals.NetCents,totals.TaxCents!.Value,totals.TotalCents.Value,milestones.Where(m=>m.Cents>0).ToArray());
     }

@@ -12,9 +12,9 @@ internal static class StoreInstanceGuard
         if(values.Count!=4 || values["StoreId"]!=storeId || values["StoreMode"]!=mode || !Guid.TryParseExact(values["WritableInstanceId"],"N",out var id) || id==Guid.Empty || values["WritableInstanceState"] is not("Active" or "Prepared" or "Retired"))throw new InvalidDataException("The writable store instance metadata is missing or invalid. Preserve this store and review recovery options.");
         if(values["WritableInstanceState"]!=requiredState)throw Unavailable();return values["WritableInstanceId"];
     }
-    internal static void Require(DbWork db,string storeId,string instanceId,string requiredState="Active")
+    internal static void Require(DbWork db,string storeId,string instanceId,string requiredState="Active",BusinessMode mode=BusinessMode.Test)
     {
-        if(Read(db,storeId,requiredState:requiredState)!=instanceId || Convert.ToInt32(db.Scalar("PRAGMA user_version;"))!=BusinessSchema.Version)throw Unavailable();
+        if(Read(db,storeId,BusinessModes.StoredName(mode),requiredState)!=instanceId || Convert.ToInt32(db.Scalar("PRAGMA user_version;"))!=BusinessSchema.Version)throw Unavailable();
     }
     private static UnauthorizedAccessException Unavailable()=>new("This writable store instance changed or was retired. Open the active business store and sign in again.");
 }
