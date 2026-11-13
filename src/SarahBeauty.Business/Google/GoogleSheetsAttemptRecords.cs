@@ -47,7 +47,7 @@ internal static class GoogleSheetsDeliveryFailures
 {
     private static readonly HashSet<string> Codes=["GoogleSheetsBusy","GoogleSheetsSourceChanged","GoogleSheetsAlreadyVerified","ReadableVerificationFailed","ReadableSourceUnavailable",
         "ReadableWorkbookCreationUnconfirmed","ReadableWorkbookLookupUnconfirmed","ReadableWorkbookNotPrivateOrBound","ReadableGridMismatch","ReadableCellMismatch",
-        "ReadableInitialSchemaUnsupported","ReadableWriteUnconfirmed","ReadableReadLocationRejected","ReadableSchemaSourceMismatch","ReadableSchemaUnconfirmed","ReadableSchemaMismatch"];
+        "ReadableInitialSchemaUnsupported","ReadableWriteUnconfirmed","ReadableReadLocationRejected","ReadableSchemaSourceMismatch","ReadableSchemaUnconfirmed","ReadableSchemaMismatch","ReadablePublicationUnconfirmed"];
     internal static bool Known(string? code)=>code is not null&&(Codes.Contains(code)||GoogleDeliveryFailures.Known(code));
     internal static string Code(Exception error)=>error switch{GoogleConnectionFailure failure=>Known(failure.Code)?failure.Code:"GoogleOperationFailed",InvalidDataException=>"ReadableVerificationFailed",IOException=>"ReadableSourceUnavailable",_=>GoogleDeliveryFailures.Code(error)};
 }
