@@ -1,0 +1,7 @@
+# Validate a retained document decision
+
+Decision payloads name an exact issued version/hash, expected state, action, decision date, private reason, and optional managed receipt/evidence descriptor. Supported actions describe quote decline, quote withdrawal, quote void, and invoice void. This pure contract defines their recorded result labels; it does not authorize a transition or establish that an invoice is safe to void.
+
+Normalization requires a nonempty version identity, exact digest, issued expected state, date, supported action, and trimmed reason of at most 1,000 characters. Optional evidence excludes permission-scoped customer photos and requires a valid managed descriptor; the later service must compare its actual business/file source. Retained format 1 adds business/document/request/owner identity and explicit UTC recording time. The codec verifies its digest, canonical shape, normalized draft, and result mapping, rejecting unknown/duplicate JSON fields.
+
+All six Release cases pass for the four action/result mappings, canonical identity/hash/reason payload round trips, missing/unsupported facts, wrong digest, rehashed invalid version/result/actor/time/reason, and unknown/duplicate fields. No business status, document content, money, or Google record is changed. Current-source/date/dependency checks, writer authorization/retry handling, verified history, recovery integration and native controls remain separate steps.
