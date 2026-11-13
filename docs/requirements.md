@@ -41,7 +41,7 @@ The application will support two owners.
 - Financial posting, corrections, document issuance, period closing, and restoration must be logged.
 - Owner identity and the selected business must remain visible while working.
 
-Local sign-in and approval use the selected owner's passphrase, with salted password hashes, failed-attempt lockout, and expiring sessions. A selected display name alone is not proof of who approved an entry. Google sign-in is for backup authorization, not a prerequisite for local financial approval. Owner-access hardening and release checks remain tracked in the build progress.
+Local sign-in supports the selected owner's password/passphrase and the optional owner-specific PIN requested on November 13, 2026. A PIN has 6–12 digits, requires the current password to set/remove, is protected in the Windows profile and shares the sign-in lockout. Password changes or a recovered writable instance require PIN setup again. Approval confirmation still uses the owner's passphrase, with salted password hashes and expiring store-bound sessions. A selected display name alone is not proof of who approved an entry. Google sign-in is for optional copies, not local approval. See [password/PIN evidence](owner-pin-unlock.md) and [build progress](build-progress.md).
 
 ## Customer records
 

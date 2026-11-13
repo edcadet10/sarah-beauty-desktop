@@ -6,7 +6,7 @@ on:
       revision:
         description: Repository branch, tag, or commit to build
         required: true
-        default: 818ec4f243ddf5966fcae8d325b30b9c3deea401
+        default: a6f3b9f450199a585bdca38796ea3b8660f63a7f
         type: string
 
 permissions:
@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: ${{ inputs.revision || '818ec4f243ddf5966fcae8d325b30b9c3deea401' }}
+          ref: ${{ inputs.revision || 'a6f3b9f450199a585bdca38796ea3b8660f63a7f' }}
           persist-credentials: false
       - uses: actions/setup-dotnet@v6
         with:
