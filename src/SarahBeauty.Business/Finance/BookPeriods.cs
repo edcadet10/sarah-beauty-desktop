@@ -27,7 +27,7 @@ public sealed class BookPeriods(BusinessStore store)
         return db.Read("""
             SELECT C.Id,C.FromDate,C.ThroughDate,C.ApprovedBy,C.AtUtc,EXISTS(SELECT 1 FROM BookPeriodReopens R WHERE R.PeriodId=C.Id)
             FROM BookPeriodCloses C WHERE C.BusinessId=$business ORDER BY C.ThroughDate,C.AtUtc,C.Id;
-            """,r=>new BookPeriodSummary(r.GetString(0),DateOnly.Parse(r.GetString(1)),DateOnly.Parse(r.GetString(2)),r.GetString(3),r.GetString(4),r.GetInt32(5)==1),("$business",owner.BusinessId));
+            """,r=>new BookPeriodSummary(r.GetString(0),StoredDates.Parse(r.GetString(1)),StoredDates.Parse(r.GetString(2)),r.GetString(3),r.GetString(4),r.GetInt32(5)==1),("$business",owner.BusinessId));
     });
 
     public ClosedBookPeriod Close(OwnerSession owner,BookPeriodDraft draft,long reviewedWatermark,string requestId,string phrase)
@@ -56,11 +56,11 @@ public sealed class BookPeriods(BusinessStore store)
         db.Execute("""
             INSERT INTO BookPeriodCloses (Id,BusinessId,FromDate,ThroughDate,RequestId,PayloadHash,SnapshotJson,SnapshotHash,ApprovedBy,AtUtc)
             VALUES ($id,$business,$from,$through,$request,$payload,$snapshot,$hash,$owner,$at);
-            """,("$id",id),("$business",owner.BusinessId),("$from",preview.Draft.From.ToString("yyyy-MM-dd")),("$through",preview.Draft.Through.ToString("yyyy-MM-dd")),
+            """,("$id",id),("$business",owner.BusinessId),("$from",preview.Draft.From.ToStorageDate()),("$through",preview.Draft.Through.ToStorageDate()),
             ("$request",request),("$payload",payload),("$snapshot",json),("$hash",hash),("$owner",owner.OwnerId),("$at",at));
         FailurePoint?.Invoke("period-snapshot");
         db.Execute("INSERT INTO BookSettings (BusinessId,ClosedThrough) VALUES ($business,$date) ON CONFLICT(BusinessId) DO UPDATE SET ClosedThrough=excluded.ClosedThrough;",
-            ("$business",owner.BusinessId),("$date",preview.Draft.Through.ToString("yyyy-MM-dd")));
+            ("$business",owner.BusinessId),("$date",preview.Draft.Through.ToStorageDate()));
         FailurePoint?.Invoke("period-lock");
         BusinessStore.Audit(db,owner,"Close book period",id);FailurePoint?.Invoke("audit");
         return new(id,owner.OwnerId,at,preview,hash,false);

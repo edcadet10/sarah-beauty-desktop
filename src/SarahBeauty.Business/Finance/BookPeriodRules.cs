@@ -28,7 +28,7 @@ internal static class BookPeriodRules
         return new(draft,closed,report,issues.Distinct().ToArray(),reconciliations.Select(r=>new ReconciliationSummary(r.Id,r.AccountId,r.StatementId,r.AsOfDate,r.ApprovedBy,r.AtUtc,false)).ToArray());
     }
 
-    internal static DateOnly? ClosedThrough(DbWork db,OwnerSession owner)=>db.Scalar("SELECT ClosedThrough FROM BookSettings WHERE BusinessId=$business;",("$business",owner.BusinessId)) is string date?DateOnly.Parse(date):null;
+    internal static DateOnly? ClosedThrough(DbWork db,OwnerSession owner)=>db.Scalar("SELECT ClosedThrough FROM BookSettings WHERE BusinessId=$business;",("$business",owner.BusinessId)) is string date?StoredDates.Parse(date):null;
     private static BigInteger Sum(IEnumerable<long> values)=>values.Aggregate(BigInteger.Zero,(sum,value)=>sum+value);
 
     private static CompletedReconciliation[] Reconciliations(DbWork db,OwnerSession owner,DateOnly through)
@@ -36,7 +36,7 @@ internal static class BookPeriodRules
         var ids=db.Read("""
             SELECT C.Id FROM Reconciliations C WHERE C.BusinessId=$business AND C.AsOfDate=$date
             AND NOT EXISTS(SELECT 1 FROM ReconciliationReopens R WHERE R.ReconciliationId=C.Id);
-            """,r=>r.GetString(0),("$business",owner.BusinessId),("$date",through.ToString("yyyy-MM-dd")));
+            """,r=>r.GetString(0),("$business",owner.BusinessId),("$date",through.ToStorageDate()));
         return ids.Select(id=>ReconciliationQueries.List(db,owner,id).Single()).ToArray();
     }
 
@@ -50,6 +50,6 @@ internal static class BookPeriodRules
                 UNION ALL SELECT json_extract(DataJson,'$.PurchaseDate') FROM Records WHERE BusinessId=$business AND Kind='Purchase' AND json_extract(DataJson,'$.Status')='Approved'
             );
             """,("$business",owner.BusinessId)) as string;
-        return date is null?null:DateOnly.Parse(date);
+        return date is null?null:StoredDates.Parse(date);
     }
 }
