@@ -41,7 +41,7 @@ public sealed class GoogleSheetsHealthTests
         var attempt=new GoogleSheetsAttempt(1,Guid.NewGuid().ToString("N"),job.Id,job.BusinessId,store.InstanceId,permit.Policy.Revision,"Succeeded",now,now,null,"fictional-file",now);
         store.Transaction(db=>{GoogleSheetsAttemptRecords.Insert(db,attempt);return true;});Assert.Throws<InvalidDataException>(()=>new GoogleSheetsHealthService(store).Current(job.Selection));
     }
-    private static GoogleSheetsExportJob Complete(GoogleOutputSettingsTests.Fixture f,GoogleOutputPermit permit,ReadableGenerationArtifact artifact)
+    internal static GoogleSheetsExportJob Complete(GoogleOutputSettingsTests.Fixture f,GoogleOutputPermit permit,ReadableGenerationArtifact artifact)
     {
         var store=f.Ledger.Business.Store;var job=new GoogleSheetsExportJobs(store).Reserve(permit,artifact);var deliveries=new GoogleSheetsDeliveries(store);var attempt=deliveries.Begin(permit,job);var creation=new GoogleSheetsCreationCheckpoints(store);
         creation.RecordFile(job,creation.BeginCreate(permit,job,creation.Prepare(permit,job)),"fictional-file-"+job.Id);var publication=new GoogleSheetsPublicationCheckpoints(store).Prepare(permit,job,attempt);
