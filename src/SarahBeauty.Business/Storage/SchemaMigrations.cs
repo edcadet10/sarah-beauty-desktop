@@ -20,7 +20,7 @@ internal static class SchemaMigrations
             (25,SarahBeauty.Business.Banking.StatementWithdrawalSchema.Sql),(26,BookPeriodSchema.Sql),(27,SarahBeauty.Business.Bookings.CancellationSchema.Sql),
             (28,SarahBeauty.Business.Resources.TripPaymentSchema.Sql),(29,SarahBeauty.Business.Attachments.AttachmentSchema.Sql),(30,SarahBeauty.Business.Attachments.EvidenceLinkSchema.Sql),
             // Version 31 raises the minimum writer contract: older models must not discard or bypass pinned financial file evidence.
-            (31,"SELECT 1;"),(32,StoreInstanceGuard.Migration)];
+            (31,"SELECT 1;"),(32,StoreInstanceGuard.Migration),(33,SarahBeauty.Business.Ownership.OwnerInterestSchema.Sql)];
         foreach (var migration in migrations.Where(m => m.Version > fromVersion))
         {
             command.CommandText = migration.Sql;

@@ -77,7 +77,7 @@ public sealed class StoreInstanceTests
     public void VersionThirtyOneUpgradeCreatesInstanceIdentityAndPreservesThePriorSnapshot()
     {
         using var f=new BusinessFixture();string logical=f.Store.StoreId;f.Files.Execute("DELETE FROM AppMetadata WHERE Key IN ('WritableInstanceId','WritableInstanceState'); PRAGMA user_version=31;");
-        var upgraded=new BusinessStore(f.Files.DatabasePath);Assert.Equal(logical,upgraded.StoreId);Assert.Equal(32L,TestStore.Scalar(f.Files.DatabasePath,"PRAGMA user_version;"));Assert.NotEqual(f.Store.InstanceId,upgraded.InstanceId);
+        var upgraded=new BusinessStore(f.Files.DatabasePath);Assert.Equal(logical,upgraded.StoreId);Assert.Equal((long)BusinessSchema.Version,TestStore.Scalar(f.Files.DatabasePath,"PRAGMA user_version;"));Assert.NotEqual(f.Store.InstanceId,upgraded.InstanceId);
         string snapshot=Assert.Single(f.Files.Snapshots());Assert.Equal(31L,TestStore.Scalar(snapshot,"PRAGMA user_version;"));Assert.Null(TestStore.Scalar(snapshot,"SELECT Value FROM AppMetadata WHERE Key='WritableInstanceId';"));
         Assert.Throws<UnauthorizedAccessException>(()=>upgraded.BusinessName(f.Owner));var fresh=new OwnerAccess(upgraded).SignIn(f.Owner.OwnerId,BusinessFixture.Phrase);Assert.Equal("Fictional Beauty",upgraded.BusinessName(fresh));Assert.Equal(upgraded.InstanceId,new BusinessStore(f.Files.DatabasePath).InstanceId);
     }
