@@ -47,9 +47,14 @@ public sealed partial class MainWindow : Window
         if(_closeReady)return;args.Cancel=true;if(_closing)return;_closing=true;
         try
         {
-            Task backups=RootFrame.Content is MainPage page?page.StopBackupsAsync():Task.CompletedTask;
-            await Task.WhenAll(backups,((App)Application.Current).Operations.StopAsync());
+            if(RootFrame.Content is MainPage page&&!await page.ConfirmWindowCloseAsync())return;
+            try
+            {
+                Task backups=RootFrame.Content is MainPage current?current.StopBackupsAsync():Task.CompletedTask;
+                await Task.WhenAll(backups,((App)Application.Current).Operations.StopAsync());
+            }
+            finally{_closeReady=true;Close();}
         }
-        finally{_closeReady=true;Close();}
+        finally{_closing=false;}
     }
 }

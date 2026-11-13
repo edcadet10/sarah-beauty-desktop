@@ -5,7 +5,7 @@ using SarahBeauty.Business.Storage;
 
 namespace SarahBeauty_Desktop.Views;
 
-internal sealed class WorkspaceView(BusinessStore store,OwnerSession session,Action locked,Action? retired=null,Func<string>? backupRuntime=null,Func<string>? googleRuntime=null,Func<string>? sheetsRuntime=null,Action? passphraseChanged=null)
+internal sealed class WorkspaceView(BusinessStore store,OwnerSession session,Action locked,Func<Task> requestLock,Action? retired=null,Func<string>? backupRuntime=null,Func<string>? googleRuntime=null,Func<string>? sheetsRuntime=null,Action? passphraseChanged=null)
 {
     private readonly ContentControl _content=new(){HorizontalContentAlignment=HorizontalAlignment.Stretch};
     private readonly Dictionary<string,UIElement> _pages=[];
@@ -109,7 +109,7 @@ internal sealed class WorkspaceView(BusinessStore store,OwnerSession session,Act
             if(await dialog.ShowAsync()!=ContentDialogResult.Primary)return;
             _pages.Remove(_current);
             Navigate(_current);
-        }),Form.Action("Lock / switch owner",_status,()=>{locked();return Task.CompletedTask;}));
+        }),Form.Action("Lock / switch owner",_status,requestLock));
         return panel;
     }
 
