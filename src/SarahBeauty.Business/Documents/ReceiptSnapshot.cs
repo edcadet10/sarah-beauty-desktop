@@ -15,7 +15,7 @@ internal static class ReceiptSnapshot
         if(payment.Kind is not (FinancialKind.Receipt or FinancialKind.AssetDisposal or FinancialKind.ReceiptClassification) || payment.AmountCents<=0 || draft.IssueDate is null || draft.IssueDate<payment.Date)
             throw new ArgumentException("Choose an approved customer payment and a receipt date on or after payment.");
         SarahBeauty.Business.Setup.LiveEntryGuard.Require(db,owner,draft.IssueDate.Value);
-        if(db.Scalar("SELECT Id FROM Movements WHERE ReversesId=$id AND Date<=$date;",("$id",draft.PaymentId),("$date",draft.IssueDate.Value.ToString("yyyy-MM-dd"))) is not null)
+        if(db.Scalar("SELECT Id FROM Movements WHERE ReversesId=$id AND Date<=$date;",("$id",draft.PaymentId),("$date",draft.IssueDate.Value.ToStorageDate())) is not null)
             throw new ArgumentException("This payment was reversed. Use its correction history instead of issuing a receipt.");
         if(draft.ClientReference.Length>200)throw new ArgumentException("Use a short client-safe payment reference of up to 200 characters.");
         if(draft.ReviewedWatermark!=Watermark(db,owner))throw new ArgumentException("Business records changed. Save and review the receipt again.");
@@ -50,10 +50,10 @@ internal static class ReceiptSnapshot
         WHERE A.Date<=$date AND (A.PaymentId=$payment OR A.CreditId IN(SELECT Id FROM CustomerCredits WHERE PaymentId=$payment))
         GROUP BY D.Id,M.Kind HAVING SUM(CASE WHEN A.ReversesId IS NULL THEN A.Cents ELSE -A.Cents END)>0 ORDER BY D.Number,M.Kind;
         """,r=>new ClientReceiptApplication(r.GetString(0),r.GetString(1),r.GetInt64(2)),
-        ("$payment",draft.PaymentId),("$date",draft.IssueDate!.Value.ToString("yyyy-MM-dd"))).ToArray();
+        ("$payment",draft.PaymentId),("$date",draft.IssueDate!.Value.ToStorageDate())).ToArray();
 
     private static long Refunds(DbWork db,ReceiptDraft draft)=>Convert.ToInt64(db.Scalar("""
         SELECT COALESCE(SUM(M.GrossCents),0) FROM Movements M WHERE M.OriginalId=$payment AND M.Kind='Refund' AND M.Date<=$date
         AND NOT EXISTS(SELECT 1 FROM Movements R WHERE R.ReversesId=M.Id AND R.Date<=$date);
-        """,("$payment",draft.PaymentId),("$date",draft.IssueDate!.Value.ToString("yyyy-MM-dd"))));
+        """,("$payment",draft.PaymentId),("$date",draft.IssueDate!.Value.ToStorageDate())));
 }

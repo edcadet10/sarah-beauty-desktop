@@ -77,7 +77,7 @@ public sealed class CreditNoteBook(BusinessStore store)
     private static void SaveReductions(DbWork db,DocumentVersion note,DocumentVersion invoice,List<MilestoneReduction> reductions)
     {
         db.Execute("INSERT INTO CreditNoteHeaders (VersionId,InvoiceVersionId,Date) VALUES ($id,$invoice,$date);",
-            ("$id",note.Id),("$invoice",invoice.Id),("$date",note.Snapshot.IssueDate.ToString("yyyy-MM-dd")));
+            ("$id",note.Id),("$invoice",invoice.Id),("$date",note.Snapshot.IssueDate.ToStorageDate()));
         foreach(var line in note.Snapshot.Lines)
             db.Execute("""
                 INSERT INTO CreditNoteLines (NoteVersionId,ChargeId,Quantity,NetCents,TaxCents,DiscountCents)
