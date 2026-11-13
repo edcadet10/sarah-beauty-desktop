@@ -1,4 +1,4 @@
-using System.Net.Mail;
+using SarahBeauty.Business.Rules;
 
 namespace SarahBeauty.Business.Customers;
 
@@ -21,12 +21,7 @@ internal static class CustomerValidation
     private static void Validate(Customer value)
     {
         if (value.FullName.Length is 0 or > 200) throw new ArgumentException("Enter a name of 1 to 200 characters.");
-        if (value.Phone.Length > 0 && (value.Phone.Count(char.IsDigit) is < 7 or > 15
-            || value.Phone.Any(c => !char.IsDigit(c) && !" +()- .".Contains(c))))
-            throw new ArgumentException("Enter a phone number with 7 to 15 digits, or leave it blank.");
-        if (value.Email.Length > 0 && (!MailAddress.TryCreate(value.Email, out var email)
-            || email.Address != value.Email || !email.Host.Contains('.')))
-            throw new ArgumentException("Enter an email address such as name@example.com, or leave it blank.");
+        ContactRules.Validate(value.Phone,value.Email);
         if (!new[] { "Undecided", "Phone", "Text", "Email" }.Contains(value.PreferredContact))
             throw new ArgumentException("Select a supported contact preference.");
         if (!new[] { "Not asked", "Granted", "Declined", "Withdrawn" }.Contains(value.PhotoPermission))
