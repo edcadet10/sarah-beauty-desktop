@@ -45,8 +45,7 @@ public sealed class OwnerInterestSchemaTests
         ("$id",id),("$business",f.Owner.BusinessId),("$owner",owner),("$now",DateTimeOffset.UtcNow.ToString("O")),("$hash",new string('A',64))));
     private static void Downgrade(BusinessFixture f)
     {
-        if(Convert.ToInt64(TestStore.Scalar(f.Store.DatabasePath,"SELECT count(*) FROM DocumentDecisions;"))!=0)
-            throw new InvalidOperationException("An older ownership-layout fixture cannot discard retained document decisions.");
+        if(Convert.ToInt64(TestStore.Scalar(f.Store.DatabasePath,"SELECT count(*) FROM DocumentDecisions;"))!=0)throw new InvalidOperationException("An older ownership-layout fixture cannot discard retained document decisions.");
         Assert.Equal(0L,TestStore.Scalar(f.Store.DatabasePath,"SELECT count(*) FROM BusinessProfileVersions;"));
         f.Files.Execute("DROP TABLE BusinessProfileVersions; DROP TABLE DocumentDecisions; DROP INDEX DocumentDecisionDocumentScope; DROP INDEX DocumentDecisionVersionScope; DROP INDEX DocumentDecisionEvidenceScope; DROP TABLE OwnerInterestShares; DROP TABLE OwnerInterestVersions; DROP INDEX OwnerInterestOwnerScope; PRAGMA user_version=32;");
     }
