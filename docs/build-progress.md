@@ -1,5 +1,9 @@
 # Build progress
 
+## Packaged payer allocation acceptance — November 12, 2026
+
+The same native $752.91 booking supports one complete single-payer invoice, retained voiding before payment, then two split invoices totaling $340.44/$412.47. Unresolved travel and repeated source issuance reject; combined milestones are counted once. Read-only coverage, retained version/PDF hashes, seeded private-field exclusion, zero money creation, integrity, and second-owner restart checks pass. See [payer allocation evidence](native-split-payer-acceptance.md). Long/multipage documents and full release acceptance remain separate work.
+
 ## Packaged reservation acceptance — November 12, 2026
 
 The native fictional wedding rejects trial-only reservation, remains unreserved after the separate deposit allocation until explicit review, then confirms exactly once. Independent checks retain the exact quote, four recipient places, $301.45 remaining due, both PDF hashes, and unchanged money/document rows through confirmation and second-owner restart. See [reservation evidence](native-reservation-acceptance.md). This covers the AC-014 payment boundary; full release/device/Google acceptance remains open.
