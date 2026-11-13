@@ -1,6 +1,8 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
 using SarahBeauty.Business.Security;
+using Windows.System;
 
 namespace SarahBeauty_Desktop.Views;
 
@@ -18,7 +20,8 @@ internal sealed class OwnerSignInView(OwnerAccess access,OwnerPins pins,Action<O
     {
         _owners=access.Owners();_owner.ItemsSource=_owners.Select(o=>o.Name).ToList();_owner.SelectedIndex=0;
         _panel.MaxWidth=440;_panel.HorizontalAlignment=HorizontalAlignment.Left;
-        _panel.Add(Form.Title("Welcome to Sarah Beauty"),_owner,_method,_hint,_phrase,_pin,_status,Form.PrimaryAction("Sign in",_status,SignIn));
+        _panel.Add(Form.Title("Welcome to Sarah Beauty"),_owner,_method,_hint,_phrase,_pin,_status,Form.PrimaryAction("Sign in",_status,TrySignIn));
+        _phrase.KeyDown+=SubmitWithEnter;_pin.KeyDown+=SubmitWithEnter;
         _owner.SelectionChanged+=(_,_)=>{Clear();_status.Text="";};_method.SelectionChanged+=(_,_)=>ShowMethod();
         _panel.Unloaded+=(_,_)=>Clear();ShowMethod();_host.Content=_panel;return _host;
     }
@@ -30,6 +33,17 @@ internal sealed class OwnerSignInView(OwnerAccess access,OwnerPins pins,Action<O
     }
     private bool UsesPin=>_method.SelectedItem as string=="PIN";
     private void Clear()=>_phrase.Password=_pin.Password="";
+    private async void SubmitWithEnter(object sender,KeyRoutedEventArgs args)
+    {
+        if(args.Key!=VirtualKey.Enter||args.KeyStatus.WasKeyDown||!_host.IsEnabled)return;
+        args.Handled=true;await TrySignIn();
+    }
+    private async Task TrySignIn()
+    {
+        if(!_host.IsEnabled||!_host.IsLoaded)return;
+        _status.Text="";
+        try{await SignIn();}catch(Exception error){_status.Text=error.Message;}
+    }
     private async Task SignIn()
     {
         if(_owner.SelectedIndex<0)throw new ArgumentException("Select an owner.");

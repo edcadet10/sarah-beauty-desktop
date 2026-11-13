@@ -1,5 +1,9 @@
 # Build progress
 
+## Enter to unlock with the selected credential — November 13, 2026
+
+The `818ec4f` download ignores Enter in the PIN field, while Space on the button confirms the owned-window keyboard route. A 15-line correction shares the existing guarded sign-in action for button, PIN Enter and password Enter. Native repeat suppression, wrong-PIN recovery, both actual owner headers and exact saved-table checks pass. Debug is clean and self-contained publish succeeds; domain/test/recovery/tool inputs match the 1,700-case full pass. See [keyboard unlock](keyboard-unlock.md). Download verification and physical-device keyboard checks remain separate.
+
 ## Verified password/PIN download — November 13, 2026
 
 The `818ec4f` GitHub preview matches all 620 file hashes and 44 runtime-notice hashes. Outbound-blocked PIN setup/unlock/removal, both-owner PIN/password restart and status-race recovery pass; all saved business tables remain exact and owned rules are removed. The 1280/500 protected-input/action layouts pass and captures are visually inspected. Hosted and independent local full runs pass all 1,700 cases; desktop Debug/publish/native checks cover the changed UI. Focused PRs #353–355 are merged. The default download and device checklist now point to this immutable source. See [PIN evidence](owner-pin-unlock.md) and [remaining release work](offline-release-status.md).
