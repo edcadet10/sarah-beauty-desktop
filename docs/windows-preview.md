@@ -14,6 +14,8 @@ The folder includes the Windows and .NET runtimes, the recovery helper, and thir
 
 After this workflow is on the default branch, choose **Run workflow**, enter a repository branch, tag, or commit in **revision**, and start the run. The selected source must contain `tools/publish-desktop.ps1`. Building in GitHub does not run the app or create a business database.
 
+The default is the verified offline-backup UI commit `0a6185b069d622700cf5ff081458e3eb881704b0`. It is fixed to that reviewed source, rather than following a moving branch. Choose another revision explicitly when reviewing a newer build.
+
 `source-manifest.json` records the exact checked-out source commit, target, unsigned preview status, and each published file's path, byte count, and SHA-256 hash. The artifact name uses the source commit, which can differ from the workflow branch's commit. A failed publish or empty output fails the job. Packaging rejects database, recovery archive, and key-file extensions.
 
 ## Verified downloads
@@ -24,5 +26,12 @@ The workflow was exercised through a temporary push trigger before enabling manu
 | --- | --- | --- |
 | `a886ca9e1fc5fc9b18f7530a31aa16ac0dffbcc7` | [43350179467](https://github.com/edcadet10/sarah-beauty-desktop/actions/runs/43350179467) | All 574 paths, byte counts, and SHA-256 hashes match; second owner reads all six complete customer fields |
 | `8dda1a7cf5e2e4c809fb9e3ce22526c1da7379d5` | [43354309923](https://github.com/edcadet10/sarah-beauty-desktop/actions/runs/43354309923) | All 574 paths, byte counts, and SHA-256 hashes match; second owner reads deliberately edited loan terms and complete unchanged evidence |
+| `0a6185b069d622700cf5ff081458e3eb881704b0` | [43357524913](https://github.com/edcadet10/sarah-beauty-desktop/actions/runs/43357524913) | All 574 paths, byte counts, and SHA-256 hashes match; installed app retains the offline backup layout and verifies/decrypts its local archive under an outbound network block |
 
-Both jobs succeeded. Neither download contains the rejected business-data file types. These checks establish packaging and the stated native probes; they do not certify production readiness or every app workflow.
+All three jobs succeeded. None of the downloads contains the rejected business-data file types. These checks establish packaging and the stated native probes; they do not certify production readiness or every app workflow.
+
+## Observed runtime independence
+
+The downloaded `0a6185b` app records .NET 10.0.15 as an included framework, with no shared-framework requirement in its runtime configuration. Its publish profile enables both .NET and Windows App SDK self-contained deployment and disables trimming. See [Microsoft's self-contained deployment guide](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/self-contained-deploy/deploy-self-contained-apps).
+
+An actual startup module inventory resolves `coreclr.dll`, `Microsoft.WindowsAppRuntime.dll`, `Microsoft.UI.Xaml.dll`, `Microsoft.UI.Xaml.Controls.dll`, and `e_sqlite3.dll` inside the extracted app folder. Every observed loaded module is either app-local or under Windows; none comes from a developer SDK/shared-runtime directory. The probe closes normally and retains the fictional business. This directly checks the observed loads; it is not a substitute for a clean-machine or physical Surface check.
