@@ -18,7 +18,8 @@ function Confirm-PublishedRuntime {
     $taskRequired=@('SarahBeauty.Desktop.exe','SarahBeauty.Business.dll','SarahBeauty.Desktop.runtimeconfig.json',
         'SarahBeauty.Recovery.exe','coreclr.dll','Microsoft.UI.Xaml.dll',
         'ThirdParty/Recovery/age-1.3.2-license.txt','ThirdParty/DotNet/LICENSE.txt',
-        'ThirdParty/WindowsAppSDK/LICENSE.txt','ThirdParty/WindowsAppSDK/NOTICE.txt')
+        'ThirdParty/WindowsAppSDK/LICENSE.txt','ThirdParty/WindowsAppSDK/NOTICE.txt',
+        'ThirdParty/RuntimePackages/inventory.json')
     foreach($taskFile in $taskRequired){
         if(-not (Test-Path -LiteralPath (Join-Path $taskPublish $taskFile) -PathType Leaf)){
             throw ('The published app is missing a required file: '+$taskFile)
@@ -35,6 +36,7 @@ Push-Location $taskRepository
 try {
     Build-DesktopRecovery
     Publish-Desktop
+    & (Join-Path $PSScriptRoot 'copy-runtime-notices.ps1') -PublishDirectory $taskPublish
     Confirm-PublishedRuntime
     Write-Output ('Published Windows x64 app with bundled runtimes and recovery helper: '+$taskPublish)
 }finally{Pop-Location}

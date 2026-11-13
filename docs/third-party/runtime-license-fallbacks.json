@@ -1,0 +1,12 @@
+{
+  "Microsoft.Data.Sqlite/10.0.12": {"license":"MIT","files":["efcore-10.0.12-license.txt"]},
+  "Microsoft.Data.Sqlite.Core/10.0.12": {"license":"MIT","files":["efcore-10.0.12-license.txt"]},
+  "PDFsharp/6.2.4": {"license":"MIT","files":["pdfsharp-6.2.4-license.txt"]},
+  "PDFsharp-MigraDoc/6.2.4": {"license":"MIT","files":["pdfsharp-6.2.4-license.txt"]},
+  "SQLitePCLRaw.bundle_e_sqlite3/2.1.12": {"license":"Apache-2.0","files":["sqlitepclraw-2.1.12-license.txt","sqlitepclraw-2.1.12-notice.txt"]},
+  "SQLitePCLRaw.core/2.1.12": {"license":"Apache-2.0","files":["sqlitepclraw-2.1.12-license.txt","sqlitepclraw-2.1.12-notice.txt"]},
+  "SQLitePCLRaw.lib.e_sqlite3/2.1.12": {"license":"Apache-2.0","files":["sqlitepclraw-2.1.12-license.txt","sqlitepclraw-2.1.12-notice.txt"]},
+  "SQLitePCLRaw.provider.e_sqlite3/2.1.12": {"license":"Apache-2.0","files":["sqlitepclraw-2.1.12-license.txt","sqlitepclraw-2.1.12-notice.txt"]},
+  "System.Security.Cryptography.Pkcs/10.0.15": {"license":"MIT","files":["dotnet-runtime-10.0.15-license.txt"]},
+  "System.Security.Cryptography.ProtectedData/10.0.15": {"license":"MIT","files":["dotnet-runtime-10.0.15-license.txt"]}
+}

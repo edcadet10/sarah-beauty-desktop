@@ -10,6 +10,8 @@ If Go is not on `PATH`, pass its executable with `-GoCommand`. The command publi
 
 The `win-x64` profile bundles both .NET and Windows App SDK, disables trimming and keeps native runtime files separate. Windows App SDK license/notice files accompany the existing dependency notices. The script builds recovery before project evaluation so its conditional content is included.
 
+Publishing also copies [runtime package license and notice files](runtime-package-notices.md) from the resolved dependencies, checks their hashes, and records every runtime NuGet package in `ThirdParty/RuntimePackages/inventory.json`. An unreviewed package/version or missing required source fails the command.
+
 On November 12, 2026, the output contains 574 files totalling 314,056,984 bytes, including .NET 10.0.15, WinUI, the matching recovery helper and all nine image/icon assets. The SDK notices and helper match their source hashes. The directory contains no business database or encrypted recovery archive. The native published app passes customer/cancellation/PDF/reconciliation reads, refreshed balances and second-owner restart on the development computer; the previous untrimmed publish separately passed a persisted customer save. The complete parent storage run passes 1,681 cases at `39225e7`.
 
 These checks do not establish clean-computer installation, actual Surface touch/offline behavior, update/uninstall data preservation, signing, real Google delivery or second-computer recovery. This command creates a local review artifact; it does not install or publish a release.
