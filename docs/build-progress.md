@@ -1,5 +1,9 @@
 # Build progress
 
+## Offline release scope — November 12, 2026
+
+The owner reaffirmed that Sarah Beauty must work fully offline. No Google project or app connection was created; setup stopped. Requirements, recovery guidance and acceptance distinguish required local encrypted backup/recovery from optional Google copies. Real Google setup/delivery is not an offline-release gate. Actual Surface, second-device recovery, installation and release checks remain required. Optional Google features remain disabled unless separately configured and authorized. This clarification does not mark later feature-stack work merged into main.
+
 This file tracks the full application build requested on November 10, 2026. A component marked implemented still needs the release checks applicable to it. The app is not ready for live business use.
 
 Current feature head: credential publication-read race fix, schema 39, following reviewed native clean LIVE creation. The creation full run passed 1,513 and failed one credential concurrency case. A controlled failing-before probe now passes with 29 related cases, ten replacement stress rounds and Windows Debug; the corrected full regression follows. Native creation/owner restart/unknown-data checks passed. Earlier native-recovery/workspace sources pass 1,514 local/hosted cases. Complete workflow/release checks and actual business/Google/device acceptance continue. Main has merged through PR #184 and remains behind this feature stack. Historical sections below retain the results measured at their own step.
