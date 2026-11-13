@@ -4,7 +4,7 @@
 
 This is an app for my wife and me to help us manage her beauty services business. It will help us organize records for our customers, bookings, payments, and expenses. I am building it to help us keep everything in one place and work without an internet connection or any subscription. This project is also an opportunity for me to learn software development by solving a real business problem.
 
-Google Sheets and Google Drive backups will require an internet connection.
+The app must run fully offline, including owner sign-in, approvals, records, reports, PDFs, and local encrypted backup/recovery. No Google account or Cloud project is required. Optional Google Sheets/Drive features require a separate explicit setup and remain disabled until authorized.
 
 ## Feature scope
 
@@ -14,7 +14,8 @@ Google Sheets and Google Drive backups will require an internet connection.
 - Income, expenses, supplies, assets, debts, and owner transactions
 - Financial approvals, bank reconciliation, and reports
 - A business dashboard with charts and links to supporting records
-- Google Sheets exports and complete Google Drive backups
+- Complete local encrypted backups and reviewed recovery
+- Optional Google Sheets exports and Google Drive copies
 
 ## Technology
 
@@ -32,9 +33,9 @@ The latest complete hosted .NET suite through the local Sheets preview has 1,228
 
 The app now has [Google Desktop connection controls](docs/desktop-google-connection.md), including private client import, PKCE browser consent, account review, cancellation, and local disconnect. [Drive archive controls](docs/desktop-google-archives.md) add private-folder setup, explicit delivery permission, manual delivery, recurring delivery of completed local archives, and durable retry/history/health. [Readable Sheets controls](docs/desktop-sheets-controls.md) add local preview, saved report dates, separate delivery and automatic choices, verified generation delivery, retry/history/health, and a link to the last verified workbook. Real Google consent/delivery acceptance remains pending.
 
-Remaining work includes ownership percentage settings, further managed-evidence selection within entry forms, retention controls and second-device recovery acceptance, real Google acceptance, separate LIVE setup, owner-access and unsaved-work hardening, an installer, and full release/device checks. There is no published installer yet.
+Remaining work includes ownership percentage settings, further managed-evidence selection within entry forms, retention controls and second-device recovery acceptance, separate LIVE setup, owner-access and unsaved-work hardening, an installer, and full release/device checks. There is no published installer yet. Real Google acceptance applies only before enabling optional online features and does not block the offline release.
 
-The first target is a Surface Pro 7. Everyday work will happen locally on Windows. Google Sheets will hold a readable export, and private Google Drive storage will hold recovery backups. These are backups of the desktop records, not a second place to edit the books.
+The first target is a Surface Pro 7. Everyday work and complete encrypted backups operate locally on Windows. An owner can later choose optional readable Sheets exports and private Drive copies. Those online copies never become a second place to edit the books.
 
 The project targets $0 in required recurring software subscriptions. Available storage, API limits, and dependency licenses will be checked before integration; no paid plan is assumed.
 
