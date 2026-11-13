@@ -4,6 +4,10 @@
 
 The owner reaffirmed that Sarah Beauty must work fully offline. No Google project or app connection was created; setup stopped. Requirements, recovery guidance and acceptance distinguish required local encrypted backup/recovery from optional Google copies. Real Google setup/delivery is not an offline-release gate. Actual Surface, second-device recovery, installation and release checks remain required. Optional Google features remain disabled unless separately configured and authorized. This clarification does not mark later feature-stack work merged into main.
 
+## Packaged pricing acceptance — November 12, 2026
+
+A fresh native TEST fixture in the bundled current app matches all three agreed standard, odd-cent, and custom pricing plans. Independent decimal recomputation, ten-to-four active place counts with retained IDs, unchanged catalog prices, second-owner restart, integrity, and zero financial movement checks pass. See [packaged pricing evidence](native-pricing-acceptance.md). Reservation/deposit, split payer, full device, and complete release acceptance remain separate work.
+
 ## Current bundled and installed UI — November 12, 2026
 
 The current emerald UI publishes as an untrimmed self-contained Windows x64 bundle. Native bundled/installed checks retain customer details, cancellation/PDF and reopened reconciliation, exact balances, charts, and second-owner restart. All 574 installed file hashes match; install/uninstall preserve business bytes and unrelated files. See [current preview evidence](current-release-preview.md). This unsigned private preview is not released; full acceptance, clean-machine/device, signing, recovery, and real Google checks remain pending.
