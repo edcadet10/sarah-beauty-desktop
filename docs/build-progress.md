@@ -1,5 +1,9 @@
 # Build progress
 
+## Verified Money review download — November 13, 2026
+
+The GitHub preview at `6b753ca` matches all 620 file paths, sizes and hashes plus 44 runtime-notice hashes. Native exact receipt context, both-owner posted reads, prior Money Keep/Discard/reversion/filter guards and 1280/500 row layouts pass, with every saved table retained in both posting fixtures. Its complete hosted check passes 1,684 tests, recovery interoperability and Windows Debug with zero warnings/errors. The default preview now points to this immutable source. README build/schema guidance is corrected; optional Google setup remains outside the offline-release gate. See [download evidence](windows-preview.md) and [remaining release work](offline-release-status.md).
+
 ## Exact Money record and payment context — November 13, 2026
 
 The downloaded `81afd6d` app omits stored payer, method, external reference and provider from saved review. A focused display change adds those details, permanent source references and wrapping list rows. Two same-name customers and matching-date/amount receipts remain distinguishable by exact IDs, including Keep/Discard, similarity review, two actual approvals and second-owner restart. Independent records retain two $3 movements and four journal lines balanced at 600 cents per side. Native 1280/500 layouts, the prior Money draft guards and clean Debug/publish checks pass. See [Money review context](money-review-context.md). GitHub download verification and the wider release/device checks remain open.

@@ -58,7 +58,7 @@ dotnet run --project .\src\SarahBeauty.Desktop\SarahBeauty.Desktop.csproj
 
 Development runs unpackaged by default, with the project directory as its working directory so the app can find its icon. On startup it creates or opens `%LOCALAPPDATA%\SarahBeautyDesktop\Test\sarahbeauty.db`, outside the repository. An empty store offers two-owner TEST setup; existing stores require local sign-in. Use fictional records during development.
 
-The shared business project manages the SQLite schema, currently version 36. Metadata retains the permanent Store ID, TEST mode, and writable-instance identity/state. Business access rejects stale or retired instances and sessions. Opening validates identity, mode, and supported versions; archive and pre-upgrade snapshot checks also verify integrity and foreign keys. Schemas 33–34 add dated ownership and complete export coverage, schema 35 binds human sessions to current credentials, and schema 36 prepares retained document decisions. The latter's business transitions/UI remain separate work.
+The shared business project manages SQLite schema version 40. Metadata retains the permanent Store ID, TEST mode, and writable-instance identity/state. Business access rejects stale or retired instances and sessions. Opening validates identity, mode, and supported versions; archive and pre-upgrade snapshot checks also verify integrity and foreign keys. Retained document decisions, their history and desktop controls are implemented.
 
 Before upgrading an older store, initialization creates a verified database snapshot in the data folder's `Backups` directory, then applies migrations atomically. A failed snapshot or migration stops the upgrade. Reopening a current store preserves its identity without creating another upgrade snapshot.
 
@@ -68,7 +68,7 @@ Run the automated checks with:
 dotnet test .\tests\SarahBeauty.Storage.Tests\SarahBeauty.Storage.Tests.csproj -c Release
 ```
 
-The tests use temporary fictional SQLite stores and the same business assembly as the desktop app. They include historical balance limits, concurrent/stale decisions, interrupted transactions, migrations, document integrity, scheduling boundaries, complete encrypted archives, and staged restore validation through the real recovery helper. Build the helper before running the checks. Local upgrade snapshots contain only the database; full archives also retain managed files. TEST recovery activation is implemented; LIVE setup, Google backups, and second-device acceptance remain pending.
+The tests use temporary fictional SQLite stores and the same business assembly as the desktop app. They include historical balance limits, concurrent/stale decisions, interrupted transactions, migrations, document integrity, scheduling boundaries, complete encrypted archives, and staged restore validation through the real recovery helper. Build the helper before running the checks. Local upgrade snapshots contain only the database; full archives also retain managed files. TEST recovery activation is implemented; actual LIVE facts and second-device acceptance remain pending. Optional Google setup is separate from offline release acceptance.
 
 An earlier welcome-screen preview launched on the Surface Pro 7. The current business workflows, touch interaction, offline behavior, and restore on a second Windows device still need explicit device checks.
 
@@ -77,17 +77,12 @@ An earlier welcome-screen preview launched on the Surface Pro 7. The current bus
 From the repository root, run:
 
 ```powershell
-dotnet publish .\src\SarahBeauty.Desktop\SarahBeauty.Desktop.csproj `
-  -c Release -r win-x64 --self-contained true `
-  -p:WindowsAppSDKSelfContained=true `
-  -p:WindowsPackageType=None `
-  -p:PublishTrimmed=false `
-  -o .\src\SarahBeauty.Desktop\publish\surface-preview
+./tools/publish-desktop.ps1
 ```
 
-This creates an unpackaged folder containing the app, its .NET and Windows App SDK runtimes, and its image/icon assets. Copy the entire `surface-preview` folder onto the target computer, then open `SarahBeauty.Desktop.exe` from that folder. Extract a ZIP before launching if one is used for transfer.
+This builds the recovery helper, publishes the self-contained app, copies its runtime notices and checks required files. Copy the entire `.artifacts/publish/win-x64` folder onto the target computer, then open `SarahBeauty.Desktop.exe` from that folder. Extract a ZIP before launching if one is used for transfer.
 
-The project's asset copy settings include all nine image/icon files in build and publish output. The `publish/` output is ignored by Git; commit the project settings and documentation rather than the generated distribution files. This folder is a development preview; installation and update behavior remain to be designed.
+Generated distribution files are ignored by Git; commit source, settings and documentation. This is an unsigned development preview. [Installer tooling and interrupted retry checks](docs/current-offline-installer.md) are implemented; clean-machine and final distribution acceptance remain open.
 
 ## Project documentation
 

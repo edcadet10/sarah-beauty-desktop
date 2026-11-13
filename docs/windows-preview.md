@@ -10,13 +10,13 @@ The developer preview is a self-contained Windows x64 build for review. It is un
 
 The folder includes the Windows and .NET runtimes, the recovery helper, and third-party notices. No customer database, owner passphrase, Google credential, or preconfigured test business is supplied. The preview does not install or sign itself.
 
-The [verified offline preview](https://github.com/edcadet10/sarah-beauty-desktop/actions/runs/43392094460/artifacts/14021132073) expires November 27, 2026. It includes complete multiline resource fields, recovery-output cleanup, unfinished trip-review protection, and the runtime-package notice inventory, alongside the emerald icon and resource/asset edit protection. The downloaded app verifies and decrypts its local archive with outbound network access blocked. No Google account or Cloud project is required.
+The [verified offline preview](https://github.com/edcadet10/sarah-beauty-desktop/actions/runs/43408828743/artifacts/14028647609) expires November 27, 2026. It adds Money draft protection and exact record/payment context to the earlier resource, trip-review, recovery and runtime-notice improvements. The downloaded app passes exact receipt selection, second-owner reads and unfinished Money-field probes with unchanged saved tables. Blocked-network archive review passed on the earlier `6cd916a` build; backup/recovery sources are unchanged. No Google account or Cloud project is required.
 
 ## Build another revision
 
 After this workflow is on the default branch, choose **Run workflow**, enter a repository branch, tag, or commit in **revision**, and start the run. The selected source must contain `tools/publish-desktop.ps1`. Building in GitHub does not run the app or create a business database.
 
-The default is the verified offline preview commit `6cd916a4127ce17a2032e101bbcf78bf694f7c9c`. It is fixed to that reviewed source. Its application/business/test inputs match the feature source that passes all 1,684 hosted tests and a clean Windows build; its packaging correction is separately verified through the actual publish, inventory and downloaded-app checks. Choose another revision explicitly when reviewing a newer build.
+The default is the verified offline preview commit `6b753ca7ed6dc8d73ae0d1436981c3f0b7471d9c`. It is fixed to that reviewed source. Its [complete hosted check](https://github.com/edcadet10/sarah-beauty-desktop/actions/runs/43408829402) passes all 1,684 tests, recovery interoperability and Windows Debug with zero warnings/errors. Self-contained publish and downloaded-app checks also pass. Choose another revision explicitly when reviewing a newer build.
 
 `source-manifest.json` records the exact checked-out source commit, target, unsigned preview status, and each published file's path, byte count, and SHA-256 hash. The artifact name uses the source commit, which can differ from the workflow branch's commit. A failed publish or empty output fails the job. Packaging rejects database, recovery archive, and key-file extensions.
 
@@ -35,6 +35,8 @@ The workflow was exercised through a temporary push trigger before enabling manu
 
 | `d1fbb426dcf96244f647ad3cc496afc762d703f8` | [43387168315](https://github.com/edcadet10/sarah-beauty-desktop/actions/runs/43387168315) | All 575 paths, byte counts and SHA-256 hashes match; resource paragraphs/edit guards and blocked-network archive review pass |
 | `6cd916a4127ce17a2032e101bbcf78bf694f7c9c` | [43392094460](https://github.com/edcadet10/sarah-beauty-desktop/actions/runs/43392094460) | All 620 paths, byte counts and SHA-256 hashes match; 29 runtime packages/44 notices, trip draft guards, second-owner paragraphs and blocked-network archive review pass with retained saved tables |
+| `81afd6d0f0f062cc462bc563f1ef5cf385325fd5` | [43402725739](https://github.com/edcadet10/sarah-beauty-desktop/actions/runs/43402725739) | All 620 paths, sizes and hashes match; Money Keep/Discard/reversion/filter probes, second-owner posting read and rejected-approval control restoration pass |
+| `6b753ca7ed6dc8d73ae0d1436981c3f0b7471d9c` | [43408828743](https://github.com/edcadet10/sarah-beauty-desktop/actions/runs/43408828743) | All 620 paths, sizes and hashes match; 29 packages/44 notice hashes, exact matching-receipt context, second-owner reads, Money draft guards and 1280/500 row layouts pass; saved tables remain exact |
 
 All listed jobs succeeded. None of the downloads contains the rejected business-data file types. These checks establish packaging and the stated native probes; they do not certify production readiness or every app workflow. The [complete feature regression](https://github.com/edcadet10/sarah-beauty-desktop/actions/runs/43389582998) passes all 1,684 cases, recovery interoperability and the Windows Debug build with zero warnings/errors.
 
