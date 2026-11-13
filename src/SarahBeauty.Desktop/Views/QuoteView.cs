@@ -45,9 +45,7 @@ internal sealed class QuoteView(BusinessStore store,OwnerSession owner)
         var recipients=Form.Records("Quote recipient",new CustomerBook(store).Search(owner,includeArchived:true).Select(c=>(c.Id,$"{c.FullName} • {c.Id[..8]}")),draft.RecipientCustomerId);
         var date=Form.Input("Issue date",draft.IssueDate?.ToString("yyyy-MM-dd")??"");
         var expiry=Form.Input("Quote expiry (optional)",draft.DueDate?.ToString("yyyy-MM-dd")??"");
-        var terms=Form.Input("Terms for this quote version",draft.Terms);
-        terms.AcceptsReturn=true;
-        terms.MinHeight=100;
+        var terms=Form.MultilineInput("Terms for this quote version",draft.Terms);
         var status=Form.Text();
         DocumentDraft Read()=>draft with{RecipientCustomerId=recipients.SelectedId(),IssueDate=Input.Date(date.Text),DueDate=Input.Date(expiry.Text),Terms=terms.Text};
         _detail.Add(Form.Title("Quote draft"),recipients,date,expiry,terms,status,
