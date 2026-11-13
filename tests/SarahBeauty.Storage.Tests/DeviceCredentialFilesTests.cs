@@ -77,4 +77,19 @@ public sealed class DeviceCredentialFilesTests
         })));
         Assert.Empty(Directory.GetFiles(files.DirectoryPath,"*.partial"));
     }
+    [Fact]
+    public async Task AReaderWaitsForTheCredentialPublicationGateBeforeDecidingTheFileIsMissing()
+    {
+        using var f=new BusinessFixture();using var privateFiles=new TestStore();var writer=new DeviceCredentialFiles(f.Store,privateFiles.Folder);var reader=new DeviceCredentialFiles(f.Store,privateFiles.Folder);writer.Write(DeviceCredentialKind.GoogleToken,Fictional("retained"));string path=Path.Combine(writer.DirectoryPath,"GoogleToken.dat"),parked=Path.Combine(writer.DirectoryPath,"fictional-parked.dat");Task<byte[]?>? pending=null;using var started=new ManualResetEventSlim();
+        writer.FailurePoint=phase=>
+        {
+            if(phase!="Protected file flushed")return;File.Move(path,parked);
+            try
+            {
+                pending=Task.Factory.StartNew(()=>{started.Set();return reader.Read(DeviceCredentialKind.GoogleToken);},CancellationToken.None,TaskCreationOptions.LongRunning,TaskScheduler.Default);Assert.True(started.Wait(TimeSpan.FromSeconds(5)));Assert.False(pending.Wait(TimeSpan.FromMilliseconds(250)),"A credential read must wait for the current publisher before reporting absence.");
+            }
+            finally{File.Move(parked,path);}
+        };
+        byte[] replacement=Fictional("replacement after gate");writer.Write(DeviceCredentialKind.GoogleToken,replacement);Assert.NotNull(pending);Assert.Equal(replacement,await pending.WaitAsync(TimeSpan.FromSeconds(5)));Assert.Empty(Directory.GetFiles(writer.DirectoryPath,"*.partial"));
+    }
 }
