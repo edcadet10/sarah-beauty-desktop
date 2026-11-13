@@ -10,8 +10,8 @@ internal static class CustomerPositions
     internal static List<CustomerPosition> Read(DbWork db,OwnerSession owner,DateOnly through,List<DocumentVersion> versions)=>Read(db,owner.BusinessId,through,versions);
     internal static List<CustomerPosition> Read(DbWork db,string businessId,DateOnly through,List<DocumentVersion> versions)
     {
-        var dues=versions.Where(v=>v.Snapshot.Kind==DocumentKind.Invoice && v.Status!="Void")
-            .SelectMany(v=>ValueAvailability.Invoice(db,businessId,v.Id,through)).ToList();
+        var dues=versions.Where(v=>v.Snapshot.Kind==DocumentKind.Invoice && InvoiceVisibility.At(db,businessId,v,through))
+            .SelectMany(v=>ValueAvailability.InvoiceAsOf(db,businessId,v.Id,through)).ToList();
         var payments=db.Read("""
             SELECT M.Id,M.CustomerId,A.Type,A.Code FROM Movements M JOIN Accounts A ON A.Id=json_extract(M.DataJson,'$.CounterAccountId')
             WHERE M.BusinessId=$business AND M.Kind IN('Receipt','ReceiptClassification') AND M.Date<=$date;

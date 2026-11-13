@@ -18,10 +18,10 @@ public sealed class BookingBillingSources(BusinessStore store)
 
     internal static BookingBillingSnapshot Read(DbWork db,string businessId,Booking booking,DateOnly asOf,List<DocumentVersion> versions,string generatedAtUtc)
     {
-        var invoices=versions.Where(v=>v.BookingId==booking.Id && v.Snapshot.Kind==DocumentKind.Invoice && v.Snapshot.IssueDate<=asOf && v.Status!="Void").ToArray();
+        var invoices=versions.Where(v=>v.BookingId==booking.Id && v.Snapshot.Kind==DocumentKind.Invoice && InvoiceVisibility.At(db,businessId,v,asOf)).ToArray();
         var credits=Credits(db,businessId,booking.Id,asOf,versions).Where(c=>invoices.Any(i=>i.Id==c.InvoiceVersionId)).ToArray();
         var headers=Headers(db,businessId,booking.Id);
-        var dues=invoices.SelectMany(i=>ValueAvailability.Invoice(db,businessId,i.Id,asOf)).ToArray();
+        var dues=invoices.SelectMany(i=>ValueAvailability.InvoiceAsOf(db,businessId,i.Id,asOf)).ToArray();
         var rows=invoices.Select(i=>Invoice(db,i,headers[i.Id],credits.Where(c=>c.InvoiceVersionId==i.Id).ToArray(),dues,asOf)).ToArray();
         return new((string)db.Scalar("SELECT DisplayName FROM Business WHERE Id=$id;",("$id",businessId))!,
             (string)db.Scalar("SELECT Value FROM AppMetadata WHERE Key='StoreMode';")!,Convert.ToInt64(db.Scalar("SELECT Watermark FROM Business WHERE Id=$id;",("$id",businessId))),generatedAtUtc,

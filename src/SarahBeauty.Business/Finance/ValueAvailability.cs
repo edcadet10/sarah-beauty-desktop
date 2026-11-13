@@ -44,10 +44,13 @@ internal static class ValueAvailability
     }
 
     internal static List<InvoiceDue> Invoice(DbWork db,OwnerSession owner,string invoiceId,DateOnly date)=>Invoice(db,owner.BusinessId,invoiceId,date);
-    internal static List<InvoiceDue> Invoice(DbWork db,string businessId,string invoiceId,DateOnly date)
+    internal static List<InvoiceDue> Invoice(DbWork db,string businessId,string invoiceId,DateOnly date)=>Invoice(db,businessId,invoiceId,date,historical:false);
+    internal static List<InvoiceDue> InvoiceAsOf(DbWork db,string businessId,string invoiceId,DateOnly date)=>Invoice(db,businessId,invoiceId,date,historical:true);
+    private static List<InvoiceDue> Invoice(DbWork db,string businessId,string invoiceId,DateOnly date,bool historical)
     {
         var invoice=DocumentVersions.Find(db,businessId,id:invoiceId)??throw new ArgumentException("Invoice not found.");
-        if(invoice.Snapshot.Kind!=DocumentKind.Invoice || invoice.Status=="Void")throw new ArgumentException("Choose a current issued invoice.");
+        if(invoice.Snapshot.Kind!=DocumentKind.Invoice || !historical&&invoice.Status=="Void")throw new ArgumentException("Choose a current issued invoice.");
+        if(historical&&!InvoiceVisibility.At(db,businessId,invoice,date))return [];
         string payer=(string)db.Scalar("SELECT CustomerId FROM InvoiceHeaders WHERE VersionId=$id;",("$id",invoiceId))!;
         var milestones=db.Read("SELECT Id,Kind,Cents,DueDate FROM InvoiceMilestones WHERE InvoiceVersionId=$id ORDER BY CASE Kind WHEN 'Trial' THEN 0 WHEN 'Deposit' THEN 1 ELSE 2 END;",
             r=>(Id:r.GetString(0),Kind:r.GetString(1),Cents:r.GetInt64(2),Due:r.IsDBNull(3)?(DateOnly?)null:StoredDates.Parse(r.GetString(3))),("$id",invoiceId));

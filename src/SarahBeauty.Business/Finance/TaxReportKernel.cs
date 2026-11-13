@@ -19,7 +19,7 @@ internal static class TaxReportKernel
             AND (M.Kind='Refund' OR (M.Kind='Reversal' AND O.Kind='Refund'));
             """,r=>r.GetInt64(0),("$business",businessId),("$from",from.ToStorageDate()),("$through",through.ToStorageDate()));
         var recovery=TaxRecoveryActivity(db,businessId,from,through);
-        return new(documents.Where(v=>v.Snapshot.Kind==DocumentKind.Invoice && v.Status!="Void").Sum(v=>v.Snapshot.TaxCents),
+        return new(documents.Where(v=>v.Snapshot.Kind==DocumentKind.Invoice && InvoiceVisibility.At(db,businessId,v,through)).Sum(v=>v.Snapshot.TaxCents),
             documents.Where(v=>v.Snapshot.Kind==DocumentKind.CreditNote).Sum(v=>v.Snapshot.TaxCents),tax.Where(t=>t.Kind is "Receipt" or "AssetDisposal" or "ReceiptClassification").Sum(t=>t.Cents),
             refunds.Sum(),-tax.Where(t=>t.Kind=="TaxRemittance").Sum(t=>t.Cents),
             -trial.Where(r=>r.Account.Code=="2000").Sum(r=>r.Ending))

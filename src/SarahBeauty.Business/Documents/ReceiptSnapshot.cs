@@ -22,8 +22,8 @@ internal static class ReceiptSnapshot
         var available=payment.Kind!=FinancialKind.AssetDisposal?ValueAvailability.Payment(db,owner,draft.PaymentId,draft.IssueDate.Value):new ValueBalance(0,0);
         var credits=CreditValues.List(db,owner).Where(c=>c.PaymentId==draft.PaymentId).ToList();
         long creditAvailable=credits.Sum(c=>CreditValues.Available(db,owner,c.Id,draft.IssueDate.Value).Cents);
-        var invoices=DocumentVersions.List(db,owner).Where(v=>v.Snapshot.Kind==DocumentKind.Invoice && v.Status!="Void");
-        long due=invoices.SelectMany(v=>ValueAvailability.Invoice(db,owner,v.Id,draft.IssueDate.Value)).Where(d=>d.CustomerId==payment.CustomerId).Sum(d=>d.Cents);
+        var invoices=DocumentVersions.List(db,owner).Where(v=>v.Snapshot.Kind==DocumentKind.Invoice && InvoiceVisibility.At(db,owner.BusinessId,v,draft.IssueDate.Value));
+        long due=invoices.SelectMany(v=>ValueAvailability.InvoiceAsOf(db,owner.BusinessId,v.Id,draft.IssueDate.Value)).Where(d=>d.CustomerId==payment.CustomerId).Sum(d=>d.Cents);
         var received=payment.Kind==FinancialKind.ReceiptClassification?CorrectionRules.Original(db,owner,payment.OriginalId):payment;
         var detail=new ClientReceipt(received.Date!.Value,payment.PaymentMethod.Length==0?"Not recorded":payment.PaymentMethod,
             draft.ClientReference.Trim(),Applications(db,draft),Refunds(db,draft),available.Cents,creditAvailable,due);
