@@ -4,6 +4,10 @@
 
 The owner reaffirmed that Sarah Beauty must work fully offline. No Google project or app connection was created; setup stopped. Requirements, recovery guidance and acceptance distinguish required local encrypted backup/recovery from optional Google copies. Real Google setup/delivery is not an offline-release gate. Actual Surface, second-device recovery, installation and release checks remain required. Optional Google features remain disabled unless separately configured and authorized. This clarification does not mark later feature-stack work merged into main.
 
+## Owner-selected emerald theme — November 12, 2026
+
+The current design uses the owner's emerald, cream, and subtle gold choice. All 54 palette checks pass, with a lowest text contrast of 4.91:1. Light and dark sign-in/dashboard/customer renders were inspected. Native dark dashboard checks retain the expected values and actions at 1280/900/500 pixels; caption colors were corrected after the dark capture exposed black controls. The app follows Windows. See [current visual design](visual-design.md); contrast-theme, keyboard, larger-text, inherited-state, and physical-device acceptance remain pending.
+
 ## Dashboard layout — November 12, 2026
 
 The dashboard brings its primary financial summary and review links forward, retains detailed sources in expandable sections, and reflows cards for available width. Native checks verify three/two/one columns at 1280/900/500 pixels, correct detail actions, unchanged figures and issued PDFs, and a clean Debug build. See [dashboard layout checks](dashboard-layout.md). A hard-coded Google-disconnection claim was removed. Owner/device, keyboard, larger-text, and runtime theme acceptance remain pending.

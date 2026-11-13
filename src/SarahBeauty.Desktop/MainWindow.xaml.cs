@@ -19,6 +19,8 @@ public sealed partial class MainWindow : Window
 
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(AppTitleBar);
+        AppTitleBar.Loaded+=(_,_)=>UpdateCaptionButtons();
+        AppTitleBar.ActualThemeChanged+=(_,_)=>DispatcherQueue.TryEnqueue(UpdateCaptionButtons);
 
         AppWindow.SetIcon(System.IO.Path.Combine(System.AppContext.BaseDirectory,"Assets","AppIcon.ico"));
 
@@ -30,6 +32,15 @@ public sealed partial class MainWindow : Window
             if(args.WindowActivationState==WindowActivationState.PointerActivated)page.RecordOwnerActivity();else page.CheckOwnerAccess();
         };
         AppWindow.Closing+=CloseAfterBackups;
+    }
+
+    private void UpdateCaptionButtons()
+    {
+        if(AppTitleBar.Foreground is not Microsoft.UI.Xaml.Media.SolidColorBrush foreground)return;
+        AppWindow.TitleBar.ButtonForegroundColor=foreground.Color;
+        AppWindow.TitleBar.ButtonInactiveForegroundColor=foreground.Color;
+        AppWindow.TitleBar.ButtonBackgroundColor=Microsoft.UI.Colors.Transparent;
+        AppWindow.TitleBar.ButtonInactiveBackgroundColor=Microsoft.UI.Colors.Transparent;
     }
     private async void CloseAfterBackups(Microsoft.UI.Windowing.AppWindow sender,Microsoft.UI.Windowing.AppWindowClosingEventArgs args)
     {
