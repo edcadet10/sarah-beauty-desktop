@@ -18,6 +18,8 @@ All data is fictional, in isolated TEST businesses. Valid customer/loan fixtures
 
 The second owner restarts and reads the edited loan terms and complete unchanged evidence. Customer second-owner, unchanged-record/New, Keep editing, and Discard checks retain the exact stored customer and permission checkpoint. The long-document quote and invoice preparation probes each retain all 4,128 characters; independent checks retain all issued snapshots/PDF hashes, source coverage, milestones, and private-field exclusions. Integrity and foreign keys pass, with zero financial movements from these probes. Debug builds with zero warnings/errors.
 
+The self-contained Windows x64 preview publishes 574 files, 314,132,464 bytes, with bundled runtimes and the recovery helper. Second-owner native checks using that published executable read all mixed-newline customer details and the edited loan terms/evidence. Independent storage and long-document checks retain their exact checkpoints.
+
 ## Scope
 
 Existing multiline values are promoted automatically; this does not make every initially empty free-text field a multiline editor. Exact original newline preservation applies to the callers of `ReadInput`. Deliberately changed text uses the control's newline representation. Previously discarded text is not reconstructed. Physical device, Google, signing, and complete release acceptance remain open.
