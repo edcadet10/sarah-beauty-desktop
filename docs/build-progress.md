@@ -1,5 +1,9 @@
 # Build progress
 
+## Current offline installer and interrupted retries — November 12, 2026
+
+The guarded installer tooling is integrated without changing application source. Actual termination after 27/574 extracted files and during a changed-payload update is followed by successful retries with all 574 current file hashes exact. The installed app passes second-owner text and blocked-network backup review. Uninstall removes package/registration while retaining every business byte and unrelated sentinel. All owned network-block rules are removed. See [current offline installer evidence](current-offline-installer.md). Clean-machine, actual Surface and second-computer recovery remain open.
+
 ## Packaged net-zero reconciliation acceptance — November 12, 2026
 
 Native AC-037 rejects a zero-difference statement with unexplained +$25/−$25 rows, then completes only after exact matches and an evidenced actual $5 deposit in transit. Independent retained rows, snapshot SHA-256, source coverage, exact six-line balanced journal, and second-owner restart pass. Posting/matching/completion/restart are also checked with the packaged executable's outbound network blocked. See [net-zero reconciliation evidence](native-zero-reconciliation.md). Physical device and second-computer recovery remain open.
