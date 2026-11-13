@@ -15,4 +15,6 @@ The claim was that the new mark survives compilation and native startup at small
 
 This check establishes the observed executable/window rendering and native reopen on the development computer. It does not establish physical Surface rendering, a cleared Explorer icon cache, every Windows scale/theme, clean-machine installation, or production readiness.
 
+The GitHub [preview run 43368056716](https://github.com/edcadet10/sarah-beauty-desktop/actions/runs/43368056716) succeeds for immutable source `96da46d780ccac01f369a5786e07186251ea9844`. The downloaded artifact contains 575 files; every path, byte count, and SHA-256 matches its source manifest, with no rejected business-data file types. Its executable icon also matches the 32-pixel ICO frame exactly, and the second-owner multiline read passes in that downloaded app. This preview is unsigned and expires November 27, 2026.
+
 Microsoft's [icon construction guide](https://learn.microsoft.com/en-us/windows/apps/design/iconography/app-icon-construction) explains size selection and the minimum ICO sizes. Its [compiler resource options](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-options/resources) describe embedding an ICO for File Explorer. The visual palette follows the user's emerald, cream, and subtle-gold choice.
