@@ -12,6 +12,7 @@
                 <ResourceDictionary Source="ChartResources.xaml" />
                 <ResourceDictionary Source="ControlSizingResources.xaml" />
                 <ResourceDictionary Source="Views/CustomerRowResources.xaml" />
+                <ResourceDictionary Source="Views/MoneyRowResources.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

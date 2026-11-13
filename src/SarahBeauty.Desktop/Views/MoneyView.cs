@@ -35,10 +35,18 @@ internal sealed class MoneyView
 
     internal UIElement Build()
     {
+        _list.ItemTemplate=(DataTemplate)Application.Current.Resources["MoneyRowTemplate"];
+        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(_list,"Money draft list");
+        _list.ContainerContentChanging+=(_,args)=>
+        {
+            if(args.InRecycleQueue||args.Item is not MoneyListChoice choice)return;
+            args.ItemContainer.HorizontalContentAlignment=HorizontalAlignment.Stretch;
+            Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(args.ItemContainer,choice.ToString());
+        };
         var panel=Form.Panel();
         panel.Add(Form.Title("Money and approvals"),Form.Text("Drafts do not change the books. Review and approve a saved draft to post it."),
             _kind,Form.Action("Prepare movement",_status,Prepare),_status,_list,_detail);
-        _list.ItemsSource=_book.Drafts(_owner).OrderByDescending(d=>d.Status=="Draft").ToList();
+        RefreshRows();
         _list.SelectionChanged+=async(_,_)=>{try{await SelectSaved();}catch(Exception error){_status.Text=error.Message;}};
         panel.Unloaded+=(_,_)=>_discardDialog?.Hide();
         _host.Content=panel;return _host;
@@ -53,7 +61,8 @@ internal sealed class MoneyView
 
     private async Task SelectSaved()
     {
-        if(_restoringSelection||_busy||_list.SelectedItem is not FinancialDraft draft)return;
+        if(_restoringSelection||_busy||_list.SelectedItem is not MoneyListChoice choice)return;
+        var draft=choice.Value;
         if(draft.Id==_editing?.Id&&draft.Revision==_editing.Revision)return;
         SelectRow(_editing);
         if(await ConfirmDiscard())Review(draft);
@@ -62,9 +71,11 @@ internal sealed class MoneyView
     private void SelectRow(FinancialDraft? draft)
     {
         _restoringSelection=true;
-        try{_list.SelectedItem=draft is null?null:_list.Items.OfType<FinancialDraft>().FirstOrDefault(row=>row.Id==draft.Id&&row.Revision==draft.Revision);}
+        try{_list.SelectedItem=draft is null?null:_list.Items.OfType<MoneyListChoice>().FirstOrDefault(row=>row.Value.Id==draft.Id&&row.Value.Revision==draft.Revision);}
         finally{_restoringSelection=false;}
     }
+
+    private void RefreshRows()=>_list.ItemsSource=_book.Drafts(_owner).OrderByDescending(d=>d.Status=="Draft").Select(d=>new MoneyListChoice(d)).ToList();
 
     private async Task<bool> ConfirmDiscard()
     {
@@ -97,7 +108,7 @@ internal sealed class MoneyView
             await RunBusy(async()=>
             {
                 var saved=await Task.Run(()=>_book.SaveDraft(_owner,value));
-                _list.ItemsSource=_book.Drafts(_owner);Review(saved);
+                RefreshRows();Review(saved);
             });
         }));
     }
@@ -107,7 +118,7 @@ internal sealed class MoneyView
         _editing=draft;_hasChanges=()=>false;_kind.SelectedItem=draft.Kind.ToString();SelectRow(draft);
         _detail.Children.Clear();
         var status=Form.Text();
-        _detail.Add(Form.Title(draft.Status=="Posted"?"Posted movement":"Review saved draft"),Form.Text(draft.ToString()));
+        _detail.Add(Form.Title(draft.Status=="Posted"?"Posted movement":"Review saved draft"),Form.Text(draft.ToString()),MoneyReviewDetails.Build(_store,_owner,draft));
         if(draft.EvidenceId.Length>0)_detail.Add(Form.Text("Evidence / decision notes: "+draft.EvidenceId));
         if(draft.EvidenceFile is { } file)_detail.Add(FinancialEvidenceView.Build(_store,_owner,file));
         if(draft.LoanLender is { } lender)_detail.Add(Form.Text("Captured loan lender: "+lender.LenderName+" • "+(lender.OwnerLenderId.Length>0?"Owner lender: "+lender.OwnerLenderName:"No owner-lender link recorded")));
@@ -132,7 +143,7 @@ internal sealed class MoneyView
             if(draft.EconomicOwnerId.Length>0)_detail.Add(Form.Text("Owner involved: "+(new OwnerAccess(_store).Owners().FirstOrDefault(o=>o.Id==draft.EconomicOwnerId).Name??"Owner unavailable")));
             var lines=draft.Status=="Posted"?_book.Journal(_owner,draft.PostedBatchId):_book.Preview(_owner,draft);
             if(lines.Count==0)_detail.Add(Form.Text("No amounts change in the books. The approval and linked record history are retained."));
-            _detail.Add(Form.Text(string.Join("\n",lines.Select(l=>$"{_accounts.Single(a=>a.Id==l.AccountId).Name} • Debit {Money.Display(l.DebitCents)} • Credit {Money.Display(l.CreditCents)}"))));
+            _detail.Add(Form.Text(string.Join("\n",lines.Select(l=>$"{_accounts.Single(a=>a.Id==l.AccountId)} • Debit {Money.Display(l.DebitCents)} • Credit {Money.Display(l.CreditCents)}"))));
             if(draft.Status=="Draft")_detail.Add(ReceiptSimilarityView.Build(new ReceiptSimilarities(_store).Find(_owner,draft)));
         }
         catch(Exception error){status.Text=error.Message;}
@@ -147,7 +158,7 @@ internal sealed class MoneyView
                 await RunBusy(async()=>
                 {
                     await Task.Run(()=>_book.Approve(_owner,draft.Id,draft.Revision,password));
-                    _list.ItemsSource=_book.Drafts(_owner);_editing=null;_hasChanges=()=>false;SelectRow(null);
+                    RefreshRows();_editing=null;_hasChanges=()=>false;SelectRow(null);
                     _detail.Children.Clear();
                     _detail.Add(Form.Text("Posted once. The approver and time are recorded in the activity history."));
                 });

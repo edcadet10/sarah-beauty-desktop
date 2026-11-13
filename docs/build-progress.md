@@ -1,5 +1,9 @@
 # Build progress
 
+## Exact Money record and payment context — November 13, 2026
+
+The downloaded `81afd6d` app omits stored payer, method, external reference and provider from saved review. A focused display change adds those details, permanent source references and wrapping list rows. Two same-name customers and matching-date/amount receipts remain distinguishable by exact IDs, including Keep/Discard, similarity review, two actual approvals and second-owner restart. Independent records retain two $3 movements and four journal lines balanced at 600 cents per side. Native 1280/500 layouts, the prior Money draft guards and clean Debug/publish checks pass. See [Money review context](money-review-context.md). GitHub download verification and the wider release/device checks remain open.
+
 ## Money draft replacement and busy-write protection — November 13, 2026
 
 The verified `6cd916a` download reproduces unfinished Money fields being cleared by Prepare or saved-record selection. A focused UI correction adds Keep/Discard and disables the editor during captured saves/approvals. Invalid text, account/checkbox state, exact reversion, cached navigation, saved-row identity and actual held-writer probes pass. Independent rows retain the other draft and exactly one balanced $2 posting by the second owner. See [Money edit protection](money-edit-guard.md). This later change is separate from the current default preview; global lock/shutdown and physical-device acceptance remain open.

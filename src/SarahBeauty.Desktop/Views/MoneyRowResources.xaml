@@ -1,0 +1,14 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <DataTemplate x:Key="MoneyRowTemplate">
+        <StackPanel Spacing="4" Margin="0,8">
+            <TextBlock Text="{Binding DisplayName}" TextWrapping="Wrap" FontSize="16" FontWeight="SemiBold"
+                       Foreground="{ThemeResource SarahTextBrush}" />
+            <TextBlock Text="{Binding Summary}" TextWrapping="Wrap" FontSize="14"
+                       Foreground="{ThemeResource SarahMutedBrush}" />
+            <TextBlock Text="{Binding Reference}" TextWrapping="Wrap" FontSize="12"
+                       Foreground="{ThemeResource SarahMutedBrush}" />
+        </StackPanel>
+    </DataTemplate>
+</ResourceDictionary>
