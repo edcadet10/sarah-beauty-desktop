@@ -27,13 +27,12 @@ internal sealed partial class ResourceView
             CostCents=OptionalMoney(cost.Text),TaxBasisCents=OptionalMoney(basis.Text),BusinessUseFraction=string.IsNullOrWhiteSpace(use.Text)?null:Input.Decimal(use.Text),
             Funding=(string)funding.SelectedItem,SerialNumber=serial.Text,EvidenceId=evidence.Text.Trim(),Archived=archived.IsChecked==true};
         bool Changed(){try{return JsonSerializer.Serialize(Read())!=JsonSerializer.Serialize(asset);}catch{return true;}}
+        TrackDraft(asset,Read);
         _detail.Add(Form.Title("Asset"),Form.Text("Unknown cost and basis stay unknown. Saving an asset does not create a deduction, depreciation, or cash movement. Approve the actual business amount separately."),
             name,legal,acquired,service,cost,basis,use,funding,serial,evidence,archived,status,Form.Action("Save asset",status,async()=>
             {
                 var value=Read();
-                var saved=await Task.Run(()=>_book.SaveAsset(owner,value));
-                Refresh();
-                Edit(saved);
+                await SaveEntry(()=>_book.SaveAsset(owner,value),Edit);
             }));
         if(reviewed)_detail.Add(Form.Text("Use Reviewed registered asset facts below to complete or correct cost and tax basis. This preserves the original facts and approved books."));
         if(asset.Revision>0)_detail.Add(new AssetFactView(store,owner,asset,Changed,result=>
