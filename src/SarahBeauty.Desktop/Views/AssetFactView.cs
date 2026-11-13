@@ -9,12 +9,16 @@ namespace SarahBeauty_Desktop.Views;
 
 internal sealed class AssetFactView(BusinessStore store,OwnerSession owner,Asset asset,Func<bool> changed,Action<Asset> saved)
 {
+    private Func<bool> _hasChanges=()=>false;
+    internal bool HasUnsavedChanges=>_hasChanges();
+
     internal UIElement Build()
     {
         var panel=Form.Panel();var approval=Form.Panel();var status=Form.Text();
         var cost=Form.Input("Reviewed registered cost in USD (blank means unknown)",Value(asset.CostCents));
         var basis=Form.Input("Reviewed registered tax basis in USD (blank means unconfirmed)",Value(asset.TaxBasisCents));
         var reason=Form.Input("Reason for the asset fact review");var evidence=Form.Input("Asset fact review evidence");
+        _hasChanges=()=>cost.Text!=Value(asset.CostCents)||basis.Text!=Value(asset.TaxBasisCents)||reason.Text.Length>0||evidence.Text.Length>0;
         AssetFactDraft Read()=>new(asset.Id,Amount(cost.Text),Amount(basis.Text),reason.Text,evidence.Text);
         panel.Add(Form.Text($"Current registered cost: {Display(asset.CostCents)} • Current tax basis: {Display(asset.TaxBasisCents)}\n"
             +"This reviews current register facts. Approved book cost, depreciation, cash, and tax filings remain separate."),cost,basis,reason,evidence,status,

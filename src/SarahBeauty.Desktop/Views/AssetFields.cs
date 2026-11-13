@@ -23,6 +23,7 @@ internal sealed partial class ResourceView
         var evidence=Form.Input("Evidence reference",asset.EvidenceId);
         var archived=Archived(asset.Archived);
         var status=Form.Text();
+        AssetFactView? factReview=null;
         Asset Read()=>asset with{Name=name.Text,LegalOwner=legal.Text,AcquisitionDate=Input.Date(acquired.Text),InServiceDate=Input.Date(service.Text),
             CostCents=OptionalMoney(cost.Text),TaxBasisCents=OptionalMoney(basis.Text),BusinessUseFraction=string.IsNullOrWhiteSpace(use.Text)?null:Input.Decimal(use.Text),
             Funding=(string)funding.SelectedItem,SerialNumber=serial.Text,EvidenceId=evidence.Text.Trim(),Archived=archived.IsChecked==true};
@@ -31,14 +32,22 @@ internal sealed partial class ResourceView
         _detail.Add(Form.Title("Asset"),Form.Text("Unknown cost and basis stay unknown. Saving an asset does not create a deduction, depreciation, or cash movement. Approve the actual business amount separately."),
             name,legal,acquired,service,cost,basis,use,funding,serial,evidence,archived,status,Form.Action("Save asset",status,async()=>
             {
+                if(!await ConfirmReplacement(factReview?.HasUnsavedChanges==true,"Discard unsaved asset fact review?",
+                    "Save the asset fields and discard the unsaved fact review to continue."))return;
                 var value=Read();
                 await SaveEntry(()=>_book.SaveAsset(owner,value),Edit);
             }));
         if(reviewed)_detail.Add(Form.Text("Use Reviewed registered asset facts below to complete or correct cost and tax basis. This preserves the original facts and approved books."));
-        if(asset.Revision>0)_detail.Add(new AssetFactView(store,owner,asset,Changed,result=>
+        if(asset.Revision>0)
         {
-            if(_detail.Children.Contains(status) && !Changed()){Refresh();Edit(result);}
-            else _status.Text="Asset fact review recorded. Reload its register entry when ready.";
-        }).Build());
+            factReview=new AssetFactView(store,owner,asset,Changed,result=>
+            {
+                if(_detail.Children.Contains(status) && !Changed()){Refresh();Edit(result);}
+                else _status.Text="Asset fact review recorded. Reload its register entry when ready.";
+            });
+            _detail.Add(factReview.Build());
+            var mainChanges=_hasChanges;
+            _hasChanges=()=>mainChanges()||factReview.HasUnsavedChanges;
+        }
     }
 }
