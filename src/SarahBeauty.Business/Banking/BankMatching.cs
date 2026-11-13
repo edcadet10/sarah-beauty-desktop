@@ -82,7 +82,7 @@ public sealed class BankMatching(BusinessStore store)
         {
             db.Execute("INSERT INTO BankMatches (Id,GroupId,BankLineId,JournalLineId,Cents,Date,ReversesId) VALUES ($id,$group,$bank,$journal,$cents,$date,$reverse);",
                 ("$id",Guid.NewGuid().ToString()),("$group",group),("$bank",p.BankLineId),("$journal",p.JournalLineId),("$cents",p.Cents),
-                ("$date",preview.Draft.Date.ToString("yyyy-MM-dd")),("$reverse",p.ReversesId.Length==0?null:p.ReversesId));
+                ("$date",preview.Draft.Date.ToStorageDate()),("$reverse",p.ReversesId.Length==0?null:p.ReversesId));
             FailurePoint?.Invoke("bank-match");
         }
         BankMatchRules.ValidateHistory(db,owner,preview.Draft.Portions);
