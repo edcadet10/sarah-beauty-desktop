@@ -25,7 +25,8 @@ internal sealed class DeviceCredentialFiles
     }
     internal byte[]? Read(DeviceCredentialKind kind)
     {
-        RequireCurrent();string path=FilePath(kind);RejectLinks(path);if(!File.Exists(path))return null;using var gate=Gate();
+        RequireCurrent();string path=FilePath(kind);RejectLinks(path);if(!Directory.Exists(DirectoryPath))return null;using var gate=Gate();
+        RejectLinks(path);RequireCurrent();if(!File.Exists(path))return null;
         using var input=new FileStream(path,FileMode.Open,FileAccess.Read,FileShare.Read);if(input.Length is <1 or >DeviceCredentialProtection.MaximumProtectedBytes)throw new InvalidDataException("The saved device credential file exceeds its supported size.");
         byte[] encrypted=new byte[checked((int)input.Length)];input.ReadExactly(encrypted);byte[] clear=DeviceCredentialProtection.Unprotect(encrypted,Context(kind));
         try{RequireCurrent();return clear;}catch{CryptographicOperations.ZeroMemory(clear);throw;}
